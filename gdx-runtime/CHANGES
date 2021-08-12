@@ -1,2 +1,5 @@
-[0.1.0]
+[0.2.0]
+- Updated min java version to 1.7
+
+[0.1.0] ~ 12/8/2021
 - First working implementation compatible with the v0.1.0 Mundus editor
