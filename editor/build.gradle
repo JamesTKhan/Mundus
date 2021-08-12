@@ -1,7 +1,6 @@
 apply plugin: "java"
 apply plugin: "kotlin"
 
-sourceCompatibility = 1.8
 sourceSets.main.java.srcDirs = ["src/main"]
 sourceSets.main.resources.srcDirs = ["src/main"]
 sourceSets.test.java.srcDirs = ["src/test/java", "src/test/kotlin"]
@@ -24,16 +23,19 @@ task run(dependsOn: classes, type: JavaExec) {
 
 task distEditor(type: Jar) {
     baseName = 'Mundus'
-    version = '0.1.0'
+    version = '0.2.0'
 
-    from files(sourceSets.main.output.classesDir)
-    from files(sourceSets.main.output.resourcesDir)
-    from { configurations.compile.collect { zipTree(it) } }
-    from files(project.assetsDir);
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
 }
+
+distEditor.dependsOn classes
 
 eclipse {
     project {
