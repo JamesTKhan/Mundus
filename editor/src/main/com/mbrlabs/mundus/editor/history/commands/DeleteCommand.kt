@@ -20,6 +20,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.history.Command
+import com.mbrlabs.mundus.editor.ui.modules.Outline
 import com.mbrlabs.mundus.editor.utils.Log
 
 /**
@@ -28,15 +29,15 @@ import com.mbrlabs.mundus.editor.utils.Log
  * @author codenigma
  * @version 28-09-2016
  */
-class DeleteCommand(private var go: GameObject?, private var node: Tree.Node?) : Command {
+class DeleteCommand(private var go: GameObject?, private var node: Outline.OutlineNode) : Command {
 
     companion object {
         private val TAG = DeleteCommand::class.java.simpleName
     }
 
     private var parentGO: GameObject? = null
-    private var parentNode: Tree.Node? = null
-    private var tree: Tree? = null
+    private var parentNode: Tree.Node<Outline.OutlineNode, GameObject, Outline.NodeTable>? = null
+    private var tree: Tree<Outline.OutlineNode, GameObject>? = null
 
     init {
         this.parentGO = go!!.parent

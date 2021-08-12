@@ -40,6 +40,7 @@ import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker
 import com.mbrlabs.mundus.editor.utils.Fa
+import ktx.inject.Context
 import ktx.inject.register
 import java.io.File
 
@@ -52,6 +53,8 @@ import java.io.File
  * @version 08-12-2015
  */
 object Mundus {
+
+    val context = Context()
 
     val eventBus: EventBus
 
@@ -100,7 +103,7 @@ object Mundus {
         shortcutController = ShortcutController(registry, projectManager, commandHistory)
 
         // add to DI container
-        register {
+        context.register {
             bindSingleton(shapeRenderer)
             bindSingleton(modelBatch)
             bindSingleton(input)
@@ -171,7 +174,7 @@ object Mundus {
     /**
      *
      */
-    inline fun <reified Type : Any> inject(): Type = ktx.inject.inject()
+    inline fun <reified Type : Any> inject(): Type = context.inject()
 
     /**
      * Posts an event.

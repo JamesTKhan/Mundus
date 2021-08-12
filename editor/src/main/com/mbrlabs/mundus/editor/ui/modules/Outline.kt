@@ -59,7 +59,7 @@ class Outline : VisTable(),
         GameObjectSelectedEvent.GameObjectSelectedListener {
 
     private val content: VisTable
-    private val tree: VisTree
+    private val tree: VisTree<OutlineNode, GameObject>
     private val scrollPane: ScrollPane
     private val dragAndDrop: DragAndDrop = DragAndDrop()
     private val rightClickMenu: RightClickMenu
@@ -77,7 +77,7 @@ class Outline : VisTable(),
         content = VisTable()
         content.align(Align.left or Align.top)
 
-        tree = VisTree()
+        tree = VisTree<OutlineNode, GameObject>()
         tree.selection.setProgrammaticChangeEvents(false)
         scrollPane = VisScrollPane(tree)
         scrollPane.setFlickScroll(false)
@@ -129,11 +129,11 @@ class Outline : VisTable(),
             override fun drag(source: DragAndDrop.Source, payload: DragAndDrop.Payload, x: Float, y: Float, pointer: Int): Boolean {
                 // Select node under mouse if not over the selection.
                 val overNode = tree.getNodeAt(y)
-                if (overNode == null && tree.selection.isEmpty) {
+                if (overNode == null && tree.getSelection().isEmpty) {
                     return true
                 }
-                if (overNode != null && !tree.selection.contains(overNode)) {
-                    tree.selection.set(overNode)
+                if (overNode != null && !tree.getSelection().contains(overNode)) {
+                    tree.getSelection().set(overNode)
                 }
                 return true
             }
@@ -142,14 +142,13 @@ class Outline : VisTable(),
                 val context = projectManager.current()
                 val newParent = tree.getNodeAt(y)
 
-                val node: Tree.Node = (payload.`object` as? Tree.Node) ?: return
-                val draggedGo: GameObject = (node.`object` as? GameObject) ?: return
-
+                val node: Tree.Node<OutlineNode, GameObject, VisTable> = (payload.`object` as? Tree.Node<OutlineNode, GameObject, VisTable>) ?: return
+                val draggedGo: GameObject = node.value
 
                 // check if a go is dragged in one of its' children or
                 // itself
                 if (newParent != null) {
-                    val parentGo = newParent.`object` as GameObject
+                    val parentGo = newParent.value
                     if (parentGo.isChildOf(draggedGo)) {
                         return
                     }
@@ -178,7 +177,7 @@ class Outline : VisTable(),
                     context.currScene.sceneGraph.addGameObject(draggedGo)
                     draggedGo.setLocalPosition(newPos.x, newPos.y, newPos.z)
                 } else {
-                    val parentGo = newParent.`object` as GameObject
+                    val parentGo = newParent.value
                     // recalculate position
                     val parentPos = Vector3()
                     var draggedPos = Vector3()
@@ -231,7 +230,7 @@ class Outline : VisTable(),
                 val node = tree.getNodeAt(y)
                 var go: GameObject? = null
                 if (node != null) {
-                    go = node.getObject() as GameObject
+                    go = node.value
                 }
                 rightClickMenu.show(go, Gdx.input.x.toFloat(), (Gdx.graphics.height - Gdx.input.y).toFloat())
             }
@@ -244,9 +243,9 @@ class Outline : VisTable(),
         // select listener
         tree.addListener(object : ChangeListener() {
             override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
-                val selection = tree.selection
+                val selection = tree.getSelection()
                 if (selection != null && selection.size() > 0) {
-                    val go = selection.first().`object` as GameObject
+                    val go = selection.first().value
                     projectManager.current().currScene.sceneGraph.selected = go
                     toolManager.translateTool.gameObjectSelected(go)
                     Mundus.postEvent(GameObjectSelectedEvent(go))
@@ -277,9 +276,8 @@ class Outline : VisTable(),
      * *
      * @param gameObject
      */
-    private fun addGoToTree(treeParentNode: Tree.Node?, gameObject: GameObject) {
-        val leaf = Tree.Node(TreeNode(gameObject))
-        leaf.`object` = gameObject
+    private fun addGoToTree(treeParentNode: Tree.Node<OutlineNode, GameObject, NodeTable>?, gameObject: GameObject) {
+        val leaf = OutlineNode(NodeTable(gameObject), gameObject)
         if (treeParentNode == null) {
             tree.add(leaf)
         } else {
@@ -336,22 +334,29 @@ class Outline : VisTable(),
 
     override fun onGameObjectSelected(event: GameObjectSelectedEvent) {
         val node = tree.findNode(event.gameObject!!)
-        Log.trace(TAG, "Select game object [{}].", node.`object`)
+        Log.trace(TAG, "Select game object [{}].", node.value)
         tree.selection.clear()
         tree.selection.add(node)
         node.expandTo()
     }
 
     /**
-     * A node of the ui tree hierarchy.
+     * TODO
      */
-    private inner class TreeNode(go: GameObject) : VisTable() {
+    inner class NodeTable(go: GameObject) : VisTable() {
 
         val nameLabel: VisLabel = VisLabel()
 
         init {
             add(nameLabel).expand().fill()
             nameLabel.setText(go.name)
+        }
+    }
+
+    inner class OutlineNode(table: NodeTable, gameObject: GameObject) : Tree.Node<OutlineNode, GameObject, NodeTable>(table) {
+
+        init {
+            value = gameObject
         }
     }
 
@@ -492,7 +497,7 @@ class Outline : VisTable(),
 
         fun showRenameDialog() {
             val node = tree.findNode(selectedGO!!)
-            val goNode = node.actor as TreeNode
+            val goNode = node.actor as NodeTable
 
             val renameDialog = Dialogs.showInputDialog(UI, "Rename", "",
                     object : InputDialogAdapter() {

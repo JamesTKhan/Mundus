@@ -428,8 +428,8 @@ public abstract class TerrainBrush extends Tool {
     }
 
     @Override
-    public boolean scrolled(int amount) {
-        if (amount < 0) {
+    public boolean scrolled(float amountX, float amountY) {
+        if (amountX < 0) {
             scale(0.9f);
         } else {
             scale(1.1f);

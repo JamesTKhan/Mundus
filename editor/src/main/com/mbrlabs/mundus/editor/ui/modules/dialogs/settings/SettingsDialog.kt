@@ -32,7 +32,7 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
  */
 class SettingsDialog : BaseDialog("Settings") {
 
-    private val settingsTree = VisTree()
+    private val settingsTree = VisTree<SettingsNode, BaseSettingsTable>()
     private val content = VisTable()
     private val saveBtn = VisTextButton("Save")
     private var listener: ClickListener? = null
@@ -53,25 +53,25 @@ class SettingsDialog : BaseDialog("Settings") {
         root.add(content).width(width*0.7f).grow().row()
 
         // general
-        val generalSettingsNode = Tree.Node(VisLabel("General"))
-        generalSettingsNode.`object` = generalSettings
+        val generalSettingsNode = SettingsNode(VisLabel("General"))
+        generalSettingsNode.value = generalSettings
         settingsTree.add(generalSettingsNode)
 
         // export
-        val exportSettingsNode = Tree.Node(VisLabel("Export"))
-        exportSettingsNode.`object` = exportSettings
+        val exportSettingsNode = SettingsNode(VisLabel("Export"))
+        exportSettingsNode.value = exportSettings
         settingsTree.add(exportSettingsNode)
 
         // appearance
-        val appearenceNode = Tree.Node(VisLabel("Appearance"))
-        appearenceNode.`object` = appearenceSettings
+        val appearenceNode = SettingsNode(VisLabel("Appearance"))
+        appearenceNode.value = appearenceSettings
         settingsTree.add(appearenceNode)
 
         // listener
         settingsTree.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 val node = settingsTree.getNodeAt(y)
-                replaceContent(node?.`object` as? BaseSettingsTable)
+                replaceContent(node?.value)
             }
         })
 
@@ -95,6 +95,10 @@ class SettingsDialog : BaseDialog("Settings") {
             }
         }
         saveBtn.addListener(listener)
+    }
+
+    inner class SettingsNode(label: VisLabel) : Tree.Node<SettingsNode, BaseSettingsTable, VisLabel>(label) {
+
     }
 
 }
