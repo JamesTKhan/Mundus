@@ -27,6 +27,10 @@ public class ModelComponentDTO {
     private String modelID;
     private HashMap<String, String> materials; // g3db material id to material asset uuid
 
+    public ModelComponentDTO() {
+        materials = new HashMap<>();
+    }
+
     public void setMaterials(HashMap<String, String> materials) {
         this.materials = materials;
     }

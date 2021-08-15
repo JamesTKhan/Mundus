@@ -62,14 +62,14 @@ public class ModelComponentConverter {
      * Converts {@link PickableModelComponent} to {@link ModelComponentDTO}.
      */
     public static ModelComponentDTO convert(PickableModelComponent modelComponent) {
-        ModelComponentDTO descriptor = new ModelComponentDTO();
-        descriptor.setModelID(modelComponent.getModelAsset().getID());
+        ModelComponentDTO dto = new ModelComponentDTO();
+        dto.setModelID(modelComponent.getModelAsset().getID());
 
         // materials
         for (String g3dbMatID : modelComponent.getMaterials().keys()) {
-            descriptor.getMaterials().put(g3dbMatID, modelComponent.getMaterials().get(g3dbMatID).getID());
+            dto.getMaterials().put(g3dbMatID, modelComponent.getMaterials().get(g3dbMatID).getID());
         }
 
-        return descriptor;
+        return dto;
     }
 }
