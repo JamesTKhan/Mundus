@@ -24,7 +24,7 @@ import com.kotcrab.vis.ui.util.OsUtils
 import com.mbrlabs.mundus.editor.utils.Log
 
 const private val TAG = "Main"
-const val TITLE = "Mundus v0.1.0"
+const val TITLE = "Mundus v0.2.0"
 
 fun main(arg: Array<String>) {
     Log.init()
