@@ -1,9 +1,11 @@
 [0.2.0]
+- [BREAKING CHANGE] Project saves scene, model component and terrain as json instead of binary format.
 - Updated libGdX to 1.10.0
 - Updated VisUI to 1.5.0
 - Updated Kotlin to 1.5.21
 - Updated ktx to 1.10.0-b2
 - Updated min java version to 1.7
+
 
 [0.1.0] ~ 12/8/2021
 - Updated VisUI to 1.3.0

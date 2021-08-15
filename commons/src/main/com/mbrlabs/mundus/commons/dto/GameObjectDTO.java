@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2021. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,30 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.core.kryo.descriptors;
+package com.mbrlabs.mundus.commons.dto;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer.Tag;
-
 /**
- * @author Marcus Brummer
- * @version 18-01-2016
+ * @author Tibor Zsuro
+ * @version 21-08-2021
  */
-public class GameObjectDescriptor {
+public class GameObjectDTO {
 
-    @Tag(0)
     private int id;
-    @Tag(1)
     private String name;
-    @Tag(2)
     private boolean active;
 
-    @Tag(3)
     private float[] transform = new float[10];
 
-    @Tag(4)
     private List<String> tags;
-    @Tag(5)
-    private List<GameObjectDescriptor> childs;
+    private List<GameObjectDTO> childs;
 
-    @Tag(6)
-    private ModelComponentDescriptor modelComponent;
-    @Tag(7)
-    private TerrainComponentDescriptor terrainComponent;
+    private ModelComponentDTO modelComponent;
+    private TerrainComponentDTO terrainComponent;
 
-    public GameObjectDescriptor() {
+    public GameObjectDTO() {
         childs = new ArrayList<>();
         tags = new ArrayList<>();
     }
@@ -88,27 +78,27 @@ public class GameObjectDescriptor {
         this.tags = tags;
     }
 
-    public List<GameObjectDescriptor> getChilds() {
+    public List<GameObjectDTO> getChilds() {
         return childs;
     }
 
-    public void setChilds(List<GameObjectDescriptor> childs) {
+    public void setChilds(List<GameObjectDTO> childs) {
         this.childs = childs;
     }
 
-    public ModelComponentDescriptor getModelComponent() {
+    public ModelComponentDTO getModelComponent() {
         return modelComponent;
     }
 
-    public void setModelComponent(ModelComponentDescriptor modelComponent) {
+    public void setModelComponent(ModelComponentDTO modelComponent) {
         this.modelComponent = modelComponent;
     }
 
-    public TerrainComponentDescriptor getTerrainComponent() {
+    public TerrainComponentDTO getTerrainComponent() {
         return terrainComponent;
     }
 
-    public void setTerrainComponent(TerrainComponentDescriptor terrainComponent) {
+    public void setTerrainComponent(TerrainComponentDTO terrainComponent) {
         this.terrainComponent = terrainComponent;
     }
 

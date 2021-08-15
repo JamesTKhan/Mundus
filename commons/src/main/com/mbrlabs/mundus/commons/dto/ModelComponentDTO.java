@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2021. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.core.kryo.descriptors;
+package com.mbrlabs.mundus.commons.dto;
 
 import java.util.HashMap;
 
-import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer.Tag;
-
 /**
- * @author Marcus Brummer
- * @version 18-01-2016
+ * @author Tibor Zsuro
+ * @version 12-08-2021
  */
-public class ModelComponentDescriptor {
+public class ModelComponentDTO {
 
-    @Tag(0)
     private String modelID;
-    @Tag(1)
     private HashMap<String, String> materials; // g3db material id to material asset uuid
 
-    public ModelComponentDescriptor() {
-        this.materials = new HashMap<>();
+    public void setMaterials(HashMap<String, String> materials) {
+        this.materials = materials;
     }
 
     public HashMap<String, String> getMaterials() {

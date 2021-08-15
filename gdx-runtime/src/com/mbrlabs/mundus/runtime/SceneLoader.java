@@ -17,19 +17,11 @@
 package com.mbrlabs.mundus.runtime;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.Json;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
-import com.mbrlabs.mundus.commons.assets.MaterialAsset;
-import com.mbrlabs.mundus.commons.assets.ModelAsset;
-import com.mbrlabs.mundus.commons.assets.TerrainAsset;
-import com.mbrlabs.mundus.commons.importer.JsonScene;
-import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.scene3d.InvalidComponentException;
-import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
-import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
-import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
+import com.mbrlabs.mundus.commons.dto.SceneDTO;
+import com.mbrlabs.mundus.runtime.converter.SceneConverter;
 
 /**
  * @author Marcus Brummer
@@ -49,75 +41,10 @@ public class SceneLoader {
     }
 
     public Scene load(String name) {
-        final JsonReader reader = new JsonReader();
-        final JsonValue json = reader.parse(root.child(name));
+        Json json = new Json();
+        SceneDTO sceneDTO = json.fromJson(SceneDTO.class, root.child(name));
 
-        Scene scene = new Scene();
-        scene.setId(json.getInt(JsonScene.ID));
-        scene.setName(json.getString(JsonScene.NAME));
-
-        // game objects
-        for(JsonValue go : json.get(JsonScene.GAME_OBJECTS)) {
-            scene.sceneGraph.addGameObject(convertGameObject(scene.sceneGraph, go));
-        }
-
-        return scene;
+        return SceneConverter.convert(sceneDTO, mundus.getShaders(), assetManager);
     }
-
-    private GameObject convertGameObject(SceneGraph sceneGraph, JsonValue jsonGo) {
-        final GameObject go = new GameObject(sceneGraph, jsonGo.getString(JsonScene.GO_NAME, ""),
-                jsonGo.getInt(JsonScene.GO_ID));
-        go.active = jsonGo.getBoolean(JsonScene.GO_ACTIVE, true);
-        // TODO tags
-
-        // model component
-        JsonValue modelComp = jsonGo.get(JsonScene.GO_MODEL_COMPONENT);
-        if(modelComp != null) {
-            ModelComponent mc = new ModelComponent(go, mundus.getShaders().getModelShader());
-            mc.setModel((ModelAsset) assetManager.findAssetByID(modelComp.getString(JsonScene.MODEL_COMPONENT_MODEL_ID)), false);
-
-            JsonValue mats = modelComp.get(JsonScene.MODEL_COMPONENT_MATERIALS);
-            for(JsonValue mat : mats.iterator()) {
-                mc.getMaterials().put(mat.name, (MaterialAsset) assetManager.findAssetByID(mats.getString(mat.name)));
-            }
-            mc.applyMaterials();
-
-            try {
-                go.addComponent(mc);
-            } catch (InvalidComponentException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // TODO terrain component
-        JsonValue terrainComp = jsonGo.get(JsonScene.GO_TERRAIN_COMPONENT);
-        if(terrainComp != null) {
-            TerrainComponent tc = new TerrainComponent(go, mundus.getShaders().getTerrainShader());
-            tc.setTerrain((TerrainAsset)
-                    assetManager.findAssetByID(terrainComp.getString(JsonScene.TERRAIN_COMPONENT_TERRAIN_ID)));
-            try {
-                go.addComponent(tc);
-            } catch (InvalidComponentException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // transformation
-        final float[] transform = jsonGo.get(JsonScene.GO_TRANSFORM).asFloatArray();
-        go.setLocalPosition(transform[0], transform[1], transform[2]);
-        go.setLocalRotation(transform[3], transform[4], transform[5], transform[6]);
-        go.setLocalScale(transform[7], transform[8], transform[9]);
-
-        // children
-        JsonValue children = jsonGo.get(JsonScene.GO_CHILDREN);
-        if(children != null) {
-            for(JsonValue c : children) {
-                go.addChild(convertGameObject(sceneGraph, c));
-            }
-        }
-
-        return go;
-    }
-
 
 }

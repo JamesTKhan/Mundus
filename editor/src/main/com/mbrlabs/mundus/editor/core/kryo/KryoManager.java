@@ -70,16 +70,7 @@ public class KryoManager {
         kryo.register(ProjectSettingsDescriptor.class, 5);
         kryo.register(KeyboardLayout.class, 6);
         kryo.register(ProjectDescriptor.class, 7);
-        kryo.register(SceneDescriptor.class, 8);
 
-        // basic building blocks
-        kryo.register(FogDescriptor.class, 9);
-        kryo.register(GameObjectDescriptor.class, 10);
-        kryo.register(BaseLightDescriptor.class, 11);
-
-        // components
-        kryo.register(ModelComponentDescriptor.class, 12);
-        kryo.register(TerrainComponentDescriptor.class, 13);
     }
 
     /**
@@ -177,51 +168,51 @@ public class KryoManager {
         return null;
     }
 
-    /**
-     * Saves a scene.
-     *
-     * @param context
-     *            project context of the scene
-     * @param scene
-     *            scene to save
-     */
-    public void saveScene(ProjectContext context, Scene scene) {
-        try {
-            String sceneDir = FilenameUtils.concat(context.path + "/" + ProjectManager.PROJECT_SCENES_DIR,
-                    scene.getName() + "." + ProjectManager.PROJECT_SCENE_EXTENSION);
-
-            Output output = new Output(new FileOutputStream(sceneDir));
-
-            SceneDescriptor descriptor = DescriptorConverter.convert(scene);
-            kryo.writeObject(output, descriptor);
-
-            output.flush();
-            output.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Loads a scene.
-     *
-     * Does however not initialize ModelInstances, Terrains, ... ->
-     * ProjectManager
-     *
-     * @param context
-     *            project context of the scene
-     * @param sceneName
-     *            name of the scene to load
-     * @return loaded scene
-     * @throws FileNotFoundException
-     */
-    public SceneDescriptor loadScene(ProjectContext context, String sceneName) throws FileNotFoundException {
-        String sceneDir = FilenameUtils.concat(context.path + "/" + ProjectManager.PROJECT_SCENES_DIR,
-                sceneName + "." + ProjectManager.PROJECT_SCENE_EXTENSION);
-
-        Input input = new Input(new FileInputStream(sceneDir));
-        SceneDescriptor sceneDescriptor = kryo.readObjectOrNull(input, SceneDescriptor.class);
-        return sceneDescriptor;
-    }
+//    /**
+//     * Saves a scene.
+//     *
+//     * @param context
+//     *            project context of the scene
+//     * @param scene
+//     *            scene to save
+//     */
+//    public void saveScene(ProjectContext context, Scene scene) {
+//        try {
+//            String sceneDir = FilenameUtils.concat(context.path + "/" + ProjectManager.PROJECT_SCENES_DIR,
+//                    scene.getName() + "." + ProjectManager.PROJECT_SCENE_EXTENSION);
+//
+//            Output output = new Output(new FileOutputStream(sceneDir));
+//
+//            SceneDescriptor descriptor = DescriptorConverter.convert(scene);
+//            kryo.writeObject(output, descriptor);
+//
+//            output.flush();
+//            output.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    /**
+//     * Loads a scene.
+//     *
+//     * Does however not initialize ModelInstances, Terrains, ... ->
+//     * ProjectManager
+//     *
+//     * @param context
+//     *            project context of the scene
+//     * @param sceneName
+//     *            name of the scene to load
+//     * @return loaded scene
+//     * @throws FileNotFoundException
+//     */
+//    public SceneDescriptor loadScene(ProjectContext context, String sceneName) throws FileNotFoundException {
+//        String sceneDir = FilenameUtils.concat(context.path + "/" + ProjectManager.PROJECT_SCENES_DIR,
+//                sceneName + "." + ProjectManager.PROJECT_SCENE_EXTENSION);
+//
+//        Input input = new Input(new FileInputStream(sceneDir));
+//        SceneDescriptor sceneDescriptor = kryo.readObjectOrNull(input, SceneDescriptor.class);
+//        return sceneDescriptor;
+//    }
 
 }

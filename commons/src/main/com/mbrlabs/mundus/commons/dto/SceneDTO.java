@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2021. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,43 +14,30 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.core.kryo.descriptors;
+package com.mbrlabs.mundus.commons.dto;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer.Tag;
-
 /**
- * @author Marcus Brummer
- * @version 22-12-2015
+ * @author Tibor Zsuro
+ * @version 12-08-2021
  */
-public class SceneDescriptor {
+public class SceneDTO {
 
-    @Tag(0)
     private long id;
-    @Tag(1)
     private String name;
-    @Tag(2)
-    private List<GameObjectDescriptor> gameObjects;
-    @Tag(3)
-    private FogDescriptor fog;
-    @Tag(4)
-    private BaseLightDescriptor ambientLight;
-    @Tag(5)
+    private List<GameObjectDTO> gameObjects;
+    private FogDTO fog;
+    private BaseLightDTO ambientLight;
     private float camPosX;
-    @Tag(6)
     private float camPosY;
-    @Tag(7)
     private float camPosZ;
-    @Tag(8)
     private float camDirX = 0;
-    @Tag(9)
     private float camDirY = 0;
-    @Tag(10)
     private float camDirZ = 0;
 
-    public SceneDescriptor() {
+    public SceneDTO() {
         gameObjects = new ArrayList<>();
     }
 
@@ -118,27 +105,27 @@ public class SceneDescriptor {
         this.camDirZ = camDirZ;
     }
 
-    public FogDescriptor getFog() {
+    public FogDTO getFog() {
         return fog;
     }
 
-    public void setFog(FogDescriptor fog) {
+    public void setFog(FogDTO fog) {
         this.fog = fog;
     }
 
-    public BaseLightDescriptor getAmbientLight() {
+    public BaseLightDTO getAmbientLight() {
         return ambientLight;
     }
 
-    public void setAmbientLight(BaseLightDescriptor ambientLight) {
+    public void setAmbientLight(BaseLightDTO ambientLight) {
         this.ambientLight = ambientLight;
     }
 
-    public List<GameObjectDescriptor> getGameObjects() {
+    public List<GameObjectDTO> getGameObjects() {
         return gameObjects;
     }
 
-    public void setGameObjects(List<GameObjectDescriptor> gameObjects) {
+    public void setGameObjects(List<GameObjectDTO> gameObjects) {
         this.gameObjects = gameObjects;
     }
 }

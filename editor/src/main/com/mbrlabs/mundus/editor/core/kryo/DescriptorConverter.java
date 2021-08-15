@@ -17,24 +17,9 @@
 package com.mbrlabs.mundus.editor.core.kryo;
 
 import java.util.Locale;
-import java.util.Map;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.JsonWriter;
-import com.mbrlabs.mundus.commons.Scene;
-import com.mbrlabs.mundus.commons.assets.Asset;
-import com.mbrlabs.mundus.commons.assets.MaterialAsset;
-import com.mbrlabs.mundus.commons.assets.ModelAsset;
-import com.mbrlabs.mundus.commons.assets.TerrainAsset;
-import com.mbrlabs.mundus.commons.env.Fog;
-import com.mbrlabs.mundus.commons.env.lights.BaseLight;
-import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
-import com.mbrlabs.mundus.commons.scene3d.components.Component;
-import com.mbrlabs.mundus.editor.core.EditorScene;
 import com.mbrlabs.mundus.editor.core.kryo.descriptors.*;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectSettings;
@@ -42,10 +27,6 @@ import com.mbrlabs.mundus.editor.core.registry.KeyboardLayout;
 import com.mbrlabs.mundus.editor.core.registry.ProjectRef;
 import com.mbrlabs.mundus.editor.core.registry.Registry;
 import com.mbrlabs.mundus.editor.core.registry.Settings;
-import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
-import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
-import com.mbrlabs.mundus.editor.shader.Shaders;
-import com.mbrlabs.mundus.editor.utils.Log;
 
 /**
  * Converts runtime formats into Kryo compatible formats for internal project
@@ -57,9 +38,6 @@ import com.mbrlabs.mundus.editor.utils.Log;
 public class DescriptorConverter {
 
     private final static String TAG = DescriptorConverter.class.getSimpleName();
-
-    private static final Vector3 tempVec = new Vector3();
-    private static final Quaternion tempQuat = new Quaternion();
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     // Registry
@@ -127,260 +105,6 @@ public class DescriptorConverter {
         descriptor.setFbxConvBinary(settings.getFbxConvBinary());
 
         return descriptor;
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Game Object
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public static GameObject convert(GameObjectDescriptor descriptor, SceneGraph sceneGraph,
-            Map<String, Asset> assets) {
-        final GameObject go = new GameObject(sceneGraph, descriptor.getName(), descriptor.getId());
-        go.active = descriptor.isActive();
-
-        // transformation
-        final float[] transform = descriptor.getTransform();
-        go.translate(transform[0], transform[1], transform[2]);
-        go.rotate(transform[3], transform[4], transform[5], transform[6]);
-        go.scale(transform[7], transform[8], transform[9]);
-
-        // TODO TAGS !!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        // convert components
-        if (descriptor.getModelComponent() != null) {
-            go.getComponents().add(convert(descriptor.getModelComponent(), go, assets));
-        } else if (descriptor.getTerrainComponent() != null) {
-            go.getComponents().add(convert(descriptor.getTerrainComponent(), go, assets));
-        }
-
-        // recursively convert children
-        if (descriptor.getChilds() != null) {
-            for (GameObjectDescriptor c : descriptor.getChilds()) {
-                go.addChild(convert(c, sceneGraph, assets));
-            }
-        }
-
-        return go;
-    }
-
-    public static GameObjectDescriptor convert(GameObject go) {
-
-        GameObjectDescriptor descriptor = new GameObjectDescriptor();
-        descriptor.setName(go.name);
-        descriptor.setId(go.id);
-        descriptor.setActive(go.active);
-
-        // translation
-        go.getLocalPosition(tempVec);
-        final float[] transform = descriptor.getTransform();
-        transform[0] = tempVec.x;
-        transform[1] = tempVec.y;
-        transform[2] = tempVec.z;
-
-        // rotation
-        go.getLocalRotation(tempQuat);
-        transform[3] = tempQuat.x;
-        transform[4] = tempQuat.y;
-        transform[5] = tempQuat.z;
-        transform[6] = tempQuat.w;
-
-        // scaling
-        go.getLocalScale(tempVec);
-        transform[7] = tempVec.x;
-        transform[8] = tempVec.y;
-        transform[9] = tempVec.z;
-
-        // convert components
-        for (Component c : go.getComponents()) {
-            if (c.getType() == Component.Type.MODEL) {
-                descriptor.setModelComponent(convert((PickableModelComponent) c));
-            } else if (c.getType() == Component.Type.TERRAIN) {
-                descriptor.setTerrainComponent(convert((PickableTerrainComponent) c));
-            }
-        }
-
-        // TODO TAGS !!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        // recursively convert children
-        if (go.getChildren() != null) {
-            for (GameObject c : go.getChildren()) {
-                descriptor.getChilds().add(convert(c));
-            }
-        }
-
-        return descriptor;
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    // ModelComponent
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public static PickableModelComponent convert(ModelComponentDescriptor descriptor, GameObject go,
-            Map<String, Asset> assets) {
-        ModelAsset model = (ModelAsset) assets.get(descriptor.getModelID());
-
-        if (model == null) {
-            Log.fatal(TAG, "MModel for MModelInstance not found: {}", descriptor.getModelID());
-            return null;
-        }
-
-        PickableModelComponent component = new PickableModelComponent(go, Shaders.INSTANCE.getModelShader());
-        component.setModel(model, false);
-
-        for (String g3dbMatID : descriptor.getMaterials().keySet()) {
-            String uuid = descriptor.getMaterials().get(g3dbMatID);
-            MaterialAsset matAsset = (MaterialAsset) assets.get(uuid);
-            component.getMaterials().put(g3dbMatID, matAsset);
-        }
-
-        return component;
-    }
-
-    public static ModelComponentDescriptor convert(PickableModelComponent modelComponent) {
-        ModelComponentDescriptor descriptor = new ModelComponentDescriptor();
-        descriptor.setModelID(modelComponent.getModelAsset().getID());
-
-        // materials
-        for (String g3dbMatID : modelComponent.getMaterials().keys()) {
-            descriptor.getMaterials().put(g3dbMatID, modelComponent.getMaterials().get(g3dbMatID).getID());
-        }
-
-        return descriptor;
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    // TerrainComponent
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public static PickableTerrainComponent convert(TerrainComponentDescriptor descriptor, GameObject go,
-            Map<String, Asset> assets) {
-        // find terrainAsset
-        TerrainAsset terrain = (TerrainAsset) assets.get(descriptor.getTerrainID());
-
-        if (terrain == null) {
-            Log.fatal(TAG, "Terrain for TerrainInstance not found");
-            return null;
-        }
-
-        terrain.getTerrain().transform = go.getTransform();
-        PickableTerrainComponent terrainComponent = new PickableTerrainComponent(go, Shaders.INSTANCE.getTerrainShader());
-        terrainComponent.setTerrain(terrain);
-
-        return terrainComponent;
-    }
-
-    public static TerrainComponentDescriptor convert(PickableTerrainComponent terrainComponent) {
-        TerrainComponentDescriptor descriptor = new TerrainComponentDescriptor();
-        descriptor.setTerrainID(terrainComponent.getTerrain().getID());
-
-        return descriptor;
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Fog
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public static Fog convert(FogDescriptor fogDescriptor) {
-        if (fogDescriptor == null) return null;
-        Fog fog = new Fog();
-        fog.density = fogDescriptor.getDensity();
-        fog.gradient = fogDescriptor.getGradient();
-        fog.color = new Color(fogDescriptor.getColor());
-
-        return fog;
-    }
-
-    public static FogDescriptor convert(Fog fog) {
-        if (fog == null) return null;
-        FogDescriptor fogDescriptor = new FogDescriptor();
-        fogDescriptor.setDensity(fog.density);
-        fogDescriptor.setGradient(fog.gradient);
-        fogDescriptor.setColor(Color.rgba8888(fog.color));
-
-        return fogDescriptor;
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Base light
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public static BaseLight convert(BaseLightDescriptor lightDescriptor) {
-        if (lightDescriptor == null) return null;
-        BaseLight light = new BaseLight();
-        light.intensity = lightDescriptor.getIntensity();
-        light.color.set(lightDescriptor.getColor());
-
-        return light;
-    }
-
-    public static BaseLightDescriptor convert(BaseLight light) {
-        if (light == null) return null;
-        BaseLightDescriptor lightDescriptor = new BaseLightDescriptor();
-        lightDescriptor.setIntensity(light.intensity);
-        lightDescriptor.setColor(Color.rgba8888(light.color));
-
-        return lightDescriptor;
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Scene
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public static SceneDescriptor convert(Scene scene) {
-        SceneDescriptor descriptor = new SceneDescriptor();
-
-        // meta
-        descriptor.setName(scene.getName());
-        descriptor.setId(scene.getId());
-
-        // scene graph
-        for (GameObject go : scene.sceneGraph.getGameObjects()) {
-            descriptor.getGameObjects().add(convert(go));
-        }
-
-        // environment stuff
-        descriptor.setFog(convert(scene.environment.getFog()));
-        descriptor.setAmbientLight(convert(scene.environment.getAmbientLight()));
-
-        // camera
-        descriptor.setCamPosX(scene.cam.position.x);
-        descriptor.setCamPosY(scene.cam.position.y);
-        descriptor.setCamPosZ(scene.cam.position.z);
-        descriptor.setCamDirX(scene.cam.direction.x);
-        descriptor.setCamDirY(scene.cam.direction.y);
-        descriptor.setCamDirZ(scene.cam.direction.z);
-        return descriptor;
-    }
-
-    public static EditorScene convert(SceneDescriptor sceneDescriptor, Map<String, Asset> assets) {
-        EditorScene scene = new EditorScene();
-
-        // meta
-        scene.setId(sceneDescriptor.getId());
-        scene.setName(sceneDescriptor.getName());
-
-        // environment stuff
-        scene.environment.setFog(convert(sceneDescriptor.getFog()));
-        BaseLight ambientLight = convert(sceneDescriptor.getAmbientLight());
-        if (ambientLight != null) {
-            scene.environment.setAmbientLight(ambientLight);
-        }
-
-        // scene graph
-        scene.sceneGraph = new SceneGraph(scene);
-        for (GameObjectDescriptor descriptor : sceneDescriptor.getGameObjects()) {
-            scene.sceneGraph.addGameObject(convert(descriptor, scene.sceneGraph, assets));
-        }
-
-        // camera
-        scene.cam.position.x = sceneDescriptor.getCamPosX();
-        scene.cam.position.y = sceneDescriptor.getCamPosY();
-        scene.cam.position.z = sceneDescriptor.getCamPosZ();
-        scene.cam.direction.set(sceneDescriptor.getCamDirX(), sceneDescriptor.getCamDirY(),
-                sceneDescriptor.getCamDirZ());
-        scene.cam.update();
-
-        return scene;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////

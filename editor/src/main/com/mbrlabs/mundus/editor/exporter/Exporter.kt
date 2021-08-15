@@ -22,15 +22,16 @@ import com.badlogic.gdx.utils.JsonWriter
 import com.kotcrab.vis.ui.util.async.AsyncTask
 import com.kotcrab.vis.ui.util.async.AsyncTaskListener
 import com.mbrlabs.mundus.commons.assets.Asset
+import com.mbrlabs.mundus.commons.dto.GameObjectDTO
+import com.mbrlabs.mundus.commons.dto.ModelComponentDTO
+import com.mbrlabs.mundus.commons.dto.SceneDTO
+import com.mbrlabs.mundus.commons.dto.TerrainComponentDTO
 import com.mbrlabs.mundus.commons.importer.JsonScene
-import com.mbrlabs.mundus.editor.core.kryo.DescriptorConverter
+import com.mbrlabs.mundus.editor.core.converter.SceneConverter
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
-import com.mbrlabs.mundus.editor.core.kryo.descriptors.GameObjectDescriptor
-import com.mbrlabs.mundus.editor.core.kryo.descriptors.ModelComponentDescriptor
-import com.mbrlabs.mundus.editor.core.kryo.descriptors.SceneDescriptor
-import com.mbrlabs.mundus.editor.core.kryo.descriptors.TerrainComponentDescriptor
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.core.scene.SceneManager
 import org.apache.commons.io.FilenameUtils
 import java.io.File
 
@@ -48,7 +49,7 @@ class Exporter(val kryo: KryoManager, val project: ProjectContext) {
         // convert current project on the main thread to avoid nested array iterators
         // because it would iterate over the scene graph arrays while rendering (on the main thread)
         // and while converting (on the other thread)
-        val currentSceneDescriptor = DescriptorConverter.convert(project.currScene)
+        val currentSceneDTO = SceneConverter.convert(project.currScene)
         val jsonType = project.settings.export.jsonType
 
         val task = object: AsyncTask("export_${project.name}") {
@@ -81,11 +82,11 @@ class Exporter(val kryo: KryoManager, val project: ProjectContext) {
                             sceneName + "." + ProjectManager.PROJECT_SCENE_EXTENSION))
 
                     // load from disk or convert current scene
-                    var scene: SceneDescriptor?
+                    var scene: SceneDTO
                     if(project.currScene.name == sceneName) {
-                        scene = currentSceneDescriptor
+                        scene = currentSceneDTO
                     } else {
-                        scene = kryo.loadScene(project, sceneName)
+                        scene = SceneManager.loadScene(project, sceneName)
                     }
 
                     // convert & export
@@ -117,7 +118,7 @@ class Exporter(val kryo: KryoManager, val project: ProjectContext) {
         asset.meta.file.copyTo(folder)
     }
 
-    private fun exportScene(scene: SceneDescriptor, file: FileHandle, jsonType: JsonWriter.OutputType) {
+    private fun exportScene(scene: SceneDTO, file: FileHandle, jsonType: JsonWriter.OutputType) {
         val json = Json()
         json.setOutputType(jsonType)
         json.setWriter(file.writer(false))
@@ -142,7 +143,7 @@ class Exporter(val kryo: KryoManager, val project: ProjectContext) {
         json.writer.flush()
     }
 
-    private fun convertGameObject(go: GameObjectDescriptor, json: Json) {
+    private fun convertGameObject(go: GameObjectDTO, json: Json) {
         // convert game object
         json.writeObjectStart()
         json.writeValue(JsonScene.GO_ID, go.id)
@@ -165,7 +166,7 @@ class Exporter(val kryo: KryoManager, val project: ProjectContext) {
         json.writeObjectEnd()
     }
 
-    private fun convertModelComponent(comp: ModelComponentDescriptor, json: Json) {
+    private fun convertModelComponent(comp: ModelComponentDTO, json: Json) {
         json.writeObjectStart(JsonScene.GO_MODEL_COMPONENT)
         json.writeValue(JsonScene.MODEL_COMPONENT_MODEL_ID, comp.modelID)
 
@@ -179,7 +180,7 @@ class Exporter(val kryo: KryoManager, val project: ProjectContext) {
         json.writeObjectEnd()
     }
 
-    private fun convertTerrainComponent(comp: TerrainComponentDescriptor, json: Json) {
+    private fun convertTerrainComponent(comp: TerrainComponentDTO, json: Json) {
         json.writeObjectStart(JsonScene.GO_TERRAIN_COMPONENT)
         json.writeValue(JsonScene.TERRAIN_COMPONENT_TERRAIN_ID, comp.terrainID)
         json.writeObjectEnd()

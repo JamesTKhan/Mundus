@@ -31,6 +31,7 @@ import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.assets.AssetNotFoundException;
 import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
+import com.mbrlabs.mundus.commons.dto.SceneDTO;
 import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
@@ -41,11 +42,11 @@ import com.mbrlabs.mundus.editor.Main;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
 import com.mbrlabs.mundus.editor.core.EditorScene;
-import com.mbrlabs.mundus.editor.core.kryo.DescriptorConverter;
+import com.mbrlabs.mundus.editor.core.converter.SceneConverter;
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager;
-import com.mbrlabs.mundus.editor.core.kryo.descriptors.SceneDescriptor;
 import com.mbrlabs.mundus.editor.core.registry.ProjectRef;
 import com.mbrlabs.mundus.editor.core.registry.Registry;
+import com.mbrlabs.mundus.editor.core.scene.SceneManager;
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent;
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableComponent;
@@ -131,7 +132,7 @@ public class ProjectManager implements Disposable {
         scene.skybox = SkyboxBuilder.createDefaultSkybox();
         scene.environment.setFog(new Fog());
         scene.setId(newProjectContext.obtainID());
-        kryoManager.saveScene(newProjectContext, scene);
+        SceneManager.saveScene(newProjectContext, scene);
         scene.sceneGraph.batch = modelBatch;
 
         // save .pro file
@@ -238,7 +239,7 @@ public class ProjectManager implements Disposable {
         // save current in .pro file
         kryoManager.saveProjectContext(projectContext);
         // save scene in .mundus file
-        kryoManager.saveScene(projectContext, projectContext.currScene);
+        SceneManager.saveScene(projectContext, projectContext.currScene);
 
         Log.debug(TAG, "Saving currentProject {}", projectContext.name + " [" + projectContext.path + "]");
     }
@@ -310,7 +311,7 @@ public class ProjectManager implements Disposable {
         scene.setName(name);
         scene.skybox = SkyboxBuilder.createDefaultSkybox();
         project.scenes.add(scene.getName());
-        kryoManager.saveScene(project, scene);
+        SceneManager.saveScene(project, scene);
 
         return scene;
     }
@@ -329,9 +330,9 @@ public class ProjectManager implements Disposable {
      *             if scene file not found
      */
     public EditorScene loadScene(ProjectContext context, String sceneName) throws FileNotFoundException {
-        SceneDescriptor descriptor = kryoManager.loadScene(context, sceneName);
+        SceneDTO sceneDTO = SceneManager.loadScene(context, sceneName);
 
-        EditorScene scene = DescriptorConverter.convert(descriptor, context.assetManager.getAssetMap());
+        EditorScene scene = SceneConverter.convert(sceneDTO, context.assetManager.getAssetMap());
         scene.skybox = SkyboxBuilder.createDefaultSkybox();
 
         SceneGraph sceneGraph = scene.sceneGraph;

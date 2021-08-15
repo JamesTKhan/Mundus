@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2021. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.core.kryo.descriptors;
-
-import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer.Tag;
+package com.mbrlabs.mundus.commons.dto;
 
 /**
- * @author Marcus Brummer
- * @version 18-01-2016
+ * @author Tibor Zsuro
+ * @version 12-08-2021
  */
-public class TerrainComponentDescriptor {
+public class TerrainComponentDTO {
 
-    @Tag(0)
     private String terrainID;
 
     public String getTerrainID() {

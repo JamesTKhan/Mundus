@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2021. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,37 +14,23 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.core.kryo.descriptors;
-
-import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer.Tag;
+package com.mbrlabs.mundus.commons.dto;
 
 /**
- * @author Marcus Brummer
- * @version 06-01-2016
+ * @author Tibor Zsuro
+ * @version 12-08-2021
  */
-public class FogDescriptor {
+public class BaseLightDTO {
 
-    @Tag(0)
-    private float density;
-    @Tag(1)
-    private float gradient;
-    @Tag(2)
+    private float intensity;
     private int color;
 
-    public float getDensity() {
-        return density;
+    public float getIntensity() {
+        return intensity;
     }
 
-    public void setDensity(float density) {
-        this.density = density;
-    }
-
-    public float getGradient() {
-        return gradient;
-    }
-
-    public void setGradient(float gradient) {
-        this.gradient = gradient;
+    public void setIntensity(float intensity) {
+        this.intensity = intensity;
     }
 
     public int getColor() {
