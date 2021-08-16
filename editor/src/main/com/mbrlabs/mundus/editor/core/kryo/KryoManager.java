@@ -22,15 +22,12 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.apache.commons.io.FilenameUtils;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer;
-import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.editor.core.kryo.descriptors.*;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
@@ -56,7 +53,6 @@ public class KryoManager {
         // setup kryo
         kryo = new Kryo();
         kryo.setDefaultSerializer(TaggedFieldSerializer.class);
-        kryo.getTaggedFieldSerializerConfig().setOptimizedGenerics(true);
 
         // !!!!! DO NOT CHANGE THIS, OTHERWISE ALREADY SERIALIZED OBJECTS WILL
         // BE UNREADABLE !!!!
@@ -64,12 +60,13 @@ public class KryoManager {
         // core stuff
         kryo.register(ArrayList.class, 0);
         kryo.register(Date.class, 1);
-        kryo.register(RegistryDescriptor.class, 2);
-        kryo.register(ProjectRefDescriptor.class, 3);
-        kryo.register(SettingsDescriptor.class, 4);
-        kryo.register(ProjectSettingsDescriptor.class, 5);
-        kryo.register(KeyboardLayout.class, 6);
-        kryo.register(ProjectDescriptor.class, 7);
+        kryo.register(String.class, 2);
+        kryo.register(RegistryDescriptor.class, 9);
+        kryo.register(ProjectRefDescriptor.class, 10);
+        kryo.register(SettingsDescriptor.class, 11);
+        kryo.register(ProjectSettingsDescriptor.class, 12);
+        kryo.register(KeyboardLayout.class, 13);
+        kryo.register(ProjectDescriptor.class, 14);
 
     }
 
