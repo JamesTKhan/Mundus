@@ -26,6 +26,8 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight
+import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader
+import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -43,6 +45,7 @@ import com.mbrlabs.mundus.commons.assets.meta.MetaModel
 import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
+import com.mbrlabs.mundus.editor.assets.FileHandleWithDependencies
 import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -51,10 +54,8 @@ import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.editor.ui.widgets.FileChooserField
 import com.mbrlabs.mundus.editor.ui.widgets.RenderWidget
-import com.mbrlabs.mundus.editor.utils.Log
-import com.mbrlabs.mundus.editor.utils.isCollada
-import com.mbrlabs.mundus.editor.utils.isFBX
-import com.mbrlabs.mundus.editor.utils.isWavefont
+import com.mbrlabs.mundus.editor.utils.*
+import net.mgsx.gltf.loaders.gltf.GLTFLoader
 import java.io.IOException
 
 /**
@@ -99,9 +100,9 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
         private var previewModel: Model? = null
         private var previewInstance: ModelInstance? = null
 
-        private var importedModel: ModelImporter.ImportedModel? = null
+        private var importedModel: FileHandleWithDependencies? = null
 
-        private val modelBatch: ModelBatch = ModelBatch()
+        private var modelBatch: ModelBatch? = null
         private val cam: PerspectiveCamera = PerspectiveCamera()
         private val env: Environment
 
@@ -133,9 +134,9 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
                 if (previewInstance != null) {
                     Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT)
                     previewInstance!!.transform.rotate(0f, 0f, 1f, -1f)
-                    modelBatch.begin(camera)
-                    modelBatch.render(previewInstance!!, env)
-                    modelBatch.end()
+                    modelBatch?.begin(camera)
+                    modelBatch?.render(previewInstance!!, env)
+                    modelBatch?.end()
                 }
             }
 
@@ -224,7 +225,14 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             // load and show preview
             if (importedModel != null) {
                 try {
-                    previewModel = MG3dModelLoader(UBJsonReader()).loadModel(importedModel!!.g3dbFile)
+                    if (isG3DB(importedModel!!.file)) {
+                        previewModel = MG3dModelLoader(UBJsonReader()).loadModel(importedModel!!.file)
+                    } else if (isGLTF(importedModel!!.file)) {
+                        previewModel = GLTFLoader().load(importedModel!!.file).scene.model
+                    } else {
+                        throw GdxRuntimeException("Unsupported 3D format")
+                    }
+
                     previewInstance = ModelInstance(previewModel!!)
                     showPreview()
                 } catch (e: GdxRuntimeException) {
@@ -236,6 +244,10 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
 
         private fun showPreview() {
             previewInstance = ModelInstance(previewModel!!)
+
+            val config = DefaultShader.Config()
+            config.numBones = 60 // TODO get max bones from model
+            modelBatch = ModelBatch(DefaultShaderProvider(config))
 
             // scale to 2 open gl units
             val boundingBox = previewInstance!!.calculateBoundingBox(BoundingBox())
@@ -253,6 +265,7 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
                 previewModel = null
                 previewInstance = null
             }
+            modelBatch?.dispose()
             modelInput.clear()
         }
     }

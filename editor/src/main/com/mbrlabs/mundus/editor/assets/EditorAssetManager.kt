@@ -121,8 +121,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      * @throws IOException
      */
     @Throws(IOException::class, AssetAlreadyExistsException::class)
-    fun createModelAsset(model: ModelImporter.ImportedModel): ModelAsset {
-        val modelFilename = model.g3dbFile!!.name()
+    fun createModelAsset(model: FileHandleWithDependencies): ModelAsset {
+        val modelFilename = model.name()
         val metaFilename = modelFilename + ".meta"
 
         // create meta file
@@ -130,10 +130,10 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val meta = createNewMetaFile(FileHandle(metaPath), AssetType.MODEL)
 
         // copy model file
-        val assetFile = FileHandle(FilenameUtils.concat(rootFolder.path(), modelFilename))
-        model.g3dbFile!!.copyTo(assetFile)
+        model.copyTo(FileHandle(rootFolder.path()))
 
         // load & return asset
+        val assetFile = FileHandle(FilenameUtils.concat(rootFolder.path(), modelFilename))
         val asset = ModelAsset(meta, assetFile)
         asset.load()
 

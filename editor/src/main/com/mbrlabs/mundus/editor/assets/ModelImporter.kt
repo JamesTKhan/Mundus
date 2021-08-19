@@ -21,10 +21,7 @@ import com.badlogic.gdx.files.FileHandle
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.SettingsChangedEvent
-import com.mbrlabs.mundus.editor.utils.isCollada
-import com.mbrlabs.mundus.editor.utils.isFBX
-import com.mbrlabs.mundus.editor.utils.isG3DB
-import com.mbrlabs.mundus.editor.utils.isWavefont
+import com.mbrlabs.mundus.editor.utils.*
 import org.apache.commons.io.FilenameUtils
 
 /**
@@ -32,12 +29,6 @@ import org.apache.commons.io.FilenameUtils
  * @version 12-12-2015
  */
 class ModelImporter(private val registry: Registry) : SettingsChangedEvent.SettingsChangedListener {
-
-    class ImportedModel {
-        var name: String? = null
-        var g3dbFile: FileHandle? = null
-        var convResult: FbxConv.FbxConvResult? = null
-    }
 
     private val fbxConv: FbxConv
 
@@ -50,16 +41,18 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
         fbxConv.setFbxBinary(event.settings.fbxConvBinary)
     }
 
-    fun importToTempFolder(modelFile: FileHandle?): ImportedModel? {
+    fun importToTempFolder(modelFile: FileHandle?): FileHandleWithDependencies? {
         if (modelFile == null || !modelFile.exists()) {
             return null
         }
 
-        val imported = ImportedModel()
+        val modelFileWithDependencies = FileHandleWithDependencies(modelFile)
+
+        var retFile : FileHandleWithDependencies? = null
         val tempModelCache = registry.createTempFolder()
 
         // copy model file
-        modelFile.copyTo(tempModelCache)
+        modelFileWithDependencies.copyTo(tempModelCache)
         val rawModelFile = Gdx.files.absolute(FilenameUtils.concat(tempModelCache.path(), modelFile.name()))
         if (!rawModelFile.exists()) {
             return null
@@ -71,21 +64,17 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
 
         if (convert) {
             fbxConv.clear()
-            imported.convResult = fbxConv.input(rawModelFile.path()).output(tempModelCache.file().absolutePath).flipTexture(true).execute()
+            val convResult = fbxConv.input(rawModelFile.path()).output(tempModelCache.file().absolutePath).flipTexture(true).execute()
 
-            if (imported.convResult!!.isSuccess) {
-                imported.g3dbFile = Gdx.files.absolute(imported.convResult!!.outputFile)
+            if (convResult.isSuccess) {
+                retFile = FileHandleWithDependencies(Gdx.files.absolute(convResult.outputFile))
             }
-        } else if (isG3DB(rawModelFile)) {
-            imported.g3dbFile = rawModelFile
+        } else if (isG3DB(rawModelFile) || isGLTF(rawModelFile)) {
+            retFile = FileHandleWithDependencies(rawModelFile)
         }
 
         // check if converted file exists
-        if (imported.g3dbFile == null || !imported.g3dbFile!!.exists()) {
-            return null
-        }
-
-        return imported
+        return if (retFile != null && retFile.exists()) retFile!! else null;
     }
 
 }

@@ -18,10 +18,13 @@ package com.mbrlabs.mundus.commons.assets;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel;
 import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader;
+import com.mbrlabs.mundus.commons.utils.FileFormatUtils;
+import net.mgsx.gltf.loaders.gltf.GLTFLoader;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +41,7 @@ public class ModelAsset extends Asset {
 
     public ModelAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
-        defaultMaterials = new HashMap<String, MaterialAsset>();
+        defaultMaterials = new HashMap<>();
     }
 
     public Model getModel() {
@@ -52,8 +55,15 @@ public class ModelAsset extends Asset {
     @Override
     public void load() {
         // TODO don't create a new loader each time
-        MG3dModelLoader loader = new MG3dModelLoader(new UBJsonReader());
-        model = loader.loadModel(file);
+        if (FileFormatUtils.isG3DB(file)) {
+            MG3dModelLoader loader = new MG3dModelLoader(new UBJsonReader());
+            model = loader.loadModel(file);
+        } else if (FileFormatUtils.isGLTF(file)) {
+            GLTFLoader loader = new GLTFLoader();
+            model = loader.load(file).scene.model;
+        } else {
+            throw new GdxRuntimeException("Unsupported 3D model");
+        }
     }
 
     @Override

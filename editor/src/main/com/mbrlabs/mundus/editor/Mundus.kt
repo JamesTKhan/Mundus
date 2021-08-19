@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.utils.Json
 import com.kotcrab.vis.ui.VisUI
 import com.mbrlabs.mundus.commons.assets.meta.MetaLoader
 import com.mbrlabs.mundus.editor.assets.MetaSaver
@@ -73,6 +74,7 @@ object Mundus {
     private val commandHistory: CommandHistory
     private val goPicker: GameObjectPicker
     private val handlePicker: ToolHandlePicker
+    private val json: Json
 
     init {
         // create home dir
@@ -101,6 +103,7 @@ object Mundus {
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, modelBatch, shapeRenderer,
                 commandHistory)
         shortcutController = ShortcutController(registry, projectManager, commandHistory)
+        json = Json()
 
         // add to DI container
         context.register {
@@ -117,6 +120,7 @@ object Mundus {
             bindSingleton(toolManager)
             bindSingleton(shortcutController)
             bindSingleton(freeCamController)
+            bindSingleton(json)
 
             bindSingleton(MetaSaver())
             bindSingleton(MetaLoader())
