@@ -142,12 +142,14 @@ public class AssetManager implements Disposable {
      *
      * @param listener
      *            informs about current loading progress
+     * @param isRuntime
+     *            is this called by the runtime or editor (runtime requires different file logic)
      * @throws AssetNotFoundException
      *             if a meta file points to a non existing asset
      * @throws MetaFileParseException
      *             if a meta file can't be parsed
      */
-    public void loadAssets(AssetLoadingListener listener) throws AssetNotFoundException, MetaFileParseException {
+    public void loadAssets(AssetLoadingListener listener, boolean isRuntime) throws AssetNotFoundException, MetaFileParseException {
         // create meta file filter
         FileFilter metaFileFilter = new FileFilter() {
             @Override
@@ -160,7 +162,7 @@ public class AssetManager implements Disposable {
 
         FileHandle[] metaFiles;
 
-        if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+        if (isRuntime && Gdx.app.getType() == Application.ApplicationType.Desktop) {
             // Desktop applications cannot use .list() for internal jar files.
             // Application will need to provide an assets.txt file listing all Mundus assets
             // in the Mundus root directory.

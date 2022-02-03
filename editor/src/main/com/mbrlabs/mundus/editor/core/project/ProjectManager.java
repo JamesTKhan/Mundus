@@ -209,7 +209,7 @@ public class ProjectManager implements Disposable {
             public void onFinish(int assetCount) {
                 Log.debug(TAG, "Finished loading {} assets", assetCount);
             }
-        });
+        }, false);
 
         context.currScene = loadScene(context, context.activeSceneName);
 
