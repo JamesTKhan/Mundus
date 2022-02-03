@@ -15,6 +15,7 @@
  */
 package com.mbrlabs.mundus.commons.assets;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -157,11 +158,37 @@ public class AssetManager implements Disposable {
 
         final MetaLoader metaLoader = new MetaLoader();
 
+        FileHandle[] metaFiles;
+
+        if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+            // Desktop applications cannot use .list() for internal jar files.
+            // Application will need to provide an assets.txt file listing all Mundus assets
+            // in the Mundus root directory.
+            // https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
+            FileHandle fileList = rootFolder.child("assets.txt");
+            String[] files = fileList.readString().split("\\n");
+
+            // Get meta file extension file names
+            Array<String> metalFileNames = new Array<>();
+            for (String filename: files) {
+                if (filename.endsWith(Meta.META_EXTENSION)) {
+                    metalFileNames.add(filename);
+                }
+            }
+
+            metaFiles = new FileHandle[metalFileNames.size];
+            for (int i = 0; i < metaFiles.length; i++) {
+                metaFiles[i] = rootFolder.child(metalFileNames.get(i));
+            }
+
+        } else {
+            metaFiles = rootFolder.list(metaFileFilter);
+        }
+
         // load assets
-        FileHandle[] metaFiles = rootFolder.list(metaFileFilter);
         for (FileHandle meta : metaFiles) {
             Asset asset = loadAsset(metaLoader.load(meta));
-            if(listener != null) {
+            if (listener != null) {
                 listener.onLoad(asset, assets.size, metaFiles.length);
             }
         }
