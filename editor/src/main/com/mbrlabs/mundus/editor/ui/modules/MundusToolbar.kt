@@ -91,7 +91,7 @@ class MundusToolbar : Toolbar() {
 
         scaleBtn = FaTextButton(toolManager.scaleTool.iconFont)
         scaleBtn.padRight(7f).padLeft(7f)
-        Tooltip.Builder(toolManager.scaleTool.iconFont).target(scaleBtn).build()
+        Tooltip.Builder(toolManager.scaleTool.name).target(scaleBtn).build()
 
         addItem(saveBtn, true)
         addItem(importBtn, true)
