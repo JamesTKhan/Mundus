@@ -241,6 +241,7 @@ public class RotateTool extends TransformTool {
             ProjectContext projectContext = getProjectManager().current();
             currentRotateCommand.setAfter(projectContext.currScene.currentSelection.getLocalRotation(tempQuat));
             getHistory().add(currentRotateCommand);
+            currentRotateCommand = null;
         }
         return false;
     }
