@@ -102,6 +102,12 @@ class FileMenu : Menu("File") {
                 UI.addActor(UI.fileChooser.fadeIn())
             }
         })
+
+        saveProject.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                projectManager.saveCurrentProject();
+            }
+        })
     }
 
     fun importNewProject(projectDir: FileHandle) {
