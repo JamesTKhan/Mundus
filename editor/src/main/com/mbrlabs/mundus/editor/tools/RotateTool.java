@@ -15,6 +15,7 @@
  */
 package com.mbrlabs.mundus.editor.tools;
 
+import com.mbrlabs.mundus.editor.history.commands.RotateCommand;
 import org.lwjgl.opengl.GL11;
 
 import com.badlogic.gdx.Gdx;
@@ -67,6 +68,7 @@ public class RotateTool extends TransformTool {
     private ShapeRenderer shapeRenderer;
 
     private TransformState state = TransformState.IDLE;
+    private RotateCommand currentRotateCommand;
     private float lastRot = 0;
 
     public RotateTool(ProjectManager projectManager, GameObjectPicker goPicker, ToolHandlePicker handlePicker,
@@ -205,6 +207,9 @@ public class RotateTool extends TransformTool {
         if (button == Input.Buttons.LEFT && projectContext.currScene.currentSelection != null) {
             lastRot = getCurrentAngle();
 
+            currentRotateCommand = new RotateCommand(projectContext.currScene.currentSelection);
+            currentRotateCommand.setBefore(projectContext.currScene.currentSelection.getLocalRotation(tempQuat));
+
             RotateHandle handle = (RotateHandle) handlePicker.pick(handles, projectContext.currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
@@ -232,6 +237,11 @@ public class RotateTool extends TransformTool {
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         state = TransformState.IDLE;
+        if (currentRotateCommand != null) {
+            ProjectContext projectContext = getProjectManager().current();
+            currentRotateCommand.setAfter(projectContext.currScene.currentSelection.getLocalRotation(tempQuat));
+            getHistory().add(currentRotateCommand);
+        }
         return false;
     }
 
