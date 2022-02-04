@@ -20,7 +20,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
-import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
 
 /**
@@ -28,10 +27,12 @@ import com.mbrlabs.mundus.commons.assets.AssetManager;
  * @version 27-10-2016
  */
 public class Mundus implements Disposable {
+    public static final String PROJECT_ASSETS_DIR = "assets";
+    public static final String PROJECT_SCENES_DIR = "scenes";
 
     private static final String TAG = Mundus.class.getSimpleName();
 
-    private SceneLoader sceneLoader;
+    private final SceneLoader sceneLoader;
     private final AssetManager assetManager;
     private final FileHandle root;
 
@@ -39,8 +40,8 @@ public class Mundus implements Disposable {
 
     public Mundus(final FileHandle mundusRoot) {
         this.root = mundusRoot;
-        this.assetManager = new AssetManager(root.child("assets"));
-        this.sceneLoader = new SceneLoader(this, root.child("scenes"));
+        this.assetManager = new AssetManager(root.child(PROJECT_ASSETS_DIR));
+        this.sceneLoader = new SceneLoader(this, root.child(PROJECT_SCENES_DIR));
     }
 
     public void init() {
