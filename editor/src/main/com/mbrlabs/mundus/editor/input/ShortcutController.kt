@@ -20,13 +20,14 @@ import com.badlogic.gdx.Input
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.history.CommandHistory
+import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 
 /**
  * @author Marcus Brummer
  * @version 07-02-2016
  */
-class ShortcutController(registry: Registry, private val projectManager: ProjectManager, private val history: CommandHistory)
+class ShortcutController(registry: Registry, private val projectManager: ProjectManager, private val history: CommandHistory, private val toolManager: ToolManager)
     : KeyboardLayoutInputAdapter(registry) {
 
     private var isCtrlPressed = false
@@ -57,6 +58,18 @@ class ShortcutController(registry: Registry, private val projectManager: Project
             projectManager.saveCurrentProject()
             UI.toaster.success("Project saved")
             return true
+        } else if (keycode == Input.Keys.T) {
+            toolManager.activateTool(toolManager.translateTool)
+            UI.toolbar.updateActiveToolButton()
+        } else if (keycode == Input.Keys.R) {
+            toolManager.activateTool(toolManager.rotateTool)
+            UI.toolbar.updateActiveToolButton()
+        } else if (keycode == Input.Keys.G) {
+            toolManager.activateTool(toolManager.scaleTool)
+            UI.toolbar.updateActiveToolButton()
+        } else if (keycode == Input.Keys.F) {
+            toolManager.activateTool(toolManager.selectionTool)
+            UI.toolbar.updateActiveToolButton()
         }
 
         return false

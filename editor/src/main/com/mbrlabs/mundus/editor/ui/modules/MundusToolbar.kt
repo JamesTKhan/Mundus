@@ -26,7 +26,7 @@ import com.kotcrab.vis.ui.widget.Tooltip
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
-import com.mbrlabs.mundus.editor.tools.ToolManager
+import com.mbrlabs.mundus.editor.tools.*
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FaTextButton
 import com.mbrlabs.mundus.editor.ui.widgets.ToggleButton
@@ -213,6 +213,18 @@ class MundusToolbar : Toolbar() {
         rotateBtn.style = FaTextButton.styleNoBg
         scaleBtn.style = FaTextButton.styleNoBg
         btn.style = FaTextButton.styleActive
+    }
+
+    /**
+     * Refresh the active button in UI with the currently active tool.
+     */
+    fun updateActiveToolButton() {
+        when (toolManager.activeTool.name) {
+            SelectionTool.NAME -> setActive(selectBtn)
+            TranslateTool.NAME -> setActive(translateBtn)
+            RotateTool.NAME -> setActive(rotateBtn)
+            ScaleTool.NAME -> setActive(scaleBtn)
+        }
     }
 
 }

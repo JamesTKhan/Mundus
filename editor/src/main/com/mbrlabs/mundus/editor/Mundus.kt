@@ -102,7 +102,7 @@ object Mundus {
         projectManager = ProjectManager(kryoManager, registry, modelBatch)
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, modelBatch, shapeRenderer,
                 commandHistory)
-        shortcutController = ShortcutController(registry, projectManager, commandHistory)
+        shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager)
         json = Json()
 
         // add to DI container
