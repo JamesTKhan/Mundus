@@ -46,7 +46,7 @@ public class Mundus implements Disposable {
 
     public void init() {
         try {
-            assetManager.loadAssets(null);
+            assetManager.loadAssets(null, true);
             shaders = new Shaders();
         } catch (Exception e) {
             Gdx.app.log(TAG, e.getMessage());
