@@ -44,7 +44,7 @@ class FileHandleWithDependencies(val file: FileHandle, val dependencies: ArrayLi
         val json = Mundus.inject<Json>()
 
         val dto = json.fromJson(GLTF::class.java, file)
-        dto.images.forEach {
+        dto.images?.forEach {
             val depFile = FileHandle(file.parent().path() + '/' + it.uri)
             if (depFile.exists()) {
                 dependencies.add(depFile)
