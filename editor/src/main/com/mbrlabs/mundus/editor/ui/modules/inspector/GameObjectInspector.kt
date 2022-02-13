@@ -16,14 +16,18 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.inspector
 
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.scene3d.GameObject
+import com.mbrlabs.mundus.commons.scene3d.components.AnimationComponent
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.IdentifierWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ModelComponentWidget
@@ -53,6 +57,13 @@ class GameObjectInspector : VisTable() {
         }
         add(componentTable).growX().pad(7f).row()
         add(addComponentBtn).expandX().fill().top().center().pad(10f).row()
+
+        //TODO Temporary behavior
+        addComponentBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                gameObject?.addComponent(AnimationComponent(gameObject))
+            }
+        })
     }
 
     fun setGameObject(gameObject: GameObject) {

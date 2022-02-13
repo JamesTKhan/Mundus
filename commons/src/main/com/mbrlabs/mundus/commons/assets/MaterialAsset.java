@@ -19,12 +19,12 @@ package com.mbrlabs.mundus.commons.assets;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Material;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.io.IOException;
 import java.util.Map;
@@ -101,14 +101,21 @@ public class MaterialAsset extends Asset {
      */
     public Material applyToMaterial(Material material) {
         if (diffuseColor != null) {
-            material.set(new ColorAttribute(ColorAttribute.Diffuse, diffuseColor));
+            material.set(new PBRColorAttribute(PBRColorAttribute.Diffuse, diffuseColor));
         }
         if (diffuseTexture != null) {
-            material.set(new TextureAttribute(TextureAttribute.Diffuse, diffuseTexture.getTexture()));
+            material.set(new PBRTextureAttribute(PBRTextureAttribute.Diffuse, diffuseTexture.getTexture()));
         } else {
-            material.remove(TextureAttribute.Diffuse);
+            material.remove(PBRTextureAttribute.Diffuse);
         }
-        material.set(new FloatAttribute(FloatAttribute.Shininess, shininess));
+        if (normalMap != null) {
+            material.set(new PBRTextureAttribute(PBRTextureAttribute.Normal, normalMap.getTexture()));
+        } else {
+            material.remove(PBRTextureAttribute.Normal);
+        }
+
+        material.set(new PBRFloatAttribute(PBRFloatAttribute.Metallic, shininess));
+        material.set(new PBRFloatAttribute(PBRFloatAttribute.Roughness, shininess));
 
         return material;
     }
@@ -135,7 +142,11 @@ public class MaterialAsset extends Asset {
 
     public void setNormalMap(TextureAsset normalMap) {
         this.normalMap = normalMap;
-        normalMapID = normalMap.getID();
+        if (normalMap != null) {
+            this.normalMapID = normalMap.getID();
+        } else {
+            this.normalMapID = null;
+        }
     }
 
     public TextureAsset getDiffuseTexture() {

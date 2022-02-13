@@ -58,6 +58,7 @@ class MaterialWidget : VisTable() {
     private val matNameLabel: VisLabel = VisLabel()
     private val diffuseColorField: ColorPickerField = ColorPickerField()
     private val diffuseAssetField: AssetSelectionField = AssetSelectionField()
+    private val normalAssetField: AssetSelectionField = AssetSelectionField()
     private val shininessField = VisTextField()
 
     private val projectManager: ProjectManager = Mundus.inject()
@@ -71,6 +72,7 @@ class MaterialWidget : VisTable() {
                 field = value
                 diffuseColorField.selectedColor = value.diffuseColor
                 diffuseAssetField.setAsset(value.diffuseTexture)
+                normalAssetField.setAsset(value.normalMap);
                 matNameLabel.setText(value.name)
                 shininessField.text = value.shininess.toString()
             }
@@ -112,6 +114,8 @@ class MaterialWidget : VisTable() {
         add(diffuseAssetField).growX().row()
         add(VisLabel("Diffuse color")).grow().row()
         add(diffuseColorField).growX().row()
+        add(VisLabel("Normal texture")).grow().row()
+        add(normalAssetField).growX().row()
         add(VisLabel("Shininess")).growX().row()
         add(shininessField).growX().row()
 
@@ -126,6 +130,16 @@ class MaterialWidget : VisTable() {
         diffuseAssetField.pickerListener = object: AssetPickerDialog.AssetPickerListener {
             override fun onSelected(asset: Asset?) {
                 material?.diffuseTexture = asset as? TextureAsset
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addDirtyAsset(material!!)
+            }
+        }
+
+        normalAssetField.assetFilter = AssetTextureFilter()
+        normalAssetField.pickerListener = object: AssetPickerDialog.AssetPickerListener {
+            override fun onSelected(asset: Asset?) {
+                material?.normalMap = asset as? TextureAsset
                 applyMaterialToModelAssets()
                 applyMaterialToModelComponents()
                 projectManager.current().assetManager.addDirtyAsset(material!!)

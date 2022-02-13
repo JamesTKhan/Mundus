@@ -94,7 +94,9 @@ public class ModelPlacementTool extends Tool {
     public void render() {
         if (modelInstance != null) {
             getBatch().begin(getProjectManager().current().currScene.cam);
-            getBatch().render(modelInstance, getProjectManager().current().currScene.environment, getShader());
+            // TODO For now we have disabled custom shader or model, should we allow option for custom shader?
+            //getBatch().render(modelInstance, getProjectManager().current().currScene.environment, getShader());
+            getBatch().render(modelInstance, getProjectManager().current().currScene.environment);
             getBatch().end();
         }
     }

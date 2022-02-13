@@ -43,6 +43,7 @@ import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker
 import com.mbrlabs.mundus.editor.utils.Fa
 import ktx.inject.Context
 import ktx.inject.register
+import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider
 import java.io.File
 
 /**
@@ -90,7 +91,7 @@ object Mundus {
 
         // DI
         shapeRenderer = ShapeRenderer()
-        modelBatch = ModelBatch()
+        modelBatch = ModelBatch(PBRShaderProvider.createDefault(16))
         input = InputManager()
         goPicker = GameObjectPicker()
         handlePicker = ToolHandlePicker()
