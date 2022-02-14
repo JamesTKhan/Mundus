@@ -15,6 +15,7 @@
  */
 package com.mbrlabs.mundus.commons.assets;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -70,6 +71,10 @@ public class ModelAsset extends Asset {
     public void resolveDependencies(Map<String, Asset> assets) {
         // materials
         MetaModel metaModel = meta.getModel();
+        if (metaModel == null) {
+            Gdx.app.error(getClass().getName(), "Error loading an asset for: " + meta.toString());
+            return;
+        }
         for (String g3dbMatID : metaModel.getDefaultMaterials().keys()) {
             String uuid = metaModel.getDefaultMaterials().get(g3dbMatID);
             defaultMaterials.put(g3dbMatID, (MaterialAsset) assets.get(uuid));

@@ -349,6 +349,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         }
         props.setProperty(MaterialAsset.PROP_OPACITY, mat.opacity.toString())
         props.setProperty(MaterialAsset.PROP_SHININESS, mat.shininess.toString())
+        props.setProperty(MaterialAsset.PROP_ROUGHNESS, mat.roughness.toString())
+        props.setProperty(MaterialAsset.PROP_METALLIC, mat.metallic.toString())
         props.store(FileOutputStream(mat.file.file()), null)
 
         // save meta file

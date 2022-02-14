@@ -196,6 +196,8 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             modelAsset.meta.model = MetaModel()
             for (mat in modelAsset.model.materials) {
                 val materialAsset = assetManager.createMaterialAsset(modelAsset.id.substring(0, 4) + "_" + mat.id)
+
+                materialAsset.setAttributes(mat)
                 modelAsset.meta.model.defaultMaterials.put(mat.id, materialAsset.id)
                 modelAsset.defaultMaterials.put(mat.id, materialAsset)
             }

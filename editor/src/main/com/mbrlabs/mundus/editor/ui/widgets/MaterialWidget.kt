@@ -60,6 +60,8 @@ class MaterialWidget : VisTable() {
     private val diffuseAssetField: AssetSelectionField = AssetSelectionField()
     private val normalAssetField: AssetSelectionField = AssetSelectionField()
     private val shininessField = VisTextField()
+    private val roughnessField = VisTextField()
+    private val metallicField = VisTextField()
 
     private val projectManager: ProjectManager = Mundus.inject()
 
@@ -75,6 +77,8 @@ class MaterialWidget : VisTable() {
                 normalAssetField.setAsset(value.normalMap);
                 matNameLabel.setText(value.name)
                 shininessField.text = value.shininess.toString()
+                roughnessField.text = value.roughness.toString()
+                metallicField.text = value.metallic.toString()
             }
         }
 
@@ -118,6 +122,10 @@ class MaterialWidget : VisTable() {
         add(normalAssetField).growX().row()
         add(VisLabel("Shininess")).growX().row()
         add(shininessField).growX().row()
+        add(VisLabel("Roughness")).growX().row()
+        add(roughnessField).growX().row()
+        add(VisLabel("Metallic")).growX().row()
+        add(metallicField).growX().row()
 
         matChangedBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -162,6 +170,30 @@ class MaterialWidget : VisTable() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 if(shininessField.isInputValid && !shininessField.isEmpty) {
                     material?.shininess = shininessField.text.toFloat()
+                    applyMaterialToModelAssets()
+                    applyMaterialToModelComponents()
+                    projectManager.current().assetManager.addDirtyAsset(material!!)
+                }
+            }
+        })
+
+        roughnessField.textFieldFilter = FloatDigitsOnlyFilter(false)
+        roughnessField.addListener(object: ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if(roughnessField.isInputValid && !roughnessField.isEmpty) {
+                    material?.roughness = roughnessField.text.toFloat()
+                    applyMaterialToModelAssets()
+                    applyMaterialToModelComponents()
+                    projectManager.current().assetManager.addDirtyAsset(material!!)
+                }
+            }
+        })
+
+        metallicField.textFieldFilter = FloatDigitsOnlyFilter(false)
+        metallicField.addListener(object: ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if(metallicField.isInputValid && !metallicField.isEmpty) {
+                    material?.metallic = metallicField.text.toFloat()
                     applyMaterialToModelAssets()
                     applyMaterialToModelComponents()
                     projectManager.current().assetManager.addDirtyAsset(material!!)

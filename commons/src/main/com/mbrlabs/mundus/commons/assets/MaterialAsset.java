@@ -45,6 +45,8 @@ public class MaterialAsset extends Asset {
     public static final String PROP_MAP_NORMAL = "map.normal";
     public static final String PROP_SHININESS = "shininess";
     public static final String PROP_OPACITY = "opacity";
+    public static final String PROP_ROUGHNESS = "roughness";
+    public static final String PROP_METALLIC = "metallic";
 
     // ids of dependent assets
     private String diffuseTextureID;
@@ -55,6 +57,10 @@ public class MaterialAsset extends Asset {
     private TextureAsset normalMap;
     private float shininess = 0f;
     private float opacity = 0f;
+
+    // PBR attributes
+    private float metallic = 0f;
+    private float roughness = 0f;
 
     public MaterialAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
@@ -74,6 +80,14 @@ public class MaterialAsset extends Asset {
                 value = MAP.get(PROP_OPACITY, null);
                 if (value != null) {
                     opacity = Float.valueOf(value);
+                }
+                value = MAP.get(PROP_ROUGHNESS, null);
+                if (value != null) {
+                    roughness = Float.valueOf(value);
+                }
+                value = MAP.get(PROP_METALLIC, null);
+                if (value != null) {
+                    metallic = Float.valueOf(value);
                 }
             } catch (NumberFormatException nfe) {
                 nfe.printStackTrace();
@@ -114,8 +128,8 @@ public class MaterialAsset extends Asset {
             material.remove(PBRTextureAttribute.Normal);
         }
 
-        material.set(new PBRFloatAttribute(PBRFloatAttribute.Metallic, shininess));
-        material.set(new PBRFloatAttribute(PBRFloatAttribute.Roughness, shininess));
+        material.set(new PBRFloatAttribute(PBRFloatAttribute.Metallic, metallic));
+        material.set(new PBRFloatAttribute(PBRFloatAttribute.Roughness, roughness));
 
         return material;
     }
@@ -126,6 +140,22 @@ public class MaterialAsset extends Asset {
 
     public void setShininess(float shininess) {
         this.shininess = shininess;
+    }
+
+    public float getRoughness() {
+        return roughness;
+    }
+
+    public void setRoughness(float roughness) {
+        this.roughness = roughness;
+    }
+
+    public float getMetallic() {
+        return metallic;
+    }
+
+    public void setMetallic(float metallic) {
+        this.metallic = metallic;
     }
 
     public float getOpacity() {
@@ -186,4 +216,25 @@ public class MaterialAsset extends Asset {
         // nothing to dispose
     }
 
+    /**
+     * Set the MaterialAsset attributes based on the given material.
+     * @param mat
+     */
+    public void setAttributes(Material mat) {
+        // Colors attrs
+        if (mat.has(PBRColorAttribute.Diffuse)) {
+            PBRColorAttribute attr = (PBRColorAttribute) mat.get(PBRColorAttribute.Diffuse);
+            diffuseColor = attr.color;
+        }
+
+        // Float attrs
+        if (mat.has(PBRFloatAttribute.Metallic)) {
+            PBRFloatAttribute attr = (PBRFloatAttribute) mat.get(PBRFloatAttribute.Metallic);
+            metallic = attr.value;
+        }
+        if (mat.has(PBRFloatAttribute.Roughness)) {
+            PBRFloatAttribute attr = (PBRFloatAttribute) mat.get(PBRFloatAttribute.Roughness);
+            roughness = attr.value;
+        }
+    }
 }
