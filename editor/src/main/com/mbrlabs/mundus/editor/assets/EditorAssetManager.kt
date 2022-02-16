@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.assets
 
+import com.badlogic.gdx.Files
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Pixmap
@@ -303,6 +304,28 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             asset.meta.model.defaultMaterials.put(g3dbMatID, asset.defaultMaterials[g3dbMatID]!!.id)
         }
         metaSaver.save(asset.meta)
+    }
+
+    /**
+     * Delete the asset from the project
+     */
+    fun deleteAsset(asset: Asset) {
+        //TODO How should we handle assets in the scene
+        assets?.removeValue(asset, true)
+
+        if (asset.file.extension().equals("gltf")) {
+            // Delete the additional gltf binary file if found
+            val binPath = asset.file.pathWithoutExtension() + ".bin"
+            val binFile = Gdx.files.getFileHandle(binPath, Files.FileType.Absolute)
+            if (binFile.exists())
+                binFile.delete()
+        }
+
+        if (asset.meta.file.exists())
+            asset.meta.file.delete()
+
+        if (asset.file.exists())
+            asset.file.delete()
     }
 
     /**
