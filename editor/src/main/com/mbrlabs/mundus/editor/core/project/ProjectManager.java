@@ -388,7 +388,16 @@ public class ProjectManager implements Disposable {
 
     private void initComponents(ProjectContext context, GameObject go) {
         Array<ModelAsset> models = context.assetManager.getModelAssets();
-        for (Component c : go.getComponents()) {
+        Array.ArrayIterator<Component> iterator = go.getComponents().iterator();
+        while(iterator.hasNext()) {
+            Component c = iterator.next();
+            if (c == null) {
+                // To prevent crashing, log a warning statement and remove the corrupted component
+                iterator.remove();
+                Log.warn(TAG, "A component for {} was null on load, this may be caused by deleting an asset that is still in a scene.", go);
+                go.name = go.name.concat(" [COMPONENT ERROR]");
+                continue;
+            }
             // Model component
             if (c.getType() == Component.Type.MODEL) {
                 ModelComponent modelComponent = (ModelComponent) c;
