@@ -2,7 +2,7 @@ apply plugin: "java"
 apply plugin: "kotlin"
 
 sourceSets.main.java.srcDirs = ["src/main"]
-sourceSets.main.resources.srcDirs = ["src/main"]
+sourceSets.main.resources.srcDirs = ["src/main", "assets"]
 sourceSets.test.java.srcDirs = ["src/test/java", "src/test/kotlin"]
 
 project.ext.mainClassName = "com.mbrlabs.mundus.editor.Main"
