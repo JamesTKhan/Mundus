@@ -108,7 +108,7 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
 
         init {
 
-            cam.position.set(0f, 5f, 0f)
+            cam.position.set(0f, 5f, 5f)
             cam.lookAt(0f, 0f, 0f)
             cam.near = 0.1f
             cam.far = 100f
@@ -133,7 +133,7 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             renderWidget!!.setRenderer { camera ->
                 if (previewInstance != null) {
                     Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT)
-                    previewInstance!!.transform.rotate(0f, 0f, 1f, -1f)
+                    previewInstance!!.transform.rotate(0f, 1f, 0f, -1f)
                     modelBatch?.begin(camera)
                     modelBatch?.render(previewInstance!!, env)
                     modelBatch?.end()
