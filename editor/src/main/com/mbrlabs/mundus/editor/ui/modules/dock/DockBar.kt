@@ -73,4 +73,8 @@ class DockBar(private val splitPane: MundusSplitPane) : VisTable(), TabbedPaneLi
         // user can't do that
     }
 
+    fun update() {
+        tabbedPane.updateTabTitle(logBar)
+    }
+
 }

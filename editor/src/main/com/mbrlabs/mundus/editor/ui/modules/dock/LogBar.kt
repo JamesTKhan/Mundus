@@ -30,6 +30,9 @@ class LogBar : Tab(false, false), LogEvent.LogEventListener {
     private val maxLogSize = 75
     private val dateFormat = SimpleDateFormat("HH:mm:ss")
 
+    // True when new entries are in the log and log is not the active tab
+    var newEntries = false
+
     init {
         Mundus.registerEventListener(this)
         initUi()
@@ -79,7 +82,15 @@ class LogBar : Tab(false, false), LogEvent.LogEventListener {
         })
     }
 
+    override fun onShow() {
+        super.onShow()
+        newEntries = false
+    }
+
     override fun getTabTitle(): String {
+        if (newEntries)
+            return "Log*"
+
         return "Log"
     }
 
@@ -96,6 +107,9 @@ class LogBar : Tab(false, false), LogEvent.LogEventListener {
      * removes old entries.
      */
     private fun addLogMessage(message : String) {
+        if (!isActiveTab)
+            newEntries = true
+
         val timeStamp = dateFormat.format(Date())
 
         val logString = buildString {
