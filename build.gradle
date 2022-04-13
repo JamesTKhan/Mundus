@@ -13,6 +13,17 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
+    tasks.withType(Test) {
+        testLogging {
+            exceptionFormat "full"
+            showCauses true
+            showExceptions true
+            showStackTraces true
+            showStandardStreams true
+            events = ["passed", "skipped", "failed"]
+        }
+    }
+
     ext {
         appName = "Mundus"
         gdxVersion = '1.10.0'
