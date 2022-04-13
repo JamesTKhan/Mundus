@@ -21,6 +21,8 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.editor.core.EditorScene;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.input.InputManager;
@@ -68,10 +70,17 @@ public class ToolManager extends InputAdapter implements Disposable {
     }
 
     public void activateTool(Tool tool) {
+        boolean shouldKeepSelection = activeTool != null && activeTool instanceof SelectionTool && tool instanceof SelectionTool;
+        GameObject selected = getSelectedObject();
+
         deactivateTool();
         activeTool = tool;
         inputManager.addProcessor(activeTool);
         activeTool.onActivated();
+
+        if (shouldKeepSelection) {
+            ((SelectionTool)activeTool).gameObjectSelected(selected);
+        }
     }
 
     public void deactivateTool() {
@@ -128,6 +137,18 @@ public class ToolManager extends InputAdapter implements Disposable {
         selectionTool.dispose();
         rotateTool.dispose();
         scaleTool.dispose();
+    }
+
+    private GameObject getSelectedObject() {
+        if (activeTool == null) {
+           return null;
+        }
+        EditorScene scene = getActiveTool().getProjectManager().current().currScene;
+
+        if (scene == null) {
+            return null;
+        }
+        return scene.currentSelection;
     }
 
 }
