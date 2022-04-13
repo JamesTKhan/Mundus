@@ -16,10 +16,6 @@
 
 package com.mbrlabs.mundus.editor.core.project;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -47,11 +43,16 @@ import com.mbrlabs.mundus.editor.core.kryo.KryoManager;
 import com.mbrlabs.mundus.editor.core.registry.ProjectRef;
 import com.mbrlabs.mundus.editor.core.registry.Registry;
 import com.mbrlabs.mundus.editor.core.scene.SceneManager;
+import com.mbrlabs.mundus.editor.events.LogEvent;
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent;
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableComponent;
 import com.mbrlabs.mundus.editor.utils.Log;
 import com.mbrlabs.mundus.editor.utils.SkyboxBuilder;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Manages Mundus projects and scenes.
@@ -203,11 +204,13 @@ public class ProjectManager implements Disposable {
             @Override
             public void onLoad(Asset asset, int progress, int assetCount) {
                 Log.debug(TAG, "Loaded {} asset ({}/{})", asset.getMeta().getType(), progress, assetCount);
+                Mundus.INSTANCE.postEvent(new LogEvent("Loaded " + asset.getMeta().getType() + " asset ("+progress+"/"+assetCount+")"));
             }
 
             @Override
             public void onFinish(int assetCount) {
                 Log.debug(TAG, "Finished loading {} assets", assetCount);
+                Mundus.INSTANCE.postEvent(new LogEvent("Finished loading " + assetCount + " assets"));
             }
         }, false);
 
@@ -242,6 +245,7 @@ public class ProjectManager implements Disposable {
         SceneManager.saveScene(projectContext, projectContext.currScene);
 
         Log.debug(TAG, "Saving currentProject {}", projectContext.name + " [" + projectContext.path + "]");
+        Mundus.INSTANCE.postEvent(new LogEvent("Saving currentProject " + projectContext.name + " [" + projectContext.path + "]"));
     }
 
     /**
