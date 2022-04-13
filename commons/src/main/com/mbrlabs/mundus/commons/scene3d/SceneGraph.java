@@ -17,7 +17,6 @@
 package com.mbrlabs.mundus.commons.scene3d;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.Scene;
 
@@ -30,7 +29,6 @@ public class SceneGraph {
     protected GameObject root;
 
     public Scene scene;
-    public ModelBatch batch;
 
     private GameObject selected;
 
@@ -41,16 +39,10 @@ public class SceneGraph {
         this.scene = scene;
     }
 
-    public void render() {
-        render(Gdx.graphics.getDeltaTime());
-    }
-
     public void render(float delta) {
-        batch.begin(scene.cam);
         for (GameObject go : root.getChildren()) {
             go.render(delta);
         }
-        batch.end();
     }
 
     public void update() {

@@ -41,7 +41,7 @@ public class PickableTerrainComponent extends TerrainComponent implements Pickab
 
     @Override
     public void renderPick() {
-        gameObject.sceneGraph.batch.render(terrain.getTerrain(), Shaders.INSTANCE.getPickerShader());
+        gameObject.sceneGraph.scene.batch.render(terrain.getTerrain(), Shaders.INSTANCE.getPickerShader());
     }
 
 }

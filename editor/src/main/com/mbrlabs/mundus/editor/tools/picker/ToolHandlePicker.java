@@ -36,7 +36,7 @@ public class ToolHandlePicker extends BasePicker {
 
     public ToolHandle pick(ToolHandle[] handles, EditorScene scene, int screenX, int screenY) {
         begin(scene.viewport);
-        renderPickableScene(handles, scene.sceneGraph.batch, scene.cam);
+        renderPickableScene(handles, scene.batch, scene.cam);
         end();
         Pixmap pm = getFrameBufferPixmap(scene.viewport);
 

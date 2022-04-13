@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
@@ -46,6 +47,7 @@ public class Scene implements Disposable {
     public GameObject currentSelection;
 
     public PerspectiveCamera cam;
+    public ModelBatch batch;
 
     public Scene() {
         environment = new MundusEnvironment();
@@ -67,6 +69,16 @@ public class Scene implements Disposable {
         environment.getAmbientLight().intensity = 0.3f;
 
         sceneGraph = new SceneGraph(this);
+    }
+
+    public void render() {
+        render(Gdx.graphics.getDeltaTime());
+    }
+
+    public void render(float delta) {
+        batch.begin(cam);
+        sceneGraph.render(delta);
+        batch.end();
     }
 
     public String getName() {

@@ -89,7 +89,7 @@ public class ModelComponent extends AbstractComponent {
     @Override
     public void render(float delta) {
         modelInstance.transform.set(gameObject.getTransform());
-        gameObject.sceneGraph.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
+        gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
     }
 
     @Override
