@@ -105,7 +105,13 @@ class FileMenu : Menu("File") {
 
         saveProject.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                projectManager.saveCurrentProject();
+                projectManager.saveCurrentProject()
+            }
+        })
+
+        exit.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                UI.showDialog(UI.exitDialog)
             }
         })
     }
