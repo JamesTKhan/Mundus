@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.test;
+package com.mbrlabs.mundus.editor.history;
 
 import static org.junit.Assert.assertEquals;
 

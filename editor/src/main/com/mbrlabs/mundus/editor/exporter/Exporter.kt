@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.scene.SceneManager
 import org.apache.commons.io.FilenameUtils
 import java.io.File
+import java.io.Writer
 
 /**
  * @author Marcus Brummer
@@ -119,9 +120,14 @@ class Exporter(val kryo: KryoManager, val project: ProjectContext) {
     }
 
     private fun exportScene(scene: SceneDTO, file: FileHandle, jsonType: JsonWriter.OutputType) {
+        val writer = file.writer(false);
+        exportScene(scene, writer, jsonType);
+    }
+
+    fun exportScene(scene: SceneDTO, writer: Writer, jsonType: JsonWriter.OutputType) {
         val json = Json()
         json.setOutputType(jsonType)
-        json.setWriter(file.writer(false))
+        json.setWriter(writer)
 
         json.writeObjectStart()
 
