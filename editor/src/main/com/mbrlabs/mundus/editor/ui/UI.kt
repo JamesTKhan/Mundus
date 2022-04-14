@@ -130,4 +130,8 @@ object UI : Stage(ScreenViewport()) {
         dialog.show(this)
     }
 
+    override fun act() {
+        super.act()
+        docker.update();
+    }
 }

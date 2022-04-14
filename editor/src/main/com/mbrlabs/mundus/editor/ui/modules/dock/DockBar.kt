@@ -32,6 +32,7 @@ import com.mbrlabs.mundus.editor.ui.widgets.MundusSplitPane
 class DockBar(private val splitPane: MundusSplitPane) : VisTable(), TabbedPaneListener {
 
     private val assetsDock = AssetsDock()
+    private val logBar = LogBar()
     private val tabbedPane: TabbedPane
 
 
@@ -46,7 +47,11 @@ class DockBar(private val splitPane: MundusSplitPane) : VisTable(), TabbedPaneLi
         tabbedPane.addListener(this)
 
         tabbedPane.add(assetsDock)
+        tabbedPane.add(logBar)
         add(tabbedPane.table).expandX().fillX().left().bottom().height(30f).row()
+
+        // Keeping asset tab the default active tab
+        tabbedPane.switchTab(assetsDock)
     }
 
     override fun switchedTab(tab: Tab?) {
@@ -66,6 +71,10 @@ class DockBar(private val splitPane: MundusSplitPane) : VisTable(), TabbedPaneLi
 
     override fun removedAllTabs() {
         // user can't do that
+    }
+
+    fun update() {
+        tabbedPane.updateTabTitle(logBar)
     }
 
 }
