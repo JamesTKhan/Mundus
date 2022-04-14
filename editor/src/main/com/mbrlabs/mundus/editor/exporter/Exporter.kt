@@ -155,8 +155,17 @@ class Exporter(val kryo: KryoManager, val project: ProjectContext) {
         json.writeValue(JsonScene.GO_ID, go.id)
         json.writeValue(JsonScene.GO_NAME, go.name)
         json.writeValue(JsonScene.GO_ACTIVE, go.isActive)
-        json.writeValue(JsonScene.GO_TAGS, go.tags)
         json.writeValue(JsonScene.GO_TRANSFORM, go.transform)
+
+        // START tags
+        json.writeArrayStart(JsonScene.GO_TAGS)
+        if (go.tags != null) {
+            for (tag in go.tags) {
+                json.writeValue(tag)
+            }
+        }
+        json.writeArrayEnd()
+        // END tags
 
         // components
         if(go.modelComponent != null) convertModelComponent(go.modelComponent, json)
