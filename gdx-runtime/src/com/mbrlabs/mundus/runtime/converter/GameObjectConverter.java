@@ -40,7 +40,12 @@ public class GameObjectConverter {
         go.rotate(transform[3], transform[4], transform[5], transform[6]);
         go.scale(transform[7], transform[8], transform[9]);
 
-        // TODO TAGS !!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // convert tags
+        if (dto.getTags() != null || !dto.getTags().isEmpty()) {
+            for (String tag : dto.getTags()) {
+                go.addTag(tag);
+            }
+        }
 
         // convert components
         if (dto.getModelComponent() != null) {

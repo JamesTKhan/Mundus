@@ -43,7 +43,7 @@ public class PickableModelComponent extends ModelComponent implements PickableCo
 
     @Override
     public void renderPick() {
-        gameObject.sceneGraph.batch.render(modelInstance, Shaders.INSTANCE.getPickerShader());
+        gameObject.sceneGraph.scene.batch.render(modelInstance, Shaders.INSTANCE.getPickerShader());
     }
 
     @Override

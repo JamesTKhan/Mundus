@@ -13,12 +13,24 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
+    tasks.withType(Test) {
+        testLogging {
+            exceptionFormat "full"
+            showCauses true
+            showExceptions true
+            showStackTraces true
+            showStandardStreams true
+            events = ["passed", "skipped", "failed"]
+        }
+    }
+
     ext {
         appName = "Mundus"
         gdxVersion = '1.10.0'
         visuiVersion = '1.5.0'
         kryoVersion = '5.2.0'
-        junitVersion = '4.12'
+        junitVersion = '4.13.2'
+        mockitoVersion = '1.10.19'
         commonsIoVersion = '2.5'
         commonsLangVersion = '3.12.0'
         gltfVersion = 'master-SNAPSHOT'
@@ -43,6 +55,8 @@ project(":commons") {
         compile "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
 
         testCompile "junit:junit:$junitVersion"
+
+        testCompile "org.mockito:mockito-all:$mockitoVersion"
     }
 }
 
@@ -73,7 +87,9 @@ project(":editor") {
         compile "com.kotcrab.vis:vis-ui:$visuiVersion"
         compile "com.esotericsoftware:kryo:$kryoVersion"
 
+        // tests
         testCompile "junit:junit:$junitVersion"
+        testCompile "org.mockito:mockito-all:$mockitoVersion"
     }
 }
 

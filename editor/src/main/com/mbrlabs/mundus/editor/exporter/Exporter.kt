@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.scene.SceneManager
 import org.apache.commons.io.FilenameUtils
 import java.io.File
+import java.io.Writer
 
 /**
  * @author Marcus Brummer
@@ -119,9 +120,14 @@ class Exporter(val kryo: KryoManager, val project: ProjectContext) {
     }
 
     private fun exportScene(scene: SceneDTO, file: FileHandle, jsonType: JsonWriter.OutputType) {
+        val writer = file.writer(false);
+        exportScene(scene, writer, jsonType);
+    }
+
+    fun exportScene(scene: SceneDTO, writer: Writer, jsonType: JsonWriter.OutputType) {
         val json = Json()
         json.setOutputType(jsonType)
-        json.setWriter(file.writer(false))
+        json.setWriter(writer)
 
         json.writeObjectStart()
 
@@ -149,8 +155,17 @@ class Exporter(val kryo: KryoManager, val project: ProjectContext) {
         json.writeValue(JsonScene.GO_ID, go.id)
         json.writeValue(JsonScene.GO_NAME, go.name)
         json.writeValue(JsonScene.GO_ACTIVE, go.isActive)
-        json.writeValue(JsonScene.GO_TAGS, go.tags)
         json.writeValue(JsonScene.GO_TRANSFORM, go.transform)
+
+        // START tags
+        json.writeArrayStart(JsonScene.GO_TAGS)
+        if (go.tags != null) {
+            for (tag in go.tags) {
+                json.writeValue(tag)
+            }
+        }
+        json.writeArrayEnd()
+        // END tags
 
         // components
         if(go.modelComponent != null) convertModelComponent(go.modelComponent, json)

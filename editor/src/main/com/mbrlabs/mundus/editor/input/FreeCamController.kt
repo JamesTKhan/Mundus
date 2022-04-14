@@ -42,6 +42,7 @@ class FreeCamController : InputAdapter() {
     private val UP = Input.Keys.Q
     private val DOWN = Input.Keys.E
     private var velocity = SPEED_1
+    private var zoomAmount = SPEED_01
     private var degreesPerPixel = 0.5f
     private val tmp = Vector3()
 
@@ -88,6 +89,12 @@ class FreeCamController : InputAdapter() {
             camera!!.direction.rotate(tmp, deltaY)
         }
         return false
+    }
+
+    override fun scrolled(amountX: Float, amountY: Float): Boolean {
+        tmp.set(camera!!.direction).nor().scl(-amountY * zoomAmount)
+        camera!!.position.add(tmp)
+        return true
     }
 
     @JvmOverloads fun update(deltaTime: Float = Gdx.graphics.deltaTime) {
