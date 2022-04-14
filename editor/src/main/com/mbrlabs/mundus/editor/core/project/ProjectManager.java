@@ -133,7 +133,7 @@ public class ProjectManager implements Disposable {
         scene.environment.setFog(new Fog());
         scene.setId(newProjectContext.obtainID());
         SceneManager.saveScene(newProjectContext, scene);
-        scene.sceneGraph.batch = modelBatch;
+        scene.sceneGraph.scene.batch = modelBatch;
 
         // save .pro file
         newProjectContext.scenes.add(scene.getName());
@@ -334,9 +334,9 @@ public class ProjectManager implements Disposable {
 
         EditorScene scene = SceneConverter.convert(sceneDTO, context.assetManager.getAssetMap());
         scene.skybox = SkyboxBuilder.createDefaultSkybox();
+        scene.batch = modelBatch;
 
         SceneGraph sceneGraph = scene.sceneGraph;
-        sceneGraph.batch = modelBatch;
         for (GameObject go : sceneGraph.getGameObjects()) {
             initGameObject(context, go);
         }

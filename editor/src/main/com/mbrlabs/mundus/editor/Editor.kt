@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editor
 
 import com.badlogic.gdx.ApplicationListener
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter
 import com.badlogic.gdx.graphics.Color
@@ -121,7 +122,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             }
 
             sg.update()
-            sg.render()
+            sg.render(Gdx.graphics.deltaTime)
 
             toolManager.render()
             compass.render(batch)
