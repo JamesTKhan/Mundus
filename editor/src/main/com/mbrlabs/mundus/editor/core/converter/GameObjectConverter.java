@@ -114,7 +114,7 @@ public class GameObjectConverter {
         }
 
         // convert tags
-        if (go.getTags() != null || !go.getTags().isEmpty()) {
+        if (go.getTags() != null && !go.getTags().isEmpty()) {
             for (String tag : go.getTags()) {
                 descriptor.getTags().add(tag);
             }

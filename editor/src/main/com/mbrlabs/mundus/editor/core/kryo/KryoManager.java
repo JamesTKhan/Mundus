@@ -67,6 +67,7 @@ public class KryoManager {
         kryo.register(ProjectSettingsDescriptor.class, 12);
         kryo.register(KeyboardLayout.class, 13);
         kryo.register(ProjectDescriptor.class, 14);
+        kryo.register(SceneRefDescriptor.class, 15);
 
     }
 

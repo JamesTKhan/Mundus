@@ -120,7 +120,7 @@ public class DescriptorConverter {
 
         // scenes
         for (String sceneName : project.scenes) {
-            descriptor.getSceneNames().add(sceneName);
+            descriptor.getSceneRefDescriptor().add(new SceneRefDescriptor(sceneName));
         }
 
         return descriptor;
@@ -134,8 +134,8 @@ public class DescriptorConverter {
         context.settings = convert(projectDescriptor.getSettings());
 
         // scenes
-        for (String sceneName : projectDescriptor.getSceneNames()) {
-            context.scenes.add(sceneName);
+        for (SceneRefDescriptor sceneRefDescriptor : projectDescriptor.getSceneRefDescriptor()) {
+            context.scenes.add(sceneRefDescriptor.getName());
         }
 
         return context;
