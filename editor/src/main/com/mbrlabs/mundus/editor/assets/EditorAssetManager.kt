@@ -25,6 +25,9 @@ import com.badlogic.gdx.utils.ObjectSet
 import com.mbrlabs.mundus.commons.assets.*
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.editor.utils.Log
 import org.apache.commons.io.FileUtils
@@ -74,7 +77,10 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      */
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createNewMetaFile(file: FileHandle, type: AssetType): Meta {
-        if (file.exists()) throw AssetAlreadyExistsException()
+        if (file.exists()) {
+            Mundus.postEvent(LogEvent(LogType.ERROR, "Tried to create new Meta File that already exists: " + file.name()))
+            throw AssetAlreadyExistsException()
+        }
 
         val meta = Meta(file)
         meta.uuid = newUUID()
@@ -276,6 +282,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val asset = MaterialAsset(meta, matFile)
         asset.load()
 
+        saveAsset(asset)
         addAsset(asset)
         return asset
     }
@@ -373,7 +380,11 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         }
         props.setProperty(MaterialAsset.PROP_OPACITY, mat.opacity.toString())
         props.setProperty(MaterialAsset.PROP_SHININESS, mat.shininess.toString())
-        props.store(FileOutputStream(mat.file.file()), null)
+
+        val fileOutputStream = FileOutputStream(mat.file.file())
+        props.store(fileOutputStream, null)
+        fileOutputStream.flush()
+        fileOutputStream.close()
 
         // save meta file
         metaSaver.save(mat.meta)

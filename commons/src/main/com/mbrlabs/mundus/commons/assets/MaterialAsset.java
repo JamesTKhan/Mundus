@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Map;
 
 /**
@@ -64,7 +65,9 @@ public class MaterialAsset extends Asset {
     public void load() {
         MAP.clear();
         try {
-            PropertiesUtils.load(MAP, file.reader());
+            Reader reader = file.reader();
+            PropertiesUtils.load(MAP, reader);
+            reader.close();
             // shininess & opacity
             try {
                 String value = MAP.get(PROP_SHININESS, null);
