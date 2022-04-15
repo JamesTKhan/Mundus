@@ -44,6 +44,7 @@ import com.mbrlabs.mundus.editor.core.registry.ProjectRef;
 import com.mbrlabs.mundus.editor.core.registry.Registry;
 import com.mbrlabs.mundus.editor.core.scene.SceneManager;
 import com.mbrlabs.mundus.editor.events.LogEvent;
+import com.mbrlabs.mundus.editor.events.LogType;
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent;
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableComponent;
@@ -399,6 +400,7 @@ public class ProjectManager implements Disposable {
                 // To prevent crashing, log a warning statement and remove the corrupted component
                 iterator.remove();
                 Log.warn(TAG, "A component for {} was null on load, this may be caused by deleting an asset that is still in a scene.", go);
+                Mundus.INSTANCE.postEvent(new LogEvent(LogType.ERROR, "A component for "+ go.name +"  was null on load, this may be caused by deleting an asset that is still in a scene."));
                 go.name = go.name.concat(" [COMPONENT ERROR]");
                 continue;
             }

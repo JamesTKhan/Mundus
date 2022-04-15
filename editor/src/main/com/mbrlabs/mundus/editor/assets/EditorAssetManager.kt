@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.ObjectSet
 import com.mbrlabs.mundus.commons.assets.*
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
+import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.editor.utils.Log
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
@@ -313,7 +314,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         //TODO How should we handle assets in the scene
         assets?.removeValue(asset, true)
 
-        if (asset.file.extension().equals("gltf")) {
+        if (asset.file.extension().equals(FileFormatUtils.FORMAT_3D_GLTF)) {
             // Delete the additional gltf binary file if found
             val binPath = asset.file.pathWithoutExtension() + ".bin"
             val binFile = Gdx.files.getFileHandle(binPath, Files.FileType.Absolute)
