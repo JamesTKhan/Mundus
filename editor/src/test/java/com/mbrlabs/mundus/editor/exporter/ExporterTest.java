@@ -38,10 +38,11 @@ public class ExporterTest {
         OutputStreamWriter writer = new OutputStreamWriter(baos);
 
         SceneDTO scene = new SceneDTO();
+        scene.setName("Scene 1");
         exporter.exportScene(scene, writer, JsonWriter.OutputType.json);
 
         String result = baos.toString();
-        assertEquals("{\"id\":0,\"name\":null,\"gos\":[]}", result);
+        assertEquals("{\"id\":0,\"name\":\"Scene 1\",\"gos\":[]}", result);
     }
 
     @Test
@@ -51,12 +52,13 @@ public class ExporterTest {
 
         GameObjectDTO terrain = buildTerrain("Terrain 1");
         SceneDTO scene = new SceneDTO();
+        scene.setName("Scene 1");
         scene.getGameObjects().add(terrain);
 
         exporter.exportScene(scene, writer, JsonWriter.OutputType.json);
 
         String result = baos.toString();
-        assertEquals("{\"id\":0,\"name\":null,\"gos\":[{\"i\":0,\"n\":\"Terrain 1\",\"a\":false,\"t\":[0,0,0,0,0,0,0,0,0,0],\"g\":[\"grass\"],\"ct\":{\"i\":null}}]}", result);
+        assertEquals("{\"id\":0,\"name\":\"Scene 1\",\"gos\":[{\"i\":0,\"n\":\"Terrain 1\",\"a\":false,\"t\":[0,0,0,0,0,0,0,0,0,0],\"g\":[\"grass\"],\"ct\":{\"i\":null}}]}", result);
     }
 
     private GameObjectDTO buildTerrain(String name) {
