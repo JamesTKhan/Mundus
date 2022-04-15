@@ -2,6 +2,7 @@ package com.mbrlabs.mundus.editor.ui.modules.dock
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
@@ -11,6 +12,7 @@ import com.kotcrab.vis.ui.widget.*
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
 import java.text.SimpleDateFormat
 import java.util.*
@@ -29,6 +31,9 @@ class LogBar : Tab(false, false), LogEvent.LogEventListener {
 
     private val maxLogSize = 75
     private val dateFormat = SimpleDateFormat("HH:mm:ss")
+
+    private val logTextPadding = 4f;
+    private var errorColor = Color(222f / 255f, 67f / 255f,67f / 255f, 1f);
 
     // True when new entries are in the log and log is not the active tab
     var newEntries = false
@@ -99,14 +104,14 @@ class LogBar : Tab(false, false), LogEvent.LogEventListener {
     }
 
     override fun onLogEvent(event: LogEvent) {
-        addLogMessage(event.logMessage)
+        addLogMessage(event)
     }
 
     /**
      * Appends new log message with a time stamp to the log table, then scrolls to most recent entry and
      * removes old entries.
      */
-    private fun addLogMessage(message : String) {
+    private fun addLogMessage(event: LogEvent) {
         if (!isActiveTab)
             newEntries = true
 
@@ -116,10 +121,18 @@ class LogBar : Tab(false, false), LogEvent.LogEventListener {
             append("[")
             append(timeStamp)
             append("] ")
-            append(message)
+            append("[")
+            append(event.logType)
+            append("] ")
+            append(event.logMessage)
         }
 
-        logTable.add(VisLabel(logString)).left().pad(4f).expand().row()
+        val visLabel: VisLabel = when(event.logType) {
+            LogType.INFO -> VisLabel(logString)
+            LogType.ERROR -> VisLabel(logString, errorColor)
+        }
+
+        logTable.add(visLabel).left().pad(logTextPadding).expand().row()
 
         // Remove oldest entry
         if (logTable.cells.size > maxLogSize)

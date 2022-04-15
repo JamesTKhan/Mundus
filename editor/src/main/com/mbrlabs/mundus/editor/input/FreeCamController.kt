@@ -41,10 +41,13 @@ class FreeCamController : InputAdapter() {
     private val BACKWARD = Input.Keys.S
     private val UP = Input.Keys.Q
     private val DOWN = Input.Keys.E
+    private val SHIFT_LEFT = Input.Keys.SHIFT_LEFT
+    private val SHIFT_RIGHT = Input.Keys.SHIFT_RIGHT
     private var velocity = SPEED_1
     private var zoomAmount = SPEED_01
     private var degreesPerPixel = 0.5f
     private val tmp = Vector3()
+    private var pan = true;
 
     fun setCamera(camera: Camera) {
         this.camera = camera
@@ -82,11 +85,24 @@ class FreeCamController : InputAdapter() {
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
         if (Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
-            val deltaX = -Gdx.input.deltaX * degreesPerPixel
-            val deltaY = -Gdx.input.deltaY * degreesPerPixel
-            camera!!.direction.rotate(camera!!.up, deltaX)
-            tmp.set(camera!!.direction).crs(camera!!.up).nor()
-            camera!!.direction.rotate(tmp, deltaY)
+            var deltaX: Float = (-Gdx.input.deltaX).toFloat()
+            var deltaY: Float = (-Gdx.input.deltaY).toFloat()
+
+            // If pan is not enabled, rotate the camera
+            if (!pan) {
+                deltaX *= degreesPerPixel
+                deltaY *= degreesPerPixel
+
+                camera!!.direction.rotate(camera!!.up, deltaX)
+                tmp.set(camera!!.direction).crs(camera!!.up).nor()
+                camera!!.direction.rotate(tmp, deltaY)
+            } else {
+                tmp.set(camera!!.direction).crs(camera!!.up).nor().scl(deltaX / velocity)
+                camera!!.position.add(tmp)
+
+                tmp.set(camera!!.up).nor().scl(-deltaY / velocity)
+                camera!!.position.add(tmp)
+            }
         }
         return false
     }
@@ -121,6 +137,16 @@ class FreeCamController : InputAdapter() {
         if (keys.containsKey(DOWN)) {
             tmp.set(camera!!.up).nor().scl(-deltaTime * velocity)
             camera!!.position.add(tmp)
+        }
+        if (pan) {
+            if (!keys.containsKey(SHIFT_LEFT) && !keys.containsKey(SHIFT_RIGHT)) {
+                pan = false
+            }
+        }
+        if (keys.containsKey(SHIFT_LEFT) || keys.containsKey(SHIFT_RIGHT)) {
+            if (!pan) {
+                pan = true
+            }
         }
         camera!!.update(true)
     }
