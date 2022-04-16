@@ -123,8 +123,10 @@ public class ModelShader extends BaseShader {
         }
 
         // shininess
-        float shininess = ((FloatAttribute)renderable.material.get(FloatAttribute.Shininess)).value;
-        set(UNIFORM_MATERIAL_SHININESS, shininess);
+        if (renderable.material.has(FloatAttribute.Shininess)) {
+            float shininess = ((FloatAttribute) renderable.material.get(FloatAttribute.Shininess)).value;
+            set(UNIFORM_MATERIAL_SHININESS, shininess);
+        }
 
         // Fog
         final Fog fog = env.getFog();
