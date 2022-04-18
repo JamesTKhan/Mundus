@@ -225,11 +225,7 @@ class Outline : VisTable(),
                 if (tapCount != 2)
                     return
 
-                val node = tree.getNodeAt(y)
-                var go: GameObject? = null
-                if (node != null) {
-                    go = node.value
-                }
+                val go = tree.getNodeAt(y)?.value
 
                 if (go != null) {
                     val context = projectManager.current()
@@ -238,7 +234,7 @@ class Outline : VisTable(),
 
                     // just lerp in the direction of the object if certain distance away
                     if (pos.dst(context.currScene.cam.position) > 100)
-                        context.currScene.cam.position.lerp(pos.cpy().add(0f,20f,0f), 0.5f)
+                        context.currScene.cam.position.lerp(pos.cpy().add(0f,40f,0f), 0.5f)
 
                     context.currScene.cam.lookAt(pos)
                     context.currScene.cam.up.set(Vector3.Y)
