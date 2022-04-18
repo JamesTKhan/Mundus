@@ -122,7 +122,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             }
 
             sg.update()
-            sg.render(Gdx.graphics.deltaTime)
+            scene.render()
 
             toolManager.render()
             compass.render(batch)
