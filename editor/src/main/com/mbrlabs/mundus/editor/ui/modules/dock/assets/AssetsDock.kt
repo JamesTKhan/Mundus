@@ -94,7 +94,7 @@ class AssetsDock : Tab(false, false),
         deleteAsset.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
                 currentSelection?.asset?.let {
-                    projectManager.current().assetManager.deleteAsset(it)
+                    projectManager.current().assetManager.deleteAsset(it, projectManager)
                     reloadAssets()
                 }
             }
