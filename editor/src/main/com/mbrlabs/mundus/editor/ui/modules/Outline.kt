@@ -220,10 +220,39 @@ class Outline : VisTable(),
 
         })
 
-        // right click menu listener
-        tree.addListener(object : InputListener() {
+        tree.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                if (tapCount != 2)
+                    return
+
+                val go = tree.getNodeAt(y)?.value
+
+                if (go != null) {
+                    val context = projectManager.current()
+                    val pos = Vector3()
+                    go.transform.getTranslation(pos)
+
+                    // just lerp in the direction of the object if certain distance away
+                    if (pos.dst(context.currScene.cam.position) > 100)
+                        context.currScene.cam.position.lerp(pos.cpy().add(0f,40f,0f), 0.5f)
+
+                    context.currScene.cam.lookAt(pos)
+                    context.currScene.cam.up.set(Vector3.Y)
+                }
+
+            }
+
+            override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                if (Input.Buttons.LEFT != button) {
+                    return true
+                }
+                return super.touchDown(event, x, y, pointer, button)
+            }
+
+            // right click menu listener
             override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
                 if (Input.Buttons.RIGHT != button) {
+                    super.touchUp(event, x, y, pointer, button)
                     return
                 }
 
@@ -235,9 +264,6 @@ class Outline : VisTable(),
                 rightClickMenu.show(go, Gdx.input.x.toFloat(), (Gdx.graphics.height - Gdx.input.y).toFloat())
             }
 
-            override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                return true
-            }
         })
 
         // select listener
