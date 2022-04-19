@@ -244,4 +244,21 @@ public class TerrainAsset extends Asset {
     public void dispose() {
 
     }
+
+    @Override
+    public boolean usesAsset(Asset assetToCheck) {
+        if (assetToCheck == splatmap)
+            return true;
+
+        // does the splatmap use the asset
+        if (assetToCheck instanceof TextureAsset) {
+            for (Map.Entry<SplatTexture.Channel, SplatTexture> texture : terrain.getTerrainTexture().getTextures().entrySet()) {
+                if (texture.getValue().texture.getFile().path().equals(assetToCheck.getFile().path())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

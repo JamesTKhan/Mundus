@@ -17,14 +17,17 @@
 package com.mbrlabs.mundus.commons.scene3d.components;
 
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+
+import java.util.Objects;
 
 /**
  * @author Marcus Brummer
  * @version 18-01-2016
  */
-public class TerrainComponent extends AbstractComponent {
+public class TerrainComponent extends AbstractComponent implements AssetUsage {
 
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
@@ -69,4 +72,11 @@ public class TerrainComponent extends AbstractComponent {
         return null;
     }
 
+    @Override
+    public boolean usesAsset(Asset assetToCheck) {
+        if (Objects.equals(terrain.getID(), assetToCheck.getID()))
+            return true;
+
+        return terrain.usesAsset(assetToCheck);
+    }
 }

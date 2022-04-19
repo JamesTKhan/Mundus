@@ -20,15 +20,19 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.MaterialAsset;
 import com.mbrlabs.mundus.commons.assets.ModelAsset;
+import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+
+import java.util.Objects;
 
 /**
  * @author Marcus Brummer
  * @version 17-01-2016
  */
-public class ModelComponent extends AbstractComponent {
+public class ModelComponent extends AbstractComponent implements AssetUsage {
 
     protected ModelAsset modelAsset;
     protected ModelInstance modelInstance;
@@ -39,7 +43,7 @@ public class ModelComponent extends AbstractComponent {
     public ModelComponent(GameObject go, Shader shader) {
         super(go);
         type = Type.MODEL;
-        materials = new ObjectMap<String, MaterialAsset>();
+        materials = new ObjectMap<>();
         this.shader = shader;
     }
 
@@ -106,4 +110,26 @@ public class ModelComponent extends AbstractComponent {
         return mc;
     }
 
+    @Override
+    public boolean usesAsset(Asset assetToCheck) {
+        if (Objects.equals(assetToCheck.getID(), modelAsset.getID()))
+            return true;
+
+        if (assetToCheck instanceof MaterialAsset) {
+            if (materials.containsValue(assetToCheck,true)) {
+                return true;
+            }
+        }
+
+        if (assetToCheck instanceof TextureAsset) {
+            // for each texture see if there is a match
+            for (ObjectMap.Entry<String, MaterialAsset> next : materials) {
+                if (next.value.usesAsset(assetToCheck)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

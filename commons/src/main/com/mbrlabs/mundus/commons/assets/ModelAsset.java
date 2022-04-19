@@ -95,4 +95,19 @@ public class ModelAsset extends Asset {
         }
     }
 
+    @Override
+    public boolean usesAsset(Asset assetToCheck) {
+        // if it's a MaterialAsset compare to the models materials
+        if (assetToCheck instanceof MaterialAsset) {
+            return defaultMaterials.containsValue(assetToCheck);
+        }
+
+        // check if the materials use the asset, like a texture asset
+        for (Map.Entry<String, MaterialAsset> stringMaterialAssetEntry : defaultMaterials.entrySet()) {
+            if (stringMaterialAssetEntry.getValue().usesAsset(assetToCheck)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

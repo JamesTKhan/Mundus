@@ -27,9 +27,7 @@ import com.mbrlabs.mundus.commons.assets.*
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.scene3d.GameObject
-import com.mbrlabs.mundus.commons.scene3d.components.Component
-import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
-import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
@@ -42,7 +40,9 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import java.io.*
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
 /**
  * @author Marcus Brummer
@@ -327,13 +327,15 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      * Delete the asset from the project
      */
     fun deleteAsset(asset: Asset, projectManager: ProjectManager) {
-        val objectsWithAsset = findAssetUsages(projectManager, asset)
+        val objectsUsingAsset = findAssetUsagesInScenes(projectManager, asset)
+        val assetsUsingAsset = findAssetUsagesInAssets(asset)
 
-        if (objectsWithAsset.isNotEmpty()) {
-            showUsagesFoundDialog(objectsWithAsset)
+        if (objectsUsingAsset.isNotEmpty() || assetsUsingAsset.isNotEmpty()) {
+            showUsagesFoundDialog(objectsUsingAsset, assetsUsingAsset)
             return
         }
 
+        // continue with deletion
         assets?.removeValue(asset, true)
 
         if (asset.file.extension().equals(FileFormatUtils.FORMAT_3D_GLTF)) {
@@ -354,19 +356,20 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     /**
      * Build a dialog displaying the usages for the asset trying to be deleted.
      */
-    private fun showUsagesFoundDialog(objectsWithAssets: HashMap<GameObject, String>) {
+    private fun showUsagesFoundDialog(objectsWithAssets: HashMap<GameObject, String>, assetsUsingAsset: ArrayList<Asset>) {
         val iterator = objectsWithAssets.iterator()
-        var sceneNames = ""
-        var details = ""
+        val sceneNames = HashSet<String>()
+        var details = "Scenes using asset:"
 
+        // Create scenes section
         while (iterator.hasNext()) {
             val next = iterator.next()
 
             val sceneName = next.value
             val gameObject = next.key
 
-            if (!sceneNames.contains(sceneName)) {
-                sceneNames += sceneName
+            if (!sceneNames.contains(sceneName) && sceneName.isNotBlank()) {
+                sceneNames.add(sceneName)
             }
 
             var moreDetails = buildString {
@@ -381,132 +384,61 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
             if (iterator.hasNext()) {
                 moreDetails += ", "
-                sceneNames += ", "
+
             }
 
             details += (moreDetails)
         }
 
-        Dialogs.showDetailsDialog(UI, "Before deleting an asset, remove usages of the asset from all scenes and save. Scenes: $sceneNames", "Asset deletion", details)
+        // add assets section
+        if (assetsUsingAsset.isNotEmpty()) {
+            details += "\n\nAssets using asset:"
+
+            for (name in assetsUsingAsset)
+                details += "\n" + name
+        }
+
+        Dialogs.showDetailsDialog(UI, "Before deleting an asset, remove usages of the asset and save. Scenes: $sceneNames", "Asset deletion", details)
+    }
+
+    /**
+     * Searches all assets in the current context for any usages of the given asset
+     */
+    private fun findAssetUsagesInAssets(asset: Asset): ArrayList<Asset> {
+        val assetsUsingAsset = ArrayList<Asset>()
+
+        // Check for dependent assets that are not in scenes
+        for (otherAsset in assets) {
+            if (asset != otherAsset && otherAsset.usesAsset(asset)) {
+                assetsUsingAsset.add(otherAsset)
+            }
+        }
+
+        return assetsUsingAsset
     }
 
     /**
      * Searches all scenes in the current context for any usages of the given asset
      */
-    private fun findAssetUsages(projectManager: ProjectManager, asset: Asset): HashMap<GameObject, String> {
+    private fun findAssetUsagesInScenes(projectManager: ProjectManager, asset: Asset): HashMap<GameObject, String> {
         val objectsWithAssets = HashMap<GameObject, String>()
 
+        // we check for usages in all scenes
         for (sceneName in projectManager.current().scenes) {
             val scene = projectManager.loadScene(projectManager.current(), sceneName)
-
-            when (asset.meta.type) {
-                AssetType.MODEL, AssetType.TERRAIN -> {
-                    checkSceneForComponentUsage(scene, asset, objectsWithAssets)
-                }
-                AssetType.MATERIAL -> {
-                    checkSceneForMaterialUsage(scene, asset, objectsWithAssets)
-                }
-                AssetType.TEXTURE -> {
-                    checkSceneForTextureUsage(scene, asset, objectsWithAssets)
-                }
-                AssetType.PIXMAP_TEXTURE -> {
-                    Mundus.postEvent(LogEvent(LogType.ERROR, "An attempt to delete a pixmap was made."))
-                }
-                null -> LogEvent(LogType.ERROR, "Unknown or unsupported asset being deleted.")
-            }
+            checkSceneForAssetUsage(scene, asset, objectsWithAssets)
         }
 
         return objectsWithAssets
     }
 
-    private fun checkSceneForTextureUsage(scene: EditorScene?, asset: Asset, objectsWithAssets: HashMap<GameObject, String>) {
+    private fun checkSceneForAssetUsage(scene: EditorScene?, asset: Asset, objectsWithAssets: HashMap<GameObject, String>) {
         for (gameObject in scene!!.sceneGraph.gameObjects) {
             for (component in gameObject.components) {
-                if (component.type == Component.Type.MODEL) {
-
-                    // Check the textures the model component is using for a match
-                    if (component is ModelComponent) {
-
-                        val iterator = component.materials.iterator()
-                        while (iterator.hasNext()) {
-                            val next = iterator.next()
-
-                            val diffuseTexture = next.value.diffuseTexture
-                            val normalTexture = next.value.normalMap
-
-                            val diffuseMatch = diffuseTexture?.file?.path()?.equals(asset.file.path()) ?: false
-                            val normalMatch = normalTexture?.file?.path()?.equals(asset.file.path()) ?: false
-
-                            if (diffuseMatch || normalMatch) {
-                                objectsWithAssets[gameObject] = scene.name
-                                break
-                            }
-
-                        }
-                    }
+                if (component is AssetUsage) {
+                    if (component.usesAsset(asset))
+                        objectsWithAssets[gameObject] = scene.name
                 }
-
-                // for terrains, we iterate through each texture in the splatmap for a match
-                if (component.type == Component.Type.TERRAIN) {
-                    if (component is TerrainComponent) {
-                        val textures = component.terrain.terrain.terrainTexture.textures.iterator()
-                        while (textures.hasNext()) {
-                            val texture = textures.next()
-                            if (texture.value.texture.file.path().equals(asset.file.path())) {
-                                objectsWithAssets[gameObject] = scene.name
-                                break
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
-    private fun checkSceneForMaterialUsage(scene: EditorScene?, asset: Asset, objectsWithAssets: HashMap<GameObject, String>) {
-        for (gameObject in scene!!.sceneGraph.gameObjects) {
-            for (component in gameObject.components) {
-
-                // iterate through model materials for a match
-                if (component.type == Component.Type.MODEL) {
-                    if (component is ModelComponent) {
-                        val iterator = component.materials.iterator()
-                        while (iterator.hasNext()) {
-                            val next = iterator.next()
-                            if (next.value.file.path().equals(asset.file.path())) {
-                                objectsWithAssets[gameObject] = scene.name
-                                break
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
-    private fun checkSceneForComponentUsage(scene: EditorScene?, asset: Asset, objectsWithAssets: HashMap<GameObject, String>) {
-        for (gameObject in scene!!.sceneGraph.gameObjects) {
-            for (component in gameObject.components) {
-
-                if (component.type == Component.Type.MODEL) {
-                    if (component is ModelComponent)
-                        if (component.modelAsset.id == asset.id) {
-                            objectsWithAssets[gameObject] = scene.name
-                            break
-                        }
-                }
-
-                if (component.type == Component.Type.TERRAIN) {
-                    if (component is TerrainComponent) {
-                        if (component.terrain.id == asset.id) {
-                            objectsWithAssets[gameObject] = scene.name
-                            break
-                        }
-                    }
-                }
-
             }
         }
     }
