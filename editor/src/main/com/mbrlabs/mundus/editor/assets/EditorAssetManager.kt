@@ -358,7 +358,6 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      */
     private fun showUsagesFoundDialog(objectsWithAssets: HashMap<GameObject, String>, assetsUsingAsset: ArrayList<Asset>) {
         val iterator = objectsWithAssets.iterator()
-        val sceneNames = HashSet<String>()
         var details = "Scenes using asset:"
 
         // Create scenes section
@@ -367,10 +366,6 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
             val sceneName = next.value
             val gameObject = next.key
-
-            if (!sceneNames.contains(sceneName) && sceneName.isNotBlank()) {
-                sceneNames.add(sceneName)
-            }
 
             var moreDetails = buildString {
                 append("\nScene: ")
@@ -384,7 +379,6 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
             if (iterator.hasNext()) {
                 moreDetails += ", "
-
             }
 
             details += (moreDetails)
@@ -398,7 +392,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
                 details += "\n" + name
         }
 
-        Dialogs.showDetailsDialog(UI, "Before deleting an asset, remove usages of the asset and save. Scenes: $sceneNames", "Asset deletion", details)
+        Dialogs.showDetailsDialog(UI, "Before deleting an asset, remove usages of the asset and save. See details for usages.", "Asset deletion", details)
     }
 
     /**

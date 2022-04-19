@@ -182,11 +182,8 @@ class AssetsDock : Tab(false, false),
         }
 
         fun setSelected() {
-            if (asset is MaterialAsset || asset is ModelAsset
-                    || asset is TextureAsset || asset is TerrainAsset) {
-                this@AssetsDock.setSelected(this@AssetItem)
-                Mundus.postEvent(AssetSelectedEvent(asset))
-            }
+            this@AssetsDock.setSelected(this@AssetItem)
+            Mundus.postEvent(AssetSelectedEvent(asset))
         }
     }
 }
