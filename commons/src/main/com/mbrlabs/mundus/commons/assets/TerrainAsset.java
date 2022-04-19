@@ -16,6 +16,7 @@
 package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.FloatArray;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
@@ -160,6 +161,7 @@ public class TerrainAsset extends Asset {
 
         terrain = new Terrain(meta.getTerrain().getSize(), data);
         terrain.init();
+        terrain.updateUvScale(new Vector2(meta.getTerrain().getUv(), meta.getTerrain().getUv()));
         terrain.update();
     }
 
@@ -243,6 +245,12 @@ public class TerrainAsset extends Asset {
     @Override
     public void dispose() {
 
+    }
+
+    public void updateUvScale(Vector2 uvScale) {
+        terrain.updateUvScale(uvScale);
+        terrain.update();
+        meta.getTerrain().setUv(uvScale.x);
     }
 
     @Override

@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons.scene3d.components;
 
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.math.Vector2;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -38,6 +39,10 @@ public class TerrainComponent extends AbstractComponent implements AssetUsage {
         super(go);
         this.shader = shader;
         type = Component.Type.TERRAIN;
+    }
+
+    public void updateUVs(Vector2 uvScale) {
+        terrain.updateUvScale(uvScale);
     }
 
     public void setTerrain(TerrainAsset terrain) {

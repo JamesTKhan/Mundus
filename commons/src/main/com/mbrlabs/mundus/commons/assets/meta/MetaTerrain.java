@@ -30,8 +30,10 @@ public class MetaTerrain {
     public static final String JSON_SPLAT_G = "g";
     public static final String JSON_SPLAT_B = "b";
     public static final String JSON_SPLAT_A = "a";
+    public static final String JSON_UV_SCALE= "uv";
 
     private int size;
+    private float uv;
     private String splatmap;
     private String splatBase;
     private String splatR;
@@ -95,6 +97,14 @@ public class MetaTerrain {
         this.size = size;
     }
 
+    public float getUv() {
+        return uv;
+    }
+
+    public void setUv(float uv) {
+        this.uv = uv;
+    }
+
     @Override
     public String toString() {
         return "MetaTerrain{" +
@@ -105,6 +115,7 @@ public class MetaTerrain {
                 ", splatG='" + splatG + '\'' +
                 ", splatB='" + splatB + '\'' +
                 ", splatA='" + splatA + '\'' +
+                ", uv='" + uv + '\'' +
                 '}';
     }
 }
