@@ -20,6 +20,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.mbrlabs.mundus.commons.assets.AssetType;
+import com.mbrlabs.mundus.commons.terrain.Terrain;
 
 /**
  *
@@ -57,7 +58,7 @@ public class MetaLoader {
 
         final MetaTerrain terrain = new MetaTerrain();
         terrain.setSize(jsonTerrain.getInt(MetaTerrain.JSON_SIZE));
-        terrain.setUv(jsonTerrain.getFloat(MetaTerrain.JSON_UV_SCALE, 60));
+        terrain.setUv(jsonTerrain.getFloat(MetaTerrain.JSON_UV_SCALE, Terrain.DEFAULT_UV_SCALE));
         terrain.setSplatmap(jsonTerrain.getString(MetaTerrain.JSON_SPLATMAP, null));
         terrain.setSplatBase(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_BASE, null));
         terrain.setSplatR(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_R, null));

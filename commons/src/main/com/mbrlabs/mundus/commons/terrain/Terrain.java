@@ -45,6 +45,7 @@ public class Terrain implements RenderableProvider, Disposable {
 
     public static final int DEFAULT_SIZE = 1600;
     public static final int DEFAULT_VERTEX_RESOLUTION = 180;
+    public static final int DEFAULT_UV_SCALE = 60;
 
     private static final MeshPartBuilder.VertexInfo tempVertexInfo = new MeshPartBuilder.VertexInfo();
     private static final Vector3 c00 = new Vector3();
@@ -60,7 +61,7 @@ public class Terrain implements RenderableProvider, Disposable {
 
     // used for building the mesh
     private VertexAttributes attribs;
-    private Vector2 uvScale = new Vector2(60, 60);
+    private Vector2 uvScale = new Vector2(DEFAULT_UV_SCALE, DEFAULT_UV_SCALE);
     private float vertices[];
     private int stride;
     private int posPos;
