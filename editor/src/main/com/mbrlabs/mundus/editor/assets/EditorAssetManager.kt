@@ -170,6 +170,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val meta = createNewMetaFile(FileHandle(metaPath), AssetType.TERRAIN)
         meta.terrain = MetaTerrain()
         meta.terrain.size = size
+        meta.terrain.uv = 60f
         metaSaver.save(meta)
 
         // create terra file

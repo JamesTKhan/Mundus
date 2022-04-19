@@ -57,6 +57,7 @@ public class MetaLoader {
 
         final MetaTerrain terrain = new MetaTerrain();
         terrain.setSize(jsonTerrain.getInt(MetaTerrain.JSON_SIZE));
+        terrain.setUv(jsonTerrain.getFloat(MetaTerrain.JSON_UV_SCALE, 60));
         terrain.setSplatmap(jsonTerrain.getString(MetaTerrain.JSON_SPLATMAP, null));
         terrain.setSplatBase(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_BASE, null));
         terrain.setSplatR(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_R, null));

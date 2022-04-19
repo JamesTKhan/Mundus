@@ -39,7 +39,7 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
     private val flattenTab = TerrainFlattenTab(this)
     private val paintTab = TerrainPaintTab(this)
     private val genTab = TerrainGenTab(this)
-    private val settingsTab = TerrainSettingsTab()
+    private val settingsTab = TerrainSettingsTab(this)
 
     init {
         tabbedPane.addListener(this)
