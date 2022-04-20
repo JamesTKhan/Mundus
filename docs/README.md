@@ -1,4 +1,4 @@
 # Documents
 
-[Terrain](Terrain)
+[Terrain](Terrain.md)
 
