@@ -66,4 +66,11 @@ public class PixmapTextureAsset extends Asset {
         texture.dispose();
     }
 
+    @Override
+    public boolean usesAsset(Asset assetToCheck) {
+        if (assetToCheck instanceof TextureAsset){
+            return texture == ((TextureAsset) assetToCheck).getTexture();
+        }
+        return false;
+    }
 }

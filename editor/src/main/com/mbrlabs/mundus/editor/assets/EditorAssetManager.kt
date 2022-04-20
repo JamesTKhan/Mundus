@@ -16,22 +16,33 @@
 
 package com.mbrlabs.mundus.editor.assets
 
+import com.badlogic.gdx.Files
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.PixmapIO
 import com.badlogic.gdx.utils.ObjectSet
+import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.mbrlabs.mundus.commons.assets.*
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
+import com.mbrlabs.mundus.commons.scene3d.GameObject
+import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
+import com.mbrlabs.mundus.commons.utils.FileFormatUtils
+import com.mbrlabs.mundus.editor.core.EditorScene
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import java.io.*
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
 /**
  * @author Marcus Brummer
@@ -311,6 +322,120 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             asset.meta.model.defaultMaterials.put(g3dbMatID, asset.defaultMaterials[g3dbMatID]!!.id)
         }
         metaSaver.save(asset.meta)
+    }
+
+    /**
+     * Delete the asset from the project
+     */
+    fun deleteAsset(asset: Asset, projectManager: ProjectManager) {
+        val objectsUsingAsset = findAssetUsagesInScenes(projectManager, asset)
+        val assetsUsingAsset = findAssetUsagesInAssets(asset)
+
+        if (objectsUsingAsset.isNotEmpty() || assetsUsingAsset.isNotEmpty()) {
+            showUsagesFoundDialog(objectsUsingAsset, assetsUsingAsset)
+            return
+        }
+
+        // continue with deletion
+        assets?.removeValue(asset, true)
+
+        if (asset.file.extension().equals(FileFormatUtils.FORMAT_3D_GLTF)) {
+            // Delete the additional gltf binary file if found
+            val binPath = asset.file.pathWithoutExtension() + ".bin"
+            val binFile = Gdx.files.getFileHandle(binPath, Files.FileType.Absolute)
+            if (binFile.exists())
+                binFile.delete()
+        }
+
+        if (asset.meta.file.exists())
+            asset.meta.file.delete()
+
+        if (asset.file.exists())
+            asset.file.delete()
+    }
+
+    /**
+     * Build a dialog displaying the usages for the asset trying to be deleted.
+     */
+    private fun showUsagesFoundDialog(objectsWithAssets: HashMap<GameObject, String>, assetsUsingAsset: ArrayList<Asset>) {
+        val iterator = objectsWithAssets.iterator()
+        var details = "Scenes using asset:"
+
+        // Create scenes section
+        while (iterator.hasNext()) {
+            val next = iterator.next()
+
+            val sceneName = next.value
+            val gameObject = next.key
+
+            var moreDetails = buildString {
+                append("\nScene: ")
+                append("[")
+                append(sceneName)
+                append("] Object name: ")
+                append("[")
+                append(gameObject.name)
+                append("]")
+            }
+
+            if (iterator.hasNext()) {
+                moreDetails += ", "
+            }
+
+            details += (moreDetails)
+        }
+
+        // add assets section
+        if (assetsUsingAsset.isNotEmpty()) {
+            details += "\n\nAssets using asset:"
+
+            for (name in assetsUsingAsset)
+                details += "\n" + name
+        }
+
+        Dialogs.showDetailsDialog(UI, "Before deleting an asset, remove usages of the asset and save. See details for usages.", "Asset deletion", details)
+    }
+
+    /**
+     * Searches all assets in the current context for any usages of the given asset
+     */
+    private fun findAssetUsagesInAssets(asset: Asset): ArrayList<Asset> {
+        val assetsUsingAsset = ArrayList<Asset>()
+
+        // Check for dependent assets that are not in scenes
+        for (otherAsset in assets) {
+            if (asset != otherAsset && otherAsset.usesAsset(asset)) {
+                assetsUsingAsset.add(otherAsset)
+            }
+        }
+
+        return assetsUsingAsset
+    }
+
+    /**
+     * Searches all scenes in the current context for any usages of the given asset
+     */
+    private fun findAssetUsagesInScenes(projectManager: ProjectManager, asset: Asset): HashMap<GameObject, String> {
+        val objectsWithAssets = HashMap<GameObject, String>()
+
+        // we check for usages in all scenes
+        for (sceneName in projectManager.current().scenes) {
+            val scene = projectManager.loadScene(projectManager.current(), sceneName)
+            checkSceneForAssetUsage(scene, asset, objectsWithAssets)
+        }
+
+        return objectsWithAssets
+    }
+
+    private fun checkSceneForAssetUsage(scene: EditorScene?, asset: Asset, objectsWithAssets: HashMap<GameObject, String>) {
+        for (gameObject in scene!!.sceneGraph.gameObjects) {
+            for (component in gameObject.components) {
+                if (component is AssetUsage) {
+                    if (component.usesAsset(asset))
+                        objectsWithAssets[gameObject] = scene.name
+                }
+            }
+        }
     }
 
     /**

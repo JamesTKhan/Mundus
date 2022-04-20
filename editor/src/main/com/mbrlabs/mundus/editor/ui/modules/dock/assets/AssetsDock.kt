@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
@@ -85,6 +86,19 @@ class AssetsDock : Tab(false, false),
         // asset ops right click menu
         assetOpsMenu.addItem(renameAsset)
         assetOpsMenu.addItem(deleteAsset)
+
+        registerListeners()
+    }
+
+    private fun registerListeners() {
+        deleteAsset.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent, x: Float, y: Float) {
+                currentSelection?.asset?.let {
+                    projectManager.current().assetManager.deleteAsset(it, projectManager)
+                    reloadAssets()
+                }
+            }
+        })
     }
 
     private fun setSelected(assetItem: AssetItem?) {
@@ -138,7 +152,7 @@ class AssetsDock : Tab(false, false),
     /**
      * Asset item in the grid.
      */
-    private inner class AssetItem(private val asset: Asset) : VisTable() {
+    private inner class AssetItem(val asset: Asset) : VisTable() {
 
         private val nameLabel: VisLabel
 
@@ -156,18 +170,20 @@ class AssetsDock : Tab(false, false),
 
                 override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
                     if (event!!.button == Input.Buttons.RIGHT) {
+                        setSelected()
                         assetOpsMenu.showMenu(UI, Gdx.input.x.toFloat(),
                                 (Gdx.graphics.height - Gdx.input.y).toFloat())
                     } else if (event.button == Input.Buttons.LEFT) {
-                        if (asset is MaterialAsset || asset is ModelAsset
-                                || asset is TextureAsset || asset is TerrainAsset) {
-                            this@AssetsDock.setSelected(this@AssetItem)
-                            Mundus.postEvent(AssetSelectedEvent(asset))
-                        }
+                        setSelected()
                     }
                 }
 
             })
+        }
+
+        fun setSelected() {
+            this@AssetsDock.setSelected(this@AssetItem)
+            Mundus.postEvent(AssetSelectedEvent(asset))
         }
     }
 }

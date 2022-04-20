@@ -77,6 +77,10 @@ public class TerrainTexture {
         return textures.size();
     }
 
+    public Map<SplatTexture.Channel, SplatTexture> getTextures() {
+        return textures;
+    }
+
     public SplatMap getSplatmap() {
         return splatmap;
     }

@@ -82,4 +82,9 @@ public class TextureAsset extends Asset implements TextureProvider {
             texture.dispose();
         }
     }
+
+    @Override
+    public boolean usesAsset(Asset assetToCheck) {
+        return false;
+    }
 }

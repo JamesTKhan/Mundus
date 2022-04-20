@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class MaterialAsset extends Asset {
 
-    private static final ObjectMap<String, String> MAP = new ObjectMap<String, String>();
+    private static final ObjectMap<String, String> MAP = new ObjectMap<>();
 
     public static final String EXTENSION = ".mat";
 
@@ -178,4 +178,14 @@ public class MaterialAsset extends Asset {
         // nothing to dispose
     }
 
+    @Override
+    public boolean usesAsset(Asset assetToCheck) {
+        if (assetToCheck instanceof TextureAsset) {
+            boolean diffuseMatch = diffuseTexture != null && diffuseTexture.getFile().path().equals(assetToCheck.getFile().path());
+            boolean normalMatch = normalMap != null && normalMap.getFile().path().equals(assetToCheck.getFile().path());
+
+            return diffuseMatch || normalMatch;
+        }
+        return false;
+    }
 }

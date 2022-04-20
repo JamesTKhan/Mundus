@@ -19,6 +19,7 @@ package com.mbrlabs.mundus.commons.assets;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
+import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage;
 
 import java.util.Map;
 
@@ -33,7 +34,7 @@ import java.util.Map;
  * @author Marcus Brummer
  * @version 01-10-2016
  */
-public abstract class Asset implements Disposable {
+public abstract class Asset implements Disposable, AssetUsage {
 
     protected FileHandle file;
     protected Meta meta;

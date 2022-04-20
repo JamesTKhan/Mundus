@@ -41,7 +41,8 @@ class MetaSaver {
         }
         json.writeObjectEnd()
 
-        json.writer.flush()
+        // Close stream, otherwise file becomes locked
+        json.writer.close()
     }
 
     private fun addBasics(meta: Meta, json: Json) {
