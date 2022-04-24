@@ -97,7 +97,7 @@ public class ModelShader extends BaseShader {
         this.context.setDepthTest(GL20.GL_LEQUAL, 0f, 1f);
         this.context.setDepthMask(true);
 
-        program.begin();
+        program.bind();
 
         set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined);
         set(UNIFORM_CAM_POS, camera.position);
@@ -167,7 +167,6 @@ public class ModelShader extends BaseShader {
     @Override
     public void end() {
         context.end();
-        program.end();
     }
 
     @Override
