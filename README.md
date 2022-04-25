@@ -24,7 +24,7 @@ Below are some of the more interesting features, that already work
 - 4 different brushes (brush form can be an arbitrary image, like in Blender or Gimp)
 - 3 brush modes for each brush: Raise/Lower, Flatten & texture paint
 - A skybox (not exportable yet)
-- Loading of g3db/gltf files
+- Loading of g3db/gltf/glb files
 - Loading of obj/fbx/dae files (note, that the [fbx-conv](https://github.com/libgdx/fbx-conv) binary must be set in the settings)
 - A visual translation & rotation tool (scaling coming soon)
 - Multiple scenes in one project

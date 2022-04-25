@@ -55,6 +55,7 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.editor.ui.widgets.FileChooserField
 import com.mbrlabs.mundus.editor.ui.widgets.RenderWidget
 import com.mbrlabs.mundus.editor.utils.*
+import net.mgsx.gltf.loaders.glb.GLBLoader
 import net.mgsx.gltf.loaders.gltf.GLTFLoader
 import java.io.IOException
 
@@ -229,6 +230,8 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
                         previewModel = MG3dModelLoader(UBJsonReader()).loadModel(importedModel!!.file)
                     } else if (isGLTF(importedModel!!.file)) {
                         previewModel = GLTFLoader().load(importedModel!!.file).scene.model
+                    } else if (isGLB(importedModel!!.file)) {
+                        previewModel = GLBLoader().load(importedModel!!.file).scene.model
                     } else {
                         throw GdxRuntimeException("Unsupported 3D format")
                     }

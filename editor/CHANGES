@@ -1,3 +1,6 @@
+[0.3.0]
+- Added GLB support
+
 [0.2.0]
 - [BREAKING CHANGE] Project saves scene, model component and terrain as json instead of binary format.
 - [BREAKING CHANGE] Kryo updated to 5.2.0. The previous projects won't work.

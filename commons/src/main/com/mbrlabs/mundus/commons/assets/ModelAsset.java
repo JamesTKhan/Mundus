@@ -24,6 +24,7 @@ import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel;
 import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader;
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils;
+import net.mgsx.gltf.loaders.glb.GLBLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFLoader;
 
 import java.util.HashMap;
@@ -60,6 +61,9 @@ public class ModelAsset extends Asset {
             model = loader.loadModel(file);
         } else if (FileFormatUtils.isGLTF(file)) {
             GLTFLoader loader = new GLTFLoader();
+            model = loader.load(file).scene.model;
+        } else if (FileFormatUtils.isGLB(file)) {
+            GLBLoader loader = new GLBLoader();
             model = loader.load(file).scene.model;
         } else {
             throw new GdxRuntimeException("Unsupported 3D model");
