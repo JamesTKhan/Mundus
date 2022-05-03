@@ -17,8 +17,13 @@
 package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
@@ -27,6 +32,7 @@ import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
+import de.damios.guacamole.gdx.graphics.NestableFrameBuffer;
 
 /**
  * @author Marcus Brummer
@@ -48,6 +54,18 @@ public class Scene implements Disposable {
 
     public PerspectiveCamera cam;
     public ModelBatch batch;
+
+    private FrameBuffer fboWaterReflection;
+    private FrameBuffer fboWaterRefraction;
+
+    protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
+    protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
+    protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
+
+    // TODO make this dynamic
+    protected float waterHeight = 0f;
+
+    private final float distortionEdgeCorrection = 1f;
 
     public Scene() {
         environment = new MundusEnvironment();
@@ -76,8 +94,55 @@ public class Scene implements Disposable {
     }
 
     public void render(float delta) {
+        if (fboWaterReflection == null) {
+            fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGBA8888, 1280, 720, true);
+            fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGBA8888, 1280, 720, true);
+        }
+
+        // Calc vertical distance for camera for reflection FBO
+        float camReflectionDistance = 2 * (cam.position.y - waterHeight);
+
+        // Save current cam positions
+        Vector3 camPos = cam.position.cpy();
+        Vector3 camDir = cam.direction.cpy();
+
+        // Position camera for reflection capture
+        cam.direction.scl(1, -1, 1).nor();
+        cam.position.sub(0, camReflectionDistance, 0);
+        cam.update();
+
+        // Render reflections to FBO
+        fboWaterReflection.begin();
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin(cam);
-        sceneGraph.render(delta);
+        sceneGraph.render(delta, clippingPlaneReflection, -waterHeight + distortionEdgeCorrection);
+        batch.end();
+        fboWaterReflection.end();
+
+        // Restore camera positions
+        cam.direction.set(camDir);
+        cam.position.set(camPos);
+        cam.update();
+
+        // Render refractions to FBO
+        fboWaterRefraction.begin();
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        batch.begin(cam);
+        sceneGraph.render(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection);
+        batch.end();
+        fboWaterRefraction.end();
+
+        Texture refraction = fboWaterRefraction.getColorBufferTexture();
+        Texture reflection = fboWaterReflection.getColorBufferTexture();
+
+        // Render objects
+        batch.begin(cam);
+        sceneGraph.render(delta, clippingPlaneDisable, 0);
+        batch.end();
+
+        // Render Water
+        batch.begin(cam);
+        sceneGraph.renderWater(delta, reflection, refraction);
         batch.end();
     }
 

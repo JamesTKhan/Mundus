@@ -35,7 +35,12 @@ uniform int         u_diffuseUseTexture;
 // enviroment
 uniform vec4 u_fogColor;
 
+varying float v_clipDistance;
+
 void main(void) {
+    if ( v_clipDistance < 0.0 )
+        discard;
+
     if(u_diffuseUseTexture == 1) {
         gl_FragColor = texture2D(u_diffuseTexture, v_texCoord0);
         //    if(gl_FragColor.a < 0.5) {

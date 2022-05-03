@@ -30,5 +30,7 @@ public enum AssetType {
     /** Terra file. Contains height data for terrains. */
     TERRAIN,
     /** Material file. Mundus material file contains material information. */
-    MATERIAL
+    MATERIAL,
+    /** Water file. Contains data for water. */
+    WATER
 }

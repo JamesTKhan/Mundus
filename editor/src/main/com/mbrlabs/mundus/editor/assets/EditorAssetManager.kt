@@ -26,6 +26,7 @@ import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.mbrlabs.mundus.commons.assets.*
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
+import com.mbrlabs.mundus.commons.assets.meta.MetaWater
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.editor.Mundus
@@ -42,7 +43,6 @@ import java.io.*
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 
 /**
  * @author Marcus Brummer
@@ -53,6 +53,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     companion object {
         private val TAG = EditorAssetManager::class.java.simpleName
         val STANDARD_ASSET_TEXTURE_CHESSBOARD = "chessboard"
+        val STANDARD_ASSET_TEXTURE_DUDV = "dudv"
+        val STANDARD_ASSET_TEXTURE_WATER_NORMAL = "waterNormal"
     }
 
     /** Modified assets that need to be saved.  */
@@ -119,6 +121,18 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             chessboard.meta.uuid = STANDARD_ASSET_TEXTURE_CHESSBOARD
             assetIndex.put(chessboard.id, chessboard)
             metaSaver.save(chessboard.meta)
+
+            val dudv = createTextureAsset(Gdx.files.internal("standardAssets/dudv.png"))
+            assetIndex.remove(dudv.id)
+            dudv.meta.uuid = STANDARD_ASSET_TEXTURE_DUDV
+            assetIndex.put(dudv.id, dudv)
+            metaSaver.save(dudv.meta)
+
+            val waterNormal = createTextureAsset(Gdx.files.internal("standardAssets/waterNormal.png"))
+            assetIndex.remove(waterNormal.id)
+            waterNormal.meta.uuid = STANDARD_ASSET_TEXTURE_WATER_NORMAL
+            assetIndex.put(waterNormal.id, waterNormal)
+            metaSaver.save(waterNormal.meta)
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -503,6 +517,37 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val copy = FileHandle(FilenameUtils.concat(rootFolder.path(), file.name()))
         file.copyTo(copy)
         return copy
+    }
+
+    fun createWaterAsset(name: String, defaultSize: Int): WaterAsset {
+        val waterFileName = name + ".water"
+        val metaFilename = waterFileName + ".meta"
+
+        // create meta file
+        val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
+        val meta = createNewMetaFile(FileHandle(metaPath), AssetType.WATER)
+        meta.water = MetaWater()
+        meta.water.size = defaultSize
+        meta.water.dudvMap = findAssetByID(STANDARD_ASSET_TEXTURE_DUDV).id
+        meta.water.normalMap = findAssetByID(STANDARD_ASSET_TEXTURE_WATER_NORMAL).id
+        metaSaver.save(meta)
+
+        // create water file
+        val path = FilenameUtils.concat(rootFolder.path(), waterFileName)
+        val file = File(path)
+        FileUtils.touch(file)
+
+        // load & apply standard chessboard texture
+        val asset = WaterAsset(meta, FileHandle(file))
+        asset.load()
+
+        // set base textures
+        asset.dudvTexture = findAssetByID(STANDARD_ASSET_TEXTURE_DUDV) as TextureAsset?
+        asset.applyDependencies()
+        metaSaver.save(asset.meta)
+
+        addAsset(asset)
+        return asset
     }
 
 }

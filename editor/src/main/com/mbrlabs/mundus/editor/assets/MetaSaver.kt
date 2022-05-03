@@ -22,6 +22,7 @@ import com.mbrlabs.mundus.commons.assets.AssetType
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
+import com.mbrlabs.mundus.commons.assets.meta.MetaWater
 
 /**
  *
@@ -38,6 +39,8 @@ class MetaSaver {
             addTerrain(meta, json)
         } else if(meta.type == AssetType.MODEL) {
             addModel(meta, json)
+        } else if(meta.type == AssetType.WATER) {
+            addWater(meta, json)
         }
         json.writeObjectEnd()
 
@@ -81,6 +84,16 @@ class MetaSaver {
         if (terrain.splatG != null) json.writeValue(MetaTerrain.JSON_SPLAT_G, terrain.splatG)
         if (terrain.splatB != null) json.writeValue(MetaTerrain.JSON_SPLAT_B, terrain.splatB)
         if (terrain.splatA != null) json.writeValue(MetaTerrain.JSON_SPLAT_A, terrain.splatA)
+        json.writeObjectEnd()
+    }
+
+    private fun addWater(meta: Meta, json: Json) {
+        val water = meta.water ?: return
+
+        json.writeObjectStart(Meta.JSON_WATER)
+        json.writeValue(MetaWater.JSON_SIZE, water.size)
+        json.writeValue(MetaWater.JSON_DUDV, water.dudvMap)
+        json.writeValue(MetaWater.JSON_NORMAL_MAP, water.normalMap)
         json.writeObjectEnd()
     }
 

@@ -52,6 +52,8 @@ public class GameObjectConverter {
             go.getComponents().add(ModelComponentConverter.convert(dto.getModelComponent(), go, shaders.getModelShader(), assetManager));
         } else if (dto.getTerrainComponent() != null) {
             go.getComponents().add(TerrainComponentConverter.convert(dto.getTerrainComponent(), go, shaders.getTerrainShader(), assetManager));
+        } else if (dto.getWaterComponent() != null) {
+            go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, shaders.getWaterShader(), assetManager));
         }
 
         // recursively convert children

@@ -39,7 +39,7 @@ import com.mbrlabs.mundus.commons.utils.ShaderUtils;
  * @author Marcus Brummer
  * @version 22-11-2015
  */
-public class TerrainShader extends BaseShader {
+public class TerrainShader extends ClippableShader {
 
     protected static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/terrain.vert.glsl";
     protected static final String FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/terrain.frag.glsl";
@@ -113,6 +113,8 @@ public class TerrainShader extends BaseShader {
 
     @Override
     public void render(Renderable renderable) {
+        super.render(renderable);
+
         final MundusEnvironment env = (MundusEnvironment) renderable.environment;
 
         setLights(env);

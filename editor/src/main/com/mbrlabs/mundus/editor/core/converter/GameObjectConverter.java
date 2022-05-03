@@ -25,6 +25,7 @@ import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
+import com.mbrlabs.mundus.editor.scene3d.components.PickableWaterComponent;
 
 import java.util.Map;
 
@@ -62,6 +63,8 @@ public class GameObjectConverter {
             go.getComponents().add(ModelComponentConverter.convert(dto.getModelComponent(), go, assets));
         } else if (dto.getTerrainComponent() != null) {
             go.getComponents().add(TerrainComponentConverter.convert(dto.getTerrainComponent(), go, assets));
+        } else if (dto.getWaterComponent() != null) {
+            go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, assets));
         }
 
         // recursively convert children
@@ -110,6 +113,8 @@ public class GameObjectConverter {
                 descriptor.setModelComponent(ModelComponentConverter.convert((PickableModelComponent) c));
             } else if (c.getType() == Component.Type.TERRAIN) {
                 descriptor.setTerrainComponent(TerrainComponentConverter.convert((PickableTerrainComponent) c));
+            } else if (c.getType() == Component.Type.WATER) {
+                descriptor.setWaterComponent(WaterComponentConverter.convert((PickableWaterComponent) c));
             }
         }
 

@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.terrain.Terrain
+import com.mbrlabs.mundus.commons.water.Water
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.*
@@ -44,6 +45,7 @@ import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.createTerrainGO
+import com.mbrlabs.mundus.editor.utils.createWaterGO
 
 /**
  * Outline shows overview about all game objects in the scene
@@ -393,6 +395,7 @@ class Outline : VisTable(),
 
         private val addEmpty: MenuItem = MenuItem("Add Empty")
         private val addTerrain: MenuItem = MenuItem("Add terrain")
+        private val addWater: MenuItem = MenuItem("Add water")
         private val duplicate: MenuItem = MenuItem("Duplicate")
         private val rename: MenuItem = MenuItem("Rename")
         private val delete: MenuItem = MenuItem("Delete")
@@ -459,6 +462,38 @@ class Outline : VisTable(),
                 }
             })
 
+            // add waterAsset
+            addWater.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    try {
+                        Log.trace(TAG, "Add water game object in root node.")
+                        val context = projectManager.current()
+                        val sceneGraph = context.currScene.sceneGraph
+                        val goID = projectManager.current().obtainID()
+                        val name = "Water " + goID
+                        // create asset
+                        val asset = context.assetManager.createWaterAsset(name,
+                                Water.DEFAULT_SIZE)
+                        asset.load()
+                        asset.applyDependencies()
+
+                        val waterGO = createWaterGO(sceneGraph,
+                                Shaders.waterShader, goID, name, asset)
+                        // update sceneGraph
+                        sceneGraph.addGameObject(waterGO)
+                        // update outline
+                        addGoToTree(null, waterGO)
+
+                        projectManager.saveProject(context)
+                        Mundus.postEvent(AssetImportEvent(asset))
+                        Mundus.postEvent(SceneGraphChangedEvent())
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+
+                }
+            })
+
             rename.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     if (selectedGO != null) {
@@ -489,6 +524,7 @@ class Outline : VisTable(),
 
             addItem(addEmpty)
             addItem(addTerrain)
+            addItem(addWater)
             addItem(rename)
             addItem(duplicate)
             addItem(delete)
