@@ -94,6 +94,10 @@ class MetaSaver {
         json.writeValue(MetaWater.JSON_SIZE, water.size)
         json.writeValue(MetaWater.JSON_DUDV, water.dudvMap)
         json.writeValue(MetaWater.JSON_NORMAL_MAP, water.normalMap)
+        json.writeValue(MetaWater.JSON_TILING, water.tiling)
+        json.writeValue(MetaWater.JSON_WAVE_STRENGTH, water.waveStrength)
+        json.writeValue(MetaWater.JSON_WAVE_SPEED, water.waveSpeed)
+
         json.writeObjectEnd()
     }
 

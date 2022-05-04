@@ -36,6 +36,8 @@ public class SceneGraph {
 
     private GameObject selected;
 
+    private boolean containsWater = false;
+
     public SceneGraph(Scene scene) {
         root = new GameObject(this, null, -1);
         root.initChildrenArray();
@@ -81,6 +83,13 @@ public class SceneGraph {
 
     public void addGameObject(GameObject go) {
         root.addChild(go);
+
+        if (containsWater) return;
+
+        Component waterComponent = go.findComponentByType(Component.Type.WATER);
+        if (waterComponent != null) {
+            containsWater = true;
+        }
     }
 
     public GameObject getSelected() {
@@ -91,4 +100,11 @@ public class SceneGraph {
         this.selected = selected;
     }
 
+    public boolean isContainsWater() {
+        return containsWater;
+    }
+
+    public void setContainsWater(boolean containsWater) {
+        this.containsWater = containsWater;
+    }
 }

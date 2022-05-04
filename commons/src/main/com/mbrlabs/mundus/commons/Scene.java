@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -32,6 +33,7 @@ import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
+import com.mbrlabs.mundus.commons.water.WaterResolution;
 import de.damios.guacamole.gdx.graphics.NestableFrameBuffer;
 
 /**
@@ -46,6 +48,7 @@ public class Scene implements Disposable {
     public SceneGraph sceneGraph;
     public MundusEnvironment environment;
     public Skybox skybox;
+    public WaterResolution waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
 
     @Deprecated // TODO not here
     public Array<TerrainAsset> terrains;
@@ -95,10 +98,38 @@ public class Scene implements Disposable {
 
     public void render(float delta) {
         if (fboWaterReflection == null) {
-            fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGBA8888, 1280, 720, true);
-            fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGBA8888, 1280, 720, true);
+            Vector2 res = waterResolution.getResolutionValues();
+            initFrameBuffers((int) res.x, (int) res.y);
         }
 
+        if (sceneGraph.isContainsWater()) {
+            captureReflectionFBO(delta);
+            captureRefractionFBO(delta);
+        }
+
+        // Render objects
+        batch.begin(cam);
+        sceneGraph.render(delta, clippingPlaneDisable, 0);
+        batch.end();
+
+        if (sceneGraph.isContainsWater()) {
+            Texture refraction = fboWaterRefraction.getColorBufferTexture();
+            Texture reflection = fboWaterReflection.getColorBufferTexture();
+
+            // Render Water
+            batch.begin(cam);
+            sceneGraph.renderWater(delta, reflection, refraction);
+            batch.end();
+        }
+
+    }
+
+    private void initFrameBuffers(int width, int height) {
+        fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
+        fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
+    }
+
+    private void captureReflectionFBO(float delta) {
         // Calc vertical distance for camera for reflection FBO
         float camReflectionDistance = 2 * (cam.position.y - waterHeight);
 
@@ -123,7 +154,9 @@ public class Scene implements Disposable {
         cam.direction.set(camDir);
         cam.position.set(camPos);
         cam.update();
+    }
 
+    private void captureRefractionFBO(float delta) {
         // Render refractions to FBO
         fboWaterRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -131,19 +164,6 @@ public class Scene implements Disposable {
         sceneGraph.render(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection);
         batch.end();
         fboWaterRefraction.end();
-
-        Texture refraction = fboWaterRefraction.getColorBufferTexture();
-        Texture reflection = fboWaterReflection.getColorBufferTexture();
-
-        // Render objects
-        batch.begin(cam);
-        sceneGraph.render(delta, clippingPlaneDisable, 0);
-        batch.end();
-
-        // Render Water
-        batch.begin(cam);
-        sceneGraph.renderWater(delta, reflection, refraction);
-        batch.end();
     }
 
     public String getName() {
@@ -160,6 +180,12 @@ public class Scene implements Disposable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public void setWaterResolution(WaterResolution resolution) {
+        this.waterResolution = resolution;
+        Vector2 res = waterResolution.getResolutionValues();
+        initFrameBuffers((int) res.x, (int) res.y);
     }
 
     @Override

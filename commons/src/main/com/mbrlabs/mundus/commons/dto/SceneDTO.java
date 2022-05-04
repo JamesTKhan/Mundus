@@ -16,6 +16,8 @@
 
 package com.mbrlabs.mundus.commons.dto;
 
+import com.mbrlabs.mundus.commons.water.WaterResolution;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +38,7 @@ public class SceneDTO {
     private float camDirX = 0;
     private float camDirY = 0;
     private float camDirZ = 0;
+    private WaterResolution waterResolution;
 
     public SceneDTO() {
         gameObjects = new ArrayList<>();
@@ -127,5 +130,13 @@ public class SceneDTO {
 
     public void setGameObjects(List<GameObjectDTO> gameObjects) {
         this.gameObjects = gameObjects;
+    }
+
+    public void setWaterResolution(WaterResolution waterResolution) {
+        this.waterResolution = waterResolution;
+    }
+
+    public WaterResolution getWaterResolution() {
+        return waterResolution;
     }
 }

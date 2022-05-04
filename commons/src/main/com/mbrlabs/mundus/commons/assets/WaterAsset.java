@@ -22,6 +22,9 @@ public class WaterAsset extends Asset {
     public void load() {
         water = new Water(meta.getWater().getSize());
         water.init();
+        water.setTiling(meta.getWater().getTiling());
+        water.setWaveStrength(meta.getWater().getWaveStrength());
+        water.setWaveSpeed(meta.getWater().getWaveSpeed());
     }
 
     @Override

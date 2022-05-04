@@ -78,6 +78,9 @@ public class MetaLoader {
         water.setSize(jsonValue.getInt(MetaWater.JSON_SIZE));
         water.setDudvMap(jsonValue.getString(MetaWater.JSON_DUDV));
         water.setNormalMap(jsonValue.getString(MetaWater.JSON_NORMAL_MAP));
+        water.setTiling(jsonValue.getFloat(MetaWater.JSON_TILING));
+        water.setWaveStrength(jsonValue.getFloat(MetaWater.JSON_WAVE_STRENGTH));
+        water.setWaveSpeed(jsonValue.getFloat(MetaWater.JSON_WAVE_SPEED));
 
         meta.setWater(water);
     }

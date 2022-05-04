@@ -16,6 +16,9 @@ import com.badlogic.gdx.utils.Pool;
 
 public class Water implements RenderableProvider, Disposable {
     public static final int DEFAULT_SIZE = 1600;
+    public static final float DEFAULT_TILING = 0.04f;
+    public static final float DEFAULT_WAVE_STRENGTH = 0.04f;
+    public static final float DEFAULT_WAVE_SPEED = 0.03f;
 
     public Matrix4 transform;
     public int waterWidth;
@@ -23,18 +26,19 @@ public class Water implements RenderableProvider, Disposable {
 
     // Textures
     public Texture waterRefractionTexture;
-    private final Material material;
+    private Material material;
 
     // Mesh
     private Model model;
     public ModelInstance modelInstance;
     public Mesh mesh;
 
+    private final String materialId = "waterMat";
+
     public Water(int size) {
         this.waterWidth = size;
         this.waterDepth = size;
         this.transform = new Matrix4();
-        material = new Material("texture");
     }
 
     public void setTransform(Matrix4 transform) {
@@ -48,11 +52,18 @@ public class Water implements RenderableProvider, Disposable {
         modelBuilder.begin();
 
         MeshPartBuilder builder = modelBuilder.part("water", GL20.GL_TRIANGLES, VertexAttributes.Usage.Position
-                | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates, material);
+                | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates, new Material(materialId));
         builder.rect(waterPos.x, 0, waterPos.z + waterDepth, waterPos.x + waterWidth, 0, waterPos.z + waterDepth, waterPos.x + waterWidth, 0, waterPos.z, waterPos.x, 0, waterPos.z, 0, 1, 0);
         model = modelBuilder.end();
         modelInstance = new ModelInstance(model);
         modelInstance.transform = transform;
+
+        // Hold reference to the material
+        material = modelInstance.getMaterial(materialId);
+
+        setTiling(DEFAULT_TILING);
+        setWaveStrength(DEFAULT_WAVE_STRENGTH);
+        setWaveSpeed(DEFAULT_WAVE_SPEED);
     }
 
     @Override
@@ -66,20 +77,44 @@ public class Water implements RenderableProvider, Disposable {
     }
 
     public void setWaterReflection(Texture texture) {
-        modelInstance.getMaterial("texture").set(new TextureAttribute(TextureAttribute.Diffuse, texture));
+        material.set(new TextureAttribute(TextureAttribute.Diffuse, texture));
     }
 
     public void setDudvTexture(Texture texture) {
-        modelInstance.getMaterial("texture").set(new WaterTextureAttribute(WaterTextureAttribute.Dudv, texture));
+        material.set(new WaterTextureAttribute(WaterTextureAttribute.Dudv, texture));
     }
 
     public void setNormalMap(Texture texture) {
-        modelInstance.getMaterial("texture").set(new WaterTextureAttribute(WaterTextureAttribute.NormalMap, texture));
+        material.set(new WaterTextureAttribute(WaterTextureAttribute.NormalMap, texture));
     }
 
     public void setWaterRefractionTexture(Texture texture) {
         waterRefractionTexture = texture;
-        modelInstance.getMaterial("texture").set(new TextureAttribute(TextureAttribute.Normal, waterRefractionTexture));
+        material.set(new TextureAttribute(TextureAttribute.Normal, waterRefractionTexture));
+    }
+
+    public void setTiling(float tiling) {
+        material.set(new WaterFloatAttribute(WaterFloatAttribute.Tiling, tiling));
+    }
+
+    public float getTiling() {
+        return material.get(WaterFloatAttribute.class, WaterFloatAttribute.Tiling).value;
+    }
+
+    public void setWaveStrength(float strength) {
+        material.set(new WaterFloatAttribute(WaterFloatAttribute.WaveStrength, strength));
+    }
+
+    public float getWaveStrength() {
+        return material.get(WaterFloatAttribute.class, WaterFloatAttribute.WaveStrength).value;
+    }
+
+    public void setWaveSpeed(float speed) {
+        material.set(new WaterFloatAttribute(WaterFloatAttribute.WaveSpeed, speed));
+    }
+
+    public float getWaveSpeed() {
+        return material.get(WaterFloatAttribute.class, WaterFloatAttribute.WaveSpeed).value;
     }
 
 }

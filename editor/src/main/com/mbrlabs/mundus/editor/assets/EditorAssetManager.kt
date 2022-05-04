@@ -33,6 +33,7 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
+import com.mbrlabs.mundus.commons.water.Water
 import com.mbrlabs.mundus.editor.core.EditorScene
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.UI
@@ -323,6 +324,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             saveTerrainAsset(asset)
         } else if (asset is ModelAsset) {
             saveModelAsset(asset)
+        } else if (asset is WaterAsset) {
+            saveWaterAsset(asset)
         }
         // TODO other assets ?
     }
@@ -506,6 +509,13 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         metaSaver.save(mat.meta)
     }
 
+    private fun saveWaterAsset(asset: WaterAsset) {
+        asset.meta.water.tiling = asset.water.tiling
+        asset.meta.water.waveStrength = asset.water.waveStrength
+        asset.meta.water.waveSpeed = asset.water.waveSpeed
+        metaSaver.save(asset.meta)
+    }
+
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     private fun createMetaFileFromAsset(assetFile: FileHandle, type: AssetType): Meta {
         val metaName = assetFile.name() + "." + Meta.META_EXTENSION
@@ -530,6 +540,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         meta.water.size = defaultSize
         meta.water.dudvMap = findAssetByID(STANDARD_ASSET_TEXTURE_DUDV).id
         meta.water.normalMap = findAssetByID(STANDARD_ASSET_TEXTURE_WATER_NORMAL).id
+        meta.water.tiling = Water.DEFAULT_TILING
+        meta.water.waveStrength = Water.DEFAULT_WAVE_STRENGTH
+        meta.water.waveSpeed = Water.DEFAULT_WAVE_SPEED
         metaSaver.save(meta)
 
         // create water file

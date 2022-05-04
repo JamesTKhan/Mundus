@@ -25,6 +25,7 @@ import com.mbrlabs.mundus.commons.mapper.BaseLightConverter;
 import com.mbrlabs.mundus.commons.mapper.FogConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.commons.water.WaterResolution;
 import com.mbrlabs.mundus.editor.core.EditorScene;
 
 import java.util.Map;
@@ -52,6 +53,7 @@ public class SceneConverter {
         // environment stuff
         dto.setFog(FogConverter.convert(scene.environment.getFog()));
         dto.setAmbientLight(BaseLightConverter.convert(scene.environment.getAmbientLight()));
+        dto.setWaterResolution(scene.waterResolution);
 
         // camera
         dto.setCamPosX(scene.cam.position.x);
@@ -79,6 +81,11 @@ public class SceneConverter {
         if (ambientLight != null) {
             scene.environment.setAmbientLight(ambientLight);
         }
+
+        // Water stuff
+        scene.waterResolution = dto.getWaterResolution();
+        if (scene.waterResolution == null)
+            scene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
 
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);

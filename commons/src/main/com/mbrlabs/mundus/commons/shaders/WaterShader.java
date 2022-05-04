@@ -16,6 +16,8 @@ import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
+import com.mbrlabs.mundus.commons.water.Water;
+import com.mbrlabs.mundus.commons.water.WaterFloatAttribute;
 import com.mbrlabs.mundus.commons.water.WaterTextureAttribute;
 
 public class WaterShader extends BaseShader {
@@ -36,19 +38,14 @@ public class WaterShader extends BaseShader {
     protected final int UNIFORM_LIGHT_POS = register(new Uniform("u_lightPositon"));
     protected final int UNIFORM_LIGHT_COLOR = register(new Uniform("u_lightColor"));
 
-    private static final float WAVE_SPEED = .03f;
-
     public ShaderProgram program;
 
     private float moveFactor = 0;
-    //TODO make these modifiable in a widget and add to meta
-    private float tiling = .2f;
-    private float waveStrength = 0.04f;
+    private float waveSpeed = Water.DEFAULT_WAVE_SPEED;
 
     public WaterShader() {
         program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER);
     }
-
 
     @Override
     public void init() {
@@ -116,13 +113,31 @@ public class WaterShader extends BaseShader {
             set(UNIFORM_REFRACTION_TEXTURE, ref.textureDescription.texture);
         }
 
-        moveFactor +=  WAVE_SPEED * Gdx.graphics.getDeltaTime();
+        // Floats
+        WaterFloatAttribute tiling = (WaterFloatAttribute) renderable.material.get(WaterFloatAttribute.Tiling);
+        if (tiling != null) {
+            set(UNIFORM_TILING, tiling.value);
+        } else {
+            set(UNIFORM_TILING, Water.DEFAULT_TILING);
+        }
+
+        WaterFloatAttribute strength = (WaterFloatAttribute) renderable.material.get(WaterFloatAttribute.WaveStrength);
+        if (strength != null) {
+            set(UNIFORM_WAVE_STRENGTH, strength.value);
+        } else {
+            set(UNIFORM_WAVE_STRENGTH, Water.DEFAULT_WAVE_STRENGTH);
+        }
+
+        WaterFloatAttribute speed = (WaterFloatAttribute) renderable.material.get(WaterFloatAttribute.WaveSpeed);
+        if (speed != null) {
+            waveSpeed = speed.value;
+        }
+
+        moveFactor +=  waveSpeed * Gdx.graphics.getDeltaTime();
         moveFactor %= 1;
 
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
         set(UNIFORM_MOVE_FACTOR, moveFactor);
-        set(UNIFORM_TILING, tiling);
-        set(UNIFORM_WAVE_STRENGTH, waveStrength);
 
         // bind attributes, bind mesh & render; then unbinds everything
         renderable.meshPart.render(program);

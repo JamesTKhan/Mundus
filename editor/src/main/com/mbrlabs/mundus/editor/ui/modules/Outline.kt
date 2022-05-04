@@ -292,9 +292,20 @@ class Outline : VisTable(),
     private fun buildTree(sceneGraph: SceneGraph) {
         tree.clearChildren()
 
+        var containsWater = false;
+
         for (go in sceneGraph.gameObjects) {
             addGoToTree(null, go)
+
+            if (containsWater) continue;
+
+            val waterComponent = go.findComponentByType(Component.Type.WATER)
+            if (waterComponent != null) {
+                containsWater = true;
+            }
         }
+
+        sceneGraph.isContainsWater = containsWater
     }
 
     /**
