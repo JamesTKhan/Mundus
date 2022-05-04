@@ -48,6 +48,7 @@ public class Scene implements Disposable {
     public SceneGraph sceneGraph;
     public MundusEnvironment environment;
     public Skybox skybox;
+    public float waterHeight = 0f;
     public WaterResolution waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
 
     @Deprecated // TODO not here
@@ -64,9 +65,6 @@ public class Scene implements Disposable {
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
-
-    // TODO make this dynamic
-    protected float waterHeight = 0f;
 
     private final float distortionEdgeCorrection = 1f;
 

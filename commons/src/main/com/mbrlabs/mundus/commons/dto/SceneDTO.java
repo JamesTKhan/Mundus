@@ -38,6 +38,7 @@ public class SceneDTO {
     private float camDirX = 0;
     private float camDirY = 0;
     private float camDirZ = 0;
+    private float waterHeight;
     private WaterResolution waterResolution;
 
     public SceneDTO() {
@@ -138,5 +139,13 @@ public class SceneDTO {
 
     public WaterResolution getWaterResolution() {
         return waterResolution;
+    }
+
+    public void setWaterHeight(float waterHeight) {
+        this.waterHeight = waterHeight;
+    }
+
+    public float getWaterHeight() {
+        return waterHeight;
     }
 }

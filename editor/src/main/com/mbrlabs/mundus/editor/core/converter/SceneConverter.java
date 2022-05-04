@@ -54,6 +54,7 @@ public class SceneConverter {
         dto.setFog(FogConverter.convert(scene.environment.getFog()));
         dto.setAmbientLight(BaseLightConverter.convert(scene.environment.getAmbientLight()));
         dto.setWaterResolution(scene.waterResolution);
+        dto.setWaterHeight(scene.waterHeight);
 
         // camera
         dto.setCamPosX(scene.cam.position.x);
@@ -86,6 +87,8 @@ public class SceneConverter {
         scene.waterResolution = dto.getWaterResolution();
         if (scene.waterResolution == null)
             scene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
+
+        scene.waterHeight = dto.getWaterHeight();
 
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);

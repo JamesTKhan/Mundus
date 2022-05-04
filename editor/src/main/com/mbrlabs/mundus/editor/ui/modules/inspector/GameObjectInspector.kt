@@ -30,7 +30,7 @@ import com.mbrlabs.mundus.editor.ui.modules.inspector.components.IdentifierWidge
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ModelComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.TransformWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.TerrainComponentWidget
-import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.WaterComponentWidget
+import com.mbrlabs.mundus.editor.ui.modules.inspector.components.WaterComponentWidget
 
 /**
  * @author Marcus Brummer
