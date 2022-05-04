@@ -22,9 +22,9 @@ import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
 
 /**
@@ -33,7 +33,7 @@ import com.badlogic.gdx.utils.Disposable;
  */
 public class Skybox implements Disposable {
 
-    protected ShaderProgram shader;
+    public Shader shader;
 
     private Model boxModel;
     private ModelInstance boxInstance;

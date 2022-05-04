@@ -105,6 +105,8 @@ public class Scene implements Disposable {
             captureRefractionFBO(delta);
         }
 
+        renderSkybox();
+
         // Render objects
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneDisable, 0);
@@ -143,6 +145,7 @@ public class Scene implements Disposable {
         // Render reflections to FBO
         fboWaterReflection.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        renderSkybox();
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneReflection, -waterHeight + distortionEdgeCorrection);
         batch.end();
@@ -152,6 +155,14 @@ public class Scene implements Disposable {
         cam.direction.set(camDir);
         cam.position.set(camPos);
         cam.update();
+    }
+
+    private void renderSkybox() {
+        if (skybox != null) {
+            batch.begin(cam);
+            batch.render(skybox.getSkyboxInstance(), environment, skybox.shader);
+            batch.end();
+        }
     }
 
     private void captureRefractionFBO(float delta) {
