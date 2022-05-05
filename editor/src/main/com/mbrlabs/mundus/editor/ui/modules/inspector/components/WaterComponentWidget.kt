@@ -35,8 +35,8 @@ class WaterComponentWidget(waterComponent: WaterComponent) :
     init {
         val label = VisLabel()
         label.wrap = true
-        label.setText("Water reflections may not render properly in the editor due to Framebuffer and viewport conflicts" +
-                " but they will render properly during runtime."
+        label.setText("Water reflections may not render properly in the editor due to framebuffer and viewport conflicts" +
+                " but they will render properly during runtime and full screen view (F8)."
                 + " \n\nNOTE: All water instances must have the same height (Y value) for proper reflections.")
         collapsibleContent.add(label).grow().padBottom(10f).row()
 

@@ -24,6 +24,8 @@ import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.color.ColorPicker
 import com.kotcrab.vis.ui.widget.file.FileChooser
+import com.mbrlabs.mundus.editor.Mundus.postEvent
+import com.mbrlabs.mundus.editor.events.FullScreenEvent
 import com.mbrlabs.mundus.editor.ui.modules.MundusToolbar
 import com.mbrlabs.mundus.editor.ui.modules.Outline
 import com.mbrlabs.mundus.editor.ui.modules.StatusBar
@@ -52,6 +54,7 @@ object UI : Stage(ScreenViewport()) {
     const val PAD_SIDE: Float = 5f
     const val PAD_SIDE_X2: Float = PAD_SIDE * 2
 
+    var isFullScreenRender = false
 
     // reusable ui elements
     val toaster: Toaster = Toaster(this)
@@ -61,14 +64,15 @@ object UI : Stage(ScreenViewport()) {
 
     // base elements
     private val root: VisTable
-    private val splitPane: MundusSplitPane
-    val menuBar: MundusMenuBar
-    val toolbar: MundusToolbar
-    val statusBar: StatusBar
+    private var mainContainer: VisTable
+    private lateinit var splitPane: MundusSplitPane
+    var menuBar: MundusMenuBar
+    var toolbar: MundusToolbar
+    lateinit var statusBar: StatusBar
     private val inspector: Inspector
     val outline: Outline
-    private val docker: DockBar
-    val sceneWidget: RenderWidget
+    private lateinit var docker: DockBar
+    var sceneWidget: RenderWidget
 
     // dialogs
     val settingsDialog: SettingsDialog = SettingsDialog()
@@ -93,21 +97,26 @@ object UI : Stage(ScreenViewport()) {
         addActor(root)
         root.setFillParent(true)
 
-        val mainContainer = VisTable()
-        splitPane = MundusSplitPane(mainContainer, null, true)
-
-        // row 1: add menu
+        mainContainer = VisTable()
         menuBar = MundusMenuBar()
-        root.add(menuBar.table).fillX().expandX().row()
-
-        // row 2: toolbar
         toolbar = MundusToolbar()
-        root.add(toolbar.root).fillX().expandX().row()
-
-        // row 3: sidebar & 3d viewport & inspector
         outline = Outline()
         inspector = Inspector()
         sceneWidget = RenderWidget()
+
+        addUIActors()
+    }
+
+    private fun addUIActors() {
+        splitPane = MundusSplitPane(mainContainer, null, true)
+
+        // row 1: add menu
+        root.add(menuBar.table).fillX().expandX().row()
+
+        // row 2: toolbar
+        root.add(toolbar.root).fillX().expandX().row()
+
+        // row 3: sidebar & 3d viewport & inspector
         val multiSplit = MundusMultiSplitPane(false)
         multiSplit.setDraggable(false)
         multiSplit.setWidgets(outline, sceneWidget, inspector)
@@ -132,6 +141,34 @@ object UI : Stage(ScreenViewport()) {
 
     override fun act() {
         super.act()
-        docker.update();
+        docker.update()
+    }
+
+    fun toggleFullscreenRender() {
+        if (isFullScreenRender) {
+            // Restore normal screen
+            root.clear()
+            addUIActors()
+
+            postEvent(FullScreenEvent(false))
+            isFullScreenRender = false
+        } else {
+            // Clear root and setup fullscreen
+            root.clear()
+            mainContainer.clear()
+
+            // row 1: add menu
+            root.add(menuBar.table).fillX().expandX().row()
+
+            // row 2: toolbar
+            root.add(toolbar.root).fillX().expandX().row()
+
+            // row 2: render widget
+            root.add(sceneWidget).grow().row()
+
+            postEvent(FullScreenEvent(true))
+            isFullScreenRender = true
+        }
+
     }
 }

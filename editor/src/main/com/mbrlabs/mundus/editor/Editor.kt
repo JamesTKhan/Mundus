@@ -17,7 +17,6 @@
 package com.mbrlabs.mundus.editor
 
 import com.badlogic.gdx.ApplicationListener
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter
 import com.badlogic.gdx.graphics.Color
@@ -27,6 +26,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
+import com.mbrlabs.mundus.editor.events.FullScreenEvent
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.input.FreeCamController
@@ -47,7 +47,8 @@ import org.apache.commons.io.FilenameUtils
  */
 class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         ProjectChangedEvent.ProjectChangedListener,
-        SceneChangedEvent.SceneChangedListener {
+        SceneChangedEvent.SceneChangedListener,
+        FullScreenEvent.FullScreenEventListener {
 
     private lateinit var axesInstance: ModelInstance
     private lateinit var compass: Compass
@@ -144,6 +145,12 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
     override fun onSceneChanged(event: SceneChangedEvent) {
         setupSceneWidget()
+    }
+
+    override fun onFullScreenEvent(event: FullScreenEvent) {
+        if (event.isFullScreen) return
+        // looks redundant but the purpose is to reset the FBO's to clear a render glitch on full screen exit
+        projectManager.current().currScene.setWaterResolution(projectManager.current().currScene.waterResolution)
     }
 
     private fun createDefaultProject(): ProjectContext? {
