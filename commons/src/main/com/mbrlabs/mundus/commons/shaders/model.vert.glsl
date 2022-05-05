@@ -45,10 +45,17 @@ varying vec2    v_texCoord0;
 varying float   v_fog;
 varying vec4    v_lighting;
 
+// clipping plane
+varying float v_clipDistance;
+uniform vec4 u_clipPlane;
+
 void main(void) {
     vec4 worldPos = u_transMatrix * vec4(a_position, 1.0);
     v_texCoord0 = a_texCoord0;
     gl_Position = u_projViewMatrix * worldPos;
+
+    // clipping plane
+    v_clipDistance = dot(worldPos, u_clipPlane);
 
     // =================================================================
     //                          Lighting

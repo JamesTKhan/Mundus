@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.commons.assets;
+package com.mbrlabs.mundus.editor.events
 
 /**
  * @author Marcus Brummer
- * @version 01-10-2016
+ * @version 02-10-2016
  */
-public enum AssetType {
-    /** Texture type. Can be pretty much any type of image. */
-    TEXTURE,
-    /** A Texture, backed by a pixmap. Can be pretty much any type of image. */
-    PIXMAP_TEXTURE,
-    /** 3D file. Can be g3db, g3dbj, dae, obj, fbx. */
-    MODEL,
-    /** Terra file. Contains height data for terrains. */
-    TERRAIN,
-    /** Material file. Mundus material file contains material information. */
-    MATERIAL,
-    /** Water file. Contains data for water. */
-    WATER
+class FullScreenEvent(val isFullScreen: Boolean) {
+
+    interface FullScreenEventListener {
+        @Subscribe
+        fun onFullScreenEvent(event: FullScreenEvent)
+    }
+
 }

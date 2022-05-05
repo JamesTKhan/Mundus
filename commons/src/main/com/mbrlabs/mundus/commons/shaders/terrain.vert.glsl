@@ -38,6 +38,10 @@ varying vec3 v_normal;
 varying vec3 v_pos;
 #endif
 
+// clipping plane
+varying float v_clipDistance;
+uniform vec4 u_clipPlane;
+
 void main(void) {
     // position
     vec4 worldPos = u_transMatrix * vec4(a_position, 1.0);
@@ -45,6 +49,9 @@ void main(void) {
 
     // normal for lighting
     v_normal = normalize((u_transMatrix * vec4(a_normal, 0.0)).xyz);
+
+    // clipping plane
+    v_clipDistance = dot(worldPos, u_clipPlane);
 
     // texture stuff
     v_texCoord0 = a_texCoord0;

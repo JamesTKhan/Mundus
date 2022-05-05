@@ -26,6 +26,7 @@ import com.kotcrab.vis.ui.widget.Tooltip
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
+import com.mbrlabs.mundus.editor.events.FullScreenEvent
 import com.mbrlabs.mundus.editor.tools.*
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FaTextButton
@@ -39,7 +40,7 @@ import com.mbrlabs.mundus.editor.utils.Log
  * *
  * @version 24-11-2015
  */
-class MundusToolbar : Toolbar() {
+class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
 
     companion object {
         private val TAG = MundusToolbar::class.java.simpleName
@@ -53,6 +54,7 @@ class MundusToolbar : Toolbar() {
     private val translateBtn: FaTextButton
     private val rotateBtn: FaTextButton
     private val scaleBtn: FaTextButton
+    private val fullScreenBtn: FaTextButton
     private val globalLocalSwitch = ToggleButton("Global space", "Local space")
 
     private val importMenu = PopupMenu()
@@ -64,6 +66,8 @@ class MundusToolbar : Toolbar() {
     private val projectManager: ProjectManager = Mundus.inject()
 
     init {
+        Mundus.registerEventListener(this)
+
         importMenu.addItem(importMesh)
         importMenu.addItem(importTexture)
         importMenu.addItem(createMaterial)
@@ -93,6 +97,10 @@ class MundusToolbar : Toolbar() {
         scaleBtn.padRight(7f).padLeft(7f)
         Tooltip.Builder(toolManager.scaleTool.name).target(scaleBtn).build()
 
+        fullScreenBtn = FaTextButton(Fa.ARROWS_ALT)
+        fullScreenBtn.padRight(7f).padLeft(7f)
+        Tooltip.Builder("Fullscreen view (F8)").target(fullScreenBtn).build()
+
         addItem(saveBtn, true)
         addItem(importBtn, true)
         addItem(exportBtn, true)
@@ -102,7 +110,8 @@ class MundusToolbar : Toolbar() {
         addItem(rotateBtn, true)
         addItem(scaleBtn, true)
         addSeperator(true)
-        // addItem(globalLocalSwitch, true);
+        addItem(fullScreenBtn, true)
+        //addItem(globalLocalSwitch, true);
 
         setActive(translateBtn)
 
@@ -198,6 +207,13 @@ class MundusToolbar : Toolbar() {
             }
         })
 
+        // full screen render
+        fullScreenBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                UI.toggleFullscreenRender()
+            }
+        })
+
         // global / local space switching
         globalLocalSwitch.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -224,6 +240,14 @@ class MundusToolbar : Toolbar() {
             TranslateTool.NAME -> setActive(translateBtn)
             RotateTool.NAME -> setActive(rotateBtn)
             ScaleTool.NAME -> setActive(scaleBtn)
+        }
+    }
+
+    override fun onFullScreenEvent(event: FullScreenEvent) {
+        if (event.isFullScreen) {
+            fullScreenBtn.style = FaTextButton.styleActive
+        } else {
+            fullScreenBtn.style = FaTextButton.styleNoBg
         }
     }
 

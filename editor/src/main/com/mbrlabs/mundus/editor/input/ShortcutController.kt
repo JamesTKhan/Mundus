@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.input
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
@@ -39,6 +40,11 @@ class ShortcutController(registry: Registry, private val projectManager: Project
         if(keycode == Input.Keys.F1) {
             UI.exportDialog.export()
             return true
+        }
+
+        // fullscreen
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F8)) {
+            UI.toggleFullscreenRender()
         }
 
         // CTR + xyz shortcuts

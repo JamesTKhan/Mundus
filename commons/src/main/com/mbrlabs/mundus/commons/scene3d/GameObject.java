@@ -16,7 +16,9 @@
 
 package com.mbrlabs.mundus.commons.scene3d;
 
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.mbrlabs.mundus.commons.scene3d.components.ClippableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.traversal.DepthFirstIterator;
 
@@ -101,6 +103,23 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
                 for (GameObject node : getChildren()) {
                     node.render(delta);
                 }
+            }
+        }
+    }
+
+    public void render(float delta, Vector3 clippingPlane, float clipHeight) {
+        if (!active) return;
+
+        for (Component component : this.components) {
+            if (component instanceof ClippableComponent)
+                ((ClippableComponent)component).render(delta, clippingPlane, clipHeight);
+            else
+                component.render(delta);
+        }
+
+        if (getChildren() != null) {
+            for (GameObject node : getChildren()) {
+                node.render(delta, clippingPlane, delta);
             }
         }
     }

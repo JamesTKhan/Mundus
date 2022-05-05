@@ -21,8 +21,6 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.mbrlabs.mundus.commons.env.Fog;
-import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.shaders.TerrainShader;
 
 public class EditorTerrainShader extends TerrainShader {
@@ -48,23 +46,6 @@ public class EditorTerrainShader extends TerrainShader {
 
     @Override
     public void render(Renderable renderable) {
-        final MundusEnvironment env = (MundusEnvironment) renderable.environment;
-
-        setLights(env);
-        setTerrainSplatTextures(renderable);
-        set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
-
-        // Fog
-        final Fog fog = env.getFog();
-        if (fog == null) {
-            set(UNIFORM_FOG_DENSITY, 0f);
-            set(UNIFORM_FOG_GRADIENT, 0f);
-        } else {
-            set(UNIFORM_FOG_DENSITY, fog.density);
-            set(UNIFORM_FOG_GRADIENT, fog.gradient);
-            set(UNIFORM_FOG_COLOR, fog.color);
-        }
-
         // mouse picking
         if(pickerActive) {
             set(UNIFORM_MOUSE_ACTIVE, 1);
@@ -74,8 +55,7 @@ public class EditorTerrainShader extends TerrainShader {
             set(UNIFORM_MOUSE_ACTIVE, 0);
         }
 
-        // bind attributes, bind mesh & render; then unbinds everything
-        renderable.meshPart.render(program);
+        super.render(renderable);
     }
 
     public void activatePicker(boolean active) {

@@ -23,7 +23,6 @@ import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
-import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Array;
@@ -37,7 +36,7 @@ import com.mbrlabs.mundus.commons.utils.ShaderUtils;
  * @author Marcus Brummer
  * @version 22-11-2015
  */
-public class ModelShader extends BaseShader {
+public class ModelShader extends ClippableShader {
 
     private static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/model.vert.glsl";
     private static final String FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/model.frag.glsl";
@@ -105,6 +104,8 @@ public class ModelShader extends BaseShader {
 
     @Override
     public void render(Renderable renderable) {
+        super.render(renderable);
+
         final MundusEnvironment env = (MundusEnvironment) renderable.environment;
 
         setLights(env);

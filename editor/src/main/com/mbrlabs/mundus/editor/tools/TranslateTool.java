@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.tools;
 
+import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import org.lwjgl.opengl.GL11;
 
 import com.badlogic.gdx.Gdx;
@@ -191,6 +192,10 @@ public class TranslateTool extends TransformTool {
             // }
 
             go.translate(vec);
+
+            // If a water component height is changed, global water height needs to update
+            if (go.findComponentByType(Component.Type.WATER) != null)
+                getProjectManager().current().currScene.waterHeight = go.getPosition(new Vector3()).y;
 
             if (modified) {
                 gameObjectModifiedEvent.setGameObject(getProjectManager().current().currScene.currentSelection);

@@ -36,6 +36,7 @@ public class GameObjectDTO {
 
     private ModelComponentDTO modelComponent;
     private TerrainComponentDTO terrainComponent;
+    private WaterComponentDTO waterComponent;
 
     public GameObjectDTO() {
         childs = new ArrayList<>();
@@ -102,4 +103,11 @@ public class GameObjectDTO {
         this.terrainComponent = terrainComponent;
     }
 
+    public WaterComponentDTO getWaterComponent() {
+        return waterComponent;
+    }
+
+    public void setWaterComponent(WaterComponentDTO waterComponent) {
+        this.waterComponent = waterComponent;
+    }
 }

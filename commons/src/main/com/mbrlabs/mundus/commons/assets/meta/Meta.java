@@ -35,6 +35,7 @@ public class Meta {
     public static final String JSON_UUID = "id";
     public static final String JSON_TYPE = "t";
     public static final String JSON_TERRAIN = "ter";
+    public static final String JSON_WATER = "wat";
     public static final String JSON_MODEL = "mdl";
 
     private int version;
@@ -44,6 +45,7 @@ public class Meta {
 
     private MetaModel model;
     private MetaTerrain terrain;
+    private MetaWater water;
 
     private FileHandle file;
 
@@ -101,6 +103,14 @@ public class Meta {
 
     public void setTerrain(MetaTerrain terrain) {
         this.terrain = terrain;
+    }
+
+    public MetaWater getWater() {
+        return water;
+    }
+
+    public void setWater(MetaWater water) {
+        this.water = water;
     }
 
     @Override

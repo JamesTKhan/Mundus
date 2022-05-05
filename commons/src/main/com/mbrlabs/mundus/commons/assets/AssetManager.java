@@ -254,6 +254,9 @@ public class AssetManager implements Disposable {
         case MATERIAL:
             asset = loadMaterialAsset(meta, assetFile);
             break;
+            case WATER:
+            asset = loadWaterAsset(meta, assetFile);
+            break;
         default:
             return null;
         }
@@ -291,6 +294,12 @@ public class AssetManager implements Disposable {
 
     private ModelAsset loadModelAsset(Meta meta, FileHandle assetFile) {
         ModelAsset asset = new ModelAsset(meta, assetFile);
+        asset.load();
+        return asset;
+    }
+
+    private WaterAsset loadWaterAsset(Meta meta, FileHandle assetFile) {
+        WaterAsset asset = new WaterAsset(meta, assetFile);
         asset.load();
         return asset;
     }

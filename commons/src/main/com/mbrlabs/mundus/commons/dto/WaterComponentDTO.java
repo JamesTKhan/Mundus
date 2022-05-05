@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2021. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,22 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.commons.scene3d.components;
-
-import com.mbrlabs.mundus.commons.scene3d.GameObject;
+package com.mbrlabs.mundus.commons.dto;
 
 /**
- * @author Marcus Brummer
- * @version 16-01-2016
+ * @author Tibor Zsuro
+ * @version 12-08-2021
  */
-public interface Component {
+public class WaterComponentDTO {
 
-    enum Type {
-        MODEL, TERRAIN, LIGHT, PARTICLE_SYSTEM, WATER
+    private String waterId;
+
+    public String getWaterId() {
+        return waterId;
     }
 
-    GameObject getGameObject();
+    public void setWaterId(String id) {
+        this.waterId = id;
+    }
 
-    void render(float delta);
-
-    void update(float delta);
-
-    Type getType();
-
-    void setType(Type type);
-
-    void remove();
-
-    Component clone(GameObject go);
 }

@@ -68,7 +68,11 @@ struct AmbientLight {
 uniform AmbientLight u_ambientLight;
 uniform DirectionalLight u_directionalLight;
 
+varying float v_clipDistance;
+
 void main(void) {
+    if ( v_clipDistance < 0.0 )
+        discard;
 
     // blend textures
     if(u_texture_has_diffuse == 1) {

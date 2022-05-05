@@ -19,12 +19,14 @@ package com.mbrlabs.mundus.commons.scene3d.components;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.MaterialAsset;
 import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.shaders.ClippableShader;
 
 import java.util.Objects;
 
@@ -32,7 +34,7 @@ import java.util.Objects;
  * @author Marcus Brummer
  * @version 17-01-2016
  */
-public class ModelComponent extends AbstractComponent implements AssetUsage {
+public class ModelComponent extends AbstractComponent implements AssetUsage, ClippableComponent {
 
     protected ModelAsset modelAsset;
     protected ModelInstance modelInstance;
@@ -94,6 +96,15 @@ public class ModelComponent extends AbstractComponent implements AssetUsage {
     public void render(float delta) {
         modelInstance.transform.set(gameObject.getTransform());
         gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
+    }
+
+    @Override
+    public void render(float delta, Vector3 clippingPlane, float clipHeight) {
+        if (shader instanceof ClippableShader) {
+            ((ClippableShader) shader).setClippingPlane(clippingPlane);
+            ((ClippableShader) shader).setClippingHeight(clipHeight);
+        }
+        render(delta);
     }
 
     @Override
