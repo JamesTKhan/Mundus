@@ -1,14 +1,18 @@
 package com.mbrlabs.mundus.editor.ui.widgets
 
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
+import com.mbrlabs.mundus.commons.water.Water
 import com.mbrlabs.mundus.commons.water.WaterResolution
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -21,6 +25,10 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     private val tilingField = VisTextField()
     private val waveStrength = VisTextField()
     private val waveSpeed = VisTextField()
+
+    private lateinit var selectBox: VisSelectBox<String>
+
+    private val resetDefaults = VisTextButton("Reset Defaults")
 
     private val projectManager: ProjectManager = Mundus.inject()
 
@@ -47,7 +55,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         add(waveSpeed).growX().row()
 
         val selectorsTable = VisTable(true)
-        val selectBox = VisSelectBox<String>()
+        selectBox = VisSelectBox<String>()
         selectBox.setItems(
                 WaterResolution._1024.value,
                 WaterResolution._1280.value,
@@ -58,6 +66,8 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
         add(VisLabel("Texture resolution (Global per scene):")).growX().row()
         add(selectorsTable).left().row()
+
+        add(resetDefaults).padTop(10f).growX().row()
 
         // tiling
         tilingField.textFieldFilter = FloatDigitsOnlyFilter(false)
@@ -112,7 +122,23 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
             }
         })
 
-        // set current values
+        resetDefaults.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                waterComponent.waterAsset.water.tiling = Water.DEFAULT_TILING
+                waterComponent.waterAsset.water.waveStrength = Water.DEFAULT_WAVE_STRENGTH
+                waterComponent.waterAsset.water.waveSpeed = Water.DEFAULT_WAVE_SPEED
+                projectManager.current().currScene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION
+                projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+
+                setFieldsToCurrentValues()
+            }
+        })
+
+        setFieldsToCurrentValues()
+
+    }
+
+    fun setFieldsToCurrentValues() {
         tilingField.text = waterComponent.waterAsset.water.tiling.toString()
         waveStrength.text = waterComponent.waterAsset.water.waveStrength.toString()
         waveSpeed.text = waterComponent.waterAsset.water.waveSpeed.toString()

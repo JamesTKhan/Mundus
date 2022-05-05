@@ -42,7 +42,7 @@ class WaterComponentWidget(waterComponent: WaterComponent) :
 
         collapsibleContent.add(VisLabel("Settings")).left().row()
         collapsibleContent.addSeparator().padBottom(5f).row()
-        settingsContainer.add(WaterWidget(waterComponent)).padLeft(5f)
+        settingsContainer.add(WaterWidget(waterComponent)).padLeft(10f)
         collapsibleContent.add(settingsContainer).left().row()
     }
 
