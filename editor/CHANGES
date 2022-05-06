@@ -1,5 +1,14 @@
 [0.3.0]
 - Added GLB support
+- Added Water Components
+- Added Full Screen preview (F8) and a toolbar icon
+- Added asset deletion functionality
+- Added double click on game object to focus camera on it
+- Added mouse scroll wheel zoom
+- Added a Log bar and dock to bottom of editor
+- Updated terrains for modifiable UV scale
+- Fixed NPE crash on GLTF model loading
+- Fixed rotation of models on import preview
 
 [0.2.0]
 - [BREAKING CHANGE] Project saves scene, model component and terrain as json instead of binary format.
