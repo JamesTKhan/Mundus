@@ -18,9 +18,11 @@ package com.mbrlabs.mundus.commons.scene3d.components;
 
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.shaders.ClippableShader;
 
 import java.util.Objects;
 
@@ -28,7 +30,7 @@ import java.util.Objects;
  * @author Marcus Brummer
  * @version 18-01-2016
  */
-public class TerrainComponent extends AbstractComponent implements AssetUsage {
+public class TerrainComponent extends AbstractComponent implements AssetUsage, ClippableComponent {
 
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
@@ -64,6 +66,15 @@ public class TerrainComponent extends AbstractComponent implements AssetUsage {
     @Override
     public void render(float delta) {
         gameObject.sceneGraph.scene.batch.render(terrain.getTerrain(), gameObject.sceneGraph.scene.environment, shader);
+    }
+
+    @Override
+    public void render(float delta, Vector3 clippingPlane, float clipHeight) {
+        if (shader instanceof ClippableShader) {
+            ((ClippableShader) shader).setClippingPlane(clippingPlane);
+            ((ClippableShader) shader).setClippingHeight(clipHeight);
+        }
+        render(delta);
     }
 
     @Override

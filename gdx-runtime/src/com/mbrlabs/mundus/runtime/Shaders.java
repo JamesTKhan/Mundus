@@ -19,11 +19,13 @@ package com.mbrlabs.mundus.runtime;
 import com.mbrlabs.mundus.commons.shaders.ModelShader;
 import com.mbrlabs.mundus.commons.shaders.SkyboxShader;
 import com.mbrlabs.mundus.commons.shaders.TerrainShader;
+import com.mbrlabs.mundus.commons.shaders.WaterShader;
 
 public class Shaders {
 
     private ModelShader modelShader;
     private TerrainShader terrainShader;
+    private WaterShader waterShader;
     private SkyboxShader skyboxShader;
 
     public Shaders() {
@@ -31,6 +33,8 @@ public class Shaders {
         modelShader.init();
         terrainShader = new TerrainShader();
         terrainShader.init();
+        waterShader = new WaterShader();
+        waterShader.init();
         skyboxShader = new SkyboxShader();
     }
 
@@ -40,6 +44,10 @@ public class Shaders {
 
     public TerrainShader getTerrainShader() {
         return terrainShader;
+    }
+
+    public WaterShader getWaterShader() {
+        return waterShader;
     }
 
     public SkyboxShader getSkyboxShader() {

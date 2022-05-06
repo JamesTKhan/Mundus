@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.mbrlabs.mundus.commons.scene3d.GameObject
+import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.history.CommandHistory
@@ -108,6 +109,10 @@ class TransformWidget : BaseInspectorWidget("Transformation") {
                 go.setLocalPosition(pos.x, posY.float, pos.z)
                 command.setAfter(go.getLocalPosition(tempV3))
                 history.add(command)
+
+                // If a water component height is changed, global water height needs to update
+                if (go.findComponentByType(Component.Type.WATER) != null)
+                    projectManager.current().currScene.waterHeight = go.getPosition(Vector3()).y
             }
         })
         posZ.addListener(object : ChangeListener() {

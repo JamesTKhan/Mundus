@@ -33,10 +33,7 @@ import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.commons.assets.*
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.events.AssetImportEvent
-import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
-import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent
-import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
+import com.mbrlabs.mundus.editor.events.*
 import com.mbrlabs.mundus.editor.ui.UI
 
 /**
@@ -46,7 +43,8 @@ import com.mbrlabs.mundus.editor.ui.UI
 class AssetsDock : Tab(false, false),
         ProjectChangedEvent.ProjectChangedListener,
         AssetImportEvent.AssetImportListener,
-        GameObjectSelectedEvent.GameObjectSelectedListener {
+        GameObjectSelectedEvent.GameObjectSelectedListener,
+        FullScreenEvent.FullScreenEventListener {
 
     private val root = VisTable()
     private val filesViewContextContainer = VisTable(false)
@@ -147,6 +145,11 @@ class AssetsDock : Tab(false, false),
 
     override fun onGameObjectSelected(event: GameObjectSelectedEvent) {
         setSelected(null)
+    }
+
+    override fun onFullScreenEvent(event: FullScreenEvent) {
+        if (!event.isFullScreen)
+            reloadAssets()
     }
 
     /**

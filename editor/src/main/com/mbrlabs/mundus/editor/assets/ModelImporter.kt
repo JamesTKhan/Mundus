@@ -69,7 +69,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
             if (convResult.isSuccess) {
                 retFile = FileHandleWithDependencies(Gdx.files.absolute(convResult.outputFile))
             }
-        } else if (isG3DB(rawModelFile) || isGLTF(rawModelFile)) {
+        } else if (isG3DB(rawModelFile) || isGLTF(rawModelFile) || isGLB(rawModelFile)) {
             retFile = FileHandleWithDependencies(rawModelFile)
         }
 

@@ -93,7 +93,7 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
                 val oldSkybox = projectContext.currScene.skybox
                 oldSkybox?.dispose()
 
-                projectContext.currScene.skybox = Skybox(positiveX.file, negativeX.file,
+                projectManager.current().currScene.skybox = Skybox(positiveX.file, negativeX.file,
                         positiveY.file, negativeY.file, positiveZ.file, negativeZ.file)
                 resetImages()
             }

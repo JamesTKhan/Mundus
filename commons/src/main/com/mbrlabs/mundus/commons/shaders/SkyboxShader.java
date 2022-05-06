@@ -72,7 +72,7 @@ public class SkyboxShader extends BaseShader {
     public void begin(Camera camera, RenderContext context) {
         this.context = context;
         context.begin();
-        program.begin();
+        program.bind();
 
         set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined);
         transform.idt();
@@ -105,7 +105,6 @@ public class SkyboxShader extends BaseShader {
     @Override
     public void end() {
         context.end();
-        program.end();
     }
 
     @Override

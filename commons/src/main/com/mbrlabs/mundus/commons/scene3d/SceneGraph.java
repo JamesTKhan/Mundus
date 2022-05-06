@@ -17,8 +17,12 @@
 package com.mbrlabs.mundus.commons.scene3d;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.Scene;
+import com.mbrlabs.mundus.commons.scene3d.components.Component;
+import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 
 /**
  * @author Marcus Brummer
@@ -32,6 +36,8 @@ public class SceneGraph {
 
     private GameObject selected;
 
+    private boolean containsWater = false;
+
     public SceneGraph(Scene scene) {
         root = new GameObject(this, null, -1);
         root.initChildrenArray();
@@ -39,9 +45,25 @@ public class SceneGraph {
         this.scene = scene;
     }
 
-    public void render(float delta) {
+    public void render(float delta, Vector3 clippingPlane, float clipHeight) {
         for (GameObject go : root.getChildren()) {
-            go.render(delta);
+            if (go.name.contains("Water"))
+                continue;
+            go.render(delta, clippingPlane, clipHeight);
+        }
+    }
+
+    //todo consider using renderable sorter instead
+    public void renderWater(float delta, Texture reflectionTexture, Texture refraction) {
+        for (GameObject go : root.getChildren()) {
+            if (go.name.contains("Water")) {
+                WaterComponent waterComponent = (WaterComponent) go.findComponentByType(Component.Type.WATER);
+                if (waterComponent != null) {
+                    waterComponent.getWaterAsset().setWaterReflectionTexture(reflectionTexture);
+                    waterComponent.getWaterAsset().setWaterRefractionTexture(refraction);
+                }
+                go.render(delta);
+            }
         }
     }
 
@@ -61,6 +83,13 @@ public class SceneGraph {
 
     public void addGameObject(GameObject go) {
         root.addChild(go);
+
+        if (containsWater) return;
+
+        Component waterComponent = go.findComponentByType(Component.Type.WATER);
+        if (waterComponent != null) {
+            containsWater = true;
+        }
     }
 
     public GameObject getSelected() {
@@ -71,4 +100,11 @@ public class SceneGraph {
         this.selected = selected;
     }
 
+    public boolean isContainsWater() {
+        return containsWater;
+    }
+
+    public void setContainsWater(boolean containsWater) {
+        this.containsWater = containsWater;
+    }
 }

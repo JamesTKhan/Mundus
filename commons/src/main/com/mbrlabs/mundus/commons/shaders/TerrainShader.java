@@ -39,7 +39,7 @@ import com.mbrlabs.mundus.commons.utils.ShaderUtils;
  * @author Marcus Brummer
  * @version 22-11-2015
  */
-public class TerrainShader extends BaseShader {
+public class TerrainShader extends ClippableShader {
 
     protected static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/terrain.vert.glsl";
     protected static final String FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/terrain.frag.glsl";
@@ -105,7 +105,7 @@ public class TerrainShader extends BaseShader {
         this.context.setDepthTest(GL20.GL_LEQUAL, 0f, 1f);
         this.context.setDepthMask(true);
 
-        program.begin();
+        program.bind();
 
         set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined);
         set(UNIFORM_CAM_POS, camera.position);
@@ -113,6 +113,8 @@ public class TerrainShader extends BaseShader {
 
     @Override
     public void render(Renderable renderable) {
+        super.render(renderable);
+
         final MundusEnvironment env = (MundusEnvironment) renderable.environment;
 
         setLights(env);
@@ -194,7 +196,6 @@ public class TerrainShader extends BaseShader {
     @Override
     public void end() {
         context.end();
-        program.end();
     }
 
     @Override

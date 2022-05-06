@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.editor.Main;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
@@ -415,6 +416,8 @@ public class ProjectManager implements Disposable {
                 }
             } else if (c.getType() == Component.Type.TERRAIN) {
                 ((TerrainComponent) c).getTerrain().getTerrain().setTransform(go.getTransform());
+            } else if (c.getType() == Component.Type.WATER) {
+                ((WaterComponent) c).getWaterAsset().water.setTransform(go.getTransform());
             }
 
             // encode id for picking

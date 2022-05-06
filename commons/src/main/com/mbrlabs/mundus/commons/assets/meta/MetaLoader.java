@@ -41,6 +41,8 @@ public class MetaLoader {
             parseTerrain(meta, json.get(Meta.JSON_TERRAIN));
         } else if(meta.getType() == AssetType.MODEL) {
             parseModel(meta, json.get(Meta.JSON_MODEL));
+        } else if(meta.getType() == AssetType.WATER) {
+            parseWater(meta, json.get(Meta.JSON_WATER));
         }
 
         return meta;
@@ -67,6 +69,20 @@ public class MetaLoader {
         terrain.setSplatA(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_A, null));
 
         meta.setTerrain(terrain);
+    }
+
+    private void parseWater(Meta meta, JsonValue jsonValue) {
+        if(jsonValue == null) return;
+
+        final MetaWater water = new MetaWater();
+        water.setSize(jsonValue.getInt(MetaWater.JSON_SIZE));
+        water.setDudvMap(jsonValue.getString(MetaWater.JSON_DUDV));
+        water.setNormalMap(jsonValue.getString(MetaWater.JSON_NORMAL_MAP));
+        water.setTiling(jsonValue.getFloat(MetaWater.JSON_TILING));
+        water.setWaveStrength(jsonValue.getFloat(MetaWater.JSON_WAVE_STRENGTH));
+        water.setWaveSpeed(jsonValue.getFloat(MetaWater.JSON_WAVE_SPEED));
+
+        meta.setWater(water);
     }
 
     private void parseModel(Meta meta, JsonValue jsonModel) {
