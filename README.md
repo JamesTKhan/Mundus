@@ -1,6 +1,6 @@
 <img alt="" src="logo.svg" height="80px" />
 
-# Mundus [![](https://www.travis-ci.com/Dgzt/Mundus.svg?branch=master)](https://www.travis-ci.com/github/Dgzt/Mundus)
+# Mundus ![Java CI workflow](https://github.com/jpooleycodes/Mundus/actions/workflows/gradle.yml/badge.svg)
 Mundus is a platform independent 3D world editor, built with Java, Kotlin and LibGDX + VisUI.
 The plan is, that the world you create with Mundus can be exported
 into a unified format (such as JSON + assets). The exported data can then be imported into any Game Engine,
@@ -23,11 +23,13 @@ Below are some of the more interesting features, that already work
 - A complete terrain editing system with texture & height brushes
 - 4 different brushes (brush form can be an arbitrary image, like in Blender or Gimp)
 - 3 brush modes for each brush: Raise/Lower, Flatten & texture paint
+- Water quads with reflections, refractions and customizable ripples
 - A skybox (not exportable yet)
 - Loading of g3db/gltf files
 - Loading of obj/fbx/dae files (note, that the [fbx-conv](https://github.com/libgdx/fbx-conv) binary must be set in the settings)
-- A visual translation & rotation tool (scaling coming soon)
+- Visual translation, rotation tool, and scaling tools 
 - Multiple scenes in one project
+- Full screen preview mode
 - A component based scene graph (not fully implemented yet)
 - Basic export of the project into a json format + assets
 - Undo/Redo system for most operations
@@ -45,11 +47,17 @@ Currently i'm in the process of implementing the libGDX runtime, which is includ
 Runtimes for other engines/frameworks are not planed in the near future.
 
 ## Contributing
-Contributions are greatly appreciated. To make the process as easy as possible please follow the [Contribution Guide](https://github.com/mbrlabs/Mundus/wiki/Contributing).
-To get an overview over the project you might also want to check out the [Project overview & architecture](https://github.com/mbrlabs/Mundus/wiki/Project-overview-%26-architecture) article.
+Contributions are greatly appreciated. To make the process as easy as possible please follow the [Contribution Guide](https://github.com/jpooleycodes/Mundus/wiki/Contributing).
+To get an overview over the project you might also want to check out the [Project overview & architecture](https://github.com/jpooleycodes/Mundus/wiki/Project-overview-&-architecture) article.
 
 ## Working from source
-See this [wiki article](https://github.com/mbrlabs/Mundus/wiki/Working-from-source).
+See this [wiki article](https://github.com/jpooleycodes/Mundus/wiki/Working-from-source).
+
+## Mundus origin
+This started as a fork of [Mundus](https://github.com/mbrlabs/Mundus). Mundus is no longer developed so this standalone repository was created. Special thanks to mbrlabs
+and the original contributors of Mundus for all the work they did.
+
+Mundus was licensed under the Apache-2.0 license.
 
 ## Credits
 Logo design: [Franziska Böhm / noxmoon.de](http://noxmoon.de) ([CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)) 
