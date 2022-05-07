@@ -88,8 +88,9 @@ public class WaterShader extends BaseShader {
         final Array<DirectionalLight> dirLights = dirLightAttribs == null ? null : dirLightAttribs.lights;
         if (dirLights != null && dirLights.size > 0) {
             final DirectionalLight light = dirLights.first();
-            set(UNIFORM_LIGHT_COLOR, Color.RED);
-            set(UNIFORM_LIGHT_POS, new Vector3(10f, 10f, 0f));
+            set(UNIFORM_LIGHT_COLOR, light.color.r, light.color.g, light.color.b);
+            // Normally this would be position but directional lights do not have a position
+            set(UNIFORM_LIGHT_POS, light.direction);
         }
 
         // Set Textures
