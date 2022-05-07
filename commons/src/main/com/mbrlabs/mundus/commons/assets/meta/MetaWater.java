@@ -7,11 +7,15 @@ public class MetaWater {
     public static final String JSON_TILING = "tiling";
     public static final String JSON_WAVE_STRENGTH = "waveStrength";
     public static final String JSON_WAVE_SPEED = "waveSpeed";
+    public static final String JSON_REFLECTIVITY = "reflectivity";
+    public static final String JSON_SHINE_DAMPER = "shineDamper";
 
     private int size;
     private float tiling;
     private float waveStrength;
     private float waveSpeed;
+    private float reflectivity;
+    private float shineDamper;
     private String dudvMap;
     private String normalMap;
 
@@ -63,6 +67,22 @@ public class MetaWater {
         this.waveSpeed = waveSpeed;
     }
 
+    public float getReflectivity() {
+        return reflectivity;
+    }
+
+    public void setReflectivity(float reflectivity) {
+        this.reflectivity = reflectivity;
+    }
+
+    public float getShineDamper() {
+        return shineDamper;
+    }
+
+    public void setShineDamper(float shineDamper) {
+        this.shineDamper = shineDamper;
+    }
+
     @Override
     public String toString() {
         return "MetaWater{" +
@@ -72,6 +92,8 @@ public class MetaWater {
                 ", tiling='" + tiling + '\'' +
                 ", waveStrength='" + waveStrength + '\'' +
                 ", waveSpeed='" + waveSpeed + '\'' +
+                ", reflectivity='" + reflectivity + '\'' +
+                ", shineDamper='" + shineDamper + '\'' +
                 '}';
     }
 }

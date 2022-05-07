@@ -97,6 +97,8 @@ class MetaSaver {
         json.writeValue(MetaWater.JSON_TILING, water.tiling)
         json.writeValue(MetaWater.JSON_WAVE_STRENGTH, water.waveStrength)
         json.writeValue(MetaWater.JSON_WAVE_SPEED, water.waveSpeed)
+        json.writeValue(MetaWater.JSON_REFLECTIVITY, water.reflectivity)
+        json.writeValue(MetaWater.JSON_SHINE_DAMPER, water.shineDamper)
 
         json.writeObjectEnd()
     }

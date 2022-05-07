@@ -8,7 +8,6 @@ varying vec3 v_toCameraVector;
 varying vec3 v_fromLightVector;
 
 uniform vec3 u_color;
-uniform float u_alpha;
 uniform sampler2D u_texture;
 uniform sampler2D u_refractionTexture;
 uniform sampler2D u_dudvTexture;
@@ -16,10 +15,10 @@ uniform sampler2D u_normalMapTexture;
 uniform float u_waveStrength;
 uniform vec3 u_lightColor;
 uniform float u_moveFactor;
+uniform float u_shineDamper;
+uniform float u_reflectivity;
 
 const vec4 COLOR_TURQUOISE = vec4(0,0.5,0.686, 0.2);
-const float shineDamper = 20.0;
-const float reflectivity = 0.6;
 
 void main() {
 
@@ -60,8 +59,8 @@ void main() {
     // Calculate specular hightlights
     vec3 reflectedLight = reflect(normalize(v_fromLightVector), normal);
     float specular = max(dot(reflectedLight, viewVector), 0.0);
-    specular = pow(specular, shineDamper);
-    vec3 specularHighlights = u_lightColor * specular * reflectivity;
+    specular = pow(specular, u_shineDamper);
+    vec3 specularHighlights = u_lightColor * specular * u_reflectivity;
 
     vec4 color =  mix(reflectColor, refractColor, refractiveFactor);
     color = mix(color, COLOR_TURQUOISE, 0.2) + vec4(specularHighlights, 0.0);

@@ -1,11 +1,9 @@
 package com.mbrlabs.mundus.commons.water;
 
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.*;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
@@ -19,6 +17,10 @@ public class Water implements RenderableProvider, Disposable {
     public static final float DEFAULT_TILING = 0.04f;
     public static final float DEFAULT_WAVE_STRENGTH = 0.04f;
     public static final float DEFAULT_WAVE_SPEED = 0.03f;
+    public static final float DEFAULT_REFLECTIVITY = 0.6f;
+    public static final float DEFAULT_SHINE_DAMPER = 20.0f;
+    private static final String materialId = "waterMat";
+
 
     public Matrix4 transform;
     public int waterWidth;
@@ -31,9 +33,6 @@ public class Water implements RenderableProvider, Disposable {
     // Mesh
     private Model model;
     public ModelInstance modelInstance;
-    public Mesh mesh;
-
-    private final String materialId = "waterMat";
 
     public Water(int size) {
         this.waterWidth = size;
@@ -64,6 +63,8 @@ public class Water implements RenderableProvider, Disposable {
         setTiling(DEFAULT_TILING);
         setWaveStrength(DEFAULT_WAVE_STRENGTH);
         setWaveSpeed(DEFAULT_WAVE_SPEED);
+        setReflectivity(DEFAULT_REFLECTIVITY);
+        setShineDamper(DEFAULT_SHINE_DAMPER);
     }
 
     @Override
@@ -115,6 +116,22 @@ public class Water implements RenderableProvider, Disposable {
 
     public float getWaveSpeed() {
         return material.get(WaterFloatAttribute.class, WaterFloatAttribute.WaveSpeed).value;
+    }
+
+    public void setReflectivity(float reflectivity) {
+        material.set(new WaterFloatAttribute(WaterFloatAttribute.Reflectivity, reflectivity));
+    }
+
+    public float getReflectivity() {
+        return material.get(WaterFloatAttribute.class, WaterFloatAttribute.Reflectivity).value;
+    }
+
+    public void setShineDamper(float shineDamper) {
+        material.set(new WaterFloatAttribute(WaterFloatAttribute.ShineDamper, shineDamper));
+    }
+
+    public float getShineDamper() {
+        return material.get(WaterFloatAttribute.class, WaterFloatAttribute.ShineDamper).value;
     }
 
 }

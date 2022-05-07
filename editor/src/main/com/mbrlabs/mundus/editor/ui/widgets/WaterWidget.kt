@@ -25,6 +25,8 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     private val tilingField = VisTextField()
     private val waveStrength = VisTextField()
     private val waveSpeed = VisTextField()
+    private val reflectivity = VisTextField()
+    private val shineDamper = VisTextField()
 
     private lateinit var selectBox: VisSelectBox<String>
 
@@ -53,6 +55,12 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
         add(VisLabel("Wave Speed:")).growX().row()
         add(waveSpeed).growX().row()
+
+        add(VisLabel("Reflectivity:")).growX().row()
+        add(reflectivity).growX().row()
+
+        add(VisLabel("Shine Damper:")).growX().row()
+        add(shineDamper).growX().row()
 
         val selectorsTable = VisTable(true)
         selectBox = VisSelectBox<String>()
@@ -114,6 +122,36 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
             }
         })
 
+        // reflectivity
+        reflectivity.textFieldFilter = FloatDigitsOnlyFilter(false)
+        reflectivity.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if (reflectivity.isInputValid && !reflectivity.isEmpty) {
+                    try {
+                        waterComponent.waterAsset.water.reflectivity = reflectivity.text.toFloat()
+                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+                    } catch (ex : NumberFormatException) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water reflectivity"))
+                    }
+                }
+            }
+        })
+
+        // shine damper
+        shineDamper.textFieldFilter = FloatDigitsOnlyFilter(false)
+        shineDamper.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if (shineDamper.isInputValid && !shineDamper.isEmpty) {
+                    try {
+                        waterComponent.waterAsset.water.shineDamper = shineDamper.text.toFloat()
+                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+                    } catch (ex : NumberFormatException) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water shine damper"))
+                    }
+                }
+            }
+        })
+
         // resolution
         selectBox.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
@@ -127,6 +165,8 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 waterComponent.waterAsset.water.tiling = Water.DEFAULT_TILING
                 waterComponent.waterAsset.water.waveStrength = Water.DEFAULT_WAVE_STRENGTH
                 waterComponent.waterAsset.water.waveSpeed = Water.DEFAULT_WAVE_SPEED
+                waterComponent.waterAsset.water.reflectivity = Water.DEFAULT_REFLECTIVITY
+                waterComponent.waterAsset.water.shineDamper = Water.DEFAULT_SHINE_DAMPER
                 projectManager.current().currScene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION
                 projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
 
@@ -142,6 +182,8 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         tilingField.text = waterComponent.waterAsset.water.tiling.toString()
         waveStrength.text = waterComponent.waterAsset.water.waveStrength.toString()
         waveSpeed.text = waterComponent.waterAsset.water.waveSpeed.toString()
+        reflectivity.text = waterComponent.waterAsset.water.reflectivity.toString()
+        shineDamper.text = waterComponent.waterAsset.water.shineDamper.toString()
         selectBox.selected = projectManager.current().currScene.waterResolution.value
     }
 }
