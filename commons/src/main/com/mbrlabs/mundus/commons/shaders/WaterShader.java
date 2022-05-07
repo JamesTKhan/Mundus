@@ -103,14 +103,14 @@ public class WaterShader extends BaseShader {
             set(UNIFORM_NORMAL_MAP_TEXTURE, normalAttrib.getTexture());
         }
 
-        TextureAttribute texture = (TextureAttribute) renderable.material.get(TextureAttribute.Diffuse);
-        if (texture != null) {
-            set(UNIFORM_TEXTURE, texture.textureDescription.texture);
+        WaterTextureAttribute reflectTexture = (WaterTextureAttribute) renderable.material.get(WaterTextureAttribute.Reflection);
+        if (reflectTexture != null) {
+            set(UNIFORM_TEXTURE, reflectTexture.getTexture());
         }
 
-        TextureAttribute ref = (TextureAttribute) renderable.material.get(TextureAttribute.Normal);
-        if (ref != null) {
-            set(UNIFORM_REFRACTION_TEXTURE, ref.textureDescription.texture);
+        WaterTextureAttribute refractTexture = (WaterTextureAttribute) renderable.material.get(WaterTextureAttribute.Refraction);
+        if (refractTexture != null) {
+            set(UNIFORM_REFRACTION_TEXTURE, refractTexture.getTexture());
         }
 
         // Floats

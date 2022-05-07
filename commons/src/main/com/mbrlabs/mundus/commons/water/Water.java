@@ -77,7 +77,7 @@ public class Water implements RenderableProvider, Disposable {
     }
 
     public void setWaterReflection(Texture texture) {
-        material.set(new TextureAttribute(TextureAttribute.Diffuse, texture));
+        material.set(new WaterTextureAttribute(WaterTextureAttribute.Reflection, texture));
     }
 
     public void setDudvTexture(Texture texture) {
@@ -90,7 +90,7 @@ public class Water implements RenderableProvider, Disposable {
 
     public void setWaterRefractionTexture(Texture texture) {
         waterRefractionTexture = texture;
-        material.set(new TextureAttribute(TextureAttribute.Normal, waterRefractionTexture));
+        material.set(new WaterTextureAttribute(WaterTextureAttribute.Refraction, waterRefractionTexture));
     }
 
     public void setTiling(float tiling) {
