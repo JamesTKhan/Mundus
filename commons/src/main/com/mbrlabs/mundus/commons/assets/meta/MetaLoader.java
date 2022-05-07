@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.mbrlabs.mundus.commons.assets.AssetType;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
+import com.mbrlabs.mundus.commons.water.Water;
 
 /**
  *
@@ -81,6 +82,8 @@ public class MetaLoader {
         water.setTiling(jsonValue.getFloat(MetaWater.JSON_TILING));
         water.setWaveStrength(jsonValue.getFloat(MetaWater.JSON_WAVE_STRENGTH));
         water.setWaveSpeed(jsonValue.getFloat(MetaWater.JSON_WAVE_SPEED));
+        water.setReflectivity(readWithDefault(jsonValue, MetaWater.JSON_REFLECTIVITY, Water.DEFAULT_REFLECTIVITY));
+        water.setShineDamper(readWithDefault(jsonValue, MetaWater.JSON_SHINE_DAMPER, Water.DEFAULT_SHINE_DAMPER));
 
         meta.setWater(water);
     }
@@ -99,6 +102,27 @@ public class MetaLoader {
         }
 
         meta.setModel(model);
+    }
+
+    /**
+     * When new values are added and cannot be found on jsonValue.getXXX(),
+     * an IllegalArgumentException is thrown.
+     *
+     * To try and maintain backwards compatibility between meta changes,
+     * if we have a default value, that can be used with this method to
+     * default to it when it could not be found in the meta during parsing.
+     *
+     * @param jsonValue the JsonValue instance
+     * @param jsonKey the jsonKey value to try and read
+     * @param defaultValue the value to default to if jsonKey not found
+     * @return float from meta file, or default if not found
+     */
+    private float readWithDefault(JsonValue jsonValue, String jsonKey, float defaultValue) {
+        try {
+            return jsonValue.getFloat(jsonKey);
+        } catch (IllegalArgumentException ex) {
+            return defaultValue;
+        }
     }
 
 }

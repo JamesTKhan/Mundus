@@ -25,16 +25,25 @@ public class WaterShader extends BaseShader {
     protected static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/water.vert.glsl";
     protected static final String FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/water.frag.glsl";
 
+    // ============================ MATRICES & CAM POSITION ============================
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
+    protected final int UNIFORM_CAM_POS = register(new Uniform("u_cameraPosition"));
+
+    // ============================ TEXTURES ============================
     protected final int UNIFORM_TEXTURE = register(new Uniform("u_texture"));
     public final int UNIFORM_REFRACTION_TEXTURE = register(new Uniform("u_refractionTexture"));
     protected final int UNIFORM_DUDV_TEXTURE = register(new Uniform("u_dudvTexture"));
     protected final int UNIFORM_NORMAL_MAP_TEXTURE = register(new Uniform("u_normalMapTexture"));
+
+    // ============================ FLOATS ============================
     protected final int UNIFORM_MOVE_FACTOR = register(new Uniform("u_moveFactor"));
     protected final int UNIFORM_TILING = register(new Uniform("u_tiling"));
     protected final int UNIFORM_WAVE_STRENGTH = register(new Uniform("u_waveStrength"));
-    protected final int UNIFORM_CAM_POS = register(new Uniform("u_cameraPosition"));
+    protected final int UNIFORM_SPECULAR_REFLECTIVITY = register(new Uniform("u_reflectivity"));
+    protected final int UNIFORM_SHINE_DAMPER = register(new Uniform("u_shineDamper"));
+
+    // ============================ LIGHTS ============================
     protected final int UNIFORM_LIGHT_POS = register(new Uniform("u_lightPositon"));
     protected final int UNIFORM_LIGHT_COLOR = register(new Uniform("u_lightColor"));
 
@@ -132,6 +141,20 @@ public class WaterShader extends BaseShader {
         WaterFloatAttribute speed = (WaterFloatAttribute) renderable.material.get(WaterFloatAttribute.WaveSpeed);
         if (speed != null) {
             waveSpeed = speed.value;
+        }
+
+        WaterFloatAttribute reflect = (WaterFloatAttribute) renderable.material.get(WaterFloatAttribute.Reflectivity);
+        if (reflect != null) {
+            set(UNIFORM_SPECULAR_REFLECTIVITY, reflect.value);
+        } else {
+            set(UNIFORM_SPECULAR_REFLECTIVITY, Water.DEFAULT_REFLECTIVITY);
+        }
+
+        WaterFloatAttribute shine = (WaterFloatAttribute) renderable.material.get(WaterFloatAttribute.ShineDamper);
+        if (shine != null) {
+            set(UNIFORM_SHINE_DAMPER, shine.value);
+        } else {
+            set(UNIFORM_SHINE_DAMPER, Water.DEFAULT_SHINE_DAMPER);
         }
 
         moveFactor +=  waveSpeed * Gdx.graphics.getDeltaTime();

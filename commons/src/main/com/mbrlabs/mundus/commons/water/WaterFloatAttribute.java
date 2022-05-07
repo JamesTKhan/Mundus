@@ -12,6 +12,12 @@ public class WaterFloatAttribute extends FloatAttribute {
     public static final String WaveSpeedAlias = "waveSpeed";
     public static final long WaveSpeed = register(WaveSpeedAlias);
 
+    public static final String ReflectivityAlias = "reflectivity";
+    public static final long Reflectivity = register(ReflectivityAlias);
+
+    public static final String ShineDamperAlias = "shineDamper";
+    public static final long ShineDamper = register(ShineDamperAlias);
+
     public WaterFloatAttribute(long type) {
         super(type);
     }
