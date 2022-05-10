@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
@@ -48,17 +49,17 @@ import com.mbrlabs.mundus.editor.utils.createSkyboxFromAsset
  * @version 10-01-2016
  */
 class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedListener,
-        SceneChangedEvent.SceneChangedListener {
+        SceneChangedEvent.SceneChangedListener, ImageChooserField.ImageChosenListener {
 
     private lateinit var root: VisTable
     private lateinit var selectBox: VisSelectBox<SkyboxAsset>
 
-    private val positiveX: ImageChooserField = ImageChooserField(100)
-    private var negativeX: ImageChooserField = ImageChooserField(100)
-    private var positiveY: ImageChooserField = ImageChooserField(100)
-    private var negativeY: ImageChooserField = ImageChooserField(100)
-    private var positiveZ: ImageChooserField = ImageChooserField(100)
-    private var negativeZ: ImageChooserField = ImageChooserField(100)
+    private val positiveX: ImageChooserField = ImageChooserField(100, this)
+    private var negativeX: ImageChooserField = ImageChooserField(100, this)
+    private var positiveY: ImageChooserField = ImageChooserField(100, this)
+    private var negativeY: ImageChooserField = ImageChooserField(100, this)
+    private var positiveZ: ImageChooserField = ImageChooserField(100, this)
+    private var negativeZ: ImageChooserField = ImageChooserField(100, this)
 
     private var createBtn = VisTextButton("Create skybox")
     private var defaultBtn = VisTextButton("Create default skybox")
@@ -127,6 +128,9 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
         tab.add(defaultBtn).expandX().fillX()
         tab.add(deletBtn).expandX().fillX().row()
         root.add(tab).fillX().expandX().row()
+
+        // Disable by default until name field is populated
+        createBtn.isDisabled = true
     }
 
     private fun setupListeners() {
@@ -143,9 +147,31 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
             }
         })
 
+        // Name field listener for enabling create button
+        skyboxName.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                validateFields()
+            }
+        })
+
         // create btn
         createBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                if (createBtn.isDisabled)
+                    return
+
+                // check if skybox asset with same name exists
+                for (asset in projectManager.current().assetManager.getSkyboxAssets()) {
+                    // drop the .sky file extension
+                    val name = asset.name.dropLast(4)
+
+                    if (name == skyboxName.text) {
+                        skyboxName.isInputValid = false
+                        Dialogs.showErrorDialog(stage, "A skybox with the same name already exists.")
+                        return
+                    }
+                }
+
                 //TODO validations on name input and if .sky file already exists
                 // probably via listener on the name text field
 
@@ -219,6 +245,35 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
 
     }
 
+    /**
+     * Validate fields for Skybox creation. Checks the Name field
+     * and image fields than disables/enables the create button accordingly.
+     */
+    private fun validateFields() {
+        skyboxName.isInputValid = !skyboxName.isEmpty
+
+        if (skyboxName.isEmpty || !imagesValid()) {
+            createBtn.isDisabled = true
+            return
+        }
+
+        createBtn.isDisabled = false
+    }
+
+    /**
+     * Validates images in the Image Choosers. If any image is null
+     * then it returns false.
+     */
+    private fun imagesValid(): Boolean {
+        if (null === positiveX.file || null === negativeX.file ||
+            null === positiveY.file || null === negativeY.file ||
+            null === positiveZ.file || null === negativeZ.file) {
+
+            return false
+        }
+        return true
+    }
+
     override fun show(stage: Stage?): VisDialog {
         // Update select box on dialog show
         refreshSelectBox()
@@ -252,6 +307,9 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
             negativeY.setImage(null)
             positiveZ.setImage(null)
             negativeZ.setImage(null)
+
+            // Cannot create if no images set
+            createBtn.isDisabled = true
         }
     }
 
@@ -261,6 +319,10 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
 
     override fun onSceneChanged(event: SceneChangedEvent) {
         resetImages()
+    }
+
+    override fun onImageChosen() {
+        validateFields()
     }
 
 }
