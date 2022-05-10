@@ -389,14 +389,20 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      * Delete the asset from the project
      */
     fun deleteAsset(asset: Asset, projectManager: ProjectManager) {
-        val objectsUsingAsset = findAssetUsagesInScenes(projectManager, asset)
-        val assetsUsingAsset = findAssetUsagesInAssets(asset)
+        if (asset is SkyboxAsset) {
+            val skyboxUsages = findSkyboxUsagesInScenes(projectManager, asset)
+            if (skyboxUsages.isNotEmpty()) {
+                Dialogs.showDetailsDialog(UI, "Before deleting a skybox, remove usages of the skybox and save the scene. See details for usages.", "Asset deletion", skyboxUsages.toString())
+                return
+            }
+        } else {
+            val objectsUsingAsset = findAssetUsagesInScenes(projectManager, asset)
+            val assetsUsingAsset = findAssetUsagesInAssets(asset)
 
-        //TODO check for SkyboxAsset usages
-
-        if (objectsUsingAsset.isNotEmpty() || assetsUsingAsset.isNotEmpty()) {
-            showUsagesFoundDialog(objectsUsingAsset, assetsUsingAsset)
-            return
+            if (objectsUsingAsset.isNotEmpty() || assetsUsingAsset.isNotEmpty()) {
+                showUsagesFoundDialog(objectsUsingAsset, assetsUsingAsset)
+                return
+            }
         }
 
         // continue with deletion
@@ -499,6 +505,20 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
                 }
             }
         }
+    }
+
+    private fun findSkyboxUsagesInScenes(projectManager: ProjectManager, asset: SkyboxAsset): ArrayList<String> {
+        val scenesWithSkybox = ArrayList<String>()
+
+        // we check for usages in all scenes
+        for (sceneName in projectManager.current().scenes) {
+            val scene = projectManager.loadScene(projectManager.current(), sceneName)
+            if (scene.skyboxAssetId == asset.id) {
+                scenesWithSkybox.add(scene.name)
+            }
+        }
+
+        return scenesWithSkybox
     }
 
     /**
