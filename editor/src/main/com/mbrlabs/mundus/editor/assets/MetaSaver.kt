@@ -21,7 +21,6 @@ import com.badlogic.gdx.utils.JsonWriter
 import com.mbrlabs.mundus.commons.assets.AssetType
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel
-import com.mbrlabs.mundus.commons.assets.meta.MetaSkybox
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.assets.meta.MetaWater
 
@@ -42,8 +41,6 @@ class MetaSaver {
             addModel(meta, json)
         } else if(meta.type == AssetType.WATER) {
             addWater(meta, json)
-        } else if(meta.type == AssetType.SKYBOX) {
-            addSkyBox(meta, json)
         }
         json.writeObjectEnd()
 
@@ -105,18 +102,5 @@ class MetaSaver {
 
         json.writeObjectEnd()
     }
-
-    private fun addSkyBox(meta: Meta, json: Json) {
-        val skybox = meta.metaSkybox ?: return
-        json.writeObjectStart(Meta.JSON_SKY_BOX)
-
-        json.writeValue(MetaSkybox.JSON_POSITIVE_X, skybox.positiveX)
-        json.writeValue(MetaSkybox.JSON_NEGATIVE_X, skybox.negativeX)
-        json.writeValue(MetaSkybox.JSON_POSITIVE_Y, skybox.positiveY)
-        json.writeValue(MetaSkybox.JSON_NEGATIVE_Y, skybox.negativeY)
-        json.writeValue(MetaSkybox.JSON_POSITIVE_Z, skybox.positiveZ)
-        json.writeValue(MetaSkybox.JSON_NEGATIVE_Z, skybox.negativeZ)
-    }
-
 
 }

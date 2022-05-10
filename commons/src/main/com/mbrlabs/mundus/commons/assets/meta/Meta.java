@@ -47,7 +47,6 @@ public class Meta {
     private MetaModel model;
     private MetaTerrain terrain;
     private MetaWater water;
-    private MetaSkybox metaSkybox;
 
     private FileHandle file;
 
@@ -113,14 +112,6 @@ public class Meta {
 
     public void setWater(MetaWater water) {
         this.water = water;
-    }
-
-    public MetaSkybox getMetaSkybox() {
-        return metaSkybox;
-    }
-
-    public void setMetaSkybox(MetaSkybox metaSkybox) {
-        this.metaSkybox = metaSkybox;
     }
 
     @Override

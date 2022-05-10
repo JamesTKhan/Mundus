@@ -44,8 +44,6 @@ public class MetaLoader {
             parseModel(meta, json.get(Meta.JSON_MODEL));
         } else if(meta.getType() == AssetType.WATER) {
             parseWater(meta, json.get(Meta.JSON_WATER));
-        } else if(meta.getType() == AssetType.SKYBOX) {
-            parseSkybox(meta, json.get(Meta.JSON_SKY_BOX));
         }
 
         return meta;
@@ -104,20 +102,6 @@ public class MetaLoader {
         }
 
         meta.setModel(model);
-    }
-
-    private void parseSkybox(Meta meta, JsonValue jsonValue) {
-        if(jsonValue == null) return;
-
-        final MetaSkybox skybox = new MetaSkybox();
-        skybox.setPositiveX(jsonValue.getString(MetaSkybox.JSON_POSITIVE_X));
-        skybox.setNegativeX(jsonValue.getString(MetaSkybox.JSON_NEGATIVE_X));
-        skybox.setPositiveY(jsonValue.getString(MetaSkybox.JSON_POSITIVE_Y));
-        skybox.setNegativeY(jsonValue.getString(MetaSkybox.JSON_NEGATIVE_Y));
-        skybox.setPositiveZ(jsonValue.getString(MetaSkybox.JSON_POSITIVE_Z));
-        skybox.setNegativeZ(jsonValue.getString(MetaSkybox.JSON_NEGATIVE_Z));
-
-        meta.setMetaSkybox(skybox);
     }
 
     /**

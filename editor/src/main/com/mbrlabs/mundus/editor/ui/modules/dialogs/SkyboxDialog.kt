@@ -183,7 +183,6 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
                 // Create the skybox asset
                 val skyboxAsset = projectManager.current().assetManager.createSkyBoxAsset(skyboxName.text, textureAssets[0], textureAssets[1],
                         textureAssets[2], textureAssets[3], textureAssets[4], textureAssets[5])
-                skyboxAsset.resolveDependencies(projectManager.current().assetManager.assetMap)
 
                 projectManager.current().currScene.skyboxAssetId = skyboxAsset.id
                 resetImages()

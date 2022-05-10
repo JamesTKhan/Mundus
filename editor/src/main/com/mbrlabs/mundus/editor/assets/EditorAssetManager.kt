@@ -26,7 +26,6 @@ import com.badlogic.gdx.utils.ObjectSet
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.mbrlabs.mundus.commons.assets.*
 import com.mbrlabs.mundus.commons.assets.meta.Meta
-import com.mbrlabs.mundus.commons.assets.meta.MetaSkybox
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.assets.meta.MetaWater
 import com.mbrlabs.mundus.commons.scene3d.GameObject
@@ -316,8 +315,6 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         // create meta file
         val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
         val meta = createNewMetaFile(FileHandle(metaPath), AssetType.SKYBOX)
-        meta.metaSkybox = MetaSkybox(positiveX, negativeX,
-                positiveY, negativeY, positiveZ, negativeZ)
 
         // create file
         val filePath = FilenameUtils.concat(rootFolder.path(), fileName)
@@ -326,7 +323,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         // load & apply asset
         val asset = SkyboxAsset(meta, FileHandle(file))
-        asset.load()
+        asset.setIds(positiveX, negativeX,
+                positiveY, negativeY, positiveZ, negativeZ)
+        asset.resolveDependencies(assetMap)
 
         saveAsset(asset)
         addAsset(asset)
@@ -564,6 +563,24 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     private fun saveSkyboxAsset(asset: SkyboxAsset) {
+        // save .sky
+        val props = Properties()
+
+        props.setProperty(SkyboxAsset.PROP_POSITIVE_X, asset.positiveX.id)
+        props.setProperty(SkyboxAsset.PROP_NEGATIVE_X, asset.negativeX.id)
+
+        props.setProperty(SkyboxAsset.PROP_POSITIVE_Y, asset.positiveY.id)
+        props.setProperty(SkyboxAsset.PROP_NEGATIVE_Y, asset.negativeY.id)
+
+        props.setProperty(SkyboxAsset.PROP_POSITIVE_Z, asset.positiveZ.id)
+        props.setProperty(SkyboxAsset.PROP_NEGATIVE_Z, asset.negativeZ.id)
+
+        val fileOutputStream = FileOutputStream(asset.file.file())
+        props.store(fileOutputStream, null)
+        fileOutputStream.flush()
+        fileOutputStream.close()
+
+        // save meta file
         metaSaver.save(asset.meta)
     }
 

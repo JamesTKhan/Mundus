@@ -1,11 +1,33 @@
 package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Map;
 
 public class SkyboxAsset extends Asset {
+
+    private static final ObjectMap<String, String> MAP = new ObjectMap<>();
+
+    // property keys
+    public static final String PROP_POSITIVE_X = "positiveX";
+    public static final String PROP_NEGATIVE_X = "negativeX";
+    public static final String PROP_POSITIVE_Y = "positiveY";
+    public static final String PROP_NEGATIVE_Y = "negativeY";
+    public static final String PROP_POSITIVE_Z = "positiveZ";
+    public static final String PROP_NEGATIVE_Z = "negativeZ";
+
+    // ids of dependent assets
+    public String positiveXID;
+    public String negativeXID;
+    public String positiveYID;
+    public String negativeYID;
+    public String positiveZID;
+    public String negativeZID;
 
     public TextureAsset positiveX;
     public TextureAsset negativeX;
@@ -20,34 +42,51 @@ public class SkyboxAsset extends Asset {
 
     @Override
     public void load() {
-        // nothing to load for now
+        MAP.clear();
+        try {
+            Reader reader = file.reader();
+            PropertiesUtils.load(MAP, reader);
+            reader.close();
+
+            // asset dependencies, load ids
+            positiveXID = MAP.get(PROP_POSITIVE_X, null);
+            negativeXID = MAP.get(PROP_NEGATIVE_X, null);
+
+            positiveYID = MAP.get(PROP_POSITIVE_Y, null);
+            negativeYID = MAP.get(PROP_NEGATIVE_Y, null);
+
+            positiveZID = MAP.get(PROP_POSITIVE_Z, null);
+            negativeZID = MAP.get(PROP_NEGATIVE_Z, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void resolveDependencies(Map<String, Asset> assets) {
-        if (assets.containsKey(meta.getMetaSkybox().getPositiveX())) {
-            positiveX = (TextureAsset) assets.get(meta.getMetaSkybox().getPositiveX());
+        if (assets.containsKey(positiveXID)) {
+            positiveX = (TextureAsset) assets.get(positiveXID);
         }
-        if (assets.containsKey(meta.getMetaSkybox().getNegativeX())) {
-            negativeX = (TextureAsset) assets.get(meta.getMetaSkybox().getNegativeX());
+        if (assets.containsKey(negativeXID)) {
+            negativeX = (TextureAsset) assets.get(negativeXID);
         }
-        if (assets.containsKey(meta.getMetaSkybox().getPositiveY())) {
-            positiveY = (TextureAsset) assets.get(meta.getMetaSkybox().getPositiveY());
+        if (assets.containsKey(positiveYID)) {
+            positiveY = (TextureAsset) assets.get(positiveYID);
         }
-        if (assets.containsKey(meta.getMetaSkybox().getNegativeY())) {
-            negativeY = (TextureAsset) assets.get(meta.getMetaSkybox().getNegativeY());
+        if (assets.containsKey(negativeYID)) {
+            negativeY = (TextureAsset) assets.get(negativeYID);
         }
-        if (assets.containsKey(meta.getMetaSkybox().getPositiveZ())) {
-            positiveZ = (TextureAsset) assets.get(meta.getMetaSkybox().getPositiveZ());
+        if (assets.containsKey(positiveZID)) {
+            positiveZ = (TextureAsset) assets.get(positiveZID);
         }
-        if (assets.containsKey(meta.getMetaSkybox().getNegativeZ())) {
-            negativeZ = (TextureAsset) assets.get(meta.getMetaSkybox().getNegativeZ());
+        if (assets.containsKey(negativeZID)) {
+            negativeZ = (TextureAsset) assets.get(negativeZID);
         }
     }
 
     @Override
     public void applyDependencies() {
-
+        // not needed
     }
 
     @Override
@@ -69,5 +108,17 @@ public class SkyboxAsset extends Asset {
         }
 
         return false;
+    }
+
+    /**
+     * Set TextureAsset Ids for the skybox. Useful for first initial creation of skybox
+     */
+    public void setIds(String positiveX, String negativeX, String positiveY, String negativeY, String positiveZ, String negativeZ) {
+        this.positiveXID = positiveX;
+        this.negativeXID = negativeX;
+        this.positiveYID = positiveY;
+        this.negativeYID = negativeY;
+        this.positiveZID = positiveZ;
+        this.negativeZID = negativeZ;
     }
 }
