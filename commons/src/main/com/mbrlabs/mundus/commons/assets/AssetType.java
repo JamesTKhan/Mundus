@@ -32,5 +32,7 @@ public enum AssetType {
     /** Material file. Mundus material file contains material information. */
     MATERIAL,
     /** Water file. Contains data for water. */
-    WATER
+    WATER,
+    /** Skybox file. Holds reference to skybox textures. **/
+    SKYBOX
 }

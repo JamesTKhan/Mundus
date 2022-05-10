@@ -68,6 +68,19 @@ public class AssetManager implements Disposable {
         return assetIndex.get(id);
     }
 
+    /**
+     * Returns an asset by filename, else null if not found.
+     * @param fileName the filename to search
+     * @return matching asset or null
+     */
+    public Asset findAssetByFileName(String fileName) {
+        for (Asset asset : assets) {
+            if (asset.file.name().equals(fileName))
+                return asset;
+        }
+        return null;
+    }
+
     public Map<String, Asset> getAssetMap() {
         return assetIndex;
     }
@@ -239,29 +252,38 @@ public class AssetManager implements Disposable {
         // load actual asset
         Asset asset = null;
         switch (meta.getType()) {
-        case TEXTURE:
-            asset = loadTextureAsset(meta, assetFile);
-            break;
-        case PIXMAP_TEXTURE:
-            asset = loadPixmapTextureAsset(meta, assetFile);
-            break;
-        case TERRAIN:
-            asset = loadTerrainAsset(meta, assetFile);
-            break;
-        case MODEL:
-            asset = loadModelAsset(meta, assetFile);
-            break;
-        case MATERIAL:
-            asset = loadMaterialAsset(meta, assetFile);
-            break;
+            case TEXTURE:
+                asset = loadTextureAsset(meta, assetFile);
+                break;
+            case PIXMAP_TEXTURE:
+                asset = loadPixmapTextureAsset(meta, assetFile);
+                break;
+            case TERRAIN:
+                asset = loadTerrainAsset(meta, assetFile);
+                break;
+            case MODEL:
+                asset = loadModelAsset(meta, assetFile);
+                break;
+            case MATERIAL:
+                asset = loadMaterialAsset(meta, assetFile);
+                break;
             case WATER:
-            asset = loadWaterAsset(meta, assetFile);
-            break;
-        default:
-            return null;
+                asset = loadWaterAsset(meta, assetFile);
+                break;
+            case SKYBOX:
+                asset = loadSkyboxAsset(meta, assetFile);
+                break;
+            default:
+                return null;
         }
 
         addAsset(asset);
+        return asset;
+    }
+
+    private Asset loadSkyboxAsset(Meta meta, FileHandle assetFile) {
+        SkyboxAsset asset = new SkyboxAsset(meta, assetFile);
+        asset.load();
         return asset;
     }
 

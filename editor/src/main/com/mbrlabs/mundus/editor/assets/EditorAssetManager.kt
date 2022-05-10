@@ -21,10 +21,12 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.PixmapIO
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ObjectSet
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.mbrlabs.mundus.commons.assets.*
 import com.mbrlabs.mundus.commons.assets.meta.Meta
+import com.mbrlabs.mundus.commons.assets.meta.MetaSkybox
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.assets.meta.MetaWater
 import com.mbrlabs.mundus.commons.scene3d.GameObject
@@ -291,6 +293,47 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     /**
+     * Creates a new texture asset if it does not exist, else
+     * returns an existing one.
+     *
+     * @param texture
+     * @return
+     * @throws IOException
+     */
+    fun getOrCreateTextureAsset(texture: FileHandle): TextureAsset {
+        val existingTexture = findAssetByFileName(texture.name())
+        if (existingTexture != null)
+            return existingTexture as TextureAsset
+
+        return createTextureAsset(texture)
+    }
+
+    @Throws(IOException::class, AssetAlreadyExistsException::class)
+    fun createSkyBoxAsset(name : String, positiveX : String, negativeX : String, positiveY : String, negativeY : String, positiveZ : String, negativeZ : String): SkyboxAsset {
+        val fileName = "$name.sky"
+        val metaFilename = "$fileName.meta"
+
+        // create meta file
+        val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
+        val meta = createNewMetaFile(FileHandle(metaPath), AssetType.SKYBOX)
+        meta.metaSkybox = MetaSkybox(positiveX, negativeX,
+                positiveY, negativeY, positiveZ, negativeZ)
+
+        // create file
+        val filePath = FilenameUtils.concat(rootFolder.path(), fileName)
+        val file = File(filePath)
+        FileUtils.touch(file)
+
+        // load & apply asset
+        val asset = SkyboxAsset(meta, FileHandle(file))
+        asset.load()
+
+        saveAsset(asset)
+        addAsset(asset)
+        return asset
+    }
+
+    /**
      * Creates a new & empty material asset.
      *
      * @return new material asset
@@ -326,6 +369,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             saveModelAsset(asset)
         } else if (asset is WaterAsset) {
             saveWaterAsset(asset)
+        } else if (asset is SkyboxAsset) {
+            saveSkyboxAsset(asset)
         }
         // TODO other assets ?
     }
@@ -347,6 +392,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     fun deleteAsset(asset: Asset, projectManager: ProjectManager) {
         val objectsUsingAsset = findAssetUsagesInScenes(projectManager, asset)
         val assetsUsingAsset = findAssetUsagesInAssets(asset)
+
+        //TODO check for SkyboxAsset usages
 
         if (objectsUsingAsset.isNotEmpty() || assetsUsingAsset.isNotEmpty()) {
             showUsagesFoundDialog(objectsUsingAsset, assetsUsingAsset)
@@ -516,6 +563,10 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         metaSaver.save(asset.meta)
     }
 
+    private fun saveSkyboxAsset(asset: SkyboxAsset) {
+        metaSaver.save(asset.meta)
+    }
+
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     private fun createMetaFileFromAsset(assetFile: FileHandle, type: AssetType): Meta {
         val metaName = assetFile.name() + "." + Meta.META_EXTENSION
@@ -561,6 +612,15 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         addAsset(asset)
         return asset
+    }
+
+    fun getSkyboxAssets(): Array<SkyboxAsset> {
+        val skyboxes = Array<SkyboxAsset>()
+        for (asset in assets) {
+            if (asset.meta.type == AssetType.SKYBOX)
+                skyboxes.add(asset as SkyboxAsset)
+        }
+        return skyboxes
     }
 
 }

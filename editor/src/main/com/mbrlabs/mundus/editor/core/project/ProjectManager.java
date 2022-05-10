@@ -18,14 +18,18 @@ package com.mbrlabs.mundus.editor.core.project;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.assets.AssetNotFoundException;
 import com.mbrlabs.mundus.commons.assets.ModelAsset;
+import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
+import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
 import com.mbrlabs.mundus.commons.env.Fog;
@@ -37,6 +41,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.editor.Main;
 import com.mbrlabs.mundus.editor.Mundus;
+import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException;
 import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
 import com.mbrlabs.mundus.editor.core.EditorScene;
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter;
@@ -49,6 +54,7 @@ import com.mbrlabs.mundus.editor.events.LogType;
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent;
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableComponent;
+import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.utils.Log;
 import com.mbrlabs.mundus.editor.utils.SkyboxBuilder;
 
@@ -132,7 +138,8 @@ public class ProjectManager implements Disposable {
         // create default scene & save .mundus
         EditorScene scene = new EditorScene();
         scene.setName(DEFAULT_SCENE_NAME);
-        scene.skybox = SkyboxBuilder.createDefaultSkybox();
+        scene.skybox = SkyboxBuilder.createDefaultSkybox(Shaders.INSTANCE.getSkyboxShader());
+        scene.skyboxAssetId = getDefaultSkyboxAsset(newProjectContext, true).getID();
         scene.environment.setFog(new Fog());
         scene.setId(newProjectContext.obtainID());
         SceneManager.saveScene(newProjectContext, scene);
@@ -147,6 +154,45 @@ public class ProjectManager implements Disposable {
         newProjectContext.assetManager.createStandardAssets();
 
         return newProjectContext;
+    }
+
+    /**
+     * Gets the default skybox, if it can be found.
+     *
+     * @param projectContext the project context to use
+     * @param createIfMissing if true, creates default skybox if it's missing
+     * @return skybox asset
+     */
+    public SkyboxAsset getDefaultSkyboxAsset(ProjectContext projectContext, boolean createIfMissing) {
+
+        // See if the default skybox already exists
+        SkyboxAsset defaultSkybox = (SkyboxAsset) projectContext.assetManager.findAssetByFileName("default.sky");
+
+        if (defaultSkybox == null && createIfMissing) {
+            FileHandle texture = Gdx.files.internal("textures/skybox/default/skybox_default.png");
+            TextureAsset textureAsset = projectContext.assetManager.getOrCreateTextureAsset(texture);
+
+            String id = textureAsset.getID();
+            // Create it if it does not exist
+            try {
+                defaultSkybox = projectContext.assetManager.createSkyBoxAsset("default", id, id, id, id, id, id);
+                defaultSkybox.positiveX = textureAsset;
+                defaultSkybox.negativeX = textureAsset;
+                defaultSkybox.positiveY = textureAsset;
+                defaultSkybox.negativeY = textureAsset;
+                defaultSkybox.positiveZ = textureAsset;
+                defaultSkybox.negativeZ = textureAsset;
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (AssetAlreadyExistsException e) {
+                e.printStackTrace();
+            }
+
+            if (defaultSkybox == null)
+                throw new GdxRuntimeException("Unable to get or create default skybox.");
+        }
+
+        return defaultSkybox;
     }
 
     /**
@@ -315,7 +361,9 @@ public class ProjectManager implements Disposable {
         long id = project.obtainID();
         scene.setId(id);
         scene.setName(name);
-        scene.skybox = SkyboxBuilder.createDefaultSkybox();
+        scene.skyboxAssetId = getDefaultSkyboxAsset(project, false).getID();
+        if (scene.skyboxAssetId != null)
+            scene.skybox = SkyboxBuilder.createDefaultSkybox(Shaders.INSTANCE.getSkyboxShader());
         project.scenes.add(scene.getName());
         SceneManager.saveScene(project, scene);
 
@@ -339,7 +387,13 @@ public class ProjectManager implements Disposable {
         SceneDTO sceneDTO = SceneManager.loadScene(context, sceneName);
 
         EditorScene scene = SceneConverter.convert(sceneDTO, context.assetManager.getAssetMap());
-        scene.skybox = SkyboxBuilder.createDefaultSkybox();
+
+        // load skybox
+        if (scene.skyboxAssetId != null && context.assetManager.getAssetMap().containsKey(scene.skyboxAssetId)) {
+            SkyboxAsset asset = (SkyboxAsset) context.assetManager.getAssetMap().get(scene.skyboxAssetId);
+            scene.skybox = SkyboxBuilder.createSkyboxFromAsset(asset, Shaders.INSTANCE.getSkyboxShader());
+        }
+
         scene.batch = modelBatch;
 
         SceneGraph sceneGraph = scene.sceneGraph;

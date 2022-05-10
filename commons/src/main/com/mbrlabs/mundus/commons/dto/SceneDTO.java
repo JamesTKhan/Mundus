@@ -29,6 +29,7 @@ public class SceneDTO {
 
     private long id;
     private String name;
+    private String skyboxAssetId;
     private List<GameObjectDTO> gameObjects;
     private FogDTO fog;
     private BaseLightDTO ambientLight;
@@ -147,5 +148,13 @@ public class SceneDTO {
 
     public float getWaterHeight() {
         return waterHeight;
+    }
+
+    public void setSkyboxAssetId(String skyboxAssetId) {
+        this.skyboxAssetId = skyboxAssetId;
+    }
+
+    public String getSkyboxAssetId() {
+        return skyboxAssetId;
     }
 }

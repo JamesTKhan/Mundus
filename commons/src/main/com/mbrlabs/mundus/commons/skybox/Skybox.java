@@ -47,9 +47,10 @@ public class Skybox implements Disposable {
     private FileHandle negativeZ;
 
     public Skybox(FileHandle positiveX, FileHandle negativeX, FileHandle positiveY, FileHandle negativeY,
-            FileHandle positiveZ, FileHandle negativeZ) {
+            FileHandle positiveZ, FileHandle negativeZ, Shader shader) {
         set(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ);
 
+        this.shader = shader;
         boxModel = createModel();
         boxInstance = new ModelInstance(boxModel);
     }

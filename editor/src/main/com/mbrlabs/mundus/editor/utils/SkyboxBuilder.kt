@@ -19,16 +19,30 @@
 package com.mbrlabs.mundus.editor.utils
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.g3d.Shader
+import com.mbrlabs.mundus.commons.assets.SkyboxAsset
 import com.mbrlabs.mundus.commons.skybox.Skybox
 
-fun createDefaultSkybox(): Skybox {
+fun createDefaultSkybox(shader : Shader): Skybox {
     val texture = Gdx.files.internal("textures/skybox/default/skybox_default.png")
-    return Skybox(texture, texture, texture, texture, texture, texture)
+    return Skybox(texture, texture, texture, texture, texture, texture,
+            shader)
 }
 
-fun createNightSkybox(): Skybox {
+fun createNightSkybox(shader : Shader): Skybox {
     val texture = Gdx.files.internal("textures/skybox/star_night.png")
-    return Skybox(texture, texture, texture, texture, texture, texture)
+    return Skybox(texture, texture, texture, texture, texture, texture,
+            shader)
+}
+
+fun createSkyboxFromAsset(skyboxAsset: SkyboxAsset, shader: Shader): Skybox {
+    return Skybox(skyboxAsset.positiveX.file,
+            skyboxAsset.negativeX.file,
+            skyboxAsset.positiveY.file,
+            skyboxAsset.negativeY.file,
+            skyboxAsset.positiveZ.file,
+            skyboxAsset.negativeZ.file,
+            shader)
 }
 
 

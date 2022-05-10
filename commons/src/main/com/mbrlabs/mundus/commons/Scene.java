@@ -48,6 +48,7 @@ public class Scene implements Disposable {
     public SceneGraph sceneGraph;
     public MundusEnvironment environment;
     public Skybox skybox;
+    public String skyboxAssetId;
     public float waterHeight = 0f;
     public WaterResolution waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
 
