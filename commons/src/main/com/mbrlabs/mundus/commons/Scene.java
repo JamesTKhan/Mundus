@@ -22,11 +22,13 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
@@ -72,7 +74,7 @@ public class Scene implements Disposable {
     public Scene() {
         environment = new MundusEnvironment();
         currentSelection = null;
-        terrains = new Array<TerrainAsset>();
+        terrains = new Array<>();
 
         cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 1, -3);
@@ -192,10 +194,34 @@ public class Scene implements Disposable {
         this.id = id;
     }
 
+    /**
+     * Set the water resolution to use for water reflection and refractions.
+     * This will reinitialize the frame buffers with the given resolution.
+     * @param resolution the resolution to use
+     */
     public void setWaterResolution(WaterResolution resolution) {
         this.waterResolution = resolution;
         Vector2 res = waterResolution.getResolutionValues();
         initFrameBuffers((int) res.x, (int) res.y);
+    }
+
+    /**
+     * Sets and switches the scenes skybox to the given SkyboxAsset.
+     *
+     * @param skyboxAsset the asset to use
+     * @param skyboxShader the shader to use
+     */
+    public void setSkybox(SkyboxAsset skyboxAsset, Shader skyboxShader) {
+        if (skyboxAsset == null) return;
+
+        skyboxAssetId = skyboxAsset.getID();
+        skybox =  new Skybox(skyboxAsset.positiveX.getFile(),
+                skyboxAsset.negativeX.getFile(),
+                skyboxAsset.positiveY.getFile(),
+                skyboxAsset.negativeY.getFile(),
+                skyboxAsset.positiveZ.getFile(),
+                skyboxAsset.negativeZ.getFile(),
+                skyboxShader);
     }
 
     @Override
