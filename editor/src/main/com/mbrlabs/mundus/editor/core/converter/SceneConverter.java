@@ -44,6 +44,7 @@ public class SceneConverter {
         // meta
         dto.setName(scene.getName());
         dto.setId(scene.getId());
+        dto.setSkyboxAssetId(scene.skyboxAssetId);
 
         // scene graph
         for (GameObject go : scene.sceneGraph.getGameObjects()) {
@@ -75,6 +76,7 @@ public class SceneConverter {
         // meta
         scene.setId(dto.getId());
         scene.setName(dto.getName());
+        scene.skyboxAssetId = dto.getSkyboxAssetId();
 
         // environment stuff
         scene.environment.setFog(FogConverter.convert(dto.getFog()));

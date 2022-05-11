@@ -21,6 +21,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.PixmapIO
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ObjectSet
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.mbrlabs.mundus.commons.assets.*
@@ -291,6 +292,47 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     /**
+     * Creates a new texture asset if it does not exist, else
+     * returns an existing one.
+     *
+     * @param texture
+     * @return
+     * @throws IOException
+     */
+    fun getOrCreateTextureAsset(texture: FileHandle): TextureAsset {
+        val existingTexture = findAssetByFileName(texture.name())
+        if (existingTexture != null)
+            return existingTexture as TextureAsset
+
+        return createTextureAsset(texture)
+    }
+
+    @Throws(IOException::class, AssetAlreadyExistsException::class)
+    fun createSkyBoxAsset(name : String, positiveX : String, negativeX : String, positiveY : String, negativeY : String, positiveZ : String, negativeZ : String): SkyboxAsset {
+        val fileName = "$name.sky"
+        val metaFilename = "$fileName.meta"
+
+        // create meta file
+        val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
+        val meta = createNewMetaFile(FileHandle(metaPath), AssetType.SKYBOX)
+
+        // create file
+        val filePath = FilenameUtils.concat(rootFolder.path(), fileName)
+        val file = File(filePath)
+        FileUtils.touch(file)
+
+        // load & apply asset
+        val asset = SkyboxAsset(meta, FileHandle(file))
+        asset.setIds(positiveX, negativeX,
+                positiveY, negativeY, positiveZ, negativeZ)
+        asset.resolveDependencies(assetMap)
+
+        saveAsset(asset)
+        addAsset(asset)
+        return asset
+    }
+
+    /**
      * Creates a new & empty material asset.
      *
      * @return new material asset
@@ -326,6 +368,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             saveModelAsset(asset)
         } else if (asset is WaterAsset) {
             saveWaterAsset(asset)
+        } else if (asset is SkyboxAsset) {
+            saveSkyboxAsset(asset)
         }
         // TODO other assets ?
     }
@@ -345,12 +389,20 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      * Delete the asset from the project
      */
     fun deleteAsset(asset: Asset, projectManager: ProjectManager) {
-        val objectsUsingAsset = findAssetUsagesInScenes(projectManager, asset)
-        val assetsUsingAsset = findAssetUsagesInAssets(asset)
+        if (asset is SkyboxAsset) {
+            val skyboxUsages = findSkyboxUsagesInScenes(projectManager, asset)
+            if (skyboxUsages.isNotEmpty()) {
+                Dialogs.showDetailsDialog(UI, "Before deleting a skybox, remove usages of the skybox and save the scene. See details for usages.", "Asset deletion", skyboxUsages.toString())
+                return
+            }
+        } else {
+            val objectsUsingAsset = findAssetUsagesInScenes(projectManager, asset)
+            val assetsUsingAsset = findAssetUsagesInAssets(asset)
 
-        if (objectsUsingAsset.isNotEmpty() || assetsUsingAsset.isNotEmpty()) {
-            showUsagesFoundDialog(objectsUsingAsset, assetsUsingAsset)
-            return
+            if (objectsUsingAsset.isNotEmpty() || assetsUsingAsset.isNotEmpty()) {
+                showUsagesFoundDialog(objectsUsingAsset, assetsUsingAsset)
+                return
+            }
         }
 
         // continue with deletion
@@ -455,6 +507,20 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         }
     }
 
+    private fun findSkyboxUsagesInScenes(projectManager: ProjectManager, asset: SkyboxAsset): ArrayList<String> {
+        val scenesWithSkybox = ArrayList<String>()
+
+        // we check for usages in all scenes
+        for (sceneName in projectManager.current().scenes) {
+            val scene = projectManager.loadScene(projectManager.current(), sceneName)
+            if (scene.skyboxAssetId == asset.id) {
+                scenesWithSkybox.add(scene.name)
+            }
+        }
+
+        return scenesWithSkybox
+    }
+
     /**
      * Saves an existing terrainAsset asset.
      *
@@ -516,6 +582,28 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         metaSaver.save(asset.meta)
     }
 
+    private fun saveSkyboxAsset(asset: SkyboxAsset) {
+        // save .sky
+        val props = Properties()
+
+        props.setProperty(SkyboxAsset.PROP_POSITIVE_X, asset.positiveX.id)
+        props.setProperty(SkyboxAsset.PROP_NEGATIVE_X, asset.negativeX.id)
+
+        props.setProperty(SkyboxAsset.PROP_POSITIVE_Y, asset.positiveY.id)
+        props.setProperty(SkyboxAsset.PROP_NEGATIVE_Y, asset.negativeY.id)
+
+        props.setProperty(SkyboxAsset.PROP_POSITIVE_Z, asset.positiveZ.id)
+        props.setProperty(SkyboxAsset.PROP_NEGATIVE_Z, asset.negativeZ.id)
+
+        val fileOutputStream = FileOutputStream(asset.file.file())
+        props.store(fileOutputStream, null)
+        fileOutputStream.flush()
+        fileOutputStream.close()
+
+        // save meta file
+        metaSaver.save(asset.meta)
+    }
+
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     private fun createMetaFileFromAsset(assetFile: FileHandle, type: AssetType): Meta {
         val metaName = assetFile.name() + "." + Meta.META_EXTENSION
@@ -561,6 +649,15 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         addAsset(asset)
         return asset
+    }
+
+    fun getSkyboxAssets(): Array<SkyboxAsset> {
+        val skyboxes = Array<SkyboxAsset>()
+        for (asset in assets) {
+            if (asset.meta.type == AssetType.SKYBOX)
+                skyboxes.add(asset as SkyboxAsset)
+        }
+        return skyboxes
     }
 
 }

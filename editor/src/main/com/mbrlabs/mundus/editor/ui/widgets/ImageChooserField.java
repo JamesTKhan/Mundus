@@ -42,13 +42,15 @@ public class ImageChooserField extends VisTable {
     private static final Drawable PLACEHOLDER_IMG = new TextureRegionDrawable(
             new TextureRegion(new Texture(Gdx.files.internal("ui/img_placeholder.png"))));
 
-    private int width;
+    private final int width;
 
-    private VisTextButton fcBtn;
+    private final VisTextButton fcBtn;
 
-    private Image img;
+    private final Image img;
     private Texture texture;
     private FileHandle fileHandle;
+
+    private ImageChosenListener listener = null;
 
     public ImageChooserField(int width) {
         super();
@@ -58,6 +60,11 @@ public class ImageChooserField extends VisTable {
 
         setupUI();
         setupListeners();
+    }
+
+    public ImageChooserField(int width, ImageChosenListener listener) {
+        this(width);
+        this.listener = listener;
     }
 
     public FileHandle getFile() {
@@ -104,6 +111,8 @@ public class ImageChooserField extends VisTable {
                     public void selected(FileHandle file) {
                         if (FileFormatUtils.isImage(file)) {
                             setImage(file);
+                            if (listener != null)
+                                listener.onImageChosen();
                         } else {
                             Dialogs.showErrorDialog(UI.INSTANCE, "This is no image");
                         }
@@ -112,6 +121,10 @@ public class ImageChooserField extends VisTable {
                 UI.INSTANCE.addActor(fileChooser.fadeIn());
             }
         });
+    }
+
+    public interface ImageChosenListener {
+        void onImageChosen();
     }
 
 }

@@ -103,5 +103,4 @@ class MetaSaver {
         json.writeObjectEnd()
     }
 
-
 }

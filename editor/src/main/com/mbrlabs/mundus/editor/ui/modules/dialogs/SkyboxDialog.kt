@@ -16,36 +16,56 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.dialogs
 
+import com.badlogic.gdx.files.FileHandle
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.kotcrab.vis.ui.util.dialog.Dialogs
+import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
+import com.kotcrab.vis.ui.widget.VisTextField
+import com.mbrlabs.mundus.commons.assets.Asset
+import com.mbrlabs.mundus.commons.assets.SkyboxAsset
 import com.mbrlabs.mundus.commons.skybox.Skybox
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
+import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.ui.widgets.ImageChooserField
 import com.mbrlabs.mundus.editor.utils.createDefaultSkybox
+import com.mbrlabs.mundus.editor.utils.createSkyboxFromAsset
 
 /**
  * @author Marcus Brummer
  * @version 10-01-2016
  */
 class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedListener,
-        SceneChangedEvent.SceneChangedListener {
+        SceneChangedEvent.SceneChangedListener, ImageChooserField.ImageChosenListener {
 
-    private val positiveX: ImageChooserField = ImageChooserField(100)
-    private var negativeX: ImageChooserField = ImageChooserField(100)
-    private var positiveY: ImageChooserField = ImageChooserField(100)
-    private var negativeY: ImageChooserField = ImageChooserField(100)
-    private var positiveZ: ImageChooserField = ImageChooserField(100)
-    private var negativeZ: ImageChooserField = ImageChooserField(100)
+    private lateinit var root: VisTable
+    private lateinit var selectBox: VisSelectBox<SkyboxAsset>
+
+    private val positiveX: ImageChooserField = ImageChooserField(100, this)
+    private var negativeX: ImageChooserField = ImageChooserField(100, this)
+    private var positiveY: ImageChooserField = ImageChooserField(100, this)
+    private var negativeY: ImageChooserField = ImageChooserField(100, this)
+    private var positiveZ: ImageChooserField = ImageChooserField(100, this)
+    private var negativeZ: ImageChooserField = ImageChooserField(100, this)
 
     private var createBtn = VisTextButton("Create skybox")
-    private var defaultBtn  = VisTextButton("Create default skybox")
+    private var defaultBtn = VisTextButton("Create default skybox")
     private var deletBtn = VisTextButton("Remove Skybox")
+
+    private var skyboxName = VisTextField()
 
     private val projectManager: ProjectManager = Mundus.inject()
 
@@ -57,55 +77,153 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
     }
 
     private fun setupUI() {
-        positiveX.setButtonText("positiveX")
-        negativeX.setButtonText("negativeX")
-        positiveY.setButtonText("positiveY")
-        negativeY.setButtonText("negativeY")
-        positiveZ.setButtonText("positiveZ")
-        negativeZ.setButtonText("negativeZ")
+        positiveX.setButtonText("Right (+X)")
+        negativeX.setButtonText("Left (-X)")
+        positiveY.setButtonText("Top (+Y)")
+        negativeY.setButtonText("Bottom (-Y)")
+        positiveZ.setButtonText("Front (+Z)")
+        negativeZ.setButtonText("Back (-Z)")
 
-        val root = VisTable()
-        // root.debugAll();
-        root.padTop(6f).padRight(6f).padBottom(22f)
+        root = VisTable()
         add(root).left().top()
-        root.add(VisLabel("The 6 images must be square and of equal size")).colspan(3).row()
-        root.addSeparator().colspan(3).row()
-        root.add<ImageChooserField>(positiveX)
-        root.add<ImageChooserField>(negativeX)
-        root.add<ImageChooserField>(positiveY).row()
-        root.add<ImageChooserField>(negativeY)
-        root.add<ImageChooserField>(positiveZ)
-        root.add<ImageChooserField>(negativeZ).row()
-        root.add<VisTextButton>(createBtn).padTop(15f).padLeft(6f).padRight(6f).expandX().fillX().colspan(3).row()
+
+        root.add(VisLabel("Set Skybox")).left().row()
+        root.addSeparator().row()
+
+        // Skybox selector
+        val selectorsTable = VisTable(true)
+        selectorsTable.add(VisLabel("Set Skybox From Existing:"))
+        selectBox = VisSelectBox<SkyboxAsset>()
+        selectorsTable.add(selectBox).left()
+        root.add(selectorsTable).row()
+
+        // Image pickers
+        root.add(VisLabel("Create a Skybox")).left().padTop(10f).row()
+        val imageChooserTable = VisTable()
+        imageChooserTable.addSeparator().colspan(3).row()
+        imageChooserTable.add(VisLabel("The 6 images must be square and of equal size")).colspan(3).row()
+        imageChooserTable.padTop(6f).padRight(6f)
+        imageChooserTable.add(positiveX)
+        imageChooserTable.add(negativeX)
+        imageChooserTable.add(positiveY).row()
+        imageChooserTable.add(negativeY)
+        imageChooserTable.add(positiveZ)
+        imageChooserTable.add(negativeZ).row()
+        root.add(imageChooserTable).left().top().row()
+
+        // Create skybox buttons
+        val createTable = VisTable()
+        createTable.defaults().padTop(15f).padLeft(6f).padRight(6f)
+        createTable.add(VisLabel("Skybox Name: ")).left()
+        createTable.add(skyboxName).row()
+        createTable.add(createBtn).colspan(2).center()
+        root.add(createTable).row()
+
+        // Options
+        root.add(VisLabel("Options")).left().padTop(10f).row()
+        root.addSeparator().row()
 
         val tab = VisTable()
-        tab.add<VisTextButton>(defaultBtn).expandX().padRight(3f).fillX()
-        tab.add<VisTextButton>(deletBtn).expandX().fillX().padLeft(3f).row()
-        root.add(tab).fillX().expandX().padTop(5f).padLeft(6f).padRight(6f).colspan(3).row()
+        tab.defaults().padTop(15f).padLeft(6f).padRight(6f).padBottom(15f)
+        tab.add(defaultBtn).expandX().fillX()
+        tab.add(deletBtn).expandX().fillX().row()
+        root.add(tab).fillX().expandX().row()
+
+        // Disable by default until name field is populated
+        createBtn.isDisabled = true
     }
 
     private fun setupListeners() {
-        val projectContext = projectManager.current()
+        var projectContext = projectManager.current()
+
+        // skybox select
+        selectBox.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                projectContext.currScene.skybox?.dispose()
+
+                projectManager.current().currScene.skybox = createSkyboxFromAsset(selectBox.selected, Shaders.skyboxShader)
+                projectManager.current().currScene.skyboxAssetId = selectBox.selected.id
+                resetImages()
+            }
+        })
+
+        // Name field listener for enabling create button
+        skyboxName.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                validateFields()
+            }
+        })
 
         // create btn
         createBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                if (createBtn.isDisabled)
+                    return
+
+                // check if skybox asset with same name exists
+                for (asset in projectManager.current().assetManager.getSkyboxAssets()) {
+                    // drop the .sky file extension
+                    val name = asset.name.dropLast(4)
+
+                    if (name == skyboxName.text) {
+                        skyboxName.isInputValid = false
+                        Dialogs.showErrorDialog(stage, "A skybox with the same name already exists.")
+                        return
+                    }
+                }
+
                 val oldSkybox = projectContext.currScene.skybox
                 oldSkybox?.dispose()
 
+                // Set actual skybox
                 projectManager.current().currScene.skybox = Skybox(positiveX.file, negativeX.file,
-                        positiveY.file, negativeY.file, positiveZ.file, negativeZ.file)
+                        positiveY.file, negativeY.file, positiveZ.file, negativeZ.file, Shaders.skyboxShader)
+
+                val files = ArrayList<FileHandle>()
+                files.add(positiveX.file)
+                files.add(negativeX.file)
+                files.add(positiveY.file)
+                files.add(negativeY.file)
+                files.add(positiveZ.file)
+                files.add(negativeZ.file)
+
+                val textureAssets = ArrayList<String>()
+
+                // Create texture assets for each skybox image
+                for (file in files) {
+                    var asset: Asset
+
+                    try {
+                        asset = projectManager.current().assetManager.createTextureAsset(file)
+                    } catch (e: AssetAlreadyExistsException) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR, "Skybox texture already exists. " + file.name()))
+                        asset = projectManager.current().assetManager.findAssetByFileName(file.name())
+                    }
+
+                    textureAssets.add(asset.id)
+                }
+
+                // Create the skybox asset
+                val skyboxAsset = projectManager.current().assetManager.createSkyBoxAsset(skyboxName.text, textureAssets[0], textureAssets[1],
+                        textureAssets[2], textureAssets[3], textureAssets[4], textureAssets[5])
+
+                projectManager.current().currScene.skyboxAssetId = skyboxAsset.id
                 resetImages()
+                refreshSelectBox()
             }
         })
 
         // default skybox btn
         defaultBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                if (projectContext.currScene.skybox != null) {
-                    projectContext.currScene.skybox.dispose()
-                }
-                projectContext.currScene.skybox = createDefaultSkybox()
+                projectContext = projectManager.current()
+                projectContext.currScene.skybox?.dispose()
+
+                projectContext.currScene.skybox = createDefaultSkybox(Shaders.skyboxShader)
+                val defaultSkybox = projectManager.getDefaultSkyboxAsset(projectContext, true)
+
+                projectManager.current().currScene.skyboxAssetId = defaultSkybox.id
+                refreshSelectBox()
                 resetImages()
             }
         })
@@ -113,12 +231,61 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
         // delete skybox btn
         deletBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                projectContext.currScene.skybox.dispose()
+                projectContext = projectManager.current()
+                projectContext.currScene.skybox?.dispose()
+
                 projectContext.currScene.skybox = null
+                projectContext.currScene.skyboxAssetId = null
                 resetImages()
             }
         })
 
+    }
+
+    /**
+     * Validate fields for Skybox creation. Checks the Name field
+     * and image fields than disables/enables the create button accordingly.
+     */
+    private fun validateFields() {
+        skyboxName.isInputValid = !skyboxName.isEmpty
+
+        if (skyboxName.isEmpty || !imagesValid()) {
+            createBtn.isDisabled = true
+            return
+        }
+
+        createBtn.isDisabled = false
+    }
+
+    /**
+     * Validates images in the Image Choosers. If any image is null
+     * then it returns false.
+     */
+    private fun imagesValid(): Boolean {
+        if (null === positiveX.file || null === negativeX.file ||
+            null === positiveY.file || null === negativeY.file ||
+            null === positiveZ.file || null === negativeZ.file) {
+
+            return false
+        }
+        return true
+    }
+
+    override fun show(stage: Stage?): VisDialog {
+        // Update select box on dialog show
+        refreshSelectBox()
+
+        return super.show(stage)
+    }
+
+    private fun refreshSelectBox() {
+        val skyboxes = projectManager.current().assetManager.getSkyboxAssets()
+        val currentId = projectManager.current().currScene.skyboxAssetId
+
+        // Refresh skyboxes
+        selectBox.items.clear()
+        selectBox.items = skyboxes
+        selectBox.selected = projectManager.current().assetManager.findAssetByID(currentId) as SkyboxAsset?
     }
 
     private fun resetImages() {
@@ -128,7 +295,7 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
             negativeX.setImage(skybox.negativeX)
             positiveY.setImage(skybox.positiveY)
             negativeY.setImage(skybox.negativeY)
-            positiveZ.setImage(skybox.positiveY)
+            positiveZ.setImage(skybox.positiveZ)
             negativeZ.setImage(skybox.negativeZ)
         } else {
             positiveX.setImage(null)
@@ -137,6 +304,9 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
             negativeY.setImage(null)
             positiveZ.setImage(null)
             negativeZ.setImage(null)
+
+            // Cannot create if no images set
+            createBtn.isDisabled = true
         }
     }
 
@@ -146,6 +316,10 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
 
     override fun onSceneChanged(event: SceneChangedEvent) {
         resetImages()
+    }
+
+    override fun onImageChosen() {
+        validateFields()
     }
 
 }

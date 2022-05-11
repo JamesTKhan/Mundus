@@ -32,7 +32,6 @@ import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.input.FreeCamController
 import com.mbrlabs.mundus.editor.input.InputManager
 import com.mbrlabs.mundus.editor.input.ShortcutController
-import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Compass
@@ -113,7 +112,6 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         val context = projectManager.current()
         val scene = context.currScene
         val sg = scene.sceneGraph
-        scene.skybox.shader = Shaders.skyboxShader
 
         UI.sceneWidget.setCam(context.currScene.cam)
         UI.sceneWidget.setRenderer {
