@@ -24,7 +24,7 @@ Below are some of the more interesting features, that already work
 - 4 different brushes (brush form can be an arbitrary image, like in Blender or Gimp)
 - 3 brush modes for each brush: Raise/Lower, Flatten & texture paint
 - Water quads with reflections, refractions and customizable ripples
-- A skybox (not exportable yet)
+- Static Skyboxes with support for multiple skyboxes
 - Loading of g3db/gltf/glb files
 - Loading of obj/fbx/dae files (note, that the [fbx-conv](https://github.com/libgdx/fbx-conv) binary must be set in the settings)
 - Visual translation, rotation tool, and scaling tools 

@@ -3,7 +3,7 @@ apply plugin: "java"
 sourceSets.main.java.srcDirs = ["src/"]
 sourceSets.main.resources.srcDirs = ["src/"]
 
-def VERSION = '0.2.0'
+def VERSION = '0.3.0'
 def NAME = 'mundus-gdx-runtime'
 
 task distRuntime(type: Jar, dependsOn: classes) {

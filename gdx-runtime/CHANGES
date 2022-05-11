@@ -1,3 +1,7 @@
+[0.3.0]
+- Enable fog in runtime
+- Skyboxes now supported in runtime via scene.setSkybox method
+
 [0.2.0]
 - Updated min java version to 1.7
 - Add Desktop support by handling loading of assets without using FileHandle.list();
