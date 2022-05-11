@@ -94,6 +94,10 @@ public class Water implements RenderableProvider, Disposable {
         material.set(new WaterTextureAttribute(WaterTextureAttribute.Refraction, waterRefractionTexture));
     }
 
+    public void setWaterRefractionDepthTexture(Texture texture) {
+        material.set(new WaterTextureAttribute(WaterTextureAttribute.RefractionDepth, texture));
+    }
+
     public void setTiling(float tiling) {
         material.set(new WaterFloatAttribute(WaterFloatAttribute.Tiling, tiling));
     }

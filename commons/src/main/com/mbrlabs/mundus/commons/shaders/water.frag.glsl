@@ -10,6 +10,7 @@ varying vec3 v_fromLightVector;
 uniform vec3 u_color;
 uniform sampler2D u_texture;
 uniform sampler2D u_refractionTexture;
+uniform sampler2D u_refractionDepthTexture;
 uniform sampler2D u_dudvTexture;
 uniform sampler2D u_normalMapTexture;
 uniform float u_waveStrength;
@@ -26,6 +27,15 @@ void main() {
     vec2 ndc = (v_clipSpace.xy/v_clipSpace.w)/2.0 + 0.5;
     vec2 refractTexCoords = vec2(ndc.x, ndc.y);
     vec2 reflectTexCoords = vec2(ndc.x, 1.0-ndc.y);
+
+    float near = 0.2;
+    float far = 10000.0;
+    float depth = texture2D(u_refractionDepthTexture, refractTexCoords).r;
+    float floorDistance = 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
+
+    depth = gl_FragCoord.z;
+    float waterDistance = 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
+    float waterDepth = floorDistance - waterDistance;
 
     // Dudv distortion
     vec2 distortedTexCoords = texture2D(u_dudvTexture, vec2(v_texCoord0.x + u_moveFactor, v_texCoord0.y)).rg*0.1;
@@ -65,5 +75,6 @@ void main() {
     vec4 color =  mix(reflectColor, refractColor, refractiveFactor);
     color = mix(color, COLOR_TURQUOISE, 0.2) + vec4(specularHighlights, 0.0);
 
-    gl_FragColor = color;
+    //gl_FragColor = color;
+    gl_FragColor = vec4(waterDepth/50.0);
 }

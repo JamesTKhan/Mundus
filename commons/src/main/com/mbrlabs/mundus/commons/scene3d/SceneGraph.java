@@ -54,13 +54,14 @@ public class SceneGraph {
     }
 
     //todo consider using renderable sorter instead
-    public void renderWater(float delta, Texture reflectionTexture, Texture refraction) {
+    public void renderWater(float delta, Texture reflectionTexture, Texture refraction, Texture refractionDepth) {
         for (GameObject go : root.getChildren()) {
             if (go.name.contains("Water")) {
                 WaterComponent waterComponent = (WaterComponent) go.findComponentByType(Component.Type.WATER);
                 if (waterComponent != null) {
                     waterComponent.getWaterAsset().setWaterReflectionTexture(reflectionTexture);
                     waterComponent.getWaterAsset().setWaterRefractionTexture(refraction);
+                    waterComponent.getWaterAsset().water.setWaterRefractionDepthTexture(refractionDepth);
                 }
                 go.render(delta);
             }

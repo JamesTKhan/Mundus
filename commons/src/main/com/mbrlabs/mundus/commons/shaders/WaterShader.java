@@ -2,15 +2,12 @@ package com.mbrlabs.mundus.commons.shaders;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
@@ -33,6 +30,7 @@ public class WaterShader extends BaseShader {
     // ============================ TEXTURES ============================
     protected final int UNIFORM_TEXTURE = register(new Uniform("u_texture"));
     public final int UNIFORM_REFRACTION_TEXTURE = register(new Uniform("u_refractionTexture"));
+    public final int UNIFORM_REFRACTION_DEPTH_TEXTURE = register(new Uniform("u_refractionDepthTexture"));
     protected final int UNIFORM_DUDV_TEXTURE = register(new Uniform("u_dudvTexture"));
     protected final int UNIFORM_NORMAL_MAP_TEXTURE = register(new Uniform("u_normalMapTexture"));
 
@@ -121,6 +119,11 @@ public class WaterShader extends BaseShader {
         WaterTextureAttribute refractTexture = (WaterTextureAttribute) renderable.material.get(WaterTextureAttribute.Refraction);
         if (refractTexture != null) {
             set(UNIFORM_REFRACTION_TEXTURE, refractTexture.getTexture());
+        }
+
+        WaterTextureAttribute refractDepthTexture = (WaterTextureAttribute) renderable.material.get(WaterTextureAttribute.RefractionDepth);
+        if (refractDepthTexture != null) {
+            set(UNIFORM_REFRACTION_DEPTH_TEXTURE, refractDepthTexture.getTexture());
         }
 
         // Floats

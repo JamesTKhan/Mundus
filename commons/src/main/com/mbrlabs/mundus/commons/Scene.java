@@ -18,11 +18,13 @@ package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.GLFrameBuffer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -107,7 +109,10 @@ public class Scene implements Disposable {
         }
 
         renderSkybox();
+        renderObjects(delta);
+    }
 
+    private void renderObjects(float delta) {
         // Render objects
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneDisable, 0);
@@ -119,15 +124,19 @@ public class Scene implements Disposable {
 
             // Render Water
             batch.begin(cam);
-            sceneGraph.renderWater(delta, reflection, refraction);
+            sceneGraph.renderWater(delta, reflection, refraction, fboWaterRefraction.getTextureAttachments().get(1));
             batch.end();
         }
-
     }
 
     private void initFrameBuffers(int width, int height) {
         fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
         fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
+
+        GLFrameBuffer.FrameBufferBuilder frameBufferBuilder = new GLFrameBuffer.FrameBufferBuilder(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        frameBufferBuilder.addBasicColorTextureAttachment(Pixmap.Format.RGBA8888);
+        frameBufferBuilder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_FLOAT);
+        fboWaterRefraction = frameBufferBuilder.build();
     }
 
     private void captureReflectionFBO(float delta) {

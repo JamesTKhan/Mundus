@@ -17,6 +17,9 @@ public class WaterTextureAttribute extends Attribute {
     public final static String RefractionAlias = "refraction";
     public final static long Refraction = register(RefractionAlias);
 
+    public final static String RefractionDepthAlias = "refractionDepth";
+    public final static long RefractionDepth = register(RefractionDepthAlias);
+
     private Texture texture;
 
     protected WaterTextureAttribute(long type, Texture texture) {
