@@ -172,9 +172,6 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
                     }
                 }
 
-                //TODO validations on name input and if .sky file already exists
-                // probably via listener on the name text field
-
                 val oldSkybox = projectContext.currScene.skybox
                 oldSkybox?.dispose()
 
