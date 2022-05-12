@@ -20,7 +20,11 @@ import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
+import com.mbrlabs.mundus.commons.env.lights.BaseLight;
+import com.mbrlabs.mundus.commons.mapper.BaseLightConverter;
+import com.mbrlabs.mundus.commons.mapper.FogConverter;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.commons.water.WaterResolution;
 import com.mbrlabs.mundus.runtime.Shaders;
 
 /**
@@ -37,6 +41,21 @@ public class SceneConverter {
         // meta
         scene.setId(dto.getId());
         scene.setName(dto.getName());
+        scene.skyboxAssetId = dto.getSkyboxAssetId();
+
+        // environment stuff
+        scene.environment.setFog(FogConverter.convert(dto.getFog()));
+        BaseLight ambientLight = BaseLightConverter.convert(dto.getAmbientLight());
+        if (ambientLight != null) {
+            scene.environment.setAmbientLight(ambientLight);
+        }
+
+        // Water stuff
+        scene.waterResolution = dto.getWaterResolution();
+        if (scene.waterResolution == null)
+            scene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
+
+        scene.waterHeight = dto.getWaterHeight();
 
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);

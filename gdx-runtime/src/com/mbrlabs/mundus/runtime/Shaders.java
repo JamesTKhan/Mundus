@@ -36,6 +36,7 @@ public class Shaders {
         waterShader = new WaterShader();
         waterShader.init();
         skyboxShader = new SkyboxShader();
+        skyboxShader.init();
     }
 
     public ModelShader getModelShader() {

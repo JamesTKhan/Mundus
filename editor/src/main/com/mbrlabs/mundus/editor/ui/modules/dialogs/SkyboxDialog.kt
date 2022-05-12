@@ -42,7 +42,6 @@ import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.ui.widgets.ImageChooserField
 import com.mbrlabs.mundus.editor.utils.createDefaultSkybox
-import com.mbrlabs.mundus.editor.utils.createSkyboxFromAsset
 
 /**
  * @author Marcus Brummer
@@ -141,8 +140,7 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 projectContext.currScene.skybox?.dispose()
 
-                projectManager.current().currScene.skybox = createSkyboxFromAsset(selectBox.selected, Shaders.skyboxShader)
-                projectManager.current().currScene.skyboxAssetId = selectBox.selected.id
+                projectManager.current().currScene.setSkybox(selectBox.selected, Shaders.skyboxShader)
                 resetImages()
             }
         })

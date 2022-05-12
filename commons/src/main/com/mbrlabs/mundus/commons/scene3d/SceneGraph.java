@@ -47,7 +47,7 @@ public class SceneGraph {
 
     public void render(float delta, Vector3 clippingPlane, float clipHeight) {
         for (GameObject go : root.getChildren()) {
-            if (go.name.contains("Water"))
+            if (go.findComponentByType(Component.Type.WATER) != null)
                 continue;
             go.render(delta, clippingPlane, clipHeight);
         }
@@ -56,12 +56,10 @@ public class SceneGraph {
     //todo consider using renderable sorter instead
     public void renderWater(float delta, Texture reflectionTexture, Texture refraction) {
         for (GameObject go : root.getChildren()) {
-            if (go.name.contains("Water")) {
-                WaterComponent waterComponent = (WaterComponent) go.findComponentByType(Component.Type.WATER);
-                if (waterComponent != null) {
-                    waterComponent.getWaterAsset().setWaterReflectionTexture(reflectionTexture);
-                    waterComponent.getWaterAsset().setWaterRefractionTexture(refraction);
-                }
+            WaterComponent waterComponent = (WaterComponent) go.findComponentByType(Component.Type.WATER);
+            if (waterComponent != null) {
+                waterComponent.getWaterAsset().setWaterReflectionTexture(reflectionTexture);
+                waterComponent.getWaterAsset().setWaterRefractionTexture(refraction);
                 go.render(delta);
             }
         }
