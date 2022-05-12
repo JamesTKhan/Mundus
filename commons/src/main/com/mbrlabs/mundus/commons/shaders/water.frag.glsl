@@ -21,6 +21,11 @@ uniform float u_reflectivity;
 
 const vec4 COLOR_TURQUOISE = vec4(0,0.5,0.686, 0.2);
 
+//https://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
+float DecodeFloatRGBA( vec4 rgba ) {
+    return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );
+}
+
 void main() {
 
     // Normalized device coordinates
@@ -30,7 +35,7 @@ void main() {
 
     float near = 0.2;
     float far = 10000.0;
-    float depth = texture2D(u_refractionDepthTexture, refractTexCoords).r;
+    float depth = DecodeFloatRGBA(texture2D(u_refractionDepthTexture, refractTexCoords));
     float floorDistance = 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
 
     depth = gl_FragCoord.z;
@@ -40,7 +45,7 @@ void main() {
     // Dudv distortion
     vec2 distortedTexCoords = texture2D(u_dudvTexture, vec2(v_texCoord0.x + u_moveFactor, v_texCoord0.y)).rg*0.1;
     distortedTexCoords = v_texCoord0 + vec2(distortedTexCoords.x, distortedTexCoords.y+u_moveFactor);
-    vec2 totalDistortion = (texture2D(u_dudvTexture, distortedTexCoords).rg * 2.0 - 1.0) * u_waveStrength * clamp(5.0/20.0,0.0,1.0);
+    vec2 totalDistortion = (texture2D(u_dudvTexture, distortedTexCoords).rg * 2.0 - 1.0) * u_waveStrength * clamp(waterDepth/20.0, 0.0, 1.0);
 
     float minTexCoord = 0.005;
     float maxTexCoord = 1.0 - minTexCoord;
@@ -64,17 +69,18 @@ void main() {
 
     // Fresnel Effect
     vec3 viewVector = normalize(v_toCameraVector);
-    float refractiveFactor = dot(viewVector, vec3(0.0,1.0,0.0));
+    float refractiveFactor = dot(viewVector, normal);
 
     // Calculate specular hightlights
     vec3 reflectedLight = reflect(normalize(v_fromLightVector), normal);
     float specular = max(dot(reflectedLight, viewVector), 0.0);
     specular = pow(specular, u_shineDamper);
-    vec3 specularHighlights = u_lightColor * specular * u_reflectivity;
+    vec3 specularHighlights = u_lightColor * specular * u_reflectivity * clamp(waterDepth/5.0, 0.0, 1.0);
 
     vec4 color =  mix(reflectColor, refractColor, refractiveFactor);
     color = mix(color, COLOR_TURQUOISE, 0.2) + vec4(specularHighlights, 0.0);
 
-    //gl_FragColor = color;
-    gl_FragColor = vec4(waterDepth/50.0);
+    gl_FragColor = color;
+    //gl_FragColor = vec4(waterDepth/50.0);
+    gl_FragColor.a = clamp(waterDepth/5.0, 0.0, 1.0);
 }

@@ -18,13 +18,11 @@ package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.graphics.glutils.GLFrameBuffer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -64,6 +62,7 @@ public class Scene implements Disposable {
 
     private FrameBuffer fboWaterReflection;
     private FrameBuffer fboWaterRefraction;
+    private FrameBuffer fboDepthRefraction;
 
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
@@ -106,37 +105,44 @@ public class Scene implements Disposable {
         if (sceneGraph.isContainsWater()) {
             captureReflectionFBO(delta);
             captureRefractionFBO(delta);
+            captureDepth(delta);
         }
 
         renderSkybox();
         renderObjects(delta);
+        renderWater(delta);
     }
+
 
     private void renderObjects(float delta) {
         // Render objects
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneDisable, 0);
         batch.end();
+    }
 
+    private void renderWater(float delta) {
         if (sceneGraph.isContainsWater()) {
             Texture refraction = fboWaterRefraction.getColorBufferTexture();
             Texture reflection = fboWaterReflection.getColorBufferTexture();
+            Texture refractionDepth = fboDepthRefraction.getColorBufferTexture();
+
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
             // Render Water
             batch.begin(cam);
-            sceneGraph.renderWater(delta, reflection, refraction, fboWaterRefraction.getTextureAttachments().get(1));
+            sceneGraph.renderWater(delta, reflection, refraction, refractionDepth);
             batch.end();
+
+            Gdx.gl.glDisable(GL20.GL_BLEND);
         }
     }
 
     private void initFrameBuffers(int width, int height) {
         fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
         fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
-
-        GLFrameBuffer.FrameBufferBuilder frameBufferBuilder = new GLFrameBuffer.FrameBufferBuilder(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        frameBufferBuilder.addBasicColorTextureAttachment(Pixmap.Format.RGBA8888);
-        frameBufferBuilder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_FLOAT);
-        fboWaterRefraction = frameBufferBuilder.build();
+        fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
     }
 
     private void captureReflectionFBO(float delta) {
@@ -165,6 +171,16 @@ public class Scene implements Disposable {
         cam.direction.set(camDir);
         cam.position.set(camPos);
         cam.update();
+    }
+
+    private void captureDepth(float delta) {
+        // Render depth refractions to FBO
+        fboDepthRefraction.begin();
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        batch.begin(cam);
+        sceneGraph.renderDepth(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection);
+        batch.end();
+        fboDepthRefraction.end();
     }
 
     private void renderSkybox() {

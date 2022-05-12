@@ -68,6 +68,14 @@ public class SceneGraph {
         }
     }
 
+    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight) {
+        for (GameObject go : root.getChildren()) {
+            if (go.findComponentByType(Component.Type.WATER) != null)
+                continue;
+            go.renderDepth(delta, clippingPlane, clipHeight);
+        }
+    }
+
     public void update() {
         update(Gdx.graphics.getDeltaTime());
     }

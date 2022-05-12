@@ -7,4 +7,13 @@ import com.badlogic.gdx.math.Vector3;
  */
 public interface ClippableComponent {
     void render(float delta, Vector3 clippingPlane, float clipHeight);
+
+    /**
+     * For rendering refraction objects depth with custom depth shader to be captured in a depth texture.
+     * Using custom depth shader to support GLES2.0 as it does not support depth texture attachments.
+     * @param delta
+     * @param clippingPlane
+     * @param clipHeight
+     */
+    void renderDepth(float delta, Vector3 clippingPlane, float clipHeight);
 }
