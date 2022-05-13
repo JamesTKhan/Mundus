@@ -18,7 +18,6 @@ package com.mbrlabs.mundus.editor.core.project;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -391,7 +390,7 @@ public class ProjectManager implements Disposable {
         // load skybox
         if (scene.skyboxAssetId != null && context.assetManager.getAssetMap().containsKey(scene.skyboxAssetId)) {
             SkyboxAsset asset = (SkyboxAsset) context.assetManager.getAssetMap().get(scene.skyboxAssetId);
-            scene.skybox = SkyboxBuilder.createSkyboxFromAsset(asset, Shaders.INSTANCE.getSkyboxShader());
+            scene.setSkybox(asset, Shaders.INSTANCE.getSkyboxShader());
         }
 
         scene.batch = modelBatch;
