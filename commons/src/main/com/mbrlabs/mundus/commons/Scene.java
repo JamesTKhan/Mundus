@@ -21,6 +21,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -28,6 +30,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
@@ -47,6 +50,9 @@ public class Scene implements Disposable {
     private String name;
     private long id;
 
+    public Viewport viewport;
+
+
     public SceneGraph sceneGraph;
     public MundusEnvironment environment;
     public Skybox skybox;
@@ -65,6 +71,8 @@ public class Scene implements Disposable {
     private FrameBuffer fboWaterReflection;
     private FrameBuffer fboWaterRefraction;
     private FrameBuffer fboDepthRefraction;
+
+    SpriteBatch spriteBatch;
 
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
@@ -92,6 +100,7 @@ public class Scene implements Disposable {
         environment.getAmbientLight().intensity = 0.3f;
 
         sceneGraph = new SceneGraph(this);
+        spriteBatch = new SpriteBatch();
     }
 
     public void render() {
@@ -105,14 +114,22 @@ public class Scene implements Disposable {
         }
 
         if (sceneGraph.isContainsWater()) {
+            captureDepth(delta);
             captureReflectionFBO(delta);
             captureRefractionFBO(delta);
-            captureDepth(delta);
         }
 
         renderSkybox();
         renderObjects(delta);
         renderWater(delta);
+
+        //TODO TEMP debugging draw texture to screen
+        TextureRegion region = new TextureRegion(fboWaterRefraction.getColorBufferTexture());
+        region.flip(false, true);
+
+        spriteBatch.begin();
+        spriteBatch.draw(region, 10, 10, region.getRegionWidth() /2f, region.getRegionHeight() /2f);
+        spriteBatch.end();
     }
 
 
@@ -142,12 +159,12 @@ public class Scene implements Disposable {
     }
 
     private void initFrameBuffers(int width, int height) {
-        fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
-        fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
-        fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+        fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
     }
 
-    private void captureReflectionFBO(float delta) {
+    protected void captureReflectionFBO(float delta) {
         // Calc vertical distance for camera for reflection FBO
         float camReflectionDistance = 2 * (cam.position.y - waterHeight);
 
@@ -175,7 +192,7 @@ public class Scene implements Disposable {
         cam.update();
     }
 
-    private void captureDepth(float delta) {
+    protected void captureDepth(float delta) {
         // Render depth refractions to FBO
         fboDepthRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -193,10 +210,11 @@ public class Scene implements Disposable {
         }
     }
 
-    private void captureRefractionFBO(float delta) {
+    protected void captureRefractionFBO(float delta) {
         // Render refractions to FBO
         fboWaterRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        renderSkybox();
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection);
         batch.end();

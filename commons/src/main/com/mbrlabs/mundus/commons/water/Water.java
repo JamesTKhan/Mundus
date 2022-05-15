@@ -81,6 +81,10 @@ public class Water implements RenderableProvider, Disposable {
         material.set(new WaterTextureAttribute(WaterTextureAttribute.Reflection, texture));
     }
 
+    public void setFoamTexture(Texture texture) {
+        material.set(new WaterTextureAttribute(WaterTextureAttribute.Foam, texture));
+    }
+
     public void setDudvTexture(Texture texture) {
         material.set(new WaterTextureAttribute(WaterTextureAttribute.Dudv, texture));
     }

@@ -57,6 +57,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val STANDARD_ASSET_TEXTURE_CHESSBOARD = "chessboard"
         val STANDARD_ASSET_TEXTURE_DUDV = "dudv"
         val STANDARD_ASSET_TEXTURE_WATER_NORMAL = "waterNormal"
+        val STANDARD_ASSET_TEXTURE_WATER_FOAM = "waterFoam"
     }
 
     /** Modified assets that need to be saved.  */
@@ -135,6 +136,12 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             waterNormal.meta.uuid = STANDARD_ASSET_TEXTURE_WATER_NORMAL
             assetIndex.put(waterNormal.id, waterNormal)
             metaSaver.save(waterNormal.meta)
+
+            val foamSampler = createTextureAsset(Gdx.files.internal("standardAssets/waterFoam.png"))
+            assetIndex.remove(foamSampler.id)
+            foamSampler.meta.uuid = STANDARD_ASSET_TEXTURE_WATER_FOAM
+            assetIndex.put(foamSampler.id, foamSampler)
+            metaSaver.save(foamSampler.meta)
 
         } catch (e: Exception) {
             e.printStackTrace()

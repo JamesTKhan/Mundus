@@ -26,6 +26,7 @@ public class WaterShader extends BaseShader {
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
     protected final int UNIFORM_CAM_POS = register(new Uniform("u_cameraPosition"));
+    protected final int UNIFORM_DIFFUSE_UV = register(new Uniform("u_diffuseUVTransform"));
 
     // ============================ TEXTURES ============================
     protected final int UNIFORM_TEXTURE = register(new Uniform("u_texture"));
@@ -33,6 +34,8 @@ public class WaterShader extends BaseShader {
     public final int UNIFORM_REFRACTION_DEPTH_TEXTURE = register(new Uniform("u_refractionDepthTexture"));
     protected final int UNIFORM_DUDV_TEXTURE = register(new Uniform("u_dudvTexture"));
     protected final int UNIFORM_NORMAL_MAP_TEXTURE = register(new Uniform("u_normalMapTexture"));
+    protected final int UNIFORM_FOAM_TEXTURE = register(new Uniform("u_foamTexture"));
+    protected final int UNIFORM_FOAM_DIFFUSE_TEXTURE = register(new Uniform("u_foamDiffuse"));
 
     // ============================ FLOATS ============================
     protected final int UNIFORM_MOVE_FACTOR = register(new Uniform("u_moveFactor"));
@@ -126,6 +129,11 @@ public class WaterShader extends BaseShader {
             set(UNIFORM_REFRACTION_DEPTH_TEXTURE, refractDepthTexture.getTexture());
         }
 
+        WaterTextureAttribute foamTexture = (WaterTextureAttribute) renderable.material.get(WaterTextureAttribute.Foam);
+        if (foamTexture != null) {
+            set(UNIFORM_FOAM_TEXTURE, foamTexture.getTexture());
+        }
+
         // Floats
         WaterFloatAttribute tiling = (WaterFloatAttribute) renderable.material.get(WaterFloatAttribute.Tiling);
         if (tiling != null) {
@@ -165,6 +173,7 @@ public class WaterShader extends BaseShader {
 
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
         set(UNIFORM_MOVE_FACTOR, moveFactor);
+        set(UNIFORM_DIFFUSE_UV, moveFactor * 2f, moveFactor * 2f, 200f, 200f);
 
         // bind attributes, bind mesh & render; then unbinds everything
         renderable.meshPart.render(program);

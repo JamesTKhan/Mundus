@@ -11,6 +11,7 @@ public class WaterAsset extends Asset {
 
     public Water water;
     public TextureAsset waterTexture;
+    public TextureAsset waterFoamTexture;
     public TextureAsset dudvTexture;
     public TextureAsset normalMapTexture;
 
@@ -38,12 +39,22 @@ public class WaterAsset extends Asset {
         if (id != null && assets.containsKey(id)) {
             normalMapTexture = (TextureAsset) assets.get(id);
         }
+
+        id = "waterFoam";
+        if (assets.containsKey(id)) {
+            waterFoamTexture = (TextureAsset) assets.get(id);
+        }
     }
 
     @Override
     public void applyDependencies() {
         if (waterTexture != null) {
             water.setWaterReflection(waterTexture.getTexture());
+        }
+
+        if (waterFoamTexture != null) {
+            waterFoamTexture.getTexture().setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+            water.setFoamTexture(waterFoamTexture.getTexture());
         }
 
         if (dudvTexture != null) {
