@@ -49,17 +49,19 @@ allprojects {
 
 project(":commons") {
     apply plugin: "java"
+    apply plugin: "java-library"
 
     dependencies {
-        compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
 
-        compile "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
-
-        testCompile "junit:junit:$junitVersion"
-
-        testCompile "org.mockito:mockito-all:$mockitoVersion"
+        api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
 
         implementation "com.github.crykn.guacamole:gdx:$guacamoleVersion"
+
+        testImplementation "junit:junit:$junitVersion"
+
+        testImplementation "org.mockito:mockito-all:$mockitoVersion"
+
     }
 }
 
@@ -68,31 +70,31 @@ project(":editor") {
     apply plugin: "kotlin"
 
     dependencies {
-        compile project(":commons")
+        api project(":commons")
 
         // Kotlin libs
-        compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-        compile "io.github.libktx:ktx-inject:$ktxVersion"
+        implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+        implementation "io.github.libktx:ktx-inject:$ktxVersion"
 
         // libGDX
-        compile "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 
         // gdx-freetype
-        compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+        implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
 
         // commons
-        compile "org.apache.commons:commons-lang3:$commonsLangVersion"
-        compile "commons-io:commons-io:$commonsIoVersion"
+        implementation "org.apache.commons:commons-lang3:$commonsLangVersion"
+        implementation "commons-io:commons-io:$commonsIoVersion"
 
         // other
-        compile "com.kotcrab.vis:vis-ui:$visuiVersion"
-        compile "com.esotericsoftware:kryo:$kryoVersion"
+        implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
+        implementation "com.esotericsoftware:kryo:$kryoVersion"
 
         // tests
-        testCompile "junit:junit:$junitVersion"
-        testCompile "org.mockito:mockito-all:$mockitoVersion"
+        testImplementation "junit:junit:$junitVersion"
+        testImplementation "org.mockito:mockito-all:$mockitoVersion"
     }
 }
 
@@ -100,7 +102,7 @@ project(":gdx-runtime") {
     apply plugin: "java"
 
     dependencies {
-        compile project(":commons")
+        implementation project(":commons")
     }
 }
 
