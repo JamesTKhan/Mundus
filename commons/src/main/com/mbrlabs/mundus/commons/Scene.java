@@ -21,8 +21,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -72,8 +70,6 @@ public class Scene implements Disposable {
     private FrameBuffer fboWaterRefraction;
     private FrameBuffer fboDepthRefraction;
 
-    SpriteBatch spriteBatch;
-
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
@@ -100,7 +96,6 @@ public class Scene implements Disposable {
         environment.getAmbientLight().intensity = 0.3f;
 
         sceneGraph = new SceneGraph(this);
-        spriteBatch = new SpriteBatch();
     }
 
     public void render() {
@@ -122,16 +117,7 @@ public class Scene implements Disposable {
         renderSkybox();
         renderObjects(delta);
         renderWater(delta);
-
-        //TODO TEMP debugging draw texture to screen
-        TextureRegion region = new TextureRegion(fboWaterRefraction.getColorBufferTexture());
-        region.flip(false, true);
-
-        spriteBatch.begin();
-        spriteBatch.draw(region, 10, 10, region.getRegionWidth() /2f, region.getRegionHeight() /2f);
-        spriteBatch.end();
     }
-
 
     private void renderObjects(float delta) {
         // Render objects
