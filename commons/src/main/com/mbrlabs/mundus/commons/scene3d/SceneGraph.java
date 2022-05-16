@@ -60,7 +60,7 @@ public class SceneGraph {
             if (waterComponent != null) {
                 waterComponent.getWaterAsset().setWaterReflectionTexture(reflectionTexture);
                 waterComponent.getWaterAsset().setWaterRefractionTexture(refraction);
-                waterComponent.getWaterAsset().water.setWaterRefractionDepthTexture(refractionDepth);
+                waterComponent.getWaterAsset().setWaterRefractionDepthTexture(refractionDepth);
                 go.render(delta);
             }
         }

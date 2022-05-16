@@ -16,10 +16,12 @@ uniform sampler2D u_dudvTexture;
 uniform sampler2D u_normalMapTexture;
 uniform sampler2D u_foamTexture;
 uniform float u_waveStrength;
-uniform vec3 u_lightColor;
 uniform float u_moveFactor;
 uniform float u_shineDamper;
 uniform float u_reflectivity;
+uniform float u_camNearPlane;
+uniform float u_camFarPlane;
+uniform vec3 u_lightColor;
 varying vec2 v_diffuseUV;
 
 const vec4 COLOR_TURQUOISE = vec4(0,0.5,0.686, 0.2);
@@ -36,8 +38,8 @@ void main() {
     vec2 refractTexCoords = vec2(ndc.x, ndc.y);
     vec2 reflectTexCoords = vec2(ndc.x, 1.0-ndc.y);
 
-    float near = 0.2;
-    float far = 10000.0;
+    float near = u_camNearPlane;
+    float far = u_camFarPlane;
     float depth = DecodeFloatRGBA(texture2D(u_refractionDepthTexture, refractTexCoords));
     float floorDistance = 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
 

@@ -35,7 +35,6 @@ public class WaterShader extends BaseShader {
     protected final int UNIFORM_DUDV_TEXTURE = register(new Uniform("u_dudvTexture"));
     protected final int UNIFORM_NORMAL_MAP_TEXTURE = register(new Uniform("u_normalMapTexture"));
     protected final int UNIFORM_FOAM_TEXTURE = register(new Uniform("u_foamTexture"));
-    protected final int UNIFORM_FOAM_DIFFUSE_TEXTURE = register(new Uniform("u_foamDiffuse"));
 
     // ============================ FLOATS ============================
     protected final int UNIFORM_MOVE_FACTOR = register(new Uniform("u_moveFactor"));
@@ -43,6 +42,8 @@ public class WaterShader extends BaseShader {
     protected final int UNIFORM_WAVE_STRENGTH = register(new Uniform("u_waveStrength"));
     protected final int UNIFORM_SPECULAR_REFLECTIVITY = register(new Uniform("u_reflectivity"));
     protected final int UNIFORM_SHINE_DAMPER = register(new Uniform("u_shineDamper"));
+    protected final int UNIFORM_CAM_NEAR_PLANE= register(new Uniform("u_camNearPlane"));
+    protected final int UNIFORM_CAM_FAR_PLANE= register(new Uniform("u_camFarPlane"));
 
     // ============================ LIGHTS ============================
     protected final int UNIFORM_LIGHT_POS = register(new Uniform("u_lightPositon"));
@@ -85,6 +86,8 @@ public class WaterShader extends BaseShader {
         program.bind();
 
         set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined);
+        set(UNIFORM_CAM_NEAR_PLANE, camera.near);
+        set(UNIFORM_CAM_FAR_PLANE, camera.far);
         set(UNIFORM_CAM_POS, camera.position);
     }
 

@@ -28,7 +28,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
@@ -47,9 +46,6 @@ public class Scene implements Disposable {
 
     private String name;
     private long id;
-
-    public Viewport viewport;
-
 
     public SceneGraph sceneGraph;
     public MundusEnvironment environment;
@@ -150,7 +146,7 @@ public class Scene implements Disposable {
         fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
     }
 
-    protected void captureReflectionFBO(float delta) {
+    private void captureReflectionFBO(float delta) {
         // Calc vertical distance for camera for reflection FBO
         float camReflectionDistance = 2 * (cam.position.y - waterHeight);
 
@@ -178,7 +174,7 @@ public class Scene implements Disposable {
         cam.update();
     }
 
-    protected void captureDepth(float delta) {
+    private void captureDepth(float delta) {
         // Render depth refractions to FBO
         fboDepthRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -196,7 +192,7 @@ public class Scene implements Disposable {
         }
     }
 
-    protected void captureRefractionFBO(float delta) {
+    private void captureRefractionFBO(float delta) {
         // Render refractions to FBO
         fboWaterRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);

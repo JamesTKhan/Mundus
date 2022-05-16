@@ -74,6 +74,10 @@ public class WaterAsset extends Asset {
         water.setWaterRefractionTexture(texture);
     }
 
+    public void setWaterRefractionDepthTexture(Texture texture){
+        water.setWaterRefractionDepthTexture(texture);
+    }
+
     @Override
     public void dispose() {
 
