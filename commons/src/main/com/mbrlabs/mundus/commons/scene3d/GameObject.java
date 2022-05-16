@@ -203,7 +203,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
      */
     public Component findComponentByType(Component.Type type) {
         for (Component c : components) {
-            if (c.getType() == type) return c;
+            if (c != null && c.getType() == type) return c;
         }
 
         return null;
