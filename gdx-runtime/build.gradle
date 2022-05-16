@@ -1,4 +1,7 @@
 apply plugin: "java"
+apply plugin: "maven-publish"
+
+group = 'com.github.jpooleycodes.mundus'
 
 sourceSets.main.java.srcDirs = ["src/"]
 sourceSets.main.resources.srcDirs = ["src/"]
@@ -28,4 +31,15 @@ task distRuntimeSources(type: Jar, dependsOn: classes) {
 
     from files(sourceSets.main.allSource)
     from("../commons/src/main")
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            from components.java
+        }
+    }
 }
