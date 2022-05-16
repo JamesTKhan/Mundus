@@ -330,6 +330,13 @@ public class MundusMultiSplitPane extends WidgetGroup {
         SnapshotArray<Actor> actors = getChildren();
         for (int i = 0; i < actors.size; i++) {
             Actor actor = actors.get(i);
+
+            /* Skip Scissors on RenderWidget as it causes FBO rendering issues in RenderWidget, See PR #37 */
+            if (actor instanceof RenderWidget) {
+                if (actor.isVisible()) actor.draw(batch, parentAlpha * color.a);
+                continue;
+            }
+
             Rectangle bounds = widgetBounds.get(i);
             Rectangle scissor = scissors.get(i);
             getStage().calculateScissors(bounds, scissor);

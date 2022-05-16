@@ -37,6 +37,7 @@ import com.kotcrab.vis.ui.FocusManager;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.util.CursorManager;
 import com.kotcrab.vis.ui.widget.VisSplitPane;
+import com.mbrlabs.mundus.editor.ui.UI;
 
 /**
  * This is a slightly modified version of kotcrab's VisSplitPane and fixes an
@@ -347,11 +348,17 @@ public class MundusSplitPane extends WidgetGroup {
         applyTransform(batch, computeTransform());
         // Matrix4 transform = batch.getTransformMatrix();
         if (firstWidget != null) {
-            getStage().calculateScissors(firstWidgetBounds, firstScissors);
-            if (ScissorStack.pushScissors(firstScissors)) {
+            /* Skip Scissors on RenderWidget as it causes FBO rendering issues in RenderWidget, See PR #37 */
+            if (firstWidget.isAscendantOf(UI.INSTANCE.getSceneWidget())) {
                 if (firstWidget.isVisible()) firstWidget.draw(batch, parentAlpha * color.a);
-                batch.flush();
-                ScissorStack.popScissors();
+            }
+            else {
+                getStage().calculateScissors(firstWidgetBounds, firstScissors);
+                if (ScissorStack.pushScissors(firstScissors)) {
+                    if (firstWidget.isVisible()) firstWidget.draw(batch, parentAlpha * color.a);
+                    batch.flush();
+                    ScissorStack.popScissors();
+                }
             }
         }
         if (secondWidget != null) {
