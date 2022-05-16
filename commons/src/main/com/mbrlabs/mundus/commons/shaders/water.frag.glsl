@@ -85,6 +85,7 @@ void main() {
     vec4 color =  mix(reflectColor, refractColor, refractiveFactor);
     color = mix(color, COLOR_TURQUOISE, 0.2) + vec4(specularHighlights, 0.0);
 
+    // Water Foam implemented from http://fire-face.com/personal/water/
     float edgePatternScroll = u_moveFactor * 4.0;
     float edgePatternScale = 1.0;
     float edgeFalloffBias = 0.0;

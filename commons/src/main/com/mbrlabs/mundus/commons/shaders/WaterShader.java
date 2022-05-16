@@ -51,6 +51,7 @@ public class WaterShader extends BaseShader {
 
     public ShaderProgram program;
 
+    private float u_Offset = 0;
     private float moveFactor = 0;
     private float waveSpeed = Water.DEFAULT_WAVE_SPEED;
 
@@ -171,12 +172,23 @@ public class WaterShader extends BaseShader {
             set(UNIFORM_SHINE_DAMPER, Water.DEFAULT_SHINE_DAMPER);
         }
 
-        moveFactor +=  waveSpeed * Gdx.graphics.getDeltaTime();
-        moveFactor %= 1;
+        // Slowly increment offset UVs for foam texturing
+        u_Offset += 1 / 512f;
+
+        // Wrap it back... this should not happen often unless the game is running for a very long time
+        // but will cause a slight jitter in the foam pattern when this resets
+        if (u_Offset > 10000) {
+            u_Offset = 0.0f;
+        }
 
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
         set(UNIFORM_MOVE_FACTOR, moveFactor);
-        set(UNIFORM_DIFFUSE_UV, moveFactor * 2f, moveFactor * 2f, 200f, 200f);
+        set(UNIFORM_DIFFUSE_UV, u_Offset, u_Offset, 200f, 200f);
+
+        moveFactor += waveSpeed * Gdx.graphics.getDeltaTime();
+        moveFactor %= 1;
+
+        System.out.println(moveFactor);
 
         // bind attributes, bind mesh & render; then unbinds everything
         renderable.meshPart.render(program);
