@@ -42,26 +42,42 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     private fun setupWidgets() {
         defaults().padBottom(5f)
 
-        val table = VisTable()
-        add(table).grow().row()
-        tilingField.setSize(0f,50f)
-        tilingField.layout()
+        /* WAVES section */
+        add(VisLabel("Waves")).left().row()
+        addSeparator().padBottom(5f).row()
 
-        add(VisLabel("Tiling:")).growX().row()
-        add(tilingField).growX().row()
+        val waveSettings = getSectionTable()
 
-        add(VisLabel("Wave Strength:")).growX().row()
-        add(waveStrength).growX().row()
+        waveSettings.add(VisLabel("Tiling:")).growX().row()
+        waveSettings.add(tilingField).growX().row()
 
-        add(VisLabel("Wave Speed:")).growX().row()
-        add(waveSpeed).growX().row()
+        waveSettings.add(VisLabel("Wave Strength:")).growX().row()
+        waveSettings.add(waveStrength).growX().row()
 
-        add(VisLabel("Reflectivity:")).growX().row()
-        add(reflectivity).growX().row()
+        waveSettings.add(VisLabel("Wave Speed:")).growX().row()
+        waveSettings.add(waveSpeed).growX().row()
 
-        add(VisLabel("Shine Damper:")).growX().row()
-        add(shineDamper).growX().row()
+        add(waveSettings).grow().row()
 
+        /* Lighting section */
+        add(VisLabel("Lighting")).left().row()
+        addSeparator().padBottom(5f).row()
+
+        val lightingSettings = getSectionTable()
+
+        lightingSettings.add(VisLabel("Reflectivity:")).growX().row()
+        lightingSettings.add(reflectivity).growX().row()
+
+        lightingSettings.add(VisLabel("Shine Damper:")).growX().row()
+        lightingSettings.add(shineDamper).growX().row()
+
+        add(lightingSettings).grow().row()
+
+        /* Quality section */
+        add(VisLabel("Quality")).left().row()
+        addSeparator().padBottom(5f).row()
+
+        val qualitySettings = getSectionTable()
         val selectorsTable = VisTable(true)
         selectBox = VisSelectBox<String>()
         selectBox.setItems(
@@ -72,9 +88,12 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         )
         selectorsTable.add(selectBox).left()
 
-        add(VisLabel("Texture resolution (Global per scene):")).growX().row()
-        add(selectorsTable).left().row()
+        qualitySettings.add(VisLabel("Texture resolution (Global per scene):")).growX().row()
+        qualitySettings.add(selectorsTable).left().row()
 
+        add(qualitySettings).grow().row()
+
+        addSeparator().padBottom(5f).row()
         add(resetDefaults).padTop(10f).growX().row()
 
         // tiling
@@ -185,5 +204,11 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         reflectivity.text = waterComponent.waterAsset.water.reflectivity.toString()
         shineDamper.text = waterComponent.waterAsset.water.shineDamper.toString()
         selectBox.selected = projectManager.current().currScene.waterResolution.value
+    }
+
+    private fun getSectionTable(): VisTable {
+        val table = VisTable()
+        table.defaults().padLeft(10f).padBottom(5f)
+        return table
     }
 }

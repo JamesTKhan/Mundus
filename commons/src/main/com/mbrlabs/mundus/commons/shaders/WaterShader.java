@@ -188,8 +188,6 @@ public class WaterShader extends BaseShader {
         moveFactor += waveSpeed * Gdx.graphics.getDeltaTime();
         moveFactor %= 1;
 
-        System.out.println(moveFactor);
-
         // bind attributes, bind mesh & render; then unbinds everything
         renderable.meshPart.render(program);
     }
