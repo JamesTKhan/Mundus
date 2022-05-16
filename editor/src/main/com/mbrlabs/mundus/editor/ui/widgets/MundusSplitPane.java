@@ -348,7 +348,7 @@ public class MundusSplitPane extends WidgetGroup {
         applyTransform(batch, computeTransform());
         // Matrix4 transform = batch.getTransformMatrix();
         if (firstWidget != null) {
-            /* Skip Scissors on RenderWidget as it causes FBO rendering issues in RenderWidget */
+            /* Skip Scissors on RenderWidget as it causes FBO rendering issues in RenderWidget, See PR #37 */
             if (firstWidget.isAscendantOf(UI.INSTANCE.getSceneWidget())) {
                 if (firstWidget.isVisible()) firstWidget.draw(batch, parentAlpha * color.a);
             }

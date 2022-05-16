@@ -25,6 +25,8 @@ task distEditor(type: Jar) {
     baseName = 'Mundus'
     version = '0.3.0'
 
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
