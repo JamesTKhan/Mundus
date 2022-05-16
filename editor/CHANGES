@@ -8,6 +8,7 @@
 - Added a Log bar and dock to bottom of editor
 - Added SkyboxAsset and completed static Skybox feature, PR #33
 - Updated terrains for modifiable UV scale
+- Updated assets bar to include thumbnails of texture assets
 - Fixed NPE crash on GLTF model loading
 - Fixed rotation of models on import preview
 

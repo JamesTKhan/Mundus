@@ -18,12 +18,18 @@ package com.mbrlabs.mundus.editor.ui.modules.dock.assets
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.scenes.scene2d.ui.Stack
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
@@ -35,6 +41,7 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.*
 import com.mbrlabs.mundus.editor.ui.UI
+
 
 /**
  * @author Marcus Brummer
@@ -59,9 +66,21 @@ class AssetsDock : Tab(false, false),
     private var currentSelection: AssetItem? = null
     private val projectManager: ProjectManager = Mundus.inject()
 
+    private val thumbnailOverlay: TextureRegionDrawable
+    private var selectedOverlay: Image
+
     init {
         Mundus.registerEventListener(this)
         initUi()
+
+        // Darkening overlay to darken texture thumbnails slightly so text is more visible
+        val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
+        pixmap.setColor(0.0f,0.0f,0.0f,0.5f)
+        pixmap.fill()
+        thumbnailOverlay = TextureRegionDrawable(TextureRegion(Texture(pixmap)))
+
+        selectedOverlay = Image(VisUI.getSkin().getDrawable("default-select-selection"))
+        selectedOverlay.color.a = 0.6f
     }
 
     fun initUi() {
@@ -103,9 +122,9 @@ class AssetsDock : Tab(false, false),
         currentSelection = assetItem
         for (item in assetItems) {
             if (currentSelection != null && currentSelection == item) {
-                item.background(VisUI.getSkin().getDrawable("default-select-selection"))
+                item.toggleSelectOverlay(true)
             } else {
-                item.background(VisUI.getSkin().getDrawable("menu-bg"))
+                item.toggleSelectOverlay(false)
             }
         }
     }
@@ -158,13 +177,22 @@ class AssetsDock : Tab(false, false),
     private inner class AssetItem(val asset: Asset) : VisTable() {
 
         private val nameLabel: VisLabel
+        private var nameTable: VisTable
+        val stack = Stack()
 
         init {
             setBackground("menu-bg")
             align(Align.center)
             nameLabel = VisLabel(asset.toString(), "tiny")
-            nameLabel.setWrap(true)
-            add(nameLabel).grow().top().row()
+            nameLabel.wrap = true
+
+            nameTable = VisTable()
+            nameTable.add(nameLabel).grow().top().row()
+
+            loadBackground()
+
+            stack.add(nameTable)
+            add(stack).grow().top().row()
 
             addListener(object : InputListener() {
                 override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -187,6 +215,25 @@ class AssetsDock : Tab(false, false),
         fun setSelected() {
             this@AssetsDock.setSelected(this@AssetItem)
             Mundus.postEvent(AssetSelectedEvent(asset))
+        }
+
+        private fun loadBackground() {
+            if (asset is TextureAsset) {
+                nameTable.background = thumbnailOverlay
+                stack.add(Image(asset.texture))
+            }
+        }
+
+        fun toggleSelectOverlay(selected: Boolean) {
+            if (selected) {
+                // Remove the name table from stack, put the selected overlay on, then put the name table back on
+                // the stack, over top of the select overlay
+                stack.removeActor(nameTable)
+                stack.add(selectedOverlay)
+                stack.add(nameTable)
+            } else {
+                stack.removeActor(selectedOverlay)
+            }
         }
     }
 }
