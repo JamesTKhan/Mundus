@@ -34,7 +34,6 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.terrain.Terrain
-import com.mbrlabs.mundus.commons.water.Water
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.*
@@ -270,7 +269,7 @@ class Outline : VisTable(),
 
         // select listener
         tree.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
+            override fun changed(event: ChangeEvent, actor: Actor) {
                 val selection = tree.getSelection()
                 if (selection != null && selection.size() > 0) {
                     val go = selection.first().value
@@ -292,16 +291,16 @@ class Outline : VisTable(),
     private fun buildTree(sceneGraph: SceneGraph) {
         tree.clearChildren()
 
-        var containsWater = false;
+        var containsWater = false
 
         for (go in sceneGraph.gameObjects) {
             addGoToTree(null, go)
 
-            if (containsWater) continue;
+            if (containsWater) continue
 
             val waterComponent = go.findComponentByType(Component.Type.WATER)
             if (waterComponent != null) {
-                containsWater = true;
+                containsWater = true
             }
         }
 
@@ -483,8 +482,7 @@ class Outline : VisTable(),
                         val goID = projectManager.current().obtainID()
                         val name = "Water " + goID
                         // create asset
-                        val asset = context.assetManager.createWaterAsset(name,
-                                Water.DEFAULT_SIZE)
+                        val asset = context.assetManager.createWaterAsset(name)
                         asset.load()
                         asset.applyDependencies()
 

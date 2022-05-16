@@ -27,14 +27,12 @@ import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.mbrlabs.mundus.commons.assets.*
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
-import com.mbrlabs.mundus.commons.assets.meta.MetaWater
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
-import com.mbrlabs.mundus.commons.water.Water
 import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
 import com.mbrlabs.mundus.editor.core.EditorScene
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -584,11 +582,31 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     private fun saveWaterAsset(asset: WaterAsset) {
-        asset.meta.water.tiling = asset.water.getFloatAttribute(WaterFloatAttribute.Tiling)
-        asset.meta.water.waveStrength = asset.water.getFloatAttribute(WaterFloatAttribute.WaveStrength)
-        asset.meta.water.waveSpeed = asset.water.getFloatAttribute(WaterFloatAttribute.WaveSpeed)
-        asset.meta.water.shineDamper = asset.water.getFloatAttribute(WaterFloatAttribute.ShineDamper)
-        asset.meta.water.reflectivity = asset.water.getFloatAttribute(WaterFloatAttribute.Reflectivity)
+        val props = Properties()
+
+        props.setProperty(WaterAsset.PROP_SIZE, asset.water.waterWidth.toString())
+
+        props.setProperty(WaterAsset.PROP_DUDV, asset.dudvTexture.id)
+        props.setProperty(WaterAsset.PROP_NORMAL_MAP, asset.normalMapTexture.id)
+
+        props.setProperty(WaterAsset.PROP_TILING, asset.water.getFloatAttribute(WaterFloatAttribute.Tiling).toString())
+        props.setProperty(WaterAsset.PROP_WAVE_STRENGTH, asset.water.getFloatAttribute(WaterFloatAttribute.WaveStrength).toString())
+        props.setProperty(WaterAsset.PROP_WAVE_SPEED, asset.water.getFloatAttribute(WaterFloatAttribute.WaveSpeed).toString())
+
+        props.setProperty(WaterAsset.PROP_FOAM_SCALE, asset.water.getFloatAttribute(WaterFloatAttribute.FoamPatternScale).toString())
+        props.setProperty(WaterAsset.PROP_FOAM_EDGE_BIAS, asset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeBias).toString())
+        props.setProperty(WaterAsset.PROP_FOAM_EDGE_DISTANCE, asset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeDistance).toString())
+        props.setProperty(WaterAsset.PROP_FOAM_FALL_OFF_DISTANCE, asset.water.getFloatAttribute(WaterFloatAttribute.FoamFallOffDistance).toString())
+        props.setProperty(WaterAsset.PROP_FOAM_FALL_SCROLL_SPEED, asset.water.getFloatAttribute(WaterFloatAttribute.FoamScrollSpeed).toString())
+
+        props.setProperty(WaterAsset.PROP_REFLECTIVITY, asset.water.getFloatAttribute(WaterFloatAttribute.Reflectivity).toString())
+        props.setProperty(WaterAsset.PROP_SHINE_DAMPER, asset.water.getFloatAttribute(WaterFloatAttribute.ShineDamper).toString())
+
+        val fileOutputStream = FileOutputStream(asset.file.file())
+        props.store(fileOutputStream, null)
+        fileOutputStream.flush()
+        fileOutputStream.close()
+
         metaSaver.save(asset.meta)
     }
 
@@ -627,36 +645,36 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         return copy
     }
 
-    fun createWaterAsset(name: String, defaultSize: Int): WaterAsset {
-        val waterFileName = name + ".water"
-        val metaFilename = waterFileName + ".meta"
+    fun createWaterAsset(name: String): WaterAsset {
+        val waterFileName = "$name.water"
+        val metaFilename = "$waterFileName.meta"
 
         // create meta file
         val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
         val meta = createNewMetaFile(FileHandle(metaPath), AssetType.WATER)
-        meta.water = MetaWater()
-        meta.water.size = defaultSize
-        meta.water.dudvMap = findAssetByID(STANDARD_ASSET_TEXTURE_DUDV).id
-        meta.water.normalMap = findAssetByID(STANDARD_ASSET_TEXTURE_WATER_NORMAL).id
-        meta.water.tiling = Water.DEFAULT_TILING
-        meta.water.waveStrength = Water.DEFAULT_WAVE_STRENGTH
-        meta.water.waveSpeed = Water.DEFAULT_WAVE_SPEED
-        metaSaver.save(meta)
 
         // create water file
         val path = FilenameUtils.concat(rootFolder.path(), waterFileName)
         val file = File(path)
         FileUtils.touch(file)
 
-        // load & apply standard chessboard texture
+        // if foam image is missing, create it
+        if (findAssetByID(STANDARD_ASSET_TEXTURE_WATER_FOAM) == null) {
+            val foamSampler = createTextureAsset(Gdx.files.internal("standardAssets/waterFoam.png"))
+            assetIndex.remove(foamSampler.id)
+            foamSampler.meta.uuid = STANDARD_ASSET_TEXTURE_WATER_FOAM
+            assetIndex[foamSampler.id] = foamSampler
+            metaSaver.save(foamSampler.meta)
+        }
+
         val asset = WaterAsset(meta, FileHandle(file))
         asset.load()
 
         // set base textures
-        asset.dudvTexture = findAssetByID(STANDARD_ASSET_TEXTURE_DUDV) as TextureAsset?
         asset.applyDependencies()
-        metaSaver.save(asset.meta)
+        asset.resolveDependencies(assetMap)
 
+        saveAsset(asset)
         addAsset(asset)
         return asset
     }
