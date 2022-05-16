@@ -19,6 +19,11 @@ uniform float u_waveStrength;
 uniform float u_moveFactor;
 uniform float u_shineDamper;
 uniform float u_reflectivity;
+uniform float u_foamScale;
+uniform float u_foamEdgeBias;
+uniform float u_foamEdgeDistance;
+uniform float u_foamFallOffDistance;
+uniform float u_foamScrollSpeed;
 uniform float u_camNearPlane;
 uniform float u_camFarPlane;
 uniform vec3 u_lightColor;
@@ -86,18 +91,13 @@ void main() {
     color = mix(color, COLOR_TURQUOISE, 0.2) + vec4(specularHighlights, 0.0);
 
     // Water Foam implemented from http://fire-face.com/personal/water/
-    float edgePatternScroll = u_moveFactor * 4.0;
-    float edgePatternScale = 1.0;
-    float edgeFalloffBias = 0.0;
+    float edgePatternScroll = u_moveFactor * u_foamScrollSpeed;
     vec4 edgeFalloffColor = vec4(0.8,0.8,0.8,0.6);
 
-    float falloffDistance = 12.0;
-    float leadingEdgeFalloff = 0.2;
-
-    vec2 scaledUV = v_diffuseUV * edgePatternScale;
+    vec2 scaledUV = v_diffuseUV * u_foamScale;
 
     // Calculate linear falloff value
-    float falloff = 1.0 - (waterDepth / falloffDistance) + edgeFalloffBias;
+    float falloff = 1.0 - (waterDepth / u_foamFallOffDistance) + u_foamEdgeBias;
 
     vec2 coords = v_texCoord0 + totalDistortion;
 
@@ -111,10 +111,10 @@ void main() {
     mask = clamp(mask, 0.0, 1.0);
 
     // Is this pixel in the leading edge?
-    if(waterDepth < falloffDistance * leadingEdgeFalloff)
+    if(waterDepth < u_foamFallOffDistance * u_foamEdgeDistance)
     {
         // Modulate the surface alpha and the mask strength
-        float leading = waterDepth / (falloffDistance * leadingEdgeFalloff);
+        float leading = waterDepth / (u_foamFallOffDistance * u_foamEdgeDistance);
         color.a *= leading;
         mask *= leading;
     }

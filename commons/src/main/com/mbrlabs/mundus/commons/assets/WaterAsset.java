@@ -4,6 +4,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.water.Water;
+import com.mbrlabs.mundus.commons.water.WaterFloatAttribute;
 
 import java.util.Map;
 
@@ -23,9 +24,11 @@ public class WaterAsset extends Asset {
     public void load() {
         water = new Water(meta.getWater().getSize());
         water.init();
-        water.setTiling(meta.getWater().getTiling());
-        water.setWaveStrength(meta.getWater().getWaveStrength());
-        water.setWaveSpeed(meta.getWater().getWaveSpeed());
+        water.setFloatAttribute(WaterFloatAttribute.Tiling, meta.getWater().getTiling());
+        water.setFloatAttribute(WaterFloatAttribute.WaveStrength, meta.getWater().getWaveStrength());
+        water.setFloatAttribute(WaterFloatAttribute.WaveSpeed, meta.getWater().getWaveSpeed());
+        water.setFloatAttribute(WaterFloatAttribute.ShineDamper, meta.getWater().getShineDamper());
+        water.setFloatAttribute(WaterFloatAttribute.Reflectivity, meta.getWater().getReflectivity());
     }
 
     @Override

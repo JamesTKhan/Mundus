@@ -13,6 +13,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
 import com.mbrlabs.mundus.commons.water.Water
+import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
 import com.mbrlabs.mundus.commons.water.WaterResolution
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -25,6 +26,11 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     private val tilingField = VisTextField()
     private val waveStrength = VisTextField()
     private val waveSpeed = VisTextField()
+    private val foamPatternScale = VisTextField()
+    private val foamEdgeBias = VisTextField()
+    private val foamScrollSpeedFactor = VisTextField()
+    private val foamFallOffDistance = VisTextField()
+    private val foamEdgeDistance = VisTextField()
     private val reflectivity = VisTextField()
     private val shineDamper = VisTextField()
 
@@ -42,7 +48,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     private fun setupWidgets() {
         defaults().padBottom(5f)
 
-        /* WAVES section */
+        /* Waves section */
         add(VisLabel("Waves")).left().row()
         addSeparator().padBottom(5f).row()
 
@@ -58,6 +64,29 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         waveSettings.add(waveSpeed).growX().row()
 
         add(waveSettings).grow().row()
+
+        /* Foam settings */
+        add(VisLabel("Foam")).left().row()
+        addSeparator().padBottom(5f).row()
+
+        val foamSettings = getSectionTable()
+
+        foamSettings.add(VisLabel("Foam Scale:")).growX().row()
+        foamSettings.add(foamPatternScale).growX().row()
+
+        foamSettings.add(VisLabel("Foam Edge Bias:")).growX().row()
+        foamSettings.add(foamEdgeBias).growX().row()
+
+        foamSettings.add(VisLabel("Foam Scroll Speed:")).growX().row()
+        foamSettings.add(foamScrollSpeedFactor).growX().row()
+
+        foamSettings.add(VisLabel("Foam Fall Off Distance:")).growX().row()
+        foamSettings.add(foamFallOffDistance).growX().row()
+
+        foamSettings.add(VisLabel("Foam Edge Fall Off Distance:")).growX().row()
+        foamSettings.add(foamEdgeDistance).growX().row()
+
+        add(foamSettings).grow().row()
 
         /* Lighting section */
         add(VisLabel("Lighting")).left().row()
@@ -96,80 +125,17 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         addSeparator().padBottom(5f).row()
         add(resetDefaults).padTop(10f).growX().row()
 
-        // tiling
-        tilingField.textFieldFilter = FloatDigitsOnlyFilter(false)
-        tilingField.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent?, actor: Actor?) {
-                if (tilingField.isInputValid && !tilingField.isEmpty) {
-                    try {
-                        waterComponent.waterAsset.water.tiling = tilingField.text.toFloat()
-                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
-                    } catch (ex : NumberFormatException) {
-                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water tiling"))
-                    }
-                }
-            }
-        })
-
-        // wave strength
-        waveStrength.textFieldFilter = FloatDigitsOnlyFilter(false)
-        waveStrength.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent?, actor: Actor?) {
-                if (waveStrength.isInputValid && !waveStrength.isEmpty) {
-                    try {
-                        waterComponent.waterAsset.water.waveStrength = waveStrength.text.toFloat()
-                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
-                    } catch (ex : NumberFormatException) {
-                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water wave strength"))
-                    }
-                }
-            }
-        })
-
-        // wave speed
-        waveSpeed.textFieldFilter = FloatDigitsOnlyFilter(false)
-        waveSpeed.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent?, actor: Actor?) {
-                if (waveSpeed.isInputValid && !waveSpeed.isEmpty) {
-                    try {
-                        waterComponent.waterAsset.water.waveSpeed = waveSpeed.text.toFloat()
-                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
-                    } catch (ex : NumberFormatException) {
-                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water wave strength"))
-                    }
-                }
-            }
-        })
-
-        // reflectivity
-        reflectivity.textFieldFilter = FloatDigitsOnlyFilter(false)
-        reflectivity.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent?, actor: Actor?) {
-                if (reflectivity.isInputValid && !reflectivity.isEmpty) {
-                    try {
-                        waterComponent.waterAsset.water.reflectivity = reflectivity.text.toFloat()
-                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
-                    } catch (ex : NumberFormatException) {
-                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water reflectivity"))
-                    }
-                }
-            }
-        })
-
-        // shine damper
-        shineDamper.textFieldFilter = FloatDigitsOnlyFilter(false)
-        shineDamper.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent?, actor: Actor?) {
-                if (shineDamper.isInputValid && !shineDamper.isEmpty) {
-                    try {
-                        waterComponent.waterAsset.water.shineDamper = shineDamper.text.toFloat()
-                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
-                    } catch (ex : NumberFormatException) {
-                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water shine damper"))
-                    }
-                }
-            }
-        })
+        // Register listeners for the float fields
+        registerFloatFieldListener(tilingField, WaterFloatAttribute.Tiling)
+        registerFloatFieldListener(waveStrength, WaterFloatAttribute.WaveStrength)
+        registerFloatFieldListener(waveSpeed, WaterFloatAttribute.WaveSpeed)
+        registerFloatFieldListener(foamPatternScale, WaterFloatAttribute.FoamPatternScale)
+        registerFloatFieldListener(foamEdgeBias, WaterFloatAttribute.FoamEdgeBias)
+        registerFloatFieldListener(foamScrollSpeedFactor, WaterFloatAttribute.FoamScrollSpeed)
+        registerFloatFieldListener(foamEdgeDistance, WaterFloatAttribute.FoamEdgeDistance)
+        registerFloatFieldListener(foamFallOffDistance, WaterFloatAttribute.FoamFallOffDistance)
+        registerFloatFieldListener(reflectivity, WaterFloatAttribute.Reflectivity)
+        registerFloatFieldListener(shineDamper, WaterFloatAttribute.ShineDamper)
 
         // resolution
         selectBox.addListener(object : ChangeListener() {
@@ -181,11 +147,16 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
         resetDefaults.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                waterComponent.waterAsset.water.tiling = Water.DEFAULT_TILING
-                waterComponent.waterAsset.water.waveStrength = Water.DEFAULT_WAVE_STRENGTH
-                waterComponent.waterAsset.water.waveSpeed = Water.DEFAULT_WAVE_SPEED
-                waterComponent.waterAsset.water.reflectivity = Water.DEFAULT_REFLECTIVITY
-                waterComponent.waterAsset.water.shineDamper = Water.DEFAULT_SHINE_DAMPER
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.Tiling, Water.DEFAULT_TILING)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.WaveStrength, Water.DEFAULT_WAVE_STRENGTH)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.WaveSpeed, Water.DEFAULT_WAVE_SPEED)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.Reflectivity, Water.DEFAULT_REFLECTIVITY)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.ShineDamper, Water.DEFAULT_SHINE_DAMPER)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamPatternScale, Water.DEFAULT_FOAM_SCALE)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamScrollSpeed, Water.DEFAULT_FOAM_SCROLL_SPEED)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamEdgeDistance, Water.DEFAULT_FOAM_EDGE_DISTANCE)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamEdgeBias, Water.DEFAULT_FOAM_EDGE_BIAS)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE)
                 projectManager.current().currScene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION
                 projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
 
@@ -197,12 +168,33 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
     }
 
+    private fun registerFloatFieldListener(floatField: VisTextField, attributeType: Long) {
+        floatField.textFieldFilter = FloatDigitsOnlyFilter(false)
+        floatField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if (floatField.isInputValid && !floatField.isEmpty) {
+                    try {
+                        waterComponent.waterAsset.water.setFloatAttribute(attributeType, floatField.text.toFloat())
+                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+                    } catch (ex : NumberFormatException) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + floatField.name))
+                    }
+                }
+            }
+        })
+    }
+
     fun setFieldsToCurrentValues() {
-        tilingField.text = waterComponent.waterAsset.water.tiling.toString()
-        waveStrength.text = waterComponent.waterAsset.water.waveStrength.toString()
-        waveSpeed.text = waterComponent.waterAsset.water.waveSpeed.toString()
-        reflectivity.text = waterComponent.waterAsset.water.reflectivity.toString()
-        shineDamper.text = waterComponent.waterAsset.water.shineDamper.toString()
+        tilingField.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.Tiling).toString()
+        waveStrength.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.WaveStrength).toString()
+        waveSpeed.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.WaveSpeed).toString()
+        reflectivity.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.Reflectivity).toString()
+        shineDamper.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.ShineDamper).toString()
+        foamPatternScale.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamPatternScale).toString()
+        foamEdgeBias.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeBias).toString()
+        foamScrollSpeedFactor.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamScrollSpeed).toString()
+        foamFallOffDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamFallOffDistance).toString()
+        foamEdgeDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeBias).toString()
         selectBox.selected = projectManager.current().currScene.waterResolution.value
     }
 

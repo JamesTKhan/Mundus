@@ -35,6 +35,7 @@ import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.commons.water.Water
+import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
 import com.mbrlabs.mundus.editor.core.EditorScene
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.UI
@@ -583,9 +584,11 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     private fun saveWaterAsset(asset: WaterAsset) {
-        asset.meta.water.tiling = asset.water.tiling
-        asset.meta.water.waveStrength = asset.water.waveStrength
-        asset.meta.water.waveSpeed = asset.water.waveSpeed
+        asset.meta.water.tiling = asset.water.getFloatAttribute(WaterFloatAttribute.Tiling)
+        asset.meta.water.waveStrength = asset.water.getFloatAttribute(WaterFloatAttribute.WaveStrength)
+        asset.meta.water.waveSpeed = asset.water.getFloatAttribute(WaterFloatAttribute.WaveSpeed)
+        asset.meta.water.shineDamper = asset.water.getFloatAttribute(WaterFloatAttribute.ShineDamper)
+        asset.meta.water.reflectivity = asset.water.getFloatAttribute(WaterFloatAttribute.Reflectivity)
         metaSaver.save(asset.meta)
     }
 
