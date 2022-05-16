@@ -24,6 +24,8 @@ task distRuntimeSources(type: Jar, dependsOn: classes) {
     version = VERSION
     classifier = 'sources'
 
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+
     from files(sourceSets.main.allSource)
     from("../commons/src/main")
 }
