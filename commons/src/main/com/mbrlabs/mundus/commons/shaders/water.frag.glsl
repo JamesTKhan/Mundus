@@ -122,8 +122,12 @@ void main() {
     // Color the foam, blend based on alpha
     vec3 edge = edgeFalloffColor.rgb * falloff * edgeFalloffColor.a;
 
-    // Subtract mask value from foam gradient, then add the foam value to the final pixel color
-    color.rgb += clamp(edge - vec3(mask), 0.0, 1.0);
+    // This is a workaround fix to resolve an issue when using packed depth that causes white borders on water
+    // so if the red channel is full 1.0 its probably pure white (border) so we ignore it.
+    if (edge.r < 0.99) {
+        // Subtract mask value from foam gradient, then add the foam value to the final pixel color
+        color.rgb += clamp(edge - vec3(mask), 0.0, 1.0);
+    }
 
     gl_FragColor = color;
     //gl_FragColor = vec4(waterDepth/50.0);
