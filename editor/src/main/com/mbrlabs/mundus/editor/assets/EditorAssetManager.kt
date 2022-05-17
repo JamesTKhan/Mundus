@@ -110,42 +110,53 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     /**
-     * Creates a couple of standard assets.
+     * Creates a couple of standard assets if they are not present.
      *
      * Creates a couple of standard assets in the current project, that should
      * be included in every project.
+     *
+     * Returns true if an asset was loaded.
      */
-    fun createStandardAssets() {
+    fun createStandardAssets(): Boolean {
         try {
-            // chessboard
-            val chessboard = createTextureAsset(Gdx.files.internal("standardAssets/chessboard.png"))
-            assetIndex.remove(chessboard.id)
-            chessboard.meta.uuid = STANDARD_ASSET_TEXTURE_CHESSBOARD
-            assetIndex.put(chessboard.id, chessboard)
-            metaSaver.save(chessboard.meta)
 
-            val dudv = createTextureAsset(Gdx.files.internal("standardAssets/dudv.png"))
-            assetIndex.remove(dudv.id)
-            dudv.meta.uuid = STANDARD_ASSET_TEXTURE_DUDV
-            assetIndex.put(dudv.id, dudv)
-            metaSaver.save(dudv.meta)
+            var assetLoaded = false
 
-            val waterNormal = createTextureAsset(Gdx.files.internal("standardAssets/waterNormal.png"))
-            assetIndex.remove(waterNormal.id)
-            waterNormal.meta.uuid = STANDARD_ASSET_TEXTURE_WATER_NORMAL
-            assetIndex.put(waterNormal.id, waterNormal)
-            metaSaver.save(waterNormal.meta)
+            if (findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD) == null) {
+                createStandardAsset(STANDARD_ASSET_TEXTURE_CHESSBOARD, "standardAssets/chessboard.png")
+                assetLoaded = true
+            }
 
-            val foamSampler = createTextureAsset(Gdx.files.internal("standardAssets/waterFoam.png"))
-            assetIndex.remove(foamSampler.id)
-            foamSampler.meta.uuid = STANDARD_ASSET_TEXTURE_WATER_FOAM
-            assetIndex.put(foamSampler.id, foamSampler)
-            metaSaver.save(foamSampler.meta)
+            if (findAssetByID(STANDARD_ASSET_TEXTURE_DUDV) == null) {
+                createStandardAsset(STANDARD_ASSET_TEXTURE_DUDV, "standardAssets/dudv.png")
+                assetLoaded = true
+            }
+
+            if (findAssetByID(STANDARD_ASSET_TEXTURE_WATER_NORMAL) == null) {
+                createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_NORMAL, "standardAssets/waterNormal.png")
+                assetLoaded = true
+            }
+
+            if (findAssetByID(STANDARD_ASSET_TEXTURE_WATER_FOAM) == null) {
+                createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_FOAM, "standardAssets/waterFoam.png")
+                assetLoaded = true
+            }
+
+            return assetLoaded
 
         } catch (e: Exception) {
             e.printStackTrace()
+            return false
         }
 
+    }
+
+    private fun createStandardAsset(id: String, path: String) {
+        val textureAsset = getOrCreateTextureAsset(Gdx.files.internal(path))
+        assetIndex.remove(textureAsset.id)
+        textureAsset.meta.uuid = id
+        assetIndex[textureAsset.id] = textureAsset
+        metaSaver.save(textureAsset.meta)
     }
 
     /**
