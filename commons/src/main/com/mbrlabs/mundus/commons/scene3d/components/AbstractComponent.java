@@ -31,8 +31,11 @@ public abstract class AbstractComponent implements Component {
 
     public AbstractComponent(GameObject go) {
         this.gameObject = go;
-        this.depthShader = new DepthShader();
-        depthShader.init();
+    }
+
+    @Override
+    public void setDepthShader(DepthShader depthShader) {
+        this.depthShader = depthShader;
     }
 
     @Override

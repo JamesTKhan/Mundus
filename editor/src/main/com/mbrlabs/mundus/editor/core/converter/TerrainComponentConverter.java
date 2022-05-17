@@ -49,6 +49,7 @@ public class TerrainComponentConverter {
         terrain.getTerrain().transform = go.getTransform();
         PickableTerrainComponent terrainComponent = new PickableTerrainComponent(go, Shaders.INSTANCE.getTerrainShader());
         terrainComponent.setTerrain(terrain);
+        terrainComponent.setDepthShader(Shaders.INSTANCE.getDepthShader());
 
         return terrainComponent;
     }
