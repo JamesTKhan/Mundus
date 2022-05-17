@@ -671,11 +671,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         // if foam image is missing, create it
         if (findAssetByID(STANDARD_ASSET_TEXTURE_WATER_FOAM) == null) {
-            val foamSampler = createTextureAsset(Gdx.files.internal("standardAssets/waterFoam.png"))
-            assetIndex.remove(foamSampler.id)
-            foamSampler.meta.uuid = STANDARD_ASSET_TEXTURE_WATER_FOAM
-            assetIndex[foamSampler.id] = foamSampler
-            metaSaver.save(foamSampler.meta)
+            createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_FOAM, "standardAssets/waterFoam.png")
         }
 
         val asset = WaterAsset(meta, FileHandle(file))
