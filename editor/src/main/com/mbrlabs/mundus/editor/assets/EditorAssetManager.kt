@@ -30,21 +30,19 @@ import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.assets.meta.MetaWater
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
-import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.events.LogEvent
-import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.commons.water.Water
+import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.EditorScene
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import java.io.*
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 /**
  * @author Marcus Brummer
@@ -433,6 +431,18 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         if (asset.file.exists())
             asset.file.delete()
+    }
+
+    /**
+     * Deletes asset files (.terra, etc..) and meta files for assets that are new and not saved.
+     */
+    fun deleteNewUnsavedAssets() {
+        for (asset in getNewAssets()) {
+            Log.debug(TAG, "Removing new unsaved asset: {}", asset)
+            asset.file.delete()
+            asset.meta.file.delete()
+        }
+        getNewAssets().clear()
     }
 
     /**

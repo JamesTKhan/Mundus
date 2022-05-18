@@ -68,6 +68,7 @@ class ExitDialog : BaseDialog(ExitDialog.TITLE) {
         // exit
         exit.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                projectManager.current().assetManager.deleteNewUnsavedAssets()
                 Gdx.app.exit()
             }
         })

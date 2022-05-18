@@ -36,6 +36,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.commons.water.Water
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.*
 import com.mbrlabs.mundus.editor.history.CommandHistory
@@ -69,6 +70,7 @@ class Outline : VisTable(),
     private val toolManager: ToolManager = Mundus.inject()
     private val projectManager: ProjectManager = Mundus.inject()
     private val history: CommandHistory = Mundus.inject()
+    private val kryoManager: KryoManager = Mundus.inject()
 
     init {
         Mundus.registerEventListener(this)
@@ -292,16 +294,16 @@ class Outline : VisTable(),
     private fun buildTree(sceneGraph: SceneGraph) {
         tree.clearChildren()
 
-        var containsWater = false;
+        var containsWater = false
 
         for (go in sceneGraph.gameObjects) {
             addGoToTree(null, go)
 
-            if (containsWater) continue;
+            if (containsWater) continue
 
             val waterComponent = go.findComponentByType(Component.Type.WATER)
             if (waterComponent != null) {
-                containsWater = true;
+                containsWater = true
             }
         }
 
@@ -448,6 +450,10 @@ class Outline : VisTable(),
                         val context = projectManager.current()
                         val sceneGraph = context.currScene.sceneGraph
                         val goID = projectManager.current().obtainID()
+
+                        // Save context here so that the ID above is persisted in .pro file
+                        kryoManager.saveProjectContext(projectManager.current())
+
                         val name = "Terrain " + goID
                         // create asset
                         val asset = context.assetManager.createTerraAsset(name,
@@ -481,6 +487,10 @@ class Outline : VisTable(),
                         val context = projectManager.current()
                         val sceneGraph = context.currScene.sceneGraph
                         val goID = projectManager.current().obtainID()
+
+                        // Save context here so that the ID above is persisted in .pro file
+                        kryoManager.saveProjectContext(projectManager.current())
+
                         val name = "Water " + goID
                         // create asset
                         val asset = context.assetManager.createWaterAsset(name,
