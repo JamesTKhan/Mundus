@@ -342,6 +342,9 @@ public class ProjectManager implements Disposable {
      */
     public void changeProject(ProjectContext context) {
         if (currentProject != null) {
+            if (currentProject.assetManager != null) {
+                currentProject.assetManager.deleteNewUnsavedAssets();
+            }
             currentProject.dispose();
         }
 

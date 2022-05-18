@@ -72,6 +72,10 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     fun addModifiedAsset(asset: Asset) {
+        // If it is a new unsaved Asset that has been modified ( like painting on a terrain )
+        // do not add it to modified assets, since it is still new/unsaved.
+        if (newAssets.contains(asset)) return
+
         modifiedAssets.add(asset)
     }
 
