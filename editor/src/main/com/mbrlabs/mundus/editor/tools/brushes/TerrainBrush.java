@@ -171,7 +171,7 @@ public abstract class TerrainBrush extends Tool {
 
         for (int smX = 0; smX < pixmap.getWidth(); smX++) {
             for (int smY = 0; smY < pixmap.getHeight(); smY++) {
-                final float dst = MathUtils.dst(splatX, splatY, smX, smY);
+                final float dst = Vector2.dst(splatX, splatY, smX, smY);
                 if (dst <= splatRad) {
                     final float opacity = getValueOfBrushPixmap(splatX, splatY, smX, smY, splatRad) * 0.5f * strength;
                     int newPixelColor = sm.additiveBlend(pixmap.getPixel(smX, smY), paintChannel, opacity);

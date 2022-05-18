@@ -15,6 +15,7 @@
  */
 package com.mbrlabs.mundus.editor.tools;
 
+import com.badlogic.gdx.math.Vector2;
 import org.lwjgl.opengl.GL11;
 
 import com.badlogic.gdx.Gdx;
@@ -230,7 +231,7 @@ public class ScaleTool extends TransformTool {
                     viewport3d.getScreenY(), viewport3d.getWorldWidth(), viewport3d.getWorldHeight());
             Vector3 mouse = temp1.set(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(), 0);
 
-            return MathUtils.dst(pivot.x, pivot.y, mouse.x, mouse.y);
+            return Vector2.dst(pivot.x, pivot.y, mouse.x, mouse.y);
         }
         return 0;
     }

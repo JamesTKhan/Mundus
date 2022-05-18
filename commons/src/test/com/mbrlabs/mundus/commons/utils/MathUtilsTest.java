@@ -18,11 +18,6 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void dst() throws Exception {
-        assertEquals(1.0f, MathUtils.dst(1.0f, 1.0f, 2.0f, 1.0f), 0.0f);
-    }
-
-    @Test
     public void angle() throws Exception {
         assertEquals(45.0f, MathUtils.angle(0.0f,0.0f,1.0f,1.0f), 0.0f);
     }
