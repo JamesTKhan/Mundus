@@ -38,7 +38,7 @@ publishing {
         maven(MavenPublication) {
             groupId project.group
             artifactId project.name
-            version project.version
+            version VERSION
             from components.java
         }
     }

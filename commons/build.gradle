@@ -1,4 +1,6 @@
 apply plugin: "java"
+apply plugin: "maven-publish"
+
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -9,3 +11,14 @@ sourceSets.main.resources.srcDirs = ["src/main"]
 
 sourceSets.test.java.srcDirs = ["src/test"]
 sourceSets.test.resources.srcDirs = ["src/test"]
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'com.github.jpooleycodes.mundus'
+            artifactId project.name
+            version '0.3.0'
+            from components.java
+        }
+    }
+}
