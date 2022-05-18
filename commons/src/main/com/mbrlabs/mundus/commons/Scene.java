@@ -64,6 +64,7 @@ public class Scene implements Disposable {
 
     private FrameBuffer fboWaterReflection;
     private FrameBuffer fboWaterRefraction;
+    private FrameBuffer fboDepthRefraction;
 
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
@@ -104,32 +105,45 @@ public class Scene implements Disposable {
         }
 
         if (sceneGraph.isContainsWater()) {
+            captureDepth(delta);
             captureReflectionFBO(delta);
             captureRefractionFBO(delta);
         }
 
         renderSkybox();
+        renderObjects(delta);
+        renderWater(delta);
+    }
 
+    private void renderObjects(float delta) {
         // Render objects
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneDisable, 0);
         batch.end();
+    }
 
+    private void renderWater(float delta) {
         if (sceneGraph.isContainsWater()) {
             Texture refraction = fboWaterRefraction.getColorBufferTexture();
             Texture reflection = fboWaterReflection.getColorBufferTexture();
+            Texture refractionDepth = fboDepthRefraction.getColorBufferTexture();
+
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
             // Render Water
             batch.begin(cam);
-            sceneGraph.renderWater(delta, reflection, refraction);
+            sceneGraph.renderWater(delta, reflection, refraction, refractionDepth);
             batch.end();
-        }
 
+            Gdx.gl.glDisable(GL20.GL_BLEND);
+        }
     }
 
     private void initFrameBuffers(int width, int height) {
-        fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
-        fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
+        fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
     }
 
     private void captureReflectionFBO(float delta) {
@@ -160,6 +174,16 @@ public class Scene implements Disposable {
         cam.update();
     }
 
+    private void captureDepth(float delta) {
+        // Render depth refractions to FBO
+        fboDepthRefraction.begin();
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        batch.begin(cam);
+        sceneGraph.renderDepth(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection);
+        batch.end();
+        fboDepthRefraction.end();
+    }
+
     private void renderSkybox() {
         if (skybox != null) {
             batch.begin(cam);
@@ -172,6 +196,7 @@ public class Scene implements Disposable {
         // Render refractions to FBO
         fboWaterRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        renderSkybox();
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection);
         batch.end();

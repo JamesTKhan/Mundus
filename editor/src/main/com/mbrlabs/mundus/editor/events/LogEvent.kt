@@ -2,6 +2,7 @@ package com.mbrlabs.mundus.editor.events
 
 enum class LogType {
     INFO,
+    WARN,
     ERROR
 }
 

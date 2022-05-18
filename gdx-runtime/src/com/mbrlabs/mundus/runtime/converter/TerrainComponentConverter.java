@@ -21,7 +21,7 @@ import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.dto.TerrainComponentDTO;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
-import com.mbrlabs.mundus.commons.shaders.TerrainShader;
+import com.mbrlabs.mundus.runtime.Shaders;
 
 /**
  * The converter for terrain.
@@ -32,9 +32,10 @@ public class TerrainComponentConverter {
      * Converts {@link TerrainComponentDTO} to {@link TerrainComponent}.
      */
     public static TerrainComponent convert(TerrainComponentDTO terrainComponentDTO, GameObject gameObject,
-                                         TerrainShader terrainShader, AssetManager assetManager) {
-        TerrainComponent tc = new TerrainComponent(gameObject, terrainShader);
+                                           Shaders shaders, AssetManager assetManager) {
+        TerrainComponent tc = new TerrainComponent(gameObject, shaders.getTerrainShader());
         tc.setTerrain((TerrainAsset) assetManager.findAssetByID(terrainComponentDTO.getTerrainID()));
+        tc.setDepthShader(shaders.getDepthShader());
 
         return tc;
     }
