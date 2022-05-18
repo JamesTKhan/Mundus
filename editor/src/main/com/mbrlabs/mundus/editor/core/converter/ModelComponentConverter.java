@@ -48,6 +48,7 @@ public class ModelComponentConverter {
 
         PickableModelComponent component = new PickableModelComponent(go, Shaders.INSTANCE.getModelShader());
         component.setModel(model, false);
+        component.setDepthShader(Shaders.INSTANCE.getDepthShader());
 
         for (String g3dbMatID : dto.getMaterials().keySet()) {
             String uuid = dto.getMaterials().get(g3dbMatID);

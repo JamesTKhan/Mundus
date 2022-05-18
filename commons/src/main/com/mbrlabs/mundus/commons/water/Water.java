@@ -19,6 +19,11 @@ public class Water implements RenderableProvider, Disposable {
     public static final float DEFAULT_WAVE_SPEED = 0.03f;
     public static final float DEFAULT_REFLECTIVITY = 0.6f;
     public static final float DEFAULT_SHINE_DAMPER = 20.0f;
+    public static final float DEFAULT_FOAM_SCALE = 0.8f;
+    public static final float DEFAULT_FOAM_EDGE_BIAS = 0.0f;
+    public static final float DEFAULT_FOAM_EDGE_DISTANCE = 0.2f;
+    public static final float DEFAULT_FOAM_FALL_OFF_DISTANCE = 12.0f;
+    public static final float DEFAULT_FOAM_SCROLL_SPEED = 4.0f;
     private static final String materialId = "waterMat";
 
 
@@ -27,7 +32,6 @@ public class Water implements RenderableProvider, Disposable {
     public int waterDepth;
 
     // Textures
-    public Texture waterRefractionTexture;
     private Material material;
 
     // Mesh
@@ -60,11 +64,17 @@ public class Water implements RenderableProvider, Disposable {
         // Hold reference to the material
         material = modelInstance.getMaterial(materialId);
 
-        setTiling(DEFAULT_TILING);
-        setWaveStrength(DEFAULT_WAVE_STRENGTH);
-        setWaveSpeed(DEFAULT_WAVE_SPEED);
-        setReflectivity(DEFAULT_REFLECTIVITY);
-        setShineDamper(DEFAULT_SHINE_DAMPER);
+        // Set default values
+        setFloatAttribute(WaterFloatAttribute.Tiling, DEFAULT_TILING);
+        setFloatAttribute(WaterFloatAttribute.WaveStrength, DEFAULT_WAVE_STRENGTH);
+        setFloatAttribute(WaterFloatAttribute.WaveSpeed, DEFAULT_WAVE_SPEED);
+        setFloatAttribute(WaterFloatAttribute.FoamPatternScale, Water.DEFAULT_FOAM_SCALE);
+        setFloatAttribute(WaterFloatAttribute.FoamScrollSpeed, Water.DEFAULT_FOAM_SCROLL_SPEED);
+        setFloatAttribute(WaterFloatAttribute.FoamEdgeDistance, Water.DEFAULT_FOAM_EDGE_DISTANCE);
+        setFloatAttribute(WaterFloatAttribute.FoamEdgeBias, Water.DEFAULT_FOAM_EDGE_BIAS);
+        setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE);
+        setFloatAttribute(WaterFloatAttribute.Reflectivity, DEFAULT_REFLECTIVITY);
+        setFloatAttribute(WaterFloatAttribute.ShineDamper, DEFAULT_SHINE_DAMPER);
     }
 
     @Override
@@ -81,6 +91,10 @@ public class Water implements RenderableProvider, Disposable {
         material.set(new WaterTextureAttribute(WaterTextureAttribute.Reflection, texture));
     }
 
+    public void setFoamTexture(Texture texture) {
+        material.set(new WaterTextureAttribute(WaterTextureAttribute.Foam, texture));
+    }
+
     public void setDudvTexture(Texture texture) {
         material.set(new WaterTextureAttribute(WaterTextureAttribute.Dudv, texture));
     }
@@ -90,48 +104,18 @@ public class Water implements RenderableProvider, Disposable {
     }
 
     public void setWaterRefractionTexture(Texture texture) {
-        waterRefractionTexture = texture;
-        material.set(new WaterTextureAttribute(WaterTextureAttribute.Refraction, waterRefractionTexture));
+        material.set(new WaterTextureAttribute(WaterTextureAttribute.Refraction, texture));
     }
 
-    public void setTiling(float tiling) {
-        material.set(new WaterFloatAttribute(WaterFloatAttribute.Tiling, tiling));
+    public void setWaterRefractionDepthTexture(Texture texture) {
+        material.set(new WaterTextureAttribute(WaterTextureAttribute.RefractionDepth, texture));
     }
 
-    public float getTiling() {
-        return material.get(WaterFloatAttribute.class, WaterFloatAttribute.Tiling).value;
+    public void setFloatAttribute(long attributeType, float value) {
+        material.set(new WaterFloatAttribute(attributeType, value));
     }
 
-    public void setWaveStrength(float strength) {
-        material.set(new WaterFloatAttribute(WaterFloatAttribute.WaveStrength, strength));
+    public float getFloatAttribute(long attributeType) {
+        return material.get(WaterFloatAttribute.class, attributeType).value;
     }
-
-    public float getWaveStrength() {
-        return material.get(WaterFloatAttribute.class, WaterFloatAttribute.WaveStrength).value;
-    }
-
-    public void setWaveSpeed(float speed) {
-        material.set(new WaterFloatAttribute(WaterFloatAttribute.WaveSpeed, speed));
-    }
-
-    public float getWaveSpeed() {
-        return material.get(WaterFloatAttribute.class, WaterFloatAttribute.WaveSpeed).value;
-    }
-
-    public void setReflectivity(float reflectivity) {
-        material.set(new WaterFloatAttribute(WaterFloatAttribute.Reflectivity, reflectivity));
-    }
-
-    public float getReflectivity() {
-        return material.get(WaterFloatAttribute.class, WaterFloatAttribute.Reflectivity).value;
-    }
-
-    public void setShineDamper(float shineDamper) {
-        material.set(new WaterFloatAttribute(WaterFloatAttribute.ShineDamper, shineDamper));
-    }
-
-    public float getShineDamper() {
-        return material.get(WaterFloatAttribute.class, WaterFloatAttribute.ShineDamper).value;
-    }
-
 }

@@ -1,6 +1,7 @@
-[0.3.0] ~ 11/05/2022
+[0.3.0] ~ 17/05/2022
 - Added GLB support, PR #21
 - Added Water Components, PR #24
+- Added Water foam and Depth Shader, PR #38
 - Added Full Screen preview (F8) and a toolbar icon
 - Added asset deletion functionality, PR #2
 - Added double click on game object to focus camera on it

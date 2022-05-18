@@ -23,7 +23,7 @@ Below are some of the more interesting features, that already work
 - A complete terrain editing system with texture & height brushes
 - 4 different brushes (brush form can be an arbitrary image, like in Blender or Gimp)
 - 3 brush modes for each brush: Raise/Lower, Flatten & texture paint
-- Water quads with reflections, refractions and customizable ripples
+- Water quads with reflections, refractions, foam, and customizable ripples
 - Static Skyboxes with support for multiple skyboxes
 - Loading of g3db/gltf/glb files
 - Loading of obj/fbx/dae files (note, that the [fbx-conv](https://github.com/libgdx/fbx-conv) binary must be set in the settings)

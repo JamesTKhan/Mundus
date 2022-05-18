@@ -125,6 +125,28 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
     }
 
     /**
+     * Renders depth, right now only renders depth for clippable components as it
+     * is used for calculating depths of water for refractions.
+     * @param delta delta time
+     * @param clippingPlane the clipping plane to use
+     * @param clipHeight clipping height for the clipping plane
+     */
+    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight) {
+        if (active) {
+            for (Component component : this.components) {
+                if (component instanceof ClippableComponent)
+                    ((ClippableComponent)component).renderDepth(delta, clippingPlane, clipHeight);
+            }
+
+            if (getChildren() != null) {
+                for (GameObject node : getChildren()) {
+                    node.renderDepth(delta, clippingPlane, clipHeight);
+                }
+            }
+        }
+    }
+
+    /**
      * Calls the update() method for each component in this and all child nodes.
      *
      * @param delta
@@ -203,7 +225,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
      */
     public Component findComponentByType(Component.Type type) {
         for (Component c : components) {
-            if (c.getType() == type) return c;
+            if (c != null && c.getType() == type) return c;
         }
 
         return null;

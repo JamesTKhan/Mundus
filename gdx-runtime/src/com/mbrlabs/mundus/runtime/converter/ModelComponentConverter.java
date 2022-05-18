@@ -22,7 +22,7 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.dto.ModelComponentDTO;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
-import com.mbrlabs.mundus.commons.shaders.ModelShader;
+import com.mbrlabs.mundus.runtime.Shaders;
 
 import java.util.Map;
 
@@ -35,9 +35,10 @@ public class ModelComponentConverter {
      * Converts {@link ModelComponentDTO} to {@link ModelComponent}.
      */
     public static ModelComponent convert(ModelComponentDTO modelComponentDTO, GameObject gameObject,
-                                         ModelShader modelShader, AssetManager assetManager) {
-        ModelComponent mc = new ModelComponent(gameObject, modelShader);
+                                         Shaders shaders, AssetManager assetManager) {
+        ModelComponent mc = new ModelComponent(gameObject, shaders.getModelShader());
         mc.setModel((ModelAsset) assetManager.findAssetByID(modelComponentDTO.getModelID()), false);
+        mc.setDepthShader(shaders.getDepthShader());
 
         for(Map.Entry<String, String> entry : modelComponentDTO.getMaterials().entrySet()) {
             mc.getMaterials().put(entry.getKey(), (MaterialAsset) assetManager.findAssetByID(entry.getValue()));
