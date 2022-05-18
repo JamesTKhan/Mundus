@@ -463,7 +463,7 @@ class Outline : VisTable(),
                         addGoToTree(null, terrainGO)
 
                         context.currScene.terrains.add(asset)
-                        projectManager.saveProject(context)
+                        projectManager.current().assetManager.addNewAsset(asset)
                         Mundus.postEvent(AssetImportEvent(asset))
                         Mundus.postEvent(SceneGraphChangedEvent())
                     } catch (e: Exception) {
@@ -495,7 +495,7 @@ class Outline : VisTable(),
                         // update outline
                         addGoToTree(null, waterGO)
 
-                        projectManager.saveProject(context)
+                        projectManager.current().assetManager.addNewAsset(asset)
                         Mundus.postEvent(AssetImportEvent(asset))
                         Mundus.postEvent(SceneGraphChangedEvent())
                     } catch (e: Exception) {

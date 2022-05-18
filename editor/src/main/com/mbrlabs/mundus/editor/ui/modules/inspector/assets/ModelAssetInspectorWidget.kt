@@ -115,7 +115,7 @@ class ModelAssetInspectorWidget : BaseInspectorWidget(ModelAssetInspectorWidget.
                     modelAsset!!.defaultMaterials.put(g3dbMatID, materialAsset)
                     modelAsset!!.applyDependencies()
                     toolManager.modelPlacementTool.setModel(modelAsset)
-                    assetManager.addDirtyAsset(modelAsset!!)
+                    assetManager.addModifiedAsset(modelAsset!!)
                 }
             }
             mw.material = mat

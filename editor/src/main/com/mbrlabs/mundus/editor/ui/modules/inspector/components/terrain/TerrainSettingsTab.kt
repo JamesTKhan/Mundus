@@ -49,7 +49,7 @@ class TerrainSettingsTab(private val parentWidget: TerrainComponentWidget) : Tab
         uvSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 val assetManager = projectManager.current().assetManager
-                assetManager.addDirtyAsset(parentWidget.component.terrain)
+                assetManager.addModifiedAsset(parentWidget.component.terrain)
                 parentWidget.component.updateUVs(Vector2(uvSlider.value, uvSlider.value))
             }
         })

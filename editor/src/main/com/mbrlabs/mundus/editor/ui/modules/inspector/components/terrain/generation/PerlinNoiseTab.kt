@@ -50,7 +50,7 @@ class PerlinNoiseTab(private val terrainAsset: TerrainAsset) : Tab(false, false)
                 val min = perlinNoiseMinHeight.float
                 val max = perlinNoiseMaxHeight.float
                 generatePerlinNoise(seed, min, max)
-                projectManager.current().assetManager.addDirtyAsset(terrainAsset)
+                projectManager.current().assetManager.addModifiedAsset(terrainAsset)
             }
         })
     }

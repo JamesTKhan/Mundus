@@ -60,7 +60,11 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     /** Modified assets that need to be saved.  */
-    private val dirtyAssets = ObjectSet<Asset>()
+    private val modifiedAssets = ObjectSet<Asset>()
+
+    /** New (Not modified) assets that need to be saved */
+    private val newAssets = ObjectSet<Asset>()
+
     private val metaSaver = MetaSaver()
 
     init {
@@ -69,12 +73,20 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         }
     }
 
-    fun addDirtyAsset(asset: Asset) {
-        dirtyAssets.add(asset)
+    fun addModifiedAsset(asset: Asset) {
+        modifiedAssets.add(asset)
     }
 
-    fun getDirtyAssets(): ObjectSet<Asset> {
-        return dirtyAssets
+    fun getModifiedAssets(): ObjectSet<Asset> {
+        return modifiedAssets
+    }
+
+    fun addNewAsset(asset: Asset) {
+        newAssets.add(asset)
+    }
+
+    fun getNewAssets(): ObjectSet<Asset> {
+        return newAssets
     }
 
     /**
@@ -308,7 +320,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     @Throws(IOException::class, AssetAlreadyExistsException::class)
-    fun createSkyBoxAsset(name : String, positiveX : String, negativeX : String, positiveY : String, negativeY : String, positiveZ : String, negativeZ : String): SkyboxAsset {
+    fun createSkyBoxAsset(name: String, positiveX: String, negativeX: String, positiveY: String, negativeY: String, positiveZ: String, negativeZ: String): SkyboxAsset {
         val fileName = "$name.sky"
         val metaFilename = "$fileName.meta"
 

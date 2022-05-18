@@ -84,7 +84,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 if (tilingField.isInputValid && !tilingField.isEmpty) {
                     try {
                         waterComponent.waterAsset.water.tiling = tilingField.text.toFloat()
-                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+                        projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
                     } catch (ex : NumberFormatException) {
                         Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water tiling"))
                     }
@@ -99,7 +99,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 if (waveStrength.isInputValid && !waveStrength.isEmpty) {
                     try {
                         waterComponent.waterAsset.water.waveStrength = waveStrength.text.toFloat()
-                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+                        projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
                     } catch (ex : NumberFormatException) {
                         Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water wave strength"))
                     }
@@ -114,7 +114,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 if (waveSpeed.isInputValid && !waveSpeed.isEmpty) {
                     try {
                         waterComponent.waterAsset.water.waveSpeed = waveSpeed.text.toFloat()
-                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+                        projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
                     } catch (ex : NumberFormatException) {
                         Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water wave strength"))
                     }
@@ -129,7 +129,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 if (reflectivity.isInputValid && !reflectivity.isEmpty) {
                     try {
                         waterComponent.waterAsset.water.reflectivity = reflectivity.text.toFloat()
-                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+                        projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
                     } catch (ex : NumberFormatException) {
                         Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water reflectivity"))
                     }
@@ -144,7 +144,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 if (shineDamper.isInputValid && !shineDamper.isEmpty) {
                     try {
                         waterComponent.waterAsset.water.shineDamper = shineDamper.text.toFloat()
-                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+                        projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
                     } catch (ex : NumberFormatException) {
                         Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing water shine damper"))
                     }
@@ -168,7 +168,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 waterComponent.waterAsset.water.reflectivity = Water.DEFAULT_REFLECTIVITY
                 waterComponent.waterAsset.water.shineDamper = Water.DEFAULT_SHINE_DAMPER
                 projectManager.current().currScene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION
-                projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+                projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
 
                 setFieldsToCurrentValues()
             }

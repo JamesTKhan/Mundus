@@ -49,7 +49,7 @@ class HeightmapTab(private val terrainAsset: TerrainAsset) : Tab(false, false) {
                 val hm = hmInput.file
                 if (hm != null && hm.exists() && isImage(hm)) {
                     loadHeightMap(hm)
-                    projectManager.current().assetManager.addDirtyAsset(terrainAsset)
+                    projectManager.current().assetManager.addModifiedAsset(terrainAsset)
                 } else {
                     Dialogs.showErrorDialog(UI, "Please select a heightmap image")
                 }
