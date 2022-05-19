@@ -33,10 +33,6 @@ public class MathUtils {
         return l1 * p1.y + l2 * p2.y + l3 * p3.y;
     }
 
-    public static float dst(float x1, float y1, float x2, float y2) {
-        return (float) Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
-    }
-
     /**
      * Angle between 2 points.
      *
