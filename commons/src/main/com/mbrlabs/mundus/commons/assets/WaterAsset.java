@@ -2,15 +2,42 @@ package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.water.Water;
+import com.mbrlabs.mundus.commons.water.WaterFloatAttribute;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Map;
 
 public class WaterAsset extends Asset {
 
+    private static final ObjectMap<String, String> MAP = new ObjectMap<>();
+
+    // property keys
+    public static final String PROP_SIZE = "size";
+    public static final String PROP_DUDV = "dudv";
+    public static final String PROP_NORMAL_MAP = "normalMap";
+    public static final String PROP_TILING = "tiling";
+    public static final String PROP_WAVE_STRENGTH = "waveStrength";
+    public static final String PROP_WAVE_SPEED = "waveSpeed";
+    public static final String PROP_FOAM_SCALE = "foamScale";
+    public static final String PROP_FOAM_EDGE_BIAS = "foamEdgeBias";
+    public static final String PROP_FOAM_EDGE_DISTANCE = "foamEdgeDistance";
+    public static final String PROP_FOAM_FALL_OFF_DISTANCE = "foamFallOffDistance";
+    public static final String PROP_FOAM_FALL_SCROLL_SPEED = "foamScrollSpeed";
+    public static final String PROP_REFLECTIVITY = "reflectivity";
+    public static final String PROP_SHINE_DAMPER = "shineDamper";
+
+    // ids of dependent assets
+    public String dudvID;
+    public String normaMapID;
+
     public Water water;
     public TextureAsset waterTexture;
+    public TextureAsset waterFoamTexture;
     public TextureAsset dudvTexture;
     public TextureAsset normalMapTexture;
 
@@ -20,23 +47,49 @@ public class WaterAsset extends Asset {
 
     @Override
     public void load() {
-        water = new Water(meta.getWater().getSize());
-        water.init();
-        water.setTiling(meta.getWater().getTiling());
-        water.setWaveStrength(meta.getWater().getWaveStrength());
-        water.setWaveSpeed(meta.getWater().getWaveSpeed());
+        MAP.clear();
+        try {
+            Reader reader = file.reader();
+            PropertiesUtils.load(MAP, reader);
+            reader.close();
+
+            water = new Water(Integer.parseInt(MAP.get(PROP_SIZE, String.valueOf(Water.DEFAULT_SIZE))));
+            water.init();
+
+            // asset dependencies, load ids
+            dudvID = MAP.get(PROP_DUDV, "dudv");
+            normaMapID = MAP.get(PROP_NORMAL_MAP, "waterNormal");
+
+            // float attributes
+            water.setFloatAttribute(WaterFloatAttribute.Tiling, Float.parseFloat(MAP.get(PROP_TILING, String.valueOf(Water.DEFAULT_TILING))));
+            water.setFloatAttribute(WaterFloatAttribute.WaveStrength, Float.parseFloat(MAP.get(PROP_WAVE_STRENGTH, String.valueOf(Water.DEFAULT_WAVE_STRENGTH))));
+            water.setFloatAttribute(WaterFloatAttribute.WaveSpeed, Float.parseFloat(MAP.get(PROP_WAVE_SPEED, String.valueOf(Water.DEFAULT_WAVE_SPEED))));
+            water.setFloatAttribute(WaterFloatAttribute.FoamPatternScale, Float.parseFloat(MAP.get(PROP_FOAM_SCALE, String.valueOf(Water.DEFAULT_FOAM_SCALE))));
+            water.setFloatAttribute(WaterFloatAttribute.FoamEdgeBias, Float.parseFloat(MAP.get(PROP_FOAM_EDGE_BIAS, String.valueOf(Water.DEFAULT_FOAM_EDGE_BIAS))));
+            water.setFloatAttribute(WaterFloatAttribute.FoamEdgeDistance, Float.parseFloat(MAP.get(PROP_FOAM_EDGE_DISTANCE, String.valueOf(Water.DEFAULT_FOAM_EDGE_DISTANCE))));
+            water.setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Float.parseFloat(MAP.get(PROP_FOAM_FALL_OFF_DISTANCE, String.valueOf(Water.DEFAULT_FOAM_FALL_OFF_DISTANCE))));
+            water.setFloatAttribute(WaterFloatAttribute.FoamScrollSpeed, Float.parseFloat(MAP.get(PROP_FOAM_FALL_SCROLL_SPEED, String.valueOf(Water.DEFAULT_FOAM_SCROLL_SPEED))));
+            water.setFloatAttribute(WaterFloatAttribute.Reflectivity, Float.parseFloat(MAP.get(PROP_REFLECTIVITY, String.valueOf(Water.DEFAULT_REFLECTIVITY))));
+            water.setFloatAttribute(WaterFloatAttribute.ShineDamper, Float.parseFloat(MAP.get(PROP_SHINE_DAMPER, String.valueOf(Water.DEFAULT_SHINE_DAMPER))));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     public void resolveDependencies(Map<String, Asset> assets) {
-        String id = meta.getWater().getDudvMap();
-        if (id != null && assets.containsKey(id)) {
-            dudvTexture = (TextureAsset) assets.get(id);
+        if (assets.containsKey(dudvID)) {
+            dudvTexture = (TextureAsset) assets.get(dudvID);
         }
 
-        id = meta.getWater().getNormalMap();
-        if (id != null && assets.containsKey(id)) {
-            normalMapTexture = (TextureAsset) assets.get(id);
+        if (assets.containsKey(normaMapID)) {
+            normalMapTexture = (TextureAsset) assets.get(normaMapID);
+        }
+
+        if (assets.containsKey("waterFoam")) {
+            waterFoamTexture = (TextureAsset) assets.get("waterFoam");
         }
     }
 
@@ -44,6 +97,11 @@ public class WaterAsset extends Asset {
     public void applyDependencies() {
         if (waterTexture != null) {
             water.setWaterReflection(waterTexture.getTexture());
+        }
+
+        if (waterFoamTexture != null) {
+            waterFoamTexture.getTexture().setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+            water.setFoamTexture(waterFoamTexture.getTexture());
         }
 
         if (dudvTexture != null) {
@@ -61,6 +119,10 @@ public class WaterAsset extends Asset {
 
     public void setWaterRefractionTexture(Texture texture){
         water.setWaterRefractionTexture(texture);
+    }
+
+    public void setWaterRefractionDepthTexture(Texture texture){
+        water.setWaterRefractionDepthTexture(texture);
     }
 
     @Override

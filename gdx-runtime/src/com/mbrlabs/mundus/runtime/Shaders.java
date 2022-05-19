@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.runtime;
 
+import com.mbrlabs.mundus.commons.shaders.DepthShader;
 import com.mbrlabs.mundus.commons.shaders.ModelShader;
 import com.mbrlabs.mundus.commons.shaders.SkyboxShader;
 import com.mbrlabs.mundus.commons.shaders.TerrainShader;
@@ -23,10 +24,11 @@ import com.mbrlabs.mundus.commons.shaders.WaterShader;
 
 public class Shaders {
 
-    private ModelShader modelShader;
-    private TerrainShader terrainShader;
-    private WaterShader waterShader;
-    private SkyboxShader skyboxShader;
+    private final ModelShader modelShader;
+    private final TerrainShader terrainShader;
+    private final WaterShader waterShader;
+    private final SkyboxShader skyboxShader;
+    private final DepthShader depthShader;
 
     public Shaders() {
         modelShader = new ModelShader();
@@ -37,6 +39,8 @@ public class Shaders {
         waterShader.init();
         skyboxShader = new SkyboxShader();
         skyboxShader.init();
+        depthShader = new DepthShader();
+        depthShader.init();
     }
 
     public ModelShader getModelShader() {
@@ -55,4 +59,7 @@ public class Shaders {
         return skyboxShader;
     }
 
+    public DepthShader getDepthShader() {
+        return depthShader;
+    }
 }

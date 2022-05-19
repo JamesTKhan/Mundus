@@ -46,9 +46,8 @@ public class Meta {
 
     private MetaModel model;
     private MetaTerrain terrain;
-    private MetaWater water;
 
-    private FileHandle file;
+    private final FileHandle file;
 
     public Meta(FileHandle file) {
         this.file = file;
@@ -104,14 +103,6 @@ public class Meta {
 
     public void setTerrain(MetaTerrain terrain) {
         this.terrain = terrain;
-    }
-
-    public MetaWater getWater() {
-        return water;
-    }
-
-    public void setWater(MetaWater water) {
-        this.water = water;
     }
 
     @Override

@@ -245,8 +245,27 @@ public class ProjectManager implements Disposable {
         context.path = ref.getPath();
 
         // load assets
+        loadAssets(ref, context);
+
+        // create standard assets if any are missing, to support backwards compatibility when new standard assets are added
+        boolean standardAssetReloaded = context.assetManager.createStandardAssets();
+
+        // If a standard asset was missing we reload assets, now that the standard asset is recreated.
+        if (standardAssetReloaded) {
+            Mundus.INSTANCE.postEvent(new LogEvent(LogType.WARN, "A standard asset was missing. Reloading assets." +
+                    " This only occurs if a standard asset was deleted."));
+            loadAssets(ref, context);
+        }
+
+        context.currScene = loadScene(context, context.activeSceneName);
+
+        return context;
+    }
+
+    private void loadAssets(ProjectRef ref, ProjectContext context) throws MetaFileParseException, AssetNotFoundException {
         context.assetManager = new EditorAssetManager(
                 new FileHandle(ref.getPath() + "/" + ProjectManager.PROJECT_ASSETS_DIR));
+
         context.assetManager.loadAssets(new AssetManager.AssetLoadingListener() {
             @Override
             public void onLoad(Asset asset, int progress, int assetCount) {
@@ -260,10 +279,6 @@ public class ProjectManager implements Disposable {
                 Mundus.INSTANCE.postEvent(new LogEvent("Finished loading " + assetCount + " assets"));
             }
         }, false);
-
-        context.currScene = loadScene(context, context.activeSceneName);
-
-        return context;
     }
 
     /**

@@ -22,6 +22,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent;
@@ -79,6 +80,12 @@ public class SelectionTool extends Tool {
                 TerrainComponent tc = (TerrainComponent) go.findComponentByType(Component.Type.TERRAIN);
                 if (tc != null) {
                     getBatch().render(tc.getTerrain().getTerrain(), getShader());
+                }
+
+                // terrainAsset component
+                WaterComponent wc = (WaterComponent) go.findComponentByType(Component.Type.WATER);
+                if (wc != null) {
+                    getBatch().render(wc.getWaterAsset().water, getShader());
                 }
             }
             getBatch().end();

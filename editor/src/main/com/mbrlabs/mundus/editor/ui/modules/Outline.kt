@@ -34,7 +34,6 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.terrain.Terrain
-import com.mbrlabs.mundus.commons.water.Water
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -272,7 +271,7 @@ class Outline : VisTable(),
 
         // select listener
         tree.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
+            override fun changed(event: ChangeEvent, actor: Actor) {
                 val selection = tree.getSelection()
                 if (selection != null && selection.size() > 0) {
                     val go = selection.first().value
@@ -493,8 +492,7 @@ class Outline : VisTable(),
 
                         val name = "Water " + goID
                         // create asset
-                        val asset = context.assetManager.createWaterAsset(name,
-                                Water.DEFAULT_SIZE)
+                        val asset = context.assetManager.createWaterAsset(name)
                         asset.load()
                         asset.applyDependencies()
 
