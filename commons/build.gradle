@@ -14,6 +14,11 @@ sourceSets.main.resources.srcDirs = ["src/main"]
 sourceSets.test.java.srcDirs = ["src/test"]
 sourceSets.test.resources.srcDirs = ["src/test"]
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 publishing {
     publications {
         maven(MavenPublication) {

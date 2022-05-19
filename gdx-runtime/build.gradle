@@ -31,6 +31,11 @@ task distRuntimeSources(type: Jar, dependsOn: classes) {
     from("../commons/src/main")
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
