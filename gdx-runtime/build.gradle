@@ -7,39 +7,10 @@ version = '0.3.0'
 sourceSets.main.java.srcDirs = ["src/"]
 sourceSets.main.resources.srcDirs = ["src/"]
 
-def NAME = 'mundus-gdx-runtime'
-
-task distRuntime(type: Jar, dependsOn: classes) {
-    archivesBaseName = NAME
-
-    dependsOn configurations.runtimeClasspath
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    with jar
-}
-
-distRuntime.dependsOn classes
-
-task distRuntimeSources(type: Jar, dependsOn: classes) {
-    archivesBaseName = NAME
-    archiveClassifier.set('sources')
-
-    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-
-    from files(sourceSets.main.allSource)
-    from("../commons/src/main")
-}
-
 task sourcesJar(type: Jar, dependsOn: classes) {
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
 }
 
 publishing {
