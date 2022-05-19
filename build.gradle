@@ -103,7 +103,6 @@ project(":gdx-runtime") {
 
     dependencies {
         implementation project(":commons")
-        implementation "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
     }
 }
 
