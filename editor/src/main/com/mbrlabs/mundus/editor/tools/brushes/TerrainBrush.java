@@ -182,7 +182,7 @@ public abstract class TerrainBrush extends Tool {
 
         sm.updateTexture();
         splatmapModified = true;
-        getProjectManager().current().assetManager.addDirtyAsset(terrainAsset);
+        getProjectManager().current().assetManager.addModifiedAsset(terrainAsset);
     }
 
     private void flatten() {
@@ -220,7 +220,7 @@ public abstract class TerrainBrush extends Tool {
 
         terrain.update();
         terrainHeightModified = true;
-        getProjectManager().current().assetManager.addDirtyAsset(terrainAsset);
+        getProjectManager().current().assetManager.addModifiedAsset(terrainAsset);
     }
 
     private void raiseLower(BrushAction action) {
@@ -243,7 +243,7 @@ public abstract class TerrainBrush extends Tool {
 
         terrain.update();
         terrainHeightModified = true;
-        getProjectManager().current().assetManager.addDirtyAsset(terrainAsset);
+        getProjectManager().current().assetManager.addModifiedAsset(terrainAsset);
     }
 
     /**

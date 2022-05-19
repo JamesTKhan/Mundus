@@ -290,16 +290,27 @@ public class ProjectManager implements Disposable {
     public void saveProject(ProjectContext projectContext) {
         // save modified assets
         EditorAssetManager assetManager = projectContext.assetManager;
-        for (Asset asset : assetManager.getDirtyAssets()) {
+        for (Asset asset : assetManager.getModifiedAssets()) {
             try {
-                Log.debug(TAG, "Saving dirty asset: {}", asset);
+                Log.debug(TAG, "Saving modified asset: {}", asset);
                 assetManager.saveAsset(asset);
                 System.out.println(asset.getName());
             } catch (IOException e) {
                 Log.exception(TAG, e);
             }
         }
-        assetManager.getDirtyAssets().clear();
+        assetManager.getModifiedAssets().clear();
+
+        for (Asset asset : assetManager.getNewAssets()) {
+            try {
+                Log.debug(TAG, "Saving new asset: {}", asset);
+                assetManager.saveAsset(asset);
+                System.out.println(asset.getName());
+            } catch (IOException e) {
+                Log.exception(TAG, e);
+            }
+        }
+        assetManager.getNewAssets().clear();
 
         // save current in .pro file
         kryoManager.saveProjectContext(projectContext);
@@ -346,6 +357,9 @@ public class ProjectManager implements Disposable {
      */
     public void changeProject(ProjectContext context) {
         if (currentProject != null) {
+            if (currentProject.assetManager != null) {
+                currentProject.assetManager.deleteNewUnsavedAssets();
+            }
             currentProject.dispose();
         }
 

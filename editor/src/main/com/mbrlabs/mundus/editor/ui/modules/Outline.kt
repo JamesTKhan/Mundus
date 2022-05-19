@@ -35,6 +35,7 @@ import com.mbrlabs.mundus.commons.scene3d.SceneGraph
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.*
 import com.mbrlabs.mundus.editor.history.CommandHistory
@@ -68,6 +69,7 @@ class Outline : VisTable(),
     private val toolManager: ToolManager = Mundus.inject()
     private val projectManager: ProjectManager = Mundus.inject()
     private val history: CommandHistory = Mundus.inject()
+    private val kryoManager: KryoManager = Mundus.inject()
 
     init {
         Mundus.registerEventListener(this)
@@ -447,6 +449,10 @@ class Outline : VisTable(),
                         val context = projectManager.current()
                         val sceneGraph = context.currScene.sceneGraph
                         val goID = projectManager.current().obtainID()
+
+                        // Save context here so that the ID above is persisted in .pro file
+                        kryoManager.saveProjectContext(projectManager.current())
+
                         val name = "Terrain " + goID
                         // create asset
                         val asset = context.assetManager.createTerraAsset(name,
@@ -462,7 +468,7 @@ class Outline : VisTable(),
                         addGoToTree(null, terrainGO)
 
                         context.currScene.terrains.add(asset)
-                        projectManager.saveProject(context)
+                        projectManager.current().assetManager.addNewAsset(asset)
                         Mundus.postEvent(AssetImportEvent(asset))
                         Mundus.postEvent(SceneGraphChangedEvent())
                     } catch (e: Exception) {
@@ -480,6 +486,10 @@ class Outline : VisTable(),
                         val context = projectManager.current()
                         val sceneGraph = context.currScene.sceneGraph
                         val goID = projectManager.current().obtainID()
+
+                        // Save context here so that the ID above is persisted in .pro file
+                        kryoManager.saveProjectContext(projectManager.current())
+
                         val name = "Water " + goID
                         // create asset
                         val asset = context.assetManager.createWaterAsset(name)
@@ -493,7 +503,7 @@ class Outline : VisTable(),
                         // update outline
                         addGoToTree(null, waterGO)
 
-                        projectManager.saveProject(context)
+                        projectManager.current().assetManager.addNewAsset(asset)
                         Mundus.postEvent(AssetImportEvent(asset))
                         Mundus.postEvent(SceneGraphChangedEvent())
                     } catch (e: Exception) {

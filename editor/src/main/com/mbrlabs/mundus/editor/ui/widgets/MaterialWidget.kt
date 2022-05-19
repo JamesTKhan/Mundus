@@ -128,7 +128,7 @@ class MaterialWidget : VisTable() {
                 material?.diffuseTexture = asset as? TextureAsset
                 applyMaterialToModelAssets()
                 applyMaterialToModelComponents()
-                projectManager.current().assetManager.addDirtyAsset(material!!)
+                projectManager.current().assetManager.addModifiedAsset(material!!)
             }
         }
 
@@ -138,7 +138,7 @@ class MaterialWidget : VisTable() {
                 material?.diffuseColor?.set(newColor)
                 applyMaterialToModelAssets()
                 applyMaterialToModelComponents()
-                projectManager.current().assetManager.addDirtyAsset(material!!)
+                projectManager.current().assetManager.addModifiedAsset(material!!)
             }
         }
 
@@ -150,7 +150,7 @@ class MaterialWidget : VisTable() {
                     material?.shininess = shininessField.text.toFloat()
                     applyMaterialToModelAssets()
                     applyMaterialToModelComponents()
-                    projectManager.current().assetManager.addDirtyAsset(material!!)
+                    projectManager.current().assetManager.addModifiedAsset(material!!)
                 }
             }
         })

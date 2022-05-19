@@ -158,7 +158,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamEdgeBias, Water.DEFAULT_FOAM_EDGE_BIAS)
                 waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE)
                 projectManager.current().currScene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION
-                projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+                projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
 
                 setFieldsToCurrentValues()
             }
@@ -175,7 +175,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 if (floatField.isInputValid && !floatField.isEmpty) {
                     try {
                         waterComponent.waterAsset.water.setFloatAttribute(attributeType, floatField.text.toFloat())
-                        projectManager.current().assetManager.addDirtyAsset(waterComponent.waterAsset)
+                        projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
                     } catch (ex : NumberFormatException) {
                         Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + floatField.name))
                     }

@@ -102,7 +102,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
         val terrainAsset = this@TerrainPaintTab.parentWidget.component.terrain
         val terrainTexture = terrainAsset.terrain.terrainTexture
 
-        assetManager.addDirtyAsset(terrainAsset)
+        assetManager.addModifiedAsset(terrainAsset)
 
         // channel base
         if (terrainAsset.splatBase == null) {
@@ -237,7 +237,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
 
                         terrain.applyDependencies()
                         setTexturesInUiGrid()
-                        projectManager.current().assetManager.addDirtyAsset(terrain)
+                        projectManager.current().assetManager.addModifiedAsset(terrain)
                     }
                 }
             })
@@ -263,7 +263,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
                                     }
                                     terrain.applyDependencies()
                                     setTexturesInUiGrid()
-                                    projectManager.current().assetManager.addDirtyAsset(terrain)
+                                    projectManager.current().assetManager.addModifiedAsset(terrain)
                                 }
                             }
                         })
