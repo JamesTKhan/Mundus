@@ -102,7 +102,7 @@ project(":gdx-runtime") {
     apply plugin: "java"
 
     dependencies {
-        implementation project(":commons")
+        api project(":commons")
     }
 }
 
