@@ -32,6 +32,7 @@ task distRuntimeSources(type: Jar, dependsOn: classes) {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     classifier = 'sources'
     from sourceSets.main.allSource
 }
@@ -49,7 +50,6 @@ publishing {
             version project.version
             from components.java
             artifact sourcesJar
-            artifact javadocJar
         }
     }
 }
