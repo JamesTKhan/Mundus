@@ -2,16 +2,15 @@ apply plugin: "java"
 apply plugin: "maven-publish"
 
 group = 'com.github.jpooleycodes.mundus'
+version = '0.3.0'
 
 sourceSets.main.java.srcDirs = ["src/"]
 sourceSets.main.resources.srcDirs = ["src/"]
 
-def VERSION = '0.3.0'
 def NAME = 'mundus-gdx-runtime'
 
 task distRuntime(type: Jar, dependsOn: classes) {
-    baseName = NAME
-    version = VERSION
+    archivesBaseName = NAME
 
     dependsOn configurations.runtimeClasspath
     from {
@@ -23,9 +22,8 @@ task distRuntime(type: Jar, dependsOn: classes) {
 distRuntime.dependsOn classes
 
 task distRuntimeSources(type: Jar, dependsOn: classes) {
-    baseName = NAME
-    version = VERSION
-    classifier = 'sources'
+    archivesBaseName = NAME
+    archiveClassifier.set('sources')
 
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 
@@ -38,7 +36,7 @@ publishing {
         maven(MavenPublication) {
             groupId project.group
             artifactId project.name
-            version VERSION
+            version project.version
             from components.java
         }
     }

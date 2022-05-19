@@ -10,7 +10,7 @@ project.ext.assetsDir = new File("assets");
 
 
 task run(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
+    main(project.mainClassName)
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     workingDir = project.assetsDir
@@ -22,8 +22,8 @@ task run(dependsOn: classes, type: JavaExec) {
 }
 
 task distEditor(type: Jar) {
-    baseName = 'Mundus'
-    version = '0.3.0'
+    archivesBaseName = 'Mundus'
+    archiveVersion.set('0.3.0')
 
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 
