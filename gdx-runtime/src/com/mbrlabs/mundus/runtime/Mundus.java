@@ -18,9 +18,11 @@ package com.mbrlabs.mundus.runtime;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
+import com.mbrlabs.mundus.commons.shaders.ModelShader;
 
 /**
  * @author Marcus Brummer
@@ -42,15 +44,8 @@ public class Mundus implements Disposable {
         this.root = mundusRoot;
         this.assetManager = new AssetManager(root.child(PROJECT_ASSETS_DIR));
         this.sceneLoader = new SceneLoader(this, root.child(PROJECT_SCENES_DIR));
-    }
 
-    public void init() {
-        try {
-            assetManager.loadAssets(null, true);
-            shaders = new Shaders();
-        } catch (Exception e) {
-            Gdx.app.log(TAG, e.getMessage());
-        }
+        init();
     }
 
     public AssetManager getAssetManager() {
@@ -61,13 +56,25 @@ public class Mundus implements Disposable {
         return shaders;
     }
 
-    public Scene loadScene(final String name) {
-        return sceneLoader.load(name);
+    public Scene loadScene(final String name, final ModelBatch batch) {
+        final Scene scene = sceneLoader.load(name);
+        scene.batch = batch;
+
+        return scene;
     }
 
     @Override
     public void dispose() {
         assetManager.dispose();
+    }
+
+    private void init() {
+        try {
+            assetManager.loadAssets(null, true);
+            shaders = new Shaders();
+        } catch (Exception e) {
+            Gdx.app.log(TAG, e.getMessage());
+        }
     }
 
 }
