@@ -35,6 +35,7 @@ import java.util.Map;
  * @author Marcus Brummer
  * @version 06-10-2016
  */
+@SuppressWarnings("NonJREEmulationClassesInClientCode")
 public class AssetManager implements Disposable {
 
     private static final String TAG = AssetManager.class.getSimpleName();
@@ -163,16 +164,10 @@ public class AssetManager implements Disposable {
      *             if a meta file can't be parsed
      */
     public void loadAssets(AssetLoadingListener listener, boolean isRuntime) throws AssetNotFoundException, MetaFileParseException {
-        // create meta file filter
-        FileFilter metaFileFilter = new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return file.getName().endsWith(Meta.META_EXTENSION);
-            }
-        };
-
         final MetaLoader metaLoader = new MetaLoader();
 
+        String[] files;
+        FileHandle fileList;
         FileHandle[] metaFiles;
 
         if (isRuntime && Gdx.app.getType() == Application.ApplicationType.Desktop) {
@@ -180,23 +175,22 @@ public class AssetManager implements Disposable {
             // Application will need to provide an assets.txt file listing all Mundus assets
             // in the Mundus root directory.
             // https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
-            FileHandle fileList = rootFolder.child("assets.txt");
-            String[] files = fileList.readString().split("\\n");
-
-            // Get meta file extension file names
-            Array<String> metalFileNames = new Array<>();
-            for (String filename: files) {
-                if (filename.endsWith(Meta.META_EXTENSION)) {
-                    metalFileNames.add(filename);
-                }
-            }
-
-            metaFiles = new FileHandle[metalFileNames.size];
-            for (int i = 0; i < metaFiles.length; i++) {
-                metaFiles[i] = rootFolder.child(metalFileNames.get(i));
-            }
-
+            fileList = rootFolder.child("assets.txt");
+            files = fileList.readString().split("\\n");
+            metaFiles = getMetaFiles(files);
+        } else if (isRuntime && Gdx.app.getType() == Application.ApplicationType.WebGL) {
+            // For WebGL we use a native split method for string split
+            fileList = rootFolder.child("assets.txt");
+            files = split(fileList.readString(), "\n");
+            metaFiles = getMetaFiles(files);
         } else {
+            // Editor uses this block to load meta files
+            FileFilter metaFileFilter = new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.getName().endsWith(Meta.META_EXTENSION);
+                }
+            };
             metaFiles = rootFolder.list(metaFileFilter);
         }
 
@@ -226,6 +220,29 @@ public class AssetManager implements Disposable {
         if(listener != null) {
             listener.onFinish(assets.size);
         }
+    }
+
+    /**
+     * Get an array of Meta FileHandles for the given String array of file names.
+     *
+     * @param files the array of file names to retrieve meta filehandles from
+     * @return FileHandle array of meta files.
+     */
+    private FileHandle[] getMetaFiles(String[] files) {
+        // Get meta file extension file names
+        Array<String> metalFileNames = new Array<>();
+        for (String filename: files) {
+            if (filename.endsWith(Meta.META_EXTENSION)) {
+                metalFileNames.add(filename);
+            }
+        }
+
+        FileHandle[] metaFiles = new FileHandle[metalFileNames.size];
+        for (int i = 0; i < metaFiles.length; i++) {
+            metaFiles[i] = rootFolder.child(metalFileNames.get(i));
+        }
+
+        return metaFiles;
     }
 
     /**
@@ -335,6 +352,13 @@ public class AssetManager implements Disposable {
         assets.clear();
         assetIndex.clear();
     }
+
+    /**
+     * Native JavaScript string split method for GWT support
+     */
+    public static final native String[] split(String string, String separator) /*-{
+        return string.split(separator);
+    }-*/;
 
     /**
      * Used to inform users about the current loading status.
