@@ -41,6 +41,7 @@ fun createTerrainGO(sg: SceneGraph, shader: TerrainShader, goID: Int, goName: St
     terrainComponent.terrain = terrain
     terrainGO.components.add(terrainComponent)
     terrainComponent.shader = shader
+    terrainComponent.setDepthShader(Shaders.depthShader)
     terrainComponent.encodeRaypickColorId()
 
     return terrainGO

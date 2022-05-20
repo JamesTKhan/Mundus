@@ -1,3 +1,6 @@
+[0.3.1] ~ TBD
+- Fix NPE in editor when creating new terrain
+
 [0.3.0] ~ 17/05/2022
 - Added GLB support, PR #21
 - Added Water Components, PR #24
