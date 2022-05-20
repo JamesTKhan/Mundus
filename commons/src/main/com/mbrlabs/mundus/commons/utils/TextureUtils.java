@@ -16,6 +16,8 @@
 
 package com.mbrlabs.mundus.commons.utils;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 
@@ -27,7 +29,16 @@ public class TextureUtils {
 
     public static Texture loadMipmapTexture(FileHandle fileHandle, boolean tilable) {
         Texture texture = new Texture(fileHandle, true);
-        texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.MipMapLinearLinear);
+
+        Texture.TextureFilter magFilter;
+
+        if (Gdx.app.getType() == Application.ApplicationType.WebGL)
+            // WebGL does not support mip map on Mag filter
+            magFilter = Texture.TextureFilter.Linear;
+        else
+            magFilter = Texture.TextureFilter.MipMapLinearLinear;
+
+        texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, magFilter);
 
         if (tilable) {
             texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
