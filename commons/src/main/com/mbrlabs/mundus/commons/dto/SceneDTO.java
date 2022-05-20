@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.dto;
 
+import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class SceneDTO {
     private long id;
     private String name;
     private String skyboxAssetId;
-    private List<GameObjectDTO> gameObjects;
+    private Array<GameObjectDTO> gameObjects;
     private FogDTO fog;
     private BaseLightDTO ambientLight;
     private float camPosX;
@@ -43,7 +44,7 @@ public class SceneDTO {
     private WaterResolution waterResolution;
 
     public SceneDTO() {
-        gameObjects = new ArrayList<>();
+        gameObjects = new Array<>();
     }
 
     public long getId() {
@@ -126,11 +127,11 @@ public class SceneDTO {
         this.ambientLight = ambientLight;
     }
 
-    public List<GameObjectDTO> getGameObjects() {
+    public Array<GameObjectDTO> getGameObjects() {
         return gameObjects;
     }
 
-    public void setGameObjects(List<GameObjectDTO> gameObjects) {
+    public void setGameObjects(Array<GameObjectDTO> gameObjects) {
         this.gameObjects = gameObjects;
     }
 

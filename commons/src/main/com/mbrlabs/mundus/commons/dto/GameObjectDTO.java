@@ -16,8 +16,7 @@
 
 package com.mbrlabs.mundus.commons.dto;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * @author Tibor Zsuro
@@ -31,16 +30,16 @@ public class GameObjectDTO {
 
     private float[] transform = new float[10];
 
-    private List<String> tags;
-    private List<GameObjectDTO> childs;
+    private Array<String> tags;
+    private Array<GameObjectDTO> childs;
 
     private ModelComponentDTO modelComponent;
     private TerrainComponentDTO terrainComponent;
     private WaterComponentDTO waterComponent;
 
     public GameObjectDTO() {
-        childs = new ArrayList<>();
-        tags = new ArrayList<>();
+        childs = new Array<>();
+        tags = new Array<>();
     }
 
     public int getId() {
@@ -71,19 +70,19 @@ public class GameObjectDTO {
         return transform;
     }
 
-    public List<String> getTags() {
+    public Array<String> getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(Array<String> tags) {
         this.tags = tags;
     }
 
-    public List<GameObjectDTO> getChilds() {
+    public Array<GameObjectDTO> getChilds() {
         return childs;
     }
 
-    public void setChilds(List<GameObjectDTO> childs) {
+    public void setChilds(Array<GameObjectDTO> childs) {
         this.childs = childs;
     }
 
