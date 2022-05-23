@@ -17,18 +17,17 @@
 package com.mbrlabs.mundus.commons.dto;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Tibor Zsuro
  * @version 12-08-2021
  */
-public class SceneDTO {
+public class SceneDTO implements Json.Serializable {
 
-    private long id;
+    private transient long id;
     private String name;
     private String skyboxAssetId;
     private Array<GameObjectDTO> gameObjects;
@@ -157,5 +156,21 @@ public class SceneDTO {
 
     public String getSkyboxAssetId() {
         return skyboxAssetId;
+    }
+
+    @Override
+    public void write(Json json) {
+        // ID is written separately due to GWT technical limitations on Long emulation and reflection
+        json.writeValue("id", id);
+        json.writeFields(this);
+    }
+
+    @Override
+    public void read(Json json, JsonValue jsonData) {
+        json.setIgnoreUnknownFields(true);
+        // ID is read in separately due to GWT technical limitations on Long emulation and reflection
+        id = Long.parseLong(jsonData.getString("id"));
+        json.readFields(this, jsonData);
+        json.setIgnoreUnknownFields(false);
     }
 }
