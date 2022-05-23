@@ -16,6 +16,8 @@
 
 package com.mbrlabs.mundus.commons.terrain;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -53,6 +55,12 @@ public class SplatMap {
     }
 
     public void clearChannel(SplatTexture.Channel channel) {
+        // There seems to be no point in running this code on WebGL so we skip it
+        // because GWT has performance issues when passing data from the same pixmap into its draw parameters
+        // the work around is to have a clone of the pixmap like clone.getPixel if we needed this on GWT.
+        if (Gdx.app.getType() == Application.ApplicationType.WebGL)
+            return;
+
         Pixmap pixmap = getPixmap();
         for (int smX = 0; smX < pixmap.getWidth(); smX++) {
             for (int smY = 0; smY < pixmap.getHeight(); smY++) {
