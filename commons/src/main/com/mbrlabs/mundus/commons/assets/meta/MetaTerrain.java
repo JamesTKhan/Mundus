@@ -26,6 +26,7 @@ public class MetaTerrain {
     public static final String JSON_SIZE = "size";
     public static final String JSON_SPLATMAP = "map";
     public static final String JSON_SPLAT_BASE = "base";
+    public static final String JSON_SPLAT_BASE64 = "base64";
     public static final String JSON_SPLAT_R = "r";
     public static final String JSON_SPLAT_G = "g";
     public static final String JSON_SPLAT_B = "b";
@@ -36,6 +37,7 @@ public class MetaTerrain {
     private float uv;
     private String splatmap;
     private String splatBase;
+    private String splatBase64;
     private String splatR;
     private String splatG;
     private String splatB;
@@ -55,6 +57,14 @@ public class MetaTerrain {
 
     public void setSplatBase(String splatBase) {
         this.splatBase = splatBase;
+    }
+
+    public String getSplatBase64() {
+        return splatBase64;
+    }
+
+    public void setSplatBase64(String splatBase64) {
+        this.splatBase64 = splatBase64;
     }
 
     public String getSplatR() {
@@ -109,13 +119,14 @@ public class MetaTerrain {
     public String toString() {
         return "MetaTerrain{" +
                 "size=" + size +
+                ", uv=" + uv +
                 ", splatmap='" + splatmap + '\'' +
                 ", splatBase='" + splatBase + '\'' +
+                ", splatBase64='" + splatBase64 + '\'' +
                 ", splatR='" + splatR + '\'' +
                 ", splatG='" + splatG + '\'' +
                 ", splatB='" + splatB + '\'' +
                 ", splatA='" + splatA + '\'' +
-                ", uv='" + uv + '\'' +
                 '}';
     }
 }

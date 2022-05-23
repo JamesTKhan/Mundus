@@ -30,9 +30,8 @@ import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
-import com.mbrlabs.mundus.commons.water.Water
-import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
+import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.EditorScene
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
@@ -588,6 +587,10 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val splatmap = terrain.splatmap
         if (splatmap != null) {
             PixmapIO.writePNG(splatmap.file, splatmap.pixmap)
+
+            // Encode splatmap PNG file to base64 string, used for pixmap on GWT
+            val encoded = Base64.getEncoder().encodeToString(splatmap.file.readBytes())
+            terrain.meta.terrain.splatBase64 = "data:image/png;base64,$encoded"
         }
 
         // save meta file

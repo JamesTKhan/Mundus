@@ -19,6 +19,7 @@ package com.mbrlabs.mundus.commons.assets;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 
 import java.util.Map;
@@ -58,6 +59,27 @@ public class PixmapTextureAsset extends Asset {
     @Override
     public void applyDependencies() {
         // no dependencies here
+    }
+
+
+    /**
+     * Initiate loading of a Base64 string image into the pixmap.
+     *
+     * @param base64 a base64 encoded string of a PNG file
+     */
+    public void loadBase64(String base64) {
+        Pixmap.downloadFromUrl(base64, new Pixmap.DownloadPixmapResponseListener() {
+            @Override
+            public void downloadComplete(Pixmap downloadedPixmap) {
+                pixmap = downloadedPixmap;
+                texture = new Texture(pixmap);
+            }
+
+            @Override
+            public void downloadFailed(Throwable t) {
+                throw new GdxRuntimeException(t);
+            }
+        });
     }
 
     @Override
