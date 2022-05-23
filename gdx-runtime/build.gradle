@@ -4,6 +4,9 @@ apply plugin: "maven-publish"
 group = 'com.github.jpooleycodes.mundus'
 version = '0.3.0'
 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 sourceSets.main.java.srcDirs = ["src/"]
 sourceSets.main.resources.srcDirs = ["src/"]
 
