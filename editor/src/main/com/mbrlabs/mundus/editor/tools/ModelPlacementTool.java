@@ -118,6 +118,7 @@ public class ModelPlacementTool extends Tool {
 
             PickableModelComponent modelComponent = new PickableModelComponent(modelGo, Shaders.INSTANCE.getModelShader());
             modelComponent.setShader(getShader());
+            modelComponent.setDepthShader(Shaders.INSTANCE.getDepthShader());
             modelComponent.setModel(model, true);
             modelComponent.encodeRaypickColorId();
 
