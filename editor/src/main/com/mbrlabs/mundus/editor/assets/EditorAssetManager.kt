@@ -30,9 +30,8 @@ import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
-import com.mbrlabs.mundus.commons.water.Water
-import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
+import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.EditorScene
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
@@ -720,6 +719,33 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
                 skyboxes.add(asset as SkyboxAsset)
         }
         return skyboxes
+    }
+
+    /**
+     * Generates a txt file in the projects assets folder that lists all asset files. Overwrites existing
+     * asset.txt file.
+     *
+     * Desktop applications cannot use .list() for internal jar files.
+     * Desktop apps need to provide an assets.txt file listing all Mundus assets
+     * in the Mundus assets directory. See [AssetManager.loadAssets] for how the file is used on load.
+     */
+    fun createAssetsTextFile() {
+        // get path for assets file
+        val path = FilenameUtils.concat(rootFolder.path(), "assets.txt")
+
+        // Build the String listing all asset files
+        val moreDetails = buildString {
+            for (asset in assets) {
+                append(asset.file.name())
+                appendLine()
+                append(asset.meta.file.name())
+                appendLine()
+            }
+        }
+
+        // Save to file
+        val fileHandle = FileHandle(path)
+        fileHandle.writeString(moreDetails, false)
     }
 
 }

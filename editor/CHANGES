@@ -1,4 +1,5 @@
 [0.3.1] ~ TBD
+- Added functionality to the editor to generate the assets.txt file, PR #45
 - Fix NPE in editor when creating new terrain
 
 [0.3.0] ~ 17/05/2022
