@@ -1,3 +1,6 @@
+[0.3.1] ~ TBD
+- Set Source Compatibility to 1.7, PR #47
+
 [0.3.0]
 - Enable fog in runtime
 - Skyboxes now supported in runtime via scene.setSkybox method
