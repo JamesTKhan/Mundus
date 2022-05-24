@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Array;
+import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
@@ -52,6 +53,12 @@ public class WaterShader extends BaseShader {
     // ============================ LIGHTS ============================
     protected final int UNIFORM_LIGHT_POS = register(new Uniform("u_lightPositon"));
     protected final int UNIFORM_LIGHT_COLOR = register(new Uniform("u_lightColor"));
+
+    // ============================ FOG ============================
+    protected final int UNIFORM_FOG_DENSITY = register(new Uniform("u_fogDensity"));
+    protected final int UNIFORM_FOG_GRADIENT = register(new Uniform("u_fogGradient"));
+    protected final int UNIFORM_FOG_COLOR = register(new Uniform("u_fogColor"));
+
 
     public ShaderProgram program;
 
@@ -156,6 +163,17 @@ public class WaterShader extends BaseShader {
         }
 
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
+
+        // Fog
+        final Fog fog = env.getFog();
+        if (fog == null) {
+            set(UNIFORM_FOG_DENSITY, 0f);
+            set(UNIFORM_FOG_GRADIENT, 0f);
+        } else {
+            set(UNIFORM_FOG_DENSITY, fog.density);
+            set(UNIFORM_FOG_GRADIENT, fog.gradient);
+            set(UNIFORM_FOG_COLOR, fog.color);
+        }
 
         // bind attributes, bind mesh & render; then unbinds everything
         renderable.meshPart.render(program);
