@@ -1,6 +1,5 @@
 package com.mbrlabs.mundus.commons.shaders;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Renderable;
@@ -56,9 +55,6 @@ public class WaterShader extends BaseShader {
 
     public ShaderProgram program;
 
-    private float u_Offset = 0;
-    private float moveFactor = 0;
-    private float waveSpeed = Water.DEFAULT_WAVE_SPEED;
 
     public WaterShader() {
         program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER);
@@ -152,27 +148,14 @@ public class WaterShader extends BaseShader {
         setFloatUniform(renderable, WaterFloatAttribute.FoamEdgeDistance, UNIFORM_FOAM_EDGE_DISTANCE, Water.DEFAULT_FOAM_EDGE_DISTANCE);
         setFloatUniform(renderable, WaterFloatAttribute.FoamFallOffDistance, UNIFORM_FOAM_FALL_OFF_DISTANCE, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE);
         setFloatUniform(renderable, WaterFloatAttribute.FoamScrollSpeed, UNIFORM_FOAM_FALL_SCROLL_SPEED, Water.DEFAULT_FOAM_SCROLL_SPEED);
+        setFloatUniform(renderable, WaterFloatAttribute.MoveFactor, UNIFORM_MOVE_FACTOR, 0);
 
-        WaterFloatAttribute speed = (WaterFloatAttribute) renderable.material.get(WaterFloatAttribute.WaveSpeed);
-        if (speed != null) {
-            waveSpeed = speed.value;
-        }
-
-        // Slowly increment offset UVs for foam texturing
-        u_Offset += 1 / 512f;
-
-        // Wrap it back... this should not happen often unless the game is running for a very long time
-        // but will cause a slight jitter in the foam pattern when this resets
-        if (u_Offset > 10000) {
-            u_Offset = 0.0f;
+        WaterFloatAttribute uvOffset = (WaterFloatAttribute) renderable.material.get(WaterFloatAttribute.FoamUVOffset);
+        if (uvOffset != null) {
+            set(UNIFORM_DIFFUSE_UV, uvOffset.value, uvOffset.value, 200f, 200f);
         }
 
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
-        set(UNIFORM_MOVE_FACTOR, moveFactor);
-        set(UNIFORM_DIFFUSE_UV, u_Offset, u_Offset, 200f, 200f);
-
-        moveFactor += waveSpeed * Gdx.graphics.getDeltaTime();
-        moveFactor %= 1;
 
         // bind attributes, bind mesh & render; then unbinds everything
         renderable.meshPart.render(program);
