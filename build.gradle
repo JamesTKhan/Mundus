@@ -56,8 +56,6 @@ project(":commons") {
 
         api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
 
-        implementation "com.github.crykn.guacamole:gdx:$guacamoleVersion"
-
         testImplementation "junit:junit:$junitVersion"
 
         testImplementation "org.mockito:mockito-all:$mockitoVersion"
