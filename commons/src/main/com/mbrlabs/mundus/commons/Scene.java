@@ -89,7 +89,7 @@ public class Scene implements Disposable {
         dirLight.direction.set(0, -1f, 0);
         dirLight.direction.nor();
         environment.add(dirLight);
-        environment.getAmbientLight().intensity = 0.3f;
+        environment.getAmbientLight().intensity = 0.8f;
 
         sceneGraph = new SceneGraph(this);
     }
