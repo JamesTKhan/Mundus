@@ -168,8 +168,11 @@ public class SceneDTO implements Json.Serializable {
     @Override
     public void read(Json json, JsonValue jsonData) {
         json.setIgnoreUnknownFields(true);
-        // ID is read in separately due to GWT technical limitations on Long emulation and reflection
-        id = Long.parseLong(jsonData.getString("id"));
+        // Default scenes do not have an ID, so we check for it first
+        if (jsonData.has("id")) {
+            // ID is read in separately due to GWT technical limitations on Long emulation and reflection
+            id = Long.parseLong(jsonData.getString("id"));
+        }
         json.readFields(this, jsonData);
         json.setIgnoreUnknownFields(false);
     }
