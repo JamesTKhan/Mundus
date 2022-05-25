@@ -62,13 +62,13 @@ class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.Proj
     }
 
     private fun setupListeners() {
-        val projectContext = projectManager.current()
 
         // intensity
         intensity.addListener(object : ChangeListener() {
             override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
                 val d = convert(intensity.text)
                 if (d != null) {
+                    val projectContext = projectManager.current()
                     projectContext.currScene.environment.ambientLight.intensity = d
                 }
             }
@@ -77,7 +77,8 @@ class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.Proj
         // color
         colorPickerField.colorAdapter = object: ColorPickerAdapter() {
             override fun finished(newColor: Color) {
-                projectContext.currScene.environment.ambientLight.color.set(color)
+                val projectContext = projectManager.current()
+                projectContext.currScene.environment.ambientLight.color.set(newColor)
             }
         }
 
