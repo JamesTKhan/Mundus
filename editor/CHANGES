@@ -3,6 +3,7 @@
 - Fix NPE in editor when creating new terrain
 - Fix NPE on model placement
 - Fix Wave speed increasing exponentially based on water tile count
+- Fix Fog now applies to water
 
 [0.3.0] ~ 17/05/2022
 - Added GLB support, PR #21
