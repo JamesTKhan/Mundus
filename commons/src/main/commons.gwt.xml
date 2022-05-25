@@ -2,8 +2,6 @@
 <!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit trunk//EN" "http://google-web-toolkit.googlecode.com/svn/trunk/distro-source/core/src/gwt-module.dtd">
 <module>
     <source path="com/mbrlabs/mundus/commons" />
-
-    <inherits name="guacamole_gdx_gwt" />
     <inherits name='GLTF' />
 
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.SceneDTO" />
