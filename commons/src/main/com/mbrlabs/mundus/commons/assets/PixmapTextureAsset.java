@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.assets;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -77,6 +78,7 @@ public class PixmapTextureAsset extends Asset {
 
             @Override
             public void downloadFailed(Throwable t) {
+                Gdx.app.error(getClass().getName(), "Unable to Download Base64 Pixmap");
                 throw new GdxRuntimeException(t);
             }
         });
