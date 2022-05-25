@@ -33,6 +33,12 @@ public class WaterFloatAttribute extends FloatAttribute {
     public static final String FoamEdgeDistanceAlias = "foamEdgeDistance";
     public static final long FoamEdgeDistance = register(FoamEdgeDistanceAlias);
 
+    public static final String FoamUVOffsetAlias = "foamUVOffset";
+    public static final long FoamUVOffset = register(FoamUVOffsetAlias);
+
+    public static final String MoveFactorAlias = "moveFactor";
+    public static final long MoveFactor = register(MoveFactorAlias);
+
     public WaterFloatAttribute(long type, float value) {
         super(type, value);
     }

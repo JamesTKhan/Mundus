@@ -33,7 +33,6 @@ allprojects {
         mockitoVersion = '1.10.19'
         commonsIoVersion = '2.5'
         commonsLangVersion = '3.12.0'
-        guacamoleVersion = '0.3.1'
         gltfVersion = '2.0.0-rc.1'
 
         ktxVersion = '1.10.0-b2'
@@ -57,12 +56,6 @@ project(":commons") {
         // Include HTML sources in commons as well for GWT support
         api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
         api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion:sources"
-
-        api "com.github.crykn.guacamole:gdx:$guacamoleVersion"
-        api "com.github.crykn.guacamole:core:$guacamoleVersion:sources"
-        api "com.github.crykn.guacamole:gdx:$guacamoleVersion:sources"
-        api "com.github.crykn.guacamole:gdx-gwt:$guacamoleVersion"
-        api "com.github.crykn.guacamole:gdx-gwt:$guacamoleVersion:sources"
 
         testImplementation "junit:junit:$junitVersion"
 

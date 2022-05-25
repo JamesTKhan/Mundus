@@ -152,6 +152,9 @@ public class ProjectManager implements Disposable {
         // create standard assets
         newProjectContext.assetManager.createStandardAssets();
 
+        // Generate assets.txt file
+        newProjectContext.assetManager.createAssetsTextFile();
+
         return newProjectContext;
     }
 
@@ -311,6 +314,9 @@ public class ProjectManager implements Disposable {
             }
         }
         assetManager.getNewAssets().clear();
+
+        // Generate assets.txt file
+        assetManager.createAssetsTextFile();
 
         // save current in .pro file
         kryoManager.saveProjectContext(projectContext);

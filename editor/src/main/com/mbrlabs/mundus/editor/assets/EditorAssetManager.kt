@@ -725,4 +725,31 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         return skyboxes
     }
 
+    /**
+     * Generates a txt file in the projects assets folder that lists all asset files. Overwrites existing
+     * asset.txt file.
+     *
+     * Desktop applications cannot use .list() for internal jar files.
+     * Desktop apps need to provide an assets.txt file listing all Mundus assets
+     * in the Mundus assets directory. See [AssetManager.loadAssets] for how the file is used on load.
+     */
+    fun createAssetsTextFile() {
+        // get path for assets file
+        val path = FilenameUtils.concat(rootFolder.path(), "assets.txt")
+
+        // Build the String listing all asset files
+        val moreDetails = buildString {
+            for (asset in assets) {
+                append(asset.file.name())
+                appendLine()
+                append(asset.meta.file.name())
+                appendLine()
+            }
+        }
+
+        // Save to file
+        val fileHandle = FileHandle(path)
+        fileHandle.writeString(moreDetails, false)
+    }
+
 }

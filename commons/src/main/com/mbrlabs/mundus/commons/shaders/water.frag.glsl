@@ -7,6 +7,7 @@ varying vec2 v_waterTexCoords;
 varying vec4 v_clipSpace;
 varying vec3 v_toCameraVector;
 varying vec3 v_fromLightVector;
+varying float v_fog;
 
 uniform vec3 u_color;
 uniform sampler2D u_texture;
@@ -28,6 +29,7 @@ uniform float u_camNearPlane;
 uniform float u_camFarPlane;
 uniform vec3 u_lightColor;
 varying vec2 v_diffuseUV;
+uniform vec4 u_fogColor;
 
 const vec4 COLOR_TURQUOISE = vec4(0,0.5,0.686, 0.2);
 
@@ -128,6 +130,9 @@ void main() {
         // Subtract mask value from foam gradient, then add the foam value to the final pixel color
         color.rgb += clamp(edge - vec3(mask), 0.0, 1.0);
     }
+
+    // Fog
+    color = mix(color, u_fogColor, v_fog);
 
     gl_FragColor = color;
     //gl_FragColor = vec4(waterDepth/50.0);
