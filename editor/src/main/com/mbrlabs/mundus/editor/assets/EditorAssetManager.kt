@@ -587,6 +587,10 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val splatmap = terrain.splatmap
         if (splatmap != null) {
             PixmapIO.writePNG(splatmap.file, splatmap.pixmap)
+
+            // Encode splatmap PNG file to base64 string, used for pixmap on GWT
+            val encoded = Base64.getEncoder().encodeToString(splatmap.file.readBytes())
+            terrain.meta.terrain.splatBase64 = "data:image/png;base64,$encoded"
         }
 
         // save meta file

@@ -15,6 +15,8 @@
  */
 package com.mbrlabs.mundus.commons.assets;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.FloatArray;
@@ -171,6 +173,12 @@ public class TerrainAsset extends Asset {
         String id = meta.getTerrain().getSplatmap();
         if (id != null && assets.containsKey(id)) {
             setSplatmap((PixmapTextureAsset) assets.get(id));
+
+            // If WebGL, we use base64 string for pixmap since pixmap cannot read from binaries on GWT
+            if (Gdx.app.getType() == Application.ApplicationType.WebGL) {
+                ((PixmapTextureAsset) assets.get(id)).loadBase64(meta.getTerrain().getSplatBase64());
+            }
+
         }
 
         // splat channel base
