@@ -16,21 +16,21 @@
 
 package com.mbrlabs.mundus.commons.dto;
 
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Tibor Zsuro
  * @version 12-08-2021
  */
-public class SceneDTO {
+public class SceneDTO implements Json.Serializable {
 
-    private long id;
+    private transient long id;
     private String name;
     private String skyboxAssetId;
-    private List<GameObjectDTO> gameObjects;
+    private Array<GameObjectDTO> gameObjects;
     private FogDTO fog;
     private BaseLightDTO ambientLight;
     private DirectionalLightDTO directionalLight;
@@ -44,7 +44,7 @@ public class SceneDTO {
     private WaterResolution waterResolution;
 
     public SceneDTO() {
-        gameObjects = new ArrayList<>();
+        gameObjects = new Array<>();
     }
 
     public long getId() {
@@ -135,11 +135,11 @@ public class SceneDTO {
         this.directionalLight = directionalLight;
     }
 
-    public List<GameObjectDTO> getGameObjects() {
+    public Array<GameObjectDTO> getGameObjects() {
         return gameObjects;
     }
 
-    public void setGameObjects(List<GameObjectDTO> gameObjects) {
+    public void setGameObjects(Array<GameObjectDTO> gameObjects) {
         this.gameObjects = gameObjects;
     }
 
@@ -165,5 +165,24 @@ public class SceneDTO {
 
     public String getSkyboxAssetId() {
         return skyboxAssetId;
+    }
+
+    @Override
+    public void write(Json json) {
+        // ID is written separately due to GWT technical limitations on Long emulation and reflection
+        json.writeValue("id", id);
+        json.writeFields(this);
+    }
+
+    @Override
+    public void read(Json json, JsonValue jsonData) {
+        json.setIgnoreUnknownFields(true);
+        // Default scenes may not have an ID, so we check for it first
+        if (jsonData.has("id")) {
+            // ID is read in separately due to GWT technical limitations on Long emulation and reflection
+            id = Long.parseLong(jsonData.getString("id"));
+        }
+        json.readFields(this, jsonData);
+        json.setIgnoreUnknownFields(false);
     }
 }

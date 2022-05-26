@@ -53,7 +53,9 @@ public class SceneLoader {
 
     public Scene load(String name) {
         Json json = new Json();
-        SceneDTO sceneDTO = json.fromJson(SceneDTO.class, root.child(name));
+
+        // Pass string using readString() instead of FileHandle to support GWT
+        SceneDTO sceneDTO = json.fromJson(SceneDTO.class, root.child(name).readString());
 
         Scene scene =  SceneConverter.convert(sceneDTO, mundus.getShaders(), assetManager);
 
