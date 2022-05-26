@@ -99,7 +99,7 @@ void main() {
     vec3 reflectedLight = reflect(normalize(u_directionalLight.direction), normal);
     float specular = max(dot(reflectedLight, viewVector), 0.0);
     specular = pow(specular, u_shineDamper);
-    vec3 specularHighlights = u_directionalLight.color * u_directionalLight.intensity * specular * u_reflectivity * clamp(waterDepth/5.0, 0.0, 1.0);
+    vec3 specularHighlights = vec3(u_directionalLight.color) * u_directionalLight.intensity * specular * u_reflectivity * clamp(waterDepth/5.0, 0.0, 1.0);
 
     vec4 color =  mix(reflectColor, refractColor, refractiveFactor);
     color = mix(color, COLOR_TURQUOISE, 0.2) + vec4(specularHighlights, 0.0);
