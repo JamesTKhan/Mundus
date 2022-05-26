@@ -84,9 +84,9 @@ public class Scene implements Disposable {
         cam.far = 10000;
 
         DirectionalLight dirLight = new DirectionalLight();
-        dirLight.color.set(1, 1, 1, 1);
-        dirLight.intensity = 1f;
-        dirLight.direction.set(0, -1f, 0);
+        dirLight.color.set(DirectionalLight.DEFAULT_COLOR);
+        dirLight.intensity = DirectionalLight.DEFAULT_INTENSITY;
+        dirLight.direction.set(DirectionalLight.DEFAULT_DIRECTION);
         dirLight.direction.nor();
         environment.add(dirLight);
         environment.getAmbientLight().intensity = 0.8f;

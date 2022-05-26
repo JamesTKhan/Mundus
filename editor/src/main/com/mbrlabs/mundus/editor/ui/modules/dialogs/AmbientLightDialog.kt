@@ -65,7 +65,7 @@ class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.Proj
 
         // intensity
         intensity.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
+            override fun changed(event: ChangeEvent, actor: Actor) {
                 val d = convert(intensity.text)
                 if (d != null) {
                     val projectContext = projectManager.current()
@@ -79,6 +79,16 @@ class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.Proj
             override fun finished(newColor: Color) {
                 val projectContext = projectManager.current()
                 projectContext.currScene.environment.ambientLight.color.set(newColor)
+            }
+
+            override fun changed(newColor: Color?) {
+                val projectContext = projectManager.current()
+                projectContext.currScene.environment.ambientLight.color.set(newColor)
+            }
+
+            override fun canceled(oldColor: Color?) {
+                val projectContext = projectManager.current()
+                projectContext.currScene.environment.ambientLight.color.set(oldColor)
             }
         }
 

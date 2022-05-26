@@ -33,6 +33,7 @@ public class SceneDTO {
     private List<GameObjectDTO> gameObjects;
     private FogDTO fog;
     private BaseLightDTO ambientLight;
+    private DirectionalLightDTO directionalLight;
     private float camPosX;
     private float camPosY;
     private float camPosZ;
@@ -124,6 +125,14 @@ public class SceneDTO {
 
     public void setAmbientLight(BaseLightDTO ambientLight) {
         this.ambientLight = ambientLight;
+    }
+
+    public DirectionalLightDTO getDirectionalLight() {
+        return directionalLight;
+    }
+
+    public void setDirectionalLight(DirectionalLightDTO directionalLight) {
+        this.directionalLight = directionalLight;
     }
 
     public List<GameObjectDTO> getGameObjects() {
