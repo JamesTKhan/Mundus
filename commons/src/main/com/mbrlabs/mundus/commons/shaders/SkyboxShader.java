@@ -82,14 +82,14 @@ public class SkyboxShader extends BaseShader {
         context.begin();
         program.bind();
 
-        rotation += rotateSpeed * Gdx.graphics.getDeltaTime();
-
         set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined);
         transform.idt();
         transform.translate(camera.position);
 
-        if (isRotateEnabled())
+        if (isRotateEnabled()) {
+            rotation += rotateSpeed * Gdx.graphics.getDeltaTime();
             transform.rotateRad(Vector3.Y, MathUtils.degreesToRadians * rotation);
+        }
 
         set(UNIFORM_TRANS_MATRIX, transform);
     }
