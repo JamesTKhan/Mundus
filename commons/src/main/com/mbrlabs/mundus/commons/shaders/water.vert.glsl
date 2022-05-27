@@ -6,11 +6,17 @@ uniform mat4 u_transMatrix;
 uniform mat4 u_projViewMatrix;
 uniform vec3 u_cameraPosition;
 uniform float u_tiling;
-uniform vec3 u_lightPositon;
 uniform vec4 u_diffuseUVTransform;
 varying vec2 v_diffuseUV;
 uniform float u_fogDensity;
 uniform float u_fogGradient;
+
+struct DirectionalLight {
+    vec4 color;
+    vec3 direction;
+    float intensity;
+};
+uniform DirectionalLight u_directionalLight;
 
 varying vec2 v_texCoord0;
 varying vec2 v_waterTexCoords;
@@ -31,7 +37,7 @@ void main() {
     v_waterTexCoords = vec2(a_position.x/2.0 + 0.5, a_position.z/2.0 + 0.5) * u_tiling;
 
     v_toCameraVector = u_cameraPosition - worldPos.xyz;
-    v_fromLightVector = worldPos.xyz - u_lightPositon; // from light to water
+    v_fromLightVector = worldPos.xyz - u_directionalLight.direction; // from light to water
 
     // fog
     if(u_fogDensity > 0.0 && u_fogGradient > 0.0) {

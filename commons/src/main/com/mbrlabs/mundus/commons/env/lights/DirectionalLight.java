@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.env.lights;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 
 /**
@@ -23,6 +24,9 @@ import com.badlogic.gdx.math.Vector3;
  * @version 14-02-2016
  */
 public class DirectionalLight extends BaseLight {
+    public static final float DEFAULT_INTENSITY = 1.0f;
+    public static final Color DEFAULT_COLOR = Color.WHITE.cpy();
+    public static final Vector3 DEFAULT_DIRECTION = new Vector3(0.40f, -1, 0);
 
     public final Vector3 direction = new Vector3();
 

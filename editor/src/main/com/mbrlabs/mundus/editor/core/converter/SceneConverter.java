@@ -21,7 +21,10 @@ import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
 import com.mbrlabs.mundus.commons.env.lights.BaseLight;
+import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
+import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
 import com.mbrlabs.mundus.commons.mapper.BaseLightConverter;
+import com.mbrlabs.mundus.commons.mapper.DirectionalLightConverter;
 import com.mbrlabs.mundus.commons.mapper.FogConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
@@ -54,6 +57,11 @@ public class SceneConverter {
         // environment stuff
         dto.setFog(FogConverter.convert(scene.environment.getFog()));
         dto.setAmbientLight(BaseLightConverter.convert(scene.environment.getAmbientLight()));
+
+        DirectionalLightsAttribute directionalLight = scene.environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
+        dto.setDirectionalLight(DirectionalLightConverter.convert(directionalLight.lights.first()));
+
+        // Water
         dto.setWaterResolution(scene.waterResolution);
         dto.setWaterHeight(scene.waterHeight);
 
@@ -83,6 +91,13 @@ public class SceneConverter {
         BaseLight ambientLight = BaseLightConverter.convert(dto.getAmbientLight());
         if (ambientLight != null) {
             scene.environment.setAmbientLight(ambientLight);
+        }
+
+        DirectionalLight light = DirectionalLightConverter.convert(dto.getDirectionalLight());
+        if (light != null) {
+            DirectionalLightsAttribute directionalLight = scene.environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
+            directionalLight.lights.clear();
+            directionalLight.lights.add(light);
         }
 
         // Water stuff

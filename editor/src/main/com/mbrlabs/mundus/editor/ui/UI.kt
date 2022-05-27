@@ -84,6 +84,7 @@ object UI : Stage(ScreenViewport()) {
     val fogDialog: FogDialog = FogDialog()
     val skyboxDialog: SkyboxDialog = SkyboxDialog()
     val ambientLightDialog: AmbientLightDialog = AmbientLightDialog()
+    var directionalLightDialog: DirectionalLightsDialog = DirectionalLightsDialog()
     val exitDialog: ExitDialog = ExitDialog()
 
     // styles
