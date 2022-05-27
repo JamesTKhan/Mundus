@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
+import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
@@ -64,6 +65,7 @@ class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.Proj
     private fun setupListeners() {
 
         // intensity
+        intensity.textFieldFilter = FloatDigitsOnlyFilter(false)
         intensity.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 val d = convert(intensity.text)
