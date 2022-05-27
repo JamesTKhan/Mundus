@@ -4,6 +4,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
+import com.mbrlabs.mundus.commons.skybox.Skybox;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -20,6 +21,8 @@ public class SkyboxAsset extends Asset {
     public static final String PROP_NEGATIVE_Y = "negativeY";
     public static final String PROP_POSITIVE_Z = "positiveZ";
     public static final String PROP_NEGATIVE_Z = "negativeZ";
+    public static final String PROP_ROTATE_ENABLED = "rotateEnabled";
+    public static final String PROP_ROTATE_SPEED = "rotateSpeed";
 
     // ids of dependent assets
     public String positiveXID;
@@ -35,6 +38,9 @@ public class SkyboxAsset extends Asset {
     public TextureAsset negativeY;
     public TextureAsset positiveZ;
     public TextureAsset negativeZ;
+
+    public boolean rotateEnabled;
+    public float rotateSpeed;
 
     public SkyboxAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
@@ -57,6 +63,10 @@ public class SkyboxAsset extends Asset {
 
             positiveZID = MAP.get(PROP_POSITIVE_Z, null);
             negativeZID = MAP.get(PROP_NEGATIVE_Z, null);
+
+            rotateEnabled = Boolean.parseBoolean(MAP.get(PROP_ROTATE_ENABLED, String.valueOf(Skybox.DEFAULT_ROTATE_ENABLED)));
+            rotateSpeed = Float.parseFloat(MAP.get(PROP_ROTATE_SPEED, String.valueOf(Skybox.DEFAULT_ROTATE_SPEED)));
+
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -247,6 +247,10 @@ public class Scene implements Disposable {
                 skyboxAsset.positiveZ.getFile(),
                 skyboxAsset.negativeZ.getFile(),
                 skyboxShader);
+
+        skybox.setRotateSpeed(skyboxAsset.rotateSpeed);
+        skybox.setRotateEnabled(skyboxAsset.rotateEnabled);
+
     }
 
     @Override

@@ -664,6 +664,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         props.setProperty(SkyboxAsset.PROP_POSITIVE_Z, asset.positiveZ.id)
         props.setProperty(SkyboxAsset.PROP_NEGATIVE_Z, asset.negativeZ.id)
 
+        props.setProperty(SkyboxAsset.PROP_ROTATE_ENABLED, asset.rotateEnabled.toString())
+        props.setProperty(SkyboxAsset.PROP_ROTATE_SPEED, asset.rotateSpeed.toString())
+
         val fileOutputStream = FileOutputStream(asset.file.file())
         props.store(fileOutputStream, null)
         fileOutputStream.flush()
