@@ -170,8 +170,14 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
         rotateSpeed.textFieldFilter = FloatDigitsOnlyFilter(true)
         rotateSpeed.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                projectManager.current().currScene.skybox.rotateSpeed = rotateSpeed.text.toFloat()
-                addModifiedAsset()
+                if (rotateSpeed.isInputValid && !rotateSpeed.isEmpty) {
+                    try {
+                        projectManager.current().currScene.skybox.rotateSpeed = rotateSpeed.text.toFloat()
+                        addModifiedAsset()
+                    } catch (ex : NumberFormatException) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + rotateSpeed.name))
+                    }
+                }
             }
         })
 
