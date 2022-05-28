@@ -51,8 +51,11 @@ public class WaterShader extends BaseShader {
     protected final int UNIFORM_CAM_FAR_PLANE= register(new Uniform("u_camFarPlane"));
 
     // ============================ LIGHTS ============================
-    protected final int UNIFORM_LIGHT_POS = register(new Uniform("u_lightPositon"));
-    protected final int UNIFORM_LIGHT_COLOR = register(new Uniform("u_lightColor"));
+    protected final int UNIFORM_AMBIENT_LIGHT_COLOR = register(new Uniform("u_ambientLight.color"));
+    protected final int UNIFORM_AMBIENT_LIGHT_INTENSITY = register(new Uniform("u_ambientLight.intensity"));
+    protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR = register(new Uniform("u_directionalLight.color"));
+    protected final int UNIFORM_DIRECTIONAL_LIGHT_DIR = register(new Uniform("u_directionalLight.direction"));
+    protected final int UNIFORM_DIRECTIONAL_LIGHT_INTENSITY = register(new Uniform("u_directionalLight.intensity"));
 
     // ============================ FOG ============================
     protected final int UNIFORM_FOG_DENSITY = register(new Uniform("u_fogDensity"));
@@ -104,16 +107,7 @@ public class WaterShader extends BaseShader {
     public void render(Renderable renderable) {
         final MundusEnvironment env = (MundusEnvironment) renderable.environment;
 
-        // directional lights
-        final DirectionalLightsAttribute dirLightAttribs = env.get(DirectionalLightsAttribute.class,
-                DirectionalLightsAttribute.Type);
-        final Array<DirectionalLight> dirLights = dirLightAttribs == null ? null : dirLightAttribs.lights;
-        if (dirLights != null && dirLights.size > 0) {
-            final DirectionalLight light = dirLights.first();
-            set(UNIFORM_LIGHT_COLOR, light.color.r, light.color.g, light.color.b);
-            // Normally this would be position but directional lights do not have a position
-            set(UNIFORM_LIGHT_POS, light.direction);
-        }
+        setLights(env);
 
         // Set Textures
         WaterTextureAttribute dudvAttrib = (WaterTextureAttribute) renderable.material.get(WaterTextureAttribute.Dudv);
@@ -177,6 +171,27 @@ public class WaterShader extends BaseShader {
 
         // bind attributes, bind mesh & render; then unbinds everything
         renderable.meshPart.render(program);
+    }
+
+    private void setLights(MundusEnvironment env) {
+        // ambient
+        set(UNIFORM_AMBIENT_LIGHT_COLOR, env.getAmbientLight().color);
+        set(UNIFORM_AMBIENT_LIGHT_INTENSITY, env.getAmbientLight().intensity);
+
+        // TODO light array for each light type
+
+        // directional lights
+        final DirectionalLightsAttribute dirLightAttribs = env.get(DirectionalLightsAttribute.class,
+                DirectionalLightsAttribute.Type);
+        final Array<DirectionalLight> dirLights = dirLightAttribs == null ? null : dirLightAttribs.lights;
+        if (dirLights != null && dirLights.size > 0) {
+            final DirectionalLight light = dirLights.first();
+            set(UNIFORM_DIRECTIONAL_LIGHT_COLOR, light.color);
+            set(UNIFORM_DIRECTIONAL_LIGHT_DIR, light.direction);
+            set(UNIFORM_DIRECTIONAL_LIGHT_INTENSITY, light.intensity);
+        }
+
+        // TODO point lights, spot lights
     }
 
     private void setFloatUniform(Renderable renderable, long attribute, int uniform, float defaultValue) {

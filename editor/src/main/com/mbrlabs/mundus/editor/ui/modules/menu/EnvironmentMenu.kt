@@ -30,11 +30,13 @@ import com.mbrlabs.mundus.editor.ui.UI
 class EnvironmentMenu : Menu("Environment") {
 
     val ambientLight = MenuItem("Ambient Light")
+    val directionalLight = MenuItem("Directional Light")
     val skybox = MenuItem("Skybox")
     val fog = MenuItem("Fog")
 
     init {
-       // addItem(ambientLight)
+        addItem(ambientLight)
+        addItem(directionalLight)
         addItem(skybox)
         addItem(fog)
 
@@ -46,6 +48,13 @@ class EnvironmentMenu : Menu("Environment") {
         ambientLight.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 UI.showDialog(UI.ambientLightDialog)
+            }
+        })
+
+        // directional light
+        directionalLight.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                UI.showDialog(UI.directionalLightDialog)
             }
         })
 

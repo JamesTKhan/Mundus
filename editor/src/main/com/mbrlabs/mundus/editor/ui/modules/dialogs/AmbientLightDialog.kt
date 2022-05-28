@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
+import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
@@ -62,13 +63,14 @@ class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.Proj
     }
 
     private fun setupListeners() {
-        val projectContext = projectManager.current()
 
         // intensity
+        intensity.textFieldFilter = FloatDigitsOnlyFilter(false)
         intensity.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
+            override fun changed(event: ChangeEvent, actor: Actor) {
                 val d = convert(intensity.text)
                 if (d != null) {
+                    val projectContext = projectManager.current()
                     projectContext.currScene.environment.ambientLight.intensity = d
                 }
             }
@@ -77,7 +79,18 @@ class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.Proj
         // color
         colorPickerField.colorAdapter = object: ColorPickerAdapter() {
             override fun finished(newColor: Color) {
-                projectContext.currScene.environment.ambientLight.color.set(color)
+                val projectContext = projectManager.current()
+                projectContext.currScene.environment.ambientLight.color.set(newColor)
+            }
+
+            override fun changed(newColor: Color?) {
+                val projectContext = projectManager.current()
+                projectContext.currScene.environment.ambientLight.color.set(newColor)
+            }
+
+            override fun canceled(oldColor: Color?) {
+                val projectContext = projectManager.current()
+                projectContext.currScene.environment.ambientLight.color.set(oldColor)
             }
         }
 

@@ -27,9 +27,21 @@ uniform float u_foamFallOffDistance;
 uniform float u_foamScrollSpeed;
 uniform float u_camNearPlane;
 uniform float u_camFarPlane;
-uniform vec3 u_lightColor;
 varying vec2 v_diffuseUV;
 uniform vec4 u_fogColor;
+
+struct AmbientLight {
+    vec4 color;
+    float intensity;
+};
+uniform AmbientLight u_ambientLight;
+
+struct DirectionalLight {
+    vec4 color;
+    vec3 direction;
+    float intensity;
+};
+uniform DirectionalLight u_directionalLight;
 
 const vec4 COLOR_TURQUOISE = vec4(0,0.5,0.686, 0.2);
 
@@ -84,10 +96,10 @@ void main() {
     float refractiveFactor = dot(viewVector, normal);
 
     // Calculate specular hightlights
-    vec3 reflectedLight = reflect(normalize(v_fromLightVector), normal);
+    vec3 reflectedLight = reflect(normalize(u_directionalLight.direction), normal);
     float specular = max(dot(reflectedLight, viewVector), 0.0);
     specular = pow(specular, u_shineDamper);
-    vec3 specularHighlights = u_lightColor * specular * u_reflectivity * clamp(waterDepth/5.0, 0.0, 1.0);
+    vec3 specularHighlights = vec3(u_directionalLight.color) * u_directionalLight.intensity * specular * u_reflectivity * clamp(waterDepth/5.0, 0.0, 1.0);
 
     vec4 color =  mix(reflectColor, refractColor, refractiveFactor);
     color = mix(color, COLOR_TURQUOISE, 0.2) + vec4(specularHighlights, 0.0);
@@ -133,6 +145,9 @@ void main() {
 
     // Fog
     color = mix(color, u_fogColor, v_fog);
+
+    // ambient light
+   color *= u_ambientLight.color * u_ambientLight.intensity;
 
     gl_FragColor = color;
     //gl_FragColor = vec4(waterDepth/50.0);

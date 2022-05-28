@@ -1,5 +1,6 @@
 [0.3.1] ~ TBD
 - Added functionality to the editor to generate the assets.txt file, PR #45
+- Added Ambient Light and Directional Light to Environment menu
 - Fix NPE in editor when creating new terrain
 - Fix NPE on model placement
 - Fix Wave speed increasing exponentially based on water tile count
