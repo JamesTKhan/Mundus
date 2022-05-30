@@ -33,6 +33,7 @@ import com.kotcrab.vis.ui.widget.*
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph
 import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
@@ -422,6 +423,8 @@ class Outline : VisTable(),
                     val id = projectManager.current().obtainID()
                     // the new game object
                     val go = GameObject(sceneGraph, GameObject.DEFAULT_NAME, id)
+                    //TODO temporary for testing
+                    go.addComponent(LightComponent(go))
                     // update outline
                     if (selectedGO == null) {
                         // update sceneGraph

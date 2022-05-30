@@ -25,7 +25,7 @@ varying vec2    v_texCoord0;
 varying vec3    v_vectorToLight;
 varying vec3    v_surfaceNormal;
 varying float   v_fog;
-varying vec4    v_lighting;
+varying vec3 v_normal;
 
 // diffuse material
 uniform sampler2D   u_diffuseTexture;
@@ -50,7 +50,13 @@ void main(void) {
         gl_FragColor = u_diffuseColor;
     }
 
+    vec4 TotalLight = CalcDirectionalLight(v_normal);
+
+    for (int i = 0 ; i < gNumPointLights ; i++) {
+        TotalLight += CalcPointLight(i, v_normal);
+    }
+
     gl_FragColor = max(gl_FragColor, AMBIENT); // TODO make ambient color a unifrom
-    gl_FragColor *= v_lighting;
+    gl_FragColor *= TotalLight;
     gl_FragColor = mix(gl_FragColor, u_fogColor, v_fog);
 }

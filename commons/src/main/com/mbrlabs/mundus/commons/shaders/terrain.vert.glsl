@@ -31,7 +31,6 @@ uniform vec2 u_terrainSize;
 varying vec2 v_texCoord0;
 varying vec2 splatPosition;
 varying float v_fog;
-varying vec4 v_lighting;
 varying vec3 v_normal;
 
 #ifdef PICKER
@@ -41,6 +40,11 @@ varying vec3 v_pos;
 // clipping plane
 varying float v_clipDistance;
 uniform vec4 u_clipPlane;
+
+
+varying vec2 TexCoord0;
+varying vec3 Normal0;
+varying vec3 v_worldPos;
 
 void main(void) {
     // position
@@ -56,6 +60,11 @@ void main(void) {
     // texture stuff
     v_texCoord0 = a_texCoord0;
     splatPosition = vec2(a_position.x / u_terrainSize.x, a_position.z / u_terrainSize);
+
+
+    TexCoord0 = v_texCoord0;
+    Normal0 = a_normal;
+    v_worldPos = worldPos.xyz;
 
     // fog
     if(u_fogDensity > 0.0 && u_fogGradient > 0.0) {

@@ -25,6 +25,9 @@ import com.mbrlabs.mundus.commons.shaders.TerrainShader;
 
 public class EditorTerrainShader extends TerrainShader {
 
+    protected static final String LIGHT_SHADER = "com/mbrlabs/mundus/commons/shaders/light.glsl";
+
+
     // ============================ MOUSE PICKER ============================
     protected final int UNIFORM_PICKER_POS = register(new Uniform("u_pickerPos"));
     protected final int UNIFORM_PICKER_RADIUS = register(new Uniform("u_pickerRadius"));
@@ -38,7 +41,9 @@ public class EditorTerrainShader extends TerrainShader {
         String vertexShader = "\n#define PICKER\n" + Gdx.files.classpath(VERTEX_SHADER).readString();
         String fragmentShader = "\n#define PICKER\n" + Gdx.files.classpath(FRAGMENT_SHADER).readString();
 
-        program = new ShaderProgram(vertexShader, fragmentShader);
+        String lightCode = Gdx.files.internal(LIGHT_SHADER).readString();
+
+        program = new ShaderProgram(vertexShader, lightCode + fragmentShader);
         if (!program.isCompiled()) {
             throw new GdxRuntimeException(program.getLog());
         }

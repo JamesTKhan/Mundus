@@ -27,6 +27,10 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
  */
 public class ShaderUtils {
 
+    public static final int MAX_POINT_LIGHTS = 4;
+
+    protected static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/light.glsl";
+
     /**
      * Compiles and links shader.
      *
@@ -41,6 +45,8 @@ public class ShaderUtils {
         String vert;
         String frag;
 
+        String fragPrefix = "";
+
         if (Gdx.app.getType() == Application.ApplicationType.WebGL) {
             vert = Gdx.files.internal(vertexShader).readString();
             frag = Gdx.files.internal(fragmentShader).readString();
@@ -49,7 +55,11 @@ public class ShaderUtils {
             frag = Gdx.files.classpath(fragmentShader).readString();
         }
 
-        ShaderProgram program = new ShaderProgram(vert, frag);
+        //TODO temporary ONLY for testing
+        if (frag.contains("u_texture_base") || frag.contains("refractTexCoords") || frag.contains("AMBIENT = vec4"))
+            fragPrefix = Gdx.files.internal(VERTEX_SHADER).readString();
+
+        ShaderProgram program = new ShaderProgram(vert, fragPrefix + frag);
         if (!program.isCompiled()) {
             throw new GdxRuntimeException(program.getLog());
         }

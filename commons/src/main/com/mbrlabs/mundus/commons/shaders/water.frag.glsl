@@ -6,8 +6,8 @@ varying vec2 v_texCoord0;
 varying vec2 v_waterTexCoords;
 varying vec4 v_clipSpace;
 varying vec3 v_toCameraVector;
-varying vec3 v_fromLightVector;
 varying float v_fog;
+varying vec2 v_diffuseUV;
 
 uniform vec3 u_color;
 uniform sampler2D u_texture;
@@ -25,29 +25,25 @@ uniform float u_foamEdgeBias;
 uniform float u_foamEdgeDistance;
 uniform float u_foamFallOffDistance;
 uniform float u_foamScrollSpeed;
+uniform vec3 u_cameraPosition;
 uniform float u_camNearPlane;
 uniform float u_camFarPlane;
-varying vec2 v_diffuseUV;
 uniform vec4 u_fogColor;
-
-struct AmbientLight {
-    vec4 color;
-    float intensity;
-};
-uniform AmbientLight u_ambientLight;
-
-struct DirectionalLight {
-    vec4 color;
-    vec3 direction;
-    float intensity;
-};
-uniform DirectionalLight u_directionalLight;
 
 const vec4 COLOR_TURQUOISE = vec4(0,0.5,0.686, 0.2);
 
 //https://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
 float DecodeFloatRGBA( vec4 rgba ) {
     return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );
+}
+
+vec3 calcSpecularHighlights(BaseLight baseLight, vec3 direction, vec3 normal, vec3 viewVector, float waterDepth) {
+    vec3 reflectedLight = reflect(normalize(direction), normal);
+    float specular = max(dot(reflectedLight, viewVector), 0.0);
+    specular = pow(specular, u_shineDamper);
+    vec3 specularHighlights = vec3(baseLight.Color) * baseLight.DiffuseIntensity * specular * u_reflectivity * clamp(waterDepth/5.0, 0.0, 1.0);
+
+    return specularHighlights;
 }
 
 void main() {
@@ -94,15 +90,10 @@ void main() {
     // Fresnel Effect
     vec3 viewVector = normalize(v_toCameraVector);
     float refractiveFactor = dot(viewVector, normal);
-
-    // Calculate specular hightlights
-    vec3 reflectedLight = reflect(normalize(u_directionalLight.direction), normal);
-    float specular = max(dot(reflectedLight, viewVector), 0.0);
-    specular = pow(specular, u_shineDamper);
-    vec3 specularHighlights = vec3(u_directionalLight.color) * u_directionalLight.intensity * specular * u_reflectivity * clamp(waterDepth/5.0, 0.0, 1.0);
-
     vec4 color =  mix(reflectColor, refractColor, refractiveFactor);
-    color = mix(color, COLOR_TURQUOISE, 0.2) + vec4(specularHighlights, 0.0);
+
+    // Mix some color in
+    color = mix(color, COLOR_TURQUOISE, 0.2);
 
     // Water Foam implemented from http://fire-face.com/personal/water/
     float edgePatternScroll = u_moveFactor * u_foamScrollSpeed;
@@ -143,11 +134,39 @@ void main() {
         color.rgb += clamp(edge - vec3(mask), 0.0, 1.0);
     }
 
+    // Calculate specular hightlights for directional light
+    vec3 specularHighlights = calcSpecularHighlights(gDirectionalLight.Base, gDirectionalLight.Direction, normal, viewVector, waterDepth);
+
+    // Calculate specular and ambient lighting for point lights
+    for (int i = 0 ; i < gNumPointLights ; i++) {
+        vec4 AmbientColor = vec4(gPointLights[i].Base.Color, 1.0) * gPointLights[i].Base.AmbientIntensity /* * vec4(gMaterial.AmbientColor, 1.0) */;
+
+        vec3 LightDirection = v_worldPos - gPointLights[i].LocalPos;
+        float dist = length(LightDirection);
+        LightDirection = normalize(LightDirection);
+
+        float Attenuation =  gPointLights[i].Atten.Constant +
+        gPointLights[i].Atten.Linear * dist +
+        gPointLights[i].Atten.Exp * dist * dist;
+
+        float specularDistanceFactor = length(u_cameraPosition - gPointLights[i].LocalPos);
+
+        // Limit distance of point lights specular highlights over water by 500 units
+        specularDistanceFactor = clamp(1.0 - specularDistanceFactor / 500.0, 0.0, 1.0);
+
+        specularHighlights += (calcSpecularHighlights(gPointLights[i].Base, LightDirection, normal, viewVector, waterDepth) * specularDistanceFactor );
+
+        color += AmbientColor / Attenuation;
+    }
+
+    color += vec4(specularHighlights, 0.0);
+
     // Fog
     color = mix(color, u_fogColor, v_fog);
 
     // ambient light
-   color *= u_ambientLight.color * u_ambientLight.intensity;
+   //color *= u_ambientLight.color * u_ambientLight.intensity;
+   color *= vec4(gDirectionalLight.Base.Color, 0.0) * gDirectionalLight.Base.AmbientIntensity;
 
     gl_FragColor = color;
     //gl_FragColor = vec4(waterDepth/50.0);
