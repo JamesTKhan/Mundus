@@ -77,11 +77,11 @@ vec4 CalcPointLight(int Index, vec3 Normal)
     LightDirection = normalize(LightDirection);
 
     vec4 Color = CalcLightInternal(gPointLights[Index].Base, LightDirection, Normal);
-    float Attenuation =  gPointLights[Index].Atten.Constant +
+    float attenuation =  gPointLights[Index].Atten.Constant +
     gPointLights[Index].Atten.Linear * dist +
     gPointLights[Index].Atten.Exp * dist * dist;
 
-    return Color / Attenuation;
+    return Color / attenuation;
 }
 
 vec4 CalcDirectionalLight(vec3 Normal)

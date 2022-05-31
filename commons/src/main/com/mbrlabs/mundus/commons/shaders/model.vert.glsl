@@ -21,20 +21,6 @@ attribute vec2 a_texCoord0;
 uniform mat4 u_transMatrix;
 uniform mat4 u_projViewMatrix;
 uniform vec3 u_camPos;
-
-// lights
-//struct DirectionalLight {
-//	vec4 color;
-//	vec3 direction;
-//    float intensity;
-//};
-//struct AmbientLight {
-//	vec4 color;
-//	float intensity;
-//};
-//uniform AmbientLight        u_ambientLight;
-//uniform DirectionalLight    u_directionalLight;
-
 uniform float u_shininess;
 
 // Fog

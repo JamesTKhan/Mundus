@@ -145,7 +145,7 @@ void main() {
         float dist = length(LightDirection);
         LightDirection = normalize(LightDirection);
 
-        float Attenuation =  gPointLights[i].Atten.Constant +
+        float attenuation =  gPointLights[i].Atten.Constant +
         gPointLights[i].Atten.Linear * dist +
         gPointLights[i].Atten.Exp * dist * dist;
 
@@ -156,7 +156,7 @@ void main() {
 
         specularHighlights += (calcSpecularHighlights(gPointLights[i].Base, LightDirection, normal, viewVector, waterDepth) * specularDistanceFactor );
 
-        color += AmbientColor / Attenuation;
+        color += AmbientColor / attenuation;
     }
 
     color += vec4(specularHighlights, 0.0);
