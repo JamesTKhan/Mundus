@@ -22,7 +22,9 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 import com.kotcrab.vis.ui.util.dialog.Dialogs
+import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
@@ -52,6 +54,8 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
 
     private lateinit var root: VisTable
     private lateinit var selectBox: VisSelectBox<SkyboxAsset>
+    private lateinit var rotateEnabled: VisCheckBox
+    private var rotateSpeed = VisTextField()
 
     private val positiveX: ImageChooserField = ImageChooserField(100, this)
     private var negativeX: ImageChooserField = ImageChooserField(100, this)
@@ -83,18 +87,28 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
         positiveZ.setButtonText("Front (+Z)")
         negativeZ.setButtonText("Back (-Z)")
 
+        rotateEnabled = VisCheckBox(null)
+
         root = VisTable()
         add(root).left().top()
 
-        root.add(VisLabel("Set Skybox")).left().row()
+        root.add(VisLabel("Current Skybox")).left().row()
         root.addSeparator().row()
 
         // Skybox selector
-        val selectorsTable = VisTable(true)
-        selectorsTable.add(VisLabel("Set Skybox From Existing:"))
         selectBox = VisSelectBox<SkyboxAsset>()
-        selectorsTable.add(selectBox).left()
-        root.add(selectorsTable).row()
+        val settingsTable = VisTable()
+        settingsTable.defaults().padTop(10f).padLeft(10f).padRight(6f)
+        settingsTable.add(VisLabel("Active Skybox:"))
+        settingsTable.add(selectBox).left().row()
+
+        settingsTable.defaults().padTop(10f).padLeft(10f).padRight(6f)
+        settingsTable.add(VisLabel("Rotate: ")).left()
+        settingsTable.add(rotateEnabled).left().row()
+        settingsTable.add(VisLabel("Rotate Speed: "))
+        settingsTable.add(rotateSpeed).row()
+        root.add(settingsTable).left().padBottom(10f).row()
+
 
         // Image pickers
         root.add(VisLabel("Create a Skybox")).left().padTop(10f).row()
@@ -142,6 +156,28 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
 
                 projectManager.current().currScene.setSkybox(selectBox.selected, Shaders.skyboxShader)
                 resetImages()
+                resetFields()
+            }
+        })
+
+        rotateEnabled.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                projectManager.current().currScene.skybox.isRotateEnabled = rotateEnabled.isChecked
+                addModifiedAsset()
+            }
+        })
+
+        rotateSpeed.textFieldFilter = FloatDigitsOnlyFilter(true)
+        rotateSpeed.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if (rotateSpeed.isInputValid && !rotateSpeed.isEmpty) {
+                    try {
+                        projectManager.current().currScene.skybox.rotateSpeed = rotateSpeed.text.toFloat()
+                        addModifiedAsset()
+                    } catch (ex : NumberFormatException) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + rotateSpeed.name))
+                    }
+                }
             }
         })
 
@@ -208,6 +244,7 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
                 projectManager.current().currScene.skyboxAssetId = skyboxAsset.id
                 resetImages()
                 refreshSelectBox()
+                resetFields()
             }
         })
 
@@ -223,6 +260,7 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
                 projectManager.current().currScene.skyboxAssetId = defaultSkybox.id
                 refreshSelectBox()
                 resetImages()
+                resetFields()
             }
         })
 
@@ -238,6 +276,24 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
             }
         })
 
+    }
+
+    /**
+     * Updates skybox assets based on fields and adds the asset to modified assets.
+     */
+    private fun addModifiedAsset() {
+        val skyboxAsset = projectManager.current().assetManager.findAssetByID(projectManager.current().currScene.skyboxAssetId) as SkyboxAsset
+        skyboxAsset.rotateEnabled = rotateEnabled.isChecked
+
+        if (!rotateSpeed.isEmpty)
+            skyboxAsset.rotateSpeed = rotateSpeed.text.toFloat()
+
+        projectManager.current().assetManager.addModifiedAsset(skyboxAsset)
+    }
+
+    private fun resetFields() {
+        rotateEnabled.isChecked = projectManager.current().currScene.skybox.isRotateEnabled
+        rotateSpeed.text = projectManager.current().currScene.skybox.rotateSpeed.toString()
     }
 
     /**
@@ -272,6 +328,7 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
     override fun show(stage: Stage?): VisDialog {
         // Update select box on dialog show
         refreshSelectBox()
+        resetFields()
 
         return super.show(stage)
     }

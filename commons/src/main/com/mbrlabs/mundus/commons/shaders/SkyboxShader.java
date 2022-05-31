@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.shaders;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
@@ -23,9 +24,12 @@ import com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
+import com.mbrlabs.mundus.commons.skybox.Skybox;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 
 /**
@@ -43,6 +47,10 @@ public class SkyboxShader extends BaseShader {
 
     protected final int UNIFORM_FOG = register(new Uniform("u_fog"));
     protected final int UNIFORM_FOG_COLOR = register(new Uniform("u_fogColor"));
+
+    private boolean rotateEnabled = Skybox.DEFAULT_ROTATE_ENABLED;
+    private float rotateSpeed = Skybox.DEFAULT_ROTATE_SPEED;
+    private float rotation = 0f;
 
     private ShaderProgram program;
 
@@ -77,6 +85,12 @@ public class SkyboxShader extends BaseShader {
         set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined);
         transform.idt();
         transform.translate(camera.position);
+
+        if (isRotateEnabled()) {
+            rotation += rotateSpeed * Gdx.graphics.getDeltaTime();
+            transform.rotateRad(Vector3.Y, MathUtils.degreesToRadians * rotation);
+        }
+
         set(UNIFORM_TRANS_MATRIX, transform);
     }
 
@@ -112,4 +126,19 @@ public class SkyboxShader extends BaseShader {
         program.dispose();
     }
 
+    public boolean isRotateEnabled() {
+        return rotateEnabled;
+    }
+
+    public void setRotateEnabled(boolean rotateEnabled) {
+        this.rotateEnabled = rotateEnabled;
+    }
+
+    public float getRotateSpeed() {
+        return rotateSpeed;
+    }
+
+    public void setRotateSpeed(float rotateSpeed) {
+        this.rotateSpeed = rotateSpeed;
+    }
 }

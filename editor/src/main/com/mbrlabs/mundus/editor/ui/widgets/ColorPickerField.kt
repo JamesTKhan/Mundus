@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
+import com.kotcrab.vis.ui.widget.color.ColorPicker
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.kotcrab.vis.ui.widget.color.ColorPickerListener
 import com.mbrlabs.mundus.editor.ui.UI
@@ -101,7 +102,7 @@ class ColorPickerField() : VisTable() {
         cpBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 super.clicked(event, x, y)
-                val colorPicker = UI.colorPicker
+                val colorPicker = ColorPicker()
                 colorPicker.color = selectedColor
                 colorPicker.listener = colorPickerListenerInternal
                 UI.addActor(colorPicker.fadeIn())
