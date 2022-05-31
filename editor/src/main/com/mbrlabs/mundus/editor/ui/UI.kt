@@ -22,7 +22,6 @@ import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.Separator
 import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisTable
-import com.kotcrab.vis.ui.widget.color.ColorPicker
 import com.kotcrab.vis.ui.widget.file.FileChooser
 import com.mbrlabs.mundus.editor.Mundus.postEvent
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
@@ -60,7 +59,6 @@ object UI : Stage(ScreenViewport()) {
     val toaster: Toaster = Toaster(this)
     val fileChooser: FileChooser = FileChooser(FileChooser.Mode.OPEN)
     val assetSelectionDialog: AssetPickerDialog = AssetPickerDialog()
-    val colorPicker: ColorPicker = ColorPicker()
 
     // base elements
     private val root: VisTable
