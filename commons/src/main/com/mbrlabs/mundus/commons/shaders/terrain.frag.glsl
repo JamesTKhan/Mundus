@@ -73,27 +73,20 @@ void main(void) {
         gl_FragColor = mix(gl_FragColor, texture2D(u_texture_a, v_texCoord0), splat.a);
     }
 
-    //ec3 Normal = normalize(Normal0);
-    vec4 TotalLight = CalcDirectionalLight(v_normal);
-
-    for (int i = 0 ; i < gNumPointLights ; i++) {
-        TotalLight += CalcPointLight(i, v_normal);
-    }
     // =================================================================
     //                          Lighting
     // =================================================================
-//    vec4 diffuse_light = u_directionalLight.color
-//        * (dot(-u_directionalLight.direction, v_normal) * u_directionalLight.intensity);
+    vec4 totalLight = CalcDirectionalLight(v_normal);
 
-    // ambient light
-    //diffuse_light += u_ambientLight.color * u_ambientLight.intensity;
+    for (int i = 0 ; i < gNumPointLights ; i++) {
+        totalLight += CalcPointLight(i, v_normal);
+    }
 
-    //gl_FragColor *= diffuse_light;
+    gl_FragColor *= totalLight;
     // =================================================================
     //                          /Lighting
     // =================================================================
 
-    gl_FragColor *= TotalLight;
 
     // fog
     gl_FragColor = mix(gl_FragColor, u_fogColor, v_fog);

@@ -138,16 +138,19 @@ void main() {
         color.rgb += clamp(edge - vec3(mask), 0.0, 1.0) * foamVisibleFactor;
     }
 
+    // Apply directional light
+    color *= CalcDirectionalLight(normal);
+
     // Calculate specular hightlights for directional light
     vec3 specularHighlights = calcSpecularHighlights(gDirectionalLight.Base, gDirectionalLight.Direction, normal, viewVector, waterDepth);
 
-    // Calculate specular and ambient lighting for point lights
+    // Calculate specular and lighting for point lights
     for (int i = 0 ; i < gNumPointLights ; i++) {
-        vec4 AmbientColor = vec4(gPointLights[i].Base.Color, 1.0) * gPointLights[i].Base.AmbientIntensity /* * vec4(gMaterial.AmbientColor, 1.0) */;
+        vec4 lightColor = vec4(gPointLights[i].Base.Color, 1.0) * gPointLights[i].Base.DiffuseIntensity;
 
-        vec3 LightDirection = v_worldPos - gPointLights[i].LocalPos;
-        float dist = length(LightDirection);
-        LightDirection = normalize(LightDirection);
+        vec3 lightDirection = v_worldPos - gPointLights[i].LocalPos;
+        float dist = length(lightDirection);
+        lightDirection = normalize(lightDirection);
 
         float attenuation =  gPointLights[i].Atten.Constant +
         gPointLights[i].Atten.Linear * dist +
@@ -158,19 +161,18 @@ void main() {
         // Limit distance of point lights specular highlights over water by 500 units
         specularDistanceFactor = clamp(1.0 - specularDistanceFactor / 500.0, 0.0, 1.0);
 
-        specularHighlights += (calcSpecularHighlights(gPointLights[i].Base, LightDirection, normal, viewVector, waterDepth) * specularDistanceFactor );
+        // Add point light contribution to specular highlights
+        specularHighlights += (calcSpecularHighlights(gPointLights[i].Base, lightDirection, normal, viewVector, waterDepth) * specularDistanceFactor );
 
-        color += AmbientColor / attenuation;
+        // Apply point light colors to overall color
+        color += lightColor / attenuation;
     }
 
+    // Apply final specular values
     color += vec4(specularHighlights, 0.0);
 
     // Fog
     color = mix(color, u_fogColor, v_fog);
-
-    // ambient light
-   //color *= u_ambientLight.color * u_ambientLight.intensity;
-   color *= vec4(gDirectionalLight.Base.Color, 0.0) * gDirectionalLight.Base.AmbientIntensity;
 
     gl_FragColor = color;
     //gl_FragColor = vec4(waterDepth/50.0);

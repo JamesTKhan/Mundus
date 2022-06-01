@@ -83,6 +83,7 @@ object UI : Stage(ScreenViewport()) {
     val skyboxDialog: SkyboxDialog = SkyboxDialog()
     val ambientLightDialog: AmbientLightDialog = AmbientLightDialog()
     var directionalLightDialog: DirectionalLightsDialog = DirectionalLightsDialog()
+    var addComponentDialog: AddComponentDialog = AddComponentDialog()
     val exitDialog: ExitDialog = ExitDialog()
 
     // styles

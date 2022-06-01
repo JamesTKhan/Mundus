@@ -50,13 +50,13 @@ void main(void) {
         gl_FragColor = u_diffuseColor;
     }
 
-    vec4 TotalLight = CalcDirectionalLight(v_normal);
+    vec4 totalLight = CalcDirectionalLight(v_normal);
 
     for (int i = 0 ; i < gNumPointLights ; i++) {
-        TotalLight += CalcPointLight(i, v_normal);
+        totalLight += CalcPointLight(i, v_normal);
     }
 
     gl_FragColor = max(gl_FragColor, AMBIENT); // TODO make ambient color a unifrom
-    gl_FragColor *= TotalLight;
+    gl_FragColor *= totalLight;
     gl_FragColor = mix(gl_FragColor, u_fogColor, v_fog);
 }

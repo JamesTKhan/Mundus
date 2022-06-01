@@ -20,6 +20,8 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.mbrlabs.mundus.commons.env.lights.BaseLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
+import com.mbrlabs.mundus.commons.env.lights.PointLight;
+import com.mbrlabs.mundus.commons.env.lights.PointLightsAttribute;
 import com.mbrlabs.mundus.commons.env.lights.SunLight;
 import com.mbrlabs.mundus.commons.env.lights.SunLightsAttribute;
 
@@ -50,6 +52,14 @@ public class MundusEnvironment extends Environment {
         DirectionalLightsAttribute dirLights = ((DirectionalLightsAttribute) get(DirectionalLightsAttribute.Type));
         if (dirLights == null) set(dirLights = new DirectionalLightsAttribute());
         dirLights.lights.add(light);
+
+        return this;
+    }
+
+    public MundusEnvironment add(PointLight light) {
+        PointLightsAttribute pointLights = ((PointLightsAttribute) get(PointLightsAttribute.Type));
+        if (pointLights == null) set(pointLights = new PointLightsAttribute());
+        pointLights.lights.add(light);
 
         return this;
     }

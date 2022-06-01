@@ -16,17 +16,22 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.inspector
 
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
+import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.IdentifierWidget
+import com.mbrlabs.mundus.editor.ui.modules.inspector.components.LightComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ModelComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.TransformWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.TerrainComponentWidget
@@ -55,6 +60,12 @@ class GameObjectInspector : VisTable() {
         }
         add(componentTable).growX().pad(7f).row()
         add(addComponentBtn).expandX().fill().top().center().pad(10f).row()
+
+        addComponentBtn.addListener(object : ClickListener () {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                UI.showDialog(UI.addComponentDialog)
+            }
+        })
     }
 
     fun setGameObject(gameObject: GameObject) {
@@ -94,9 +105,16 @@ class GameObjectInspector : VisTable() {
                     componentWidgets.add(TerrainComponentWidget(component as TerrainComponent))
                 } else if (component.type == Component.Type.WATER) {
                     componentWidgets.add(WaterComponentWidget(component as WaterComponent))
+                } else if (component.type == Component.Type.LIGHT) {
+                    componentWidgets.add(LightComponentWidget(component as LightComponent))
                 }
             }
         }
+    }
+
+    fun addComponent(component: Component) {
+        componentWidgets.add(LightComponentWidget(component as LightComponent))
+        componentTable.add(componentWidgets.last()).grow().row()
     }
 
 }

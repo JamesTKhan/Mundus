@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.commons.env.lights;
+package com.mbrlabs.mundus.editor.events
 
-import com.badlogic.gdx.graphics.Color;
+import com.mbrlabs.mundus.commons.scene3d.components.Component
 
 /**
- * @author Marcus Brummer
- * @version 14-02-2016
+ * @author James Pooley
+ * @version 30-05-2022
  */
-public class BaseLight {
+class ComponentAddedEvent(val component: Component) {
 
-    public final Color color = new Color(1, 1, 1, 1);
-    public float intensity = 1f;
-
-    public void setColor(Color color) {
-        this.color.set(color);
+    interface ComponentAddedListener {
+        @Subscribe
+        fun onComponentAdded(event: ComponentAddedEvent)
     }
 }

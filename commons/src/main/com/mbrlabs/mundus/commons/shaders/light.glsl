@@ -1,6 +1,7 @@
 struct BaseLight
 {
     vec3 Color;
+    vec3 AmbientColor;
     float AmbientIntensity;
     float DiffuseIntensity;
 };
@@ -43,7 +44,7 @@ uniform vec3 u_camPos;
 
 vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
 {
-    vec4 AmbientColor = vec4(Light.Color, 1.0) * Light.AmbientIntensity; /* vec4(gMaterial.AmbientColor, 1.0); */
+    vec4 AmbientColor = vec4(Light.AmbientColor, 1.0) * Light.AmbientIntensity; /* vec4(gMaterial.AmbientColor, 1.0); */
 
     float DiffuseFactor = dot(Normal, -LightDirection);
 

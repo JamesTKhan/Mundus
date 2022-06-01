@@ -17,12 +17,9 @@
 package com.mbrlabs.mundus.commons.shaders;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
-import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
@@ -31,6 +28,8 @@ import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
+import com.mbrlabs.mundus.commons.env.lights.PointLight;
+import com.mbrlabs.mundus.commons.env.lights.PointLightsAttribute;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.TerrainTexture;
 import com.mbrlabs.mundus.commons.terrain.TerrainTextureAttribute;
@@ -51,11 +50,8 @@ public class TerrainShader extends ClippableShader {
     protected final int UNIFORM_CAM_POS = register(new Uniform("u_camPos"));
 
     // ============================ LIGHTS ============================
-    protected final int UNIFORM_AMBIENT_LIGHT_COLOR = register(new Uniform("u_ambientLight.color"));
-    protected final int UNIFORM_AMBIENT_LIGHT_INTENSITY = register(new Uniform("u_ambientLight.intensity"));
-
-
     protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR = register(new Uniform("gDirectionalLight.Base.Color"));
+    protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR_AMBIENT = register(new Uniform("gDirectionalLight.Base.AmbientColor"));
     protected final int UNIFORM_DIRECTIONAL_LIGHT_DIR = register(new Uniform("gDirectionalLight.Direction"));
     protected final int UNIFORM_DIRECTIONAL_LIGHT_INTENSITY = register(new Uniform("gDirectionalLight.Base.DiffuseIntensity"));
     protected final int UNIFORM_DIRECTIONAL_LIGHT_INTENSITY_AMBIENT = register(new Uniform("gDirectionalLight.Base.AmbientIntensity"));
@@ -70,11 +66,6 @@ public class TerrainShader extends ClippableShader {
     protected int[] UNIFORM_POINT_LIGHT_ATT_CONSTANT = new int[ShaderUtils.MAX_POINT_LIGHTS];
     protected int[] UNIFORM_POINT_LIGHT_ATT_LINEAR = new int[ShaderUtils.MAX_POINT_LIGHTS];
     protected int[] UNIFORM_POINT_LIGHT_ATT_EXP = new int[ShaderUtils.MAX_POINT_LIGHTS];
-
-    protected final int UNIFORM_DIRECTIONAL_MAT_AMBIENT = register(new Uniform("gMaterial.AmbientColor"));
-    protected final int UNIFORM_DIRECTIONAL_MAT_DIFFUSE = register(new Uniform("gMaterial.DiffuseColor"));
-    protected final int UNIFORM_DIRECTIONAL_MAT_SPECULAR = register(new Uniform("gMaterial.SpecularColor"));
-
 
     // ============================ TEXTURE SPLATTING ============================
     protected final int UNIFORM_TERRAIN_SIZE = register(new Uniform("u_terrainSize"));
@@ -92,7 +83,7 @@ public class TerrainShader extends ClippableShader {
     protected final int UNIFORM_FOG_GRADIENT = register(new Uniform("u_fogGradient"));
     protected final int UNIFORM_FOG_COLOR = register(new Uniform("u_fogColor"));
 
-    private Vector2 terrainSize = new Vector2();
+    private final Vector2 terrainSize = new Vector2();
 
     protected ShaderProgram program;
 
@@ -180,7 +171,8 @@ public class TerrainShader extends ClippableShader {
         final Array<DirectionalLight> dirLights = dirLightAttribs == null ? null : dirLightAttribs.lights;
         if (dirLights != null && dirLights.size > 0) {
             final DirectionalLight light = dirLights.first();
-            set(UNIFORM_DIRECTIONAL_LIGHT_COLOR, Color.WHITE.r, Color.WHITE.g, Color.WHITE.b);
+            set(UNIFORM_DIRECTIONAL_LIGHT_COLOR, light.color.r, light.color.g, light.color.b);
+            set(UNIFORM_DIRECTIONAL_LIGHT_COLOR_AMBIENT, env.getAmbientLight().color.r, env.getAmbientLight().color.g, env.getAmbientLight().color.b);
             set(UNIFORM_DIRECTIONAL_LIGHT_DIR, light.direction);
             set(UNIFORM_DIRECTIONAL_LIGHT_INTENSITY, light.intensity);
             set(UNIFORM_DIRECTIONAL_LIGHT_INTENSITY_AMBIENT, env.getAmbientLight().intensity);
@@ -197,11 +189,10 @@ public class TerrainShader extends ClippableShader {
                 set(UNIFORM_POINT_LIGHT_COLOR[i], light.color.r, light.color.g, light.color.b);
                 set(UNIFORM_POINT_LIGHT_POS[i], light.position);
                 set(UNIFORM_POINT_LIGHT_INTENSITY[i], light.intensity);
-                set(UNIFORM_POINT_LIGHT_INTENSITY_AMBIENT[i], 10.0f);
 
-                set(UNIFORM_POINT_LIGHT_ATT_CONSTANT[i], 1.0f);
-                set(UNIFORM_POINT_LIGHT_ATT_LINEAR[i], 0.045f);
-                set(UNIFORM_POINT_LIGHT_ATT_EXP[i] ,0.0075f);
+                set(UNIFORM_POINT_LIGHT_ATT_CONSTANT[i], light.attenuation.constant);
+                set(UNIFORM_POINT_LIGHT_ATT_LINEAR[i], light.attenuation.linear);
+                set(UNIFORM_POINT_LIGHT_ATT_EXP[i] , light.attenuation.exponential);
             }
         }
 
