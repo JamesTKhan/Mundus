@@ -14,7 +14,7 @@ public class LightComponent extends AbstractComponent {
         type = Type.LIGHT;
 
         pointLight.intensity = 1.0f;
-        pointLight.setColor(Color.RED);
+        pointLight.setColor(Color.WHITE);
         pointLight.position.set(go.getPosition(new Vector3()));
 
         gameObject.sceneGraph.scene.environment.add(pointLight);
