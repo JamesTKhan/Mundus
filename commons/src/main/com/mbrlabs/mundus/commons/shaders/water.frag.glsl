@@ -130,8 +130,12 @@ void main() {
     // This is a workaround fix to resolve an issue when using packed depth that causes white borders on water
     // so if the red channel is full 1.0 its probably pure white (border) so we ignore it.
     if (edge.r < 0.99) {
+        // Fade foam out after a distance, otherwise we get ugly 1 pixel lines
+        float distanceToCam = length(v_worldPos - u_cameraPosition);
+        float foamVisibleFactor = clamp(1.0 - distanceToCam / 1000.0, 0.0, 1.0);
+
         // Subtract mask value from foam gradient, then add the foam value to the final pixel color
-        color.rgb += clamp(edge - vec3(mask), 0.0, 1.0);
+        color.rgb += clamp(edge - vec3(mask), 0.0, 1.0) * foamVisibleFactor;
     }
 
     // Calculate specular hightlights for directional light
