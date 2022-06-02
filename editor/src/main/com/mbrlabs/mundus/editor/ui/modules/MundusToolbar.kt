@@ -29,6 +29,7 @@ import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
 import com.mbrlabs.mundus.editor.tools.*
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.ui.gizmos.GizmoManager
 import com.mbrlabs.mundus.editor.ui.widgets.FaTextButton
 import com.mbrlabs.mundus.editor.ui.widgets.ToggleButton
 import com.mbrlabs.mundus.editor.ui.widgets.Toolbar
@@ -55,6 +56,7 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
     private val rotateBtn: FaTextButton
     private val scaleBtn: FaTextButton
     private val fullScreenBtn: FaTextButton
+    private val gizmoBtn: FaTextButton
     private val globalLocalSwitch = ToggleButton("Global space", "Local space")
 
     private val importMenu = PopupMenu()
@@ -64,6 +66,7 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
 
     private val toolManager: ToolManager = Mundus.inject()
     private val projectManager: ProjectManager = Mundus.inject()
+    private val gizmoManager: GizmoManager = Mundus.inject()
 
     init {
         Mundus.registerEventListener(this)
@@ -101,6 +104,10 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
         fullScreenBtn.padRight(7f).padLeft(7f)
         Tooltip.Builder("Fullscreen view (F8)").target(fullScreenBtn).build()
 
+        gizmoBtn = FaTextButton(Fa.EYE)
+        gizmoBtn.padRight(7f).padLeft(7f)
+        Tooltip.Builder("Toggle gizmos").target(gizmoBtn).build()
+
         addItem(saveBtn, true)
         addItem(importBtn, true)
         addItem(exportBtn, true)
@@ -111,9 +118,11 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
         addItem(scaleBtn, true)
         addSeperator(true)
         addItem(fullScreenBtn, true)
+        addItem(gizmoBtn, true)
         //addItem(globalLocalSwitch, true);
 
         setActive(translateBtn)
+        updateGizmoIcon()
 
         // save btn
         saveBtn.addListener(object : ClickListener() {
@@ -214,6 +223,15 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
             }
         })
 
+        // gizmo visibility toggle
+        gizmoBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                gizmoManager.toggleRendering()
+                updateGizmoIcon()
+
+            }
+        })
+
         // global / local space switching
         globalLocalSwitch.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -248,6 +266,17 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
             fullScreenBtn.style = FaTextButton.styleActive
         } else {
             fullScreenBtn.style = FaTextButton.styleNoBg
+        }
+    }
+
+    private fun updateGizmoIcon() {
+        if (gizmoManager.isRenderEnabled()) {
+            gizmoBtn.style = FaTextButton.styleActive
+            gizmoBtn.setText(Fa.EYE)
+        }
+        else {
+            gizmoBtn.style = FaTextButton.styleNoBg
+            gizmoBtn.setText(Fa.EYE_SLASH)
         }
     }
 
