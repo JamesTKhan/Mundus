@@ -6,7 +6,6 @@ varying vec2 v_texCoord0;
 varying vec2 v_waterTexCoords;
 varying vec4 v_clipSpace;
 varying vec3 v_toCameraVector;
-varying float v_fog;
 varying vec2 v_diffuseUV;
 
 uniform vec3 u_color;
@@ -29,6 +28,8 @@ uniform vec3 u_cameraPosition;
 uniform float u_camNearPlane;
 uniform float u_camFarPlane;
 uniform vec4 u_fogColor;
+uniform float u_fogDensity;
+uniform float u_fogGradient;
 
 const vec4 COLOR_TURQUOISE = vec4(0,0.5,0.686, 0.2);
 
@@ -175,6 +176,12 @@ void main() {
     color += vec4(specularHighlights, 0.0);
 
     // Fog
+    float v_fog = 0.0;
+    if(u_fogDensity > 0.0 && u_fogGradient > 0.0) {
+        v_fog = waterDistance;
+        v_fog = exp(-pow(v_fog * u_fogDensity, u_fogGradient));
+        v_fog = 1.0 - clamp(v_fog, 0.0, 1.0);
+    }
     color = mix(color, u_fogColor, v_fog);
 
     gl_FragColor = color;
