@@ -161,8 +161,11 @@ void main() {
         // Limit distance of point lights specular highlights over water by 500 units
         specularDistanceFactor = clamp(1.0 - specularDistanceFactor / 500.0, 0.0, 1.0);
 
+        // We want specular to adjust based on attenuation, but not to the same degree otherwise we lose too much
+        float specularAttenuationFactor = 0.1f;
+
         // Add point light contribution to specular highlights
-        specularHighlights += (calcSpecularHighlights(gPointLights[i].Base, lightDirection, normal, viewVector, waterDepth) * specularDistanceFactor );
+        specularHighlights += (calcSpecularHighlights(gPointLights[i].Base, lightDirection, normal, viewVector, waterDepth) * specularDistanceFactor) / (attenuation * specularAttenuationFactor);
 
         // Apply point light colors to overall color
         color += lightColor / attenuation;
