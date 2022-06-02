@@ -536,7 +536,6 @@ class Outline : VisTable(),
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     if (selectedGO != null) {
                         removeGo(selectedGO!!)
-                        Mundus.postEvent(SceneGraphChangedEvent())
                     }
                 }
             })
