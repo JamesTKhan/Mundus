@@ -18,8 +18,10 @@ package com.mbrlabs.mundus.commons.utils;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.mbrlabs.mundus.commons.shaders.LightShader;
 
 /**
  * @author Marcus Brummer
@@ -29,7 +31,7 @@ public class ShaderUtils {
 
     public static final int MAX_POINT_LIGHTS = 4;
 
-    protected static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/light.glsl";
+    protected static final String LIGHT_SHADER_PREFIX = "com/mbrlabs/mundus/commons/shaders/light.glsl";
 
     /**
      * Compiles and links shader.
@@ -41,10 +43,9 @@ public class ShaderUtils {
      *
      * @return compiled shader program
      */
-    public static ShaderProgram compile(String vertexShader, String fragmentShader) {
+    public static ShaderProgram compile(String vertexShader, String fragmentShader, Shader shader) {
         String vert;
         String frag;
-
         String fragPrefix = "";
 
         if (Gdx.app.getType() == Application.ApplicationType.WebGL) {
@@ -55,9 +56,9 @@ public class ShaderUtils {
             frag = Gdx.files.classpath(fragmentShader).readString();
         }
 
-        //TODO temporary ONLY for testing
-        if (frag.contains("u_texture_base") || frag.contains("refractTexCoords") || frag.contains("AMBIENT = vec4"))
-            fragPrefix = Gdx.files.internal(VERTEX_SHADER).readString();
+        if (shader instanceof LightShader) {
+            fragPrefix = Gdx.files.internal(LIGHT_SHADER_PREFIX).readString();
+        }
 
         ShaderProgram program = new ShaderProgram(vert, fragPrefix + frag);
         if (!program.isCompiled()) {
