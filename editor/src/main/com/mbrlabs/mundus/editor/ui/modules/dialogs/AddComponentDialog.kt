@@ -8,10 +8,10 @@ import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.scene3d.components.Component
-import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
+import com.mbrlabs.mundus.editor.scene3d.components.PickableLightComponent
 
 class AddComponentDialog : BaseDialog("Add Component") {
 
@@ -59,7 +59,7 @@ class AddComponentDialog : BaseDialog("Add Component") {
                 when(selectBox.selected) {
                     Component.Type.MODEL -> TODO()
                     Component.Type.TERRAIN -> TODO()
-                    Component.Type.LIGHT -> component = LightComponent(go)
+                    Component.Type.LIGHT -> component = PickableLightComponent(go)
                     Component.Type.PARTICLE_SYSTEM -> TODO()
                     Component.Type.WATER -> TODO()
                 }
