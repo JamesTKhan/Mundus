@@ -31,6 +31,14 @@ public class LightComponent extends AbstractComponent {
     }
 
     @Override
+    public void remove() {
+        super.remove();
+
+        // remove the light from the environment
+        gameObject.sceneGraph.scene.environment.remove(pointLight);
+    }
+
+    @Override
     public Component clone(GameObject go) {
         return null;
     }

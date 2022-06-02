@@ -23,6 +23,10 @@ class LightGizmo(private var lightComponent: LightComponent) : Gizmo() {
     }
 
     override fun shouldRemove() : Boolean {
+        // If the GameObject no longer has this component, remove widget
+        if (!lightComponent.gameObject.components.contains(lightComponent)) {
+            return true
+        }
         // If the scenegraph no longer contains the gizmos GameObject, it should be removed
         return !lightComponent.gameObject.sceneGraph.gameObjects.contains(lightComponent.gameObject)
     }

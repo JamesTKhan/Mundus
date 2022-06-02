@@ -20,7 +20,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 
 /**
  * @author James Pooley
- * @version 30-05-2022
+ * @version May 30, 2022
  */
 class ComponentAddedEvent(val component: Component) {
 

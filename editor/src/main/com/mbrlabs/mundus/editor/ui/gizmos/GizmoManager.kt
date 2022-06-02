@@ -8,6 +8,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
+import com.mbrlabs.mundus.editor.events.ComponentRemovedEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 
 /**
@@ -16,7 +17,9 @@ import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
  * @author James Pooley
  * @version June 01, 2022
  */
-class GizmoManager : ComponentAddedEvent.ComponentAddedListener, SceneGraphChangedEvent.SceneGraphChangedListener {
+class GizmoManager : ComponentAddedEvent.ComponentAddedListener,
+        ComponentRemovedEvent.ComponentRemovedListener,
+        SceneGraphChangedEvent.SceneGraphChangedListener {
     private lateinit var camera: Camera
     private lateinit var decalBatch: DecalBatch
 
@@ -55,12 +58,7 @@ class GizmoManager : ComponentAddedEvent.ComponentAddedListener, SceneGraphChang
         return renderEnabled
     }
 
-    override fun onComponentAdded(event: ComponentAddedEvent) {
-        if (event.component.type == Component.Type.LIGHT)
-            gizmos.add(LightGizmo(event.component as LightComponent))
-    }
-
-    override fun onSceneGraphChanged(event: SceneGraphChangedEvent) {
+    private fun removeObsoleteGizmos() {
         val iterator = gizmos.iterator()
         while (iterator.hasNext()) {
             val gizmo = iterator.next()
@@ -69,5 +67,18 @@ class GizmoManager : ComponentAddedEvent.ComponentAddedListener, SceneGraphChang
                 iterator.remove()
             }
         }
+    }
+
+    override fun onComponentAdded(event: ComponentAddedEvent) {
+        if (event.component.type == Component.Type.LIGHT)
+            gizmos.add(LightGizmo(event.component as LightComponent))
+    }
+
+    override fun onComponentRemoved(event: ComponentRemovedEvent) {
+        removeObsoleteGizmos()
+    }
+
+    override fun onSceneGraphChanged(event: SceneGraphChangedEvent) {
+        removeObsoleteGizmos()
     }
 }
