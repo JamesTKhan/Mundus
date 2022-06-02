@@ -22,4 +22,13 @@ class LightGizmo(private var lightComponent: LightComponent) : Gizmo() {
         decal.position = lightComponent.pointLight.position
     }
 
+    override fun shouldRemove() : Boolean {
+        // If the scenegraph no longer contains the gizmos GameObject, it should be removed
+        return !lightComponent.gameObject.sceneGraph.gameObjects.contains(lightComponent.gameObject)
+    }
+
+    override fun dispose() {
+        decal.textureRegion.texture.dispose()
+    }
+
 }

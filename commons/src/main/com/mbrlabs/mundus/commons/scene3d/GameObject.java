@@ -20,6 +20,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.scene3d.components.ClippableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
+import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 import com.mbrlabs.mundus.commons.scene3d.traversal.DepthFirstIterator;
 
 import java.util.Iterator;
@@ -274,6 +275,30 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
                 throw new InvalidComponentException(
                         "One Game object can't have more then 1 component of type " + c.getType());
             }
+        }
+    }
+
+    @Override
+    public void addChild(GameObject child) {
+        super.addChild(child);
+
+        LightComponent component = (LightComponent) child.findComponentByType(Component.Type.LIGHT);
+
+        // On adding of GameObject with a Light, add it to environment
+        if (component != null) {
+            sceneGraph.scene.environment.add(component.getPointLight());
+        }
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+
+        LightComponent component = (LightComponent) findComponentByType(Component.Type.LIGHT);
+
+        // On removal of GameObject, remove its light component from environment
+        if (component != null) {
+            sceneGraph.scene.environment.remove(component.getPointLight());
         }
     }
 

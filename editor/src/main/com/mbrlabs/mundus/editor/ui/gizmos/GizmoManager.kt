@@ -8,6 +8,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
+import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 
 /**
  * Responsible for rendering Gizmos in the scene and listens for when new components are added.
@@ -15,7 +16,7 @@ import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
  * @author James Pooley
  * @version June 01, 2022
  */
-class GizmoManager : ComponentAddedEvent.ComponentAddedListener {
+class GizmoManager : ComponentAddedEvent.ComponentAddedListener, SceneGraphChangedEvent.SceneGraphChangedListener {
     private lateinit var camera: Camera
     private lateinit var decalBatch: DecalBatch
 
@@ -46,16 +47,27 @@ class GizmoManager : ComponentAddedEvent.ComponentAddedListener {
         decalBatch = DecalBatch(CameraGroupStrategy(camera))
     }
 
-    override fun onComponentAdded(event: ComponentAddedEvent) {
-        if (event.component.type == Component.Type.LIGHT)
-            gizmos.add(LightGizmo(event.component as LightComponent))
-    }
-
     fun toggleRendering() {
         renderEnabled = !renderEnabled
     }
 
     fun isRenderEnabled(): Boolean {
         return renderEnabled
+    }
+
+    override fun onComponentAdded(event: ComponentAddedEvent) {
+        if (event.component.type == Component.Type.LIGHT)
+            gizmos.add(LightGizmo(event.component as LightComponent))
+    }
+
+    override fun onSceneGraphChanged(event: SceneGraphChangedEvent) {
+        val iterator = gizmos.iterator()
+        while (iterator.hasNext()) {
+            val gizmo = iterator.next()
+            if (gizmo.shouldRemove()) {
+                gizmo.dispose()
+                iterator.remove()
+            }
+        }
     }
 }

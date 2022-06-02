@@ -64,6 +64,16 @@ public class MundusEnvironment extends Environment {
         return this;
     }
 
+    public Environment remove (PointLight light) {
+        if (has(PointLightsAttribute.Type)) {
+            PointLightsAttribute pointLights = ((PointLightsAttribute)get(PointLightsAttribute.Type));
+            pointLights.lights.removeValue(light, false);
+            if (pointLights.lights.size == 0)
+                remove(PointLightsAttribute.Type);
+        }
+        return this;
+    }
+
     public BaseLight getAmbientLight() {
         return ambientLight;
     }

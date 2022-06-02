@@ -229,6 +229,8 @@ public class WaterShader extends BaseShader {
                 set(UNIFORM_POINT_LIGHT_ATT_LINEAR[i], light.attenuation.linear);
                 set(UNIFORM_POINT_LIGHT_ATT_EXP[i] , light.attenuation.exponential);
             }
+        } else {
+            set(UNIFORM_POINT_LIGHT_NUM, 0);
         }
 
         // TODO point lights, spot lights

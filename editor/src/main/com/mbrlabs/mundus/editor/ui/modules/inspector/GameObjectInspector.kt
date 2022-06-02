@@ -113,8 +113,17 @@ class GameObjectInspector : VisTable() {
     }
 
     fun addComponent(component: Component) {
-        componentWidgets.add(LightComponentWidget(component as LightComponent))
-        componentTable.add(componentWidgets.last()).grow().row()
+        for (widget in componentWidgets) {
+            if (widget.component == component) {
+                // The inspector already has a widget for this component, ignore.
+                return
+            }
+        }
+
+        if (component is LightComponent) {
+            componentWidgets.add(LightComponentWidget(component))
+            componentTable.add(componentWidgets.last()).grow().row()
+        }
     }
 
 }
