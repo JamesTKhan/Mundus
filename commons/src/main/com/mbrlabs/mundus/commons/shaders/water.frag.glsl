@@ -139,8 +139,8 @@ void main() {
         color.rgb += clamp(edge - vec3(mask), 0.0, 1.0) * foamVisibleFactor;
     }
 
-    // Apply directional light
-    color *= CalcDirectionalLight(normal);
+    // Get directional light
+    vec4 totalLight = CalcDirectionalLight(normal);
 
     // Calculate specular hightlights for directional light
     vec3 specularHighlights = calcSpecularHighlights(gDirectionalLight.Base, gDirectionalLight.Direction, normal, viewVector, waterDepth);
@@ -169,12 +169,15 @@ void main() {
         specularHighlights += (calcSpecularHighlights(gPointLights[i].Base, lightDirection, normal, viewVector, waterDepth) * specularDistanceFactor) / (attenuation * specularAttenuationFactor);
 
         // Apply point light colors to overall color
-        color += lightColor / attenuation;
+        totalLight += lightColor / attenuation;
     }
 
     for (int i = 0 ; i < gNumSpotLights ; i++) {
-        color += CalcSpotLight(gSpotLights[i], normal);
+        totalLight += CalcSpotLight(gSpotLights[i], normal);
     }
+
+    // Apply all lighting
+    color *= totalLight;
 
     // Apply final specular values
     color += vec4(specularHighlights, 0.0);

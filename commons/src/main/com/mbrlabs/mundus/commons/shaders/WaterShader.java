@@ -57,7 +57,6 @@ public class WaterShader extends LightShader {
 
     public WaterShader() {
         program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER, this);
-        ambientDirectionalFactor = 0.1f;
     }
 
     @Override

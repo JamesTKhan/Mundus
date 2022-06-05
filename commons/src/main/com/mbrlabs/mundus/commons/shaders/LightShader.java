@@ -55,8 +55,6 @@ public abstract class LightShader extends ClippableShader {
     protected int[] UNIFORM_SPOT_LIGHT_ATT_LINEAR = new int[ShaderUtils.MAX_SPOT_LIGHTS];
     protected int[] UNIFORM_SPOT_LIGHT_ATT_EXP = new int[ShaderUtils.MAX_SPOT_LIGHTS];
 
-    protected float ambientDirectionalFactor = 1f;
-
     @Override
     public void init(ShaderProgram program, Renderable renderable) {
 
@@ -100,7 +98,7 @@ public abstract class LightShader extends ClippableShader {
             set(UNIFORM_DIRECTIONAL_LIGHT_COLOR_AMBIENT, env.getAmbientLight().color.r, env.getAmbientLight().color.g, env.getAmbientLight().color.b);
             set(UNIFORM_DIRECTIONAL_LIGHT_DIR, light.direction);
             set(UNIFORM_DIRECTIONAL_LIGHT_INTENSITY, light.intensity);
-            set(UNIFORM_DIRECTIONAL_LIGHT_INTENSITY_AMBIENT, env.getAmbientLight().intensity * ambientDirectionalFactor);
+            set(UNIFORM_DIRECTIONAL_LIGHT_INTENSITY_AMBIENT, env.getAmbientLight().intensity);
         }
 
         // point lights
