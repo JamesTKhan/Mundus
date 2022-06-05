@@ -11,7 +11,11 @@ abstract class BaseWidget : VisTable() {
     }
 
     fun addSectionHeader(header: String) {
-        add(VisLabel(header)).left().row()
-        addSeparator().padBottom(5f).row()
+        addSectionHeader(header, this)
+    }
+
+    fun addSectionHeader(header: String, table: VisTable) {
+        table.add(VisLabel(header)).left().row()
+        table.addSeparator().padBottom(5f).row()
     }
 }

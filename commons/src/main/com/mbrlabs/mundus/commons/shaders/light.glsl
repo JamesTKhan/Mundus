@@ -26,6 +26,13 @@ struct PointLight
     Attenuation Atten;
 };
 
+struct SpotLight
+{
+    PointLight Base;
+    vec3 Direction;
+    float Cutoff;
+};
+
 struct Material
 {
     vec3 AmbientColor;
@@ -34,11 +41,15 @@ struct Material
 };
 
 const int MAX_POINT_LIGHTS = 4;
+const int MAX_SPOT_LIGHTS = 4;
+
 varying vec3 Normal0;
 varying vec3 v_worldPos;
 uniform DirectionalLight gDirectionalLight;
 uniform int gNumPointLights;
+uniform int gNumSpotLights;
 uniform PointLight gPointLights[MAX_POINT_LIGHTS];
+uniform SpotLight gSpotLights[MAX_SPOT_LIGHTS];
 uniform Material gMaterial;
 uniform vec3 u_camPos;
 
@@ -71,18 +82,33 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
     return (AmbientColor + DiffuseColor + SpecularColor);
 }
 
-vec4 CalcPointLight(int Index, vec3 Normal)
+vec4 CalcPointLight(PointLight l, vec3 Normal)
 {
-    vec3 LightDirection = v_worldPos - gPointLights[Index].LocalPos;
+    vec3 LightDirection = v_worldPos - l.LocalPos;
     float dist = length(LightDirection);
     LightDirection = normalize(LightDirection);
 
-    vec4 Color = CalcLightInternal(gPointLights[Index].Base, LightDirection, Normal);
-    float attenuation =  gPointLights[Index].Atten.Constant +
-    gPointLights[Index].Atten.Linear * dist +
-    gPointLights[Index].Atten.Exp * dist * dist;
+    vec4 Color = CalcLightInternal(l.Base, LightDirection, Normal);
+    float attenuation =  l.Atten.Constant +
+    l.Atten.Linear * dist +
+    l.Atten.Exp * dist * dist;
 
     return Color / attenuation;
+}
+
+vec4 CalcSpotLight(SpotLight l, vec3 Normal)
+{
+    vec3 LightToPixel = normalize(v_worldPos - l.Base.LocalPos);
+    float SpotFactor = dot(LightToPixel, l.Direction);
+
+    if (SpotFactor > l.Cutoff) {
+        vec4 Color = CalcPointLight(l.Base, Normal);
+        float SpotLightIntensity = (1.0 - (1.0 - SpotFactor)/(1.0 - l.Cutoff));
+        return Color * SpotLightIntensity;
+    }
+    else {
+        return vec4(0,0,0,0);
+    }
 }
 
 vec4 CalcDirectionalLight(vec3 Normal)

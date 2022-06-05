@@ -19,7 +19,7 @@ class LightGizmo(private var lightComponent: LightComponent) : Gizmo() {
     }
 
     override fun update() {
-        decal.position = lightComponent.pointLight.position
+        decal.position = lightComponent.light.position
     }
 
     override fun shouldRemove() : Boolean {

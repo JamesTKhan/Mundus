@@ -26,6 +26,7 @@ public class BaseLight {
 
     public final Color color = new Color(1, 1, 1, 1);
     public float intensity = 1f;
+    public LightType lightType;
 
     public void setColor(Color color) {
         this.color.set(color);

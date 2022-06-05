@@ -1,23 +1,23 @@
 package com.mbrlabs.mundus.commons.scene3d.components;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.mbrlabs.mundus.commons.env.lights.LightType;
 import com.mbrlabs.mundus.commons.env.lights.PointLight;
+import com.mbrlabs.mundus.commons.env.lights.SpotLight;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 
 public class LightComponent extends AbstractComponent {
-    private final PointLight pointLight = new PointLight();
+    private PointLight light;
     private final Vector3 tmp = new Vector3();
 
     public LightComponent(GameObject go) {
         super(go);
         type = Type.LIGHT;
 
-        pointLight.intensity = 1.0f;
-        pointLight.setColor(Color.WHITE);
-        pointLight.position.set(go.getPosition(new Vector3()));
+        light = new PointLight();
+        light.position.set(go.getPosition(tmp));
 
-        gameObject.sceneGraph.scene.environment.add(pointLight);
+        gameObject.sceneGraph.scene.environment.add(light);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class LightComponent extends AbstractComponent {
 
     @Override
     public void update(float delta) {
-        pointLight.position.set(gameObject.getPosition(tmp));
+        light.position.set(gameObject.getPosition(tmp));
     }
 
     @Override
@@ -35,7 +35,7 @@ public class LightComponent extends AbstractComponent {
         super.remove();
 
         // remove the light from the environment
-        gameObject.sceneGraph.scene.environment.remove(pointLight);
+        gameObject.sceneGraph.scene.environment.remove(light);
     }
 
     @Override
@@ -43,7 +43,19 @@ public class LightComponent extends AbstractComponent {
         return null;
     }
 
-    public PointLight getPointLight() {
-        return pointLight;
+    public PointLight getLight() {
+        return light;
+    }
+
+    public void toggleSpotLight(boolean value) {
+        if (value && light.lightType != LightType.SPOT_LIGHT) {
+            gameObject.sceneGraph.scene.environment.remove(light);
+            light = new SpotLight(Vector3.X.cpy(), SpotLight.DEFAULT_CUTOFF);
+            gameObject.sceneGraph.scene.environment.add(light);
+        } else if (light.lightType != LightType.POINT_LIGHT) {
+            gameObject.sceneGraph.scene.environment.remove(light);
+            light = new PointLight();
+            gameObject.sceneGraph.scene.environment.add(light);
+        }
     }
 }

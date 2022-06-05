@@ -22,6 +22,8 @@ import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
 import com.mbrlabs.mundus.commons.env.lights.PointLight;
 import com.mbrlabs.mundus.commons.env.lights.PointLightsAttribute;
+import com.mbrlabs.mundus.commons.env.lights.SpotLight;
+import com.mbrlabs.mundus.commons.env.lights.SpotLightsAttribute;
 import com.mbrlabs.mundus.commons.env.lights.SunLight;
 import com.mbrlabs.mundus.commons.env.lights.SunLightsAttribute;
 
@@ -57,6 +59,10 @@ public class MundusEnvironment extends Environment {
     }
 
     public MundusEnvironment add(PointLight light) {
+        if (light instanceof SpotLight) {
+            return add((SpotLight) light);
+        }
+
         PointLightsAttribute pointLights = ((PointLightsAttribute) get(PointLightsAttribute.Type));
         if (pointLights == null) set(pointLights = new PointLightsAttribute());
         pointLights.lights.add(light);
@@ -64,11 +70,33 @@ public class MundusEnvironment extends Environment {
         return this;
     }
 
+    public MundusEnvironment add(SpotLight light) {
+        SpotLightsAttribute spotLights = ((SpotLightsAttribute) get(SpotLightsAttribute.Type));
+        if (spotLights == null) set(spotLights = new SpotLightsAttribute());
+        spotLights.lights.add(light);
+
+        return this;
+    }
+
     public Environment remove (PointLight light) {
+        if (light instanceof SpotLight) {
+            return remove((SpotLight) light);
+        }
+
         if (has(PointLightsAttribute.Type)) {
             PointLightsAttribute pointLights = ((PointLightsAttribute)get(PointLightsAttribute.Type));
             pointLights.lights.removeValue(light, false);
             if (pointLights.lights.size == 0)
+                remove(PointLightsAttribute.Type);
+        }
+        return this;
+    }
+
+    public Environment remove (SpotLight light) {
+        if (has(SpotLightsAttribute.Type)) {
+            SpotLightsAttribute spotLights = ((SpotLightsAttribute)get(SpotLightsAttribute.Type));
+            spotLights.lights.removeValue(light, false);
+            if (spotLights.lights.size == 0)
                 remove(PointLightsAttribute.Type);
         }
         return this;

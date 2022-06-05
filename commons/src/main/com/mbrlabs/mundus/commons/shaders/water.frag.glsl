@@ -172,6 +172,10 @@ void main() {
         color += lightColor / attenuation;
     }
 
+    for (int i = 0 ; i < gNumSpotLights ; i++) {
+        color += CalcSpotLight(gSpotLights[i], normal);
+    }
+
     // Apply final specular values
     color += vec4(specularHighlights, 0.0);
 

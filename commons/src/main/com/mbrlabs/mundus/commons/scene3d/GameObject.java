@@ -286,7 +286,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
         // On adding of GameObject with a Light, add it to environment
         if (component != null) {
-            sceneGraph.scene.environment.add(component.getPointLight());
+            sceneGraph.scene.environment.add(component.getLight());
         }
     }
 
@@ -298,7 +298,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
         // On removal of GameObject, remove its light component from environment
         if (component != null) {
-            sceneGraph.scene.environment.remove(component.getPointLight());
+            sceneGraph.scene.environment.remove(component.getLight());
         }
     }
 

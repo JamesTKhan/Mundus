@@ -30,6 +30,7 @@ import com.mbrlabs.mundus.commons.shaders.LightShader;
 public class ShaderUtils {
 
     public static final int MAX_POINT_LIGHTS = 4;
+    public static final int MAX_SPOT_LIGHTS = 4;
 
     protected static final String LIGHT_SHADER_PREFIX = "com/mbrlabs/mundus/commons/shaders/light.glsl";
 
@@ -40,6 +41,8 @@ public class ShaderUtils {
      *            path to vertex shader
      * @param fragmentShader
      *            path to fragment shader
+     * @param shader
+     *            the shader to compile a program for
      *
      * @return compiled shader program
      */

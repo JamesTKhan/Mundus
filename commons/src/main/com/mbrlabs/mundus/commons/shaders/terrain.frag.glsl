@@ -79,7 +79,11 @@ void main(void) {
     vec4 totalLight = CalcDirectionalLight(v_normal);
 
     for (int i = 0 ; i < gNumPointLights ; i++) {
-        totalLight += CalcPointLight(i, v_normal);
+        totalLight += CalcPointLight(gPointLights[i], v_normal);
+    }
+
+    for (int i = 0; i < gNumSpotLights; i++) {
+        totalLight += CalcSpotLight(gSpotLights[i], v_normal);
     }
 
     gl_FragColor *= totalLight;
