@@ -97,7 +97,7 @@ public class MundusEnvironment extends Environment {
             SpotLightsAttribute spotLights = ((SpotLightsAttribute)get(SpotLightsAttribute.Type));
             spotLights.lights.removeValue(light, false);
             if (spotLights.lights.size == 0)
-                remove(PointLightsAttribute.Type);
+                remove(SpotLightsAttribute.Type);
         }
         return this;
     }

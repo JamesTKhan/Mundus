@@ -3,15 +3,21 @@ package com.mbrlabs.mundus.editor.ui.modules.dialogs
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
+import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
+import com.mbrlabs.mundus.commons.env.lights.LightType
+import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.utils.LightUtils
+import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
 import com.mbrlabs.mundus.editor.scene3d.components.PickableLightComponent
+import com.mbrlabs.mundus.editor.ui.UI
 
 class AddComponentDialog : BaseDialog("Add Component") {
 
@@ -54,21 +60,45 @@ class AddComponentDialog : BaseDialog("Add Component") {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 // Add component to current game object
                 val go = projectManager.current().currScene.currentSelection
-                val component: Component
 
-                when(selectBox.selected) {
-                    Component.Type.MODEL -> TODO()
-                    Component.Type.TERRAIN -> TODO()
-                    Component.Type.LIGHT -> component = PickableLightComponent(go)
-                    Component.Type.PARTICLE_SYSTEM -> TODO()
-                    Component.Type.WATER -> TODO()
+                val component = getNewComponent(selectBox.selected, go)
+                if (component != null) {
+                    go.addComponent(component)
+                    Mundus.postEvent(ComponentAddedEvent(component))
+                    close()
                 }
-
-                go.addComponent(component)
-                Mundus.postEvent(ComponentAddedEvent(component))
-                close()
             }
         })
+    }
+
+    private fun getNewComponent(type: Component.Type, go: GameObject): Component? {
+        when(type) {
+            Component.Type.MODEL -> TODO()
+            Component.Type.TERRAIN -> TODO()
+            Component.Type.LIGHT -> return getNewLightComponent(go)
+            Component.Type.PARTICLE_SYSTEM -> TODO()
+            Component.Type.WATER -> TODO()
+        }
+    }
+
+    private fun getNewLightComponent(go: GameObject): Component? {
+        val pointLights = LightUtils.getPointLights(projectManager.current().currScene.environment)
+        val spotLights = LightUtils.getSpotLights(projectManager.current().currScene.environment)
+
+        if (pointLights == null || pointLights.size < ShaderUtils.MAX_POINT_LIGHTS) {
+            return PickableLightComponent(go, LightType.POINT_LIGHT)
+        } else if (spotLights == null || spotLights.size < ShaderUtils.MAX_SPOT_LIGHTS) {
+            Dialogs.showOKDialog(UI, "Info", "Max point lights reached ("+ShaderUtils.MAX_POINT_LIGHTS+"), switching to spotlight.")
+            return PickableLightComponent(go, LightType.SPOT_LIGHT)
+        } else {
+            val str = buildString {
+                append("Max lighting reached, cannot add additional point or spot lights.\n")
+                append("\nPoint Lights: " + ShaderUtils.MAX_POINT_LIGHTS)
+                append("\nSpot Lights: " + ShaderUtils.MAX_SPOT_LIGHTS)
+            }
+            Dialogs.showOKDialog(UI, "Info", str)
+            return null
+        }
     }
 
 }

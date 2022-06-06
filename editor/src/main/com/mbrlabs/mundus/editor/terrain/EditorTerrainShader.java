@@ -22,11 +22,9 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.shaders.TerrainShader;
+import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 
 public class EditorTerrainShader extends TerrainShader {
-
-    protected static final String LIGHT_SHADER = "com/mbrlabs/mundus/commons/shaders/light.glsl";
-
 
     // ============================ MOUSE PICKER ============================
     protected final int UNIFORM_PICKER_POS = register(new Uniform("u_pickerPos"));
@@ -41,9 +39,7 @@ public class EditorTerrainShader extends TerrainShader {
         String vertexShader = "\n#define PICKER\n" + Gdx.files.classpath(VERTEX_SHADER).readString();
         String fragmentShader = "\n#define PICKER\n" + Gdx.files.classpath(FRAGMENT_SHADER).readString();
 
-        String lightCode = Gdx.files.internal(LIGHT_SHADER).readString();
-
-        program = new ShaderProgram(vertexShader, lightCode + fragmentShader);
+        program = new ShaderProgram(vertexShader, ShaderUtils.getShaderPrefix(this) + fragmentShader);
         if (!program.isCompiled()) {
             throw new GdxRuntimeException(program.getLog());
         }

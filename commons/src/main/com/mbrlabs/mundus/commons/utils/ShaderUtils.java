@@ -49,7 +49,6 @@ public class ShaderUtils {
     public static ShaderProgram compile(String vertexShader, String fragmentShader, Shader shader) {
         String vert;
         String frag;
-        String fragPrefix = "";
 
         if (Gdx.app.getType() == Application.ApplicationType.WebGL) {
             vert = Gdx.files.internal(vertexShader).readString();
@@ -59,16 +58,24 @@ public class ShaderUtils {
             frag = Gdx.files.classpath(fragmentShader).readString();
         }
 
-        if (shader instanceof LightShader) {
-            fragPrefix = Gdx.files.internal(LIGHT_SHADER_PREFIX).readString();
-        }
-
-        ShaderProgram program = new ShaderProgram(vert, fragPrefix + frag);
+        ShaderProgram program = new ShaderProgram(vert, getShaderPrefix(shader) + frag);
         if (!program.isCompiled()) {
             throw new GdxRuntimeException(program.getLog());
         }
 
         return program;
+    }
+
+    public static String getShaderPrefix(Shader shader) {
+        String fragPrefix = "";
+
+        if (shader instanceof LightShader) {
+            fragPrefix += "#define numPointLights " + MAX_POINT_LIGHTS + "\n";
+            fragPrefix += "#define numSpotLights " + MAX_SPOT_LIGHTS + "\n";
+            fragPrefix += Gdx.files.internal(LIGHT_SHADER_PREFIX).readString();
+        }
+
+        return fragPrefix;
     }
 
 }

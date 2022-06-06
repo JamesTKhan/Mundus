@@ -1,6 +1,7 @@
 package com.mbrlabs.mundus.editor.ui.widgets
 
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
@@ -14,9 +15,12 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.mbrlabs.mundus.commons.env.lights.AttenuationPreset
+import com.mbrlabs.mundus.commons.env.lights.LightType
 import com.mbrlabs.mundus.commons.env.lights.SpotLight
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
+import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.commons.utils.MathUtils
+import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
@@ -43,6 +47,7 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
 
     init {
         upDownSlider.value = 90f
+        spotlightCheckbox.isChecked = lightComponent.light.lightType == LightType.SPOT_LIGHT
 
         align(Align.topLeft)
         setupWidgets()
@@ -201,6 +206,14 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
         linearField.text = lightComponent.light.attenuation.linear.toString()
         exponentialField.text = lightComponent.light.attenuation.exponential.toString()
         selectBox.selected = AttenuationPreset.valueFromAttenuation(lightComponent.light.attenuation)
+
+        // Disable spotlight check box if the corresponding light counts are maxed out.
+        val env: Environment = lightComponent.gameObject.sceneGraph.scene.environment
+        if (!spotlightCheckbox.isChecked && LightUtils.getSpotLightsCount(env) >= ShaderUtils.MAX_SPOT_LIGHTS) {
+            spotlightCheckbox.isDisabled = true
+        } else if (spotlightCheckbox.isChecked && LightUtils.getPointLightsCount(env) >= ShaderUtils.MAX_POINT_LIGHTS) {
+            spotlightCheckbox.isDisabled = true
+        }
 
         if (lightComponent.light is SpotLight) {
             // Convert direction to up/down angle

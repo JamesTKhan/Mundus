@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
+import com.mbrlabs.mundus.commons.env.lights.LightType;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 import com.mbrlabs.mundus.editor.shader.Shaders;
@@ -29,8 +30,8 @@ import com.mbrlabs.mundus.editor.tools.picker.PickerIDAttribute;
 public class PickableLightComponent extends LightComponent implements PickableComponent {
     private final ModelInstance modelInstance;
 
-    public PickableLightComponent(GameObject go) {
-        super(go);
+    public PickableLightComponent(GameObject go, LightType lightType) {
+        super(go, lightType);
 
         Material material = new Material();
         material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.BLUE));
@@ -48,7 +49,10 @@ public class PickableLightComponent extends LightComponent implements PickableCo
 
     @Override
     public void render(float delta) {
-        modelInstance.transform.set(gameObject.getTransform());
+        // Update position of cube for picking
+        gameObject.getPosition(tmp);
+        modelInstance.transform.setToTranslation(tmp);
+
         // Keeping this here for debugging if we need to render this cube
         //gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, Shaders.INSTANCE.getModelShader());
     }

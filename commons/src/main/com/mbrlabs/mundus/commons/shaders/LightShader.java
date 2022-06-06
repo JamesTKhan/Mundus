@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
@@ -107,6 +108,10 @@ public abstract class LightShader extends ClippableShader {
         if (pointLights != null && pointLights.size > 0) {
             set(UNIFORM_POINT_LIGHT_NUM, pointLights.size);
 
+            if (pointLights.size > ShaderUtils.MAX_POINT_LIGHTS) {
+                throw new GdxRuntimeException("Too many point lights. Current: " + pointLights.size + " Max: " + ShaderUtils.MAX_POINT_LIGHTS);
+            }
+
             for (int i = 0; i < pointLights.size; i++) {
                 PointLight light = pointLights.get(i);
 
@@ -127,6 +132,10 @@ public abstract class LightShader extends ClippableShader {
         final Array<SpotLight> spotLights = spotAttr == null ? null : spotAttr.lights;
         if (spotLights != null && spotLights.size > 0) {
             set(UNIFORM_SPOT_LIGHT_NUM, spotLights.size);
+
+            if (spotLights.size > ShaderUtils.MAX_SPOT_LIGHTS) {
+                throw new GdxRuntimeException("Too many spotlights. Current: " + spotLights.size + " Max: " + ShaderUtils.MAX_SPOT_LIGHTS);
+            }
 
             for (int i = 0; i < spotLights.size; i++) {
                 SpotLight light = spotLights.get(i);

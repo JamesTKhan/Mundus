@@ -40,16 +40,13 @@ struct Material
     vec3 SpecularColor;
 };
 
-const int MAX_POINT_LIGHTS = 4;
-const int MAX_SPOT_LIGHTS = 4;
-
 varying vec3 Normal0;
 varying vec3 v_worldPos;
 uniform DirectionalLight gDirectionalLight;
 uniform int gNumPointLights;
 uniform int gNumSpotLights;
-uniform PointLight gPointLights[MAX_POINT_LIGHTS];
-uniform SpotLight gSpotLights[MAX_SPOT_LIGHTS];
+uniform PointLight gPointLights[numPointLights];
+uniform SpotLight gSpotLights[numSpotLights];
 uniform Material gMaterial;
 uniform vec3 u_camPos;
 
