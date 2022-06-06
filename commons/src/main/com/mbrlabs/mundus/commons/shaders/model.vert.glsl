@@ -27,14 +27,10 @@ uniform float u_shininess;
 uniform float  u_fogDensity;
 uniform float  u_fogGradient;
 
-varying vec2    v_texCoord0;
-varying float   v_fog;
+varying float v_fog;
+varying vec2 v_texCoord0;
 varying vec3 v_normal;
-
-varying vec2 TexCoord0;
-varying vec3 Normal0;
 varying vec3 v_worldPos;
-
 
 // clipping plane
 varying float v_clipDistance;
@@ -54,23 +50,7 @@ void main(void) {
 
     // normal for lighting
     v_normal = normalize((u_transMatrix * vec4(a_normal, 0.0)).xyz);
-
-    TexCoord0 = v_texCoord0;
-    Normal0 = a_normal;
     v_worldPos = worldPos.xyz;
-//
-//    // diffuse light
-//    v_lighting = u_directionalLight.color
-//        * (dot(-u_directionalLight.direction, normal) * u_directionalLight.intensity);
-//
-//    // specular light
-//    vec3 vertexToCam = normalize(u_camPos - worldPos.xyz);
-//    vec3 reflectedLightDirection = reflect(u_directionalLight.direction, normal);
-//    float specularity = max(dot(reflectedLightDirection, vertexToCam), 0.0) * u_shininess;
-//    v_lighting += specularity * u_directionalLight.color * u_directionalLight.intensity;
-//
-//    // ambient light
-//    v_lighting += u_ambientLight.color * u_ambientLight.intensity;
 
     // =================================================================
     //                          /Lighting

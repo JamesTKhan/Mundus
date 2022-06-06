@@ -42,8 +42,8 @@ struct Material
     vec3 SpecularColor;
 };
 
-varying vec3 Normal0;
 varying vec3 v_worldPos;
+
 uniform DirectionalLight gDirectionalLight;
 uniform int gNumPointLights;
 uniform int gNumSpotLights;
