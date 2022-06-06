@@ -1,3 +1,5 @@
+// Lighting adapted from OGLDEV tutorials https://www.youtube.com/c/OGLDEV
+
 struct BaseLight
 {
     vec3 Color;
