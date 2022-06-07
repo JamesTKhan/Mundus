@@ -56,7 +56,7 @@ public class MathUtils {
      */
     public static float getAngleBetween(Vector3 from, Vector3 to) {
         float absolute = (float) Math.sqrt(from.len() * to.len());
-        if (absolute < com.badlogic.gdx.math.MathUtils.FLOAT_ROUNDING_ERROR)
+        if (com.badlogic.gdx.math.MathUtils.isZero(absolute))
             return 0; // It is close enough to just return 0
 
         float angleDot = from.dot(to);
