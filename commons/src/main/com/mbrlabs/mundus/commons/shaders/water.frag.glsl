@@ -133,7 +133,7 @@ void main() {
     if (edge.r < 0.99) {
         // Fade foam out after a distance, otherwise we get ugly 1 pixel lines
         float distanceToCam = length(v_worldPos - u_cameraPosition);
-        float foamVisibleFactor = clamp(1.0 - distanceToCam / 1000.0, 0.0, 1.0);
+        float foamVisibleFactor = clamp(1.0 - distanceToCam / 500.0, 0.0, 1.0);
 
         // Subtract mask value from foam gradient, then add the foam value to the final pixel color
         color.rgb += clamp(edge - vec3(mask), 0.0, 1.0) * foamVisibleFactor;
