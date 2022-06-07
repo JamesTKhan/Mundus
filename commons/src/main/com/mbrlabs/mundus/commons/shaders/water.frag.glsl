@@ -146,7 +146,8 @@ void main() {
     vec3 specularHighlights = calcSpecularHighlights(gDirectionalLight.Base, gDirectionalLight.Direction, normal, viewVector, waterDepth);
 
     // Calculate specular and lighting for point lights
-    for (int i = 0 ; i < gNumPointLights ; i++) {
+    for (int i = 0 ; i < numPointLights ; i++) {
+        if (i >= u_activeNumPointLights){break;}
         vec4 lightColor = vec4(gPointLights[i].Base.Color, 1.0) * gPointLights[i].Base.DiffuseIntensity;
 
         vec3 lightDirection = v_worldPos - gPointLights[i].LocalPos;
@@ -163,7 +164,7 @@ void main() {
         specularDistanceFactor = clamp(1.0 - specularDistanceFactor / 500.0, 0.0, 1.0);
 
         // We want specular to adjust based on attenuation, but not to the same degree otherwise we lose too much
-        float specularAttenuationFactor = 0.1f;
+        float specularAttenuationFactor = 0.1;
 
         // Add point light contribution to specular highlights
         specularHighlights += (calcSpecularHighlights(gPointLights[i].Base, lightDirection, normal, viewVector, waterDepth) * specularDistanceFactor) / (attenuation * specularAttenuationFactor);
@@ -172,7 +173,8 @@ void main() {
         totalLight += lightColor / attenuation;
     }
 
-    for (int i = 0 ; i < gNumSpotLights ; i++) {
+    for (int i = 0; i < numSpotLights; i++) {
+        if (i >= u_activeNumSpotLights){break;}
         totalLight += CalcSpotLight(gSpotLights[i], normal);
     }
 

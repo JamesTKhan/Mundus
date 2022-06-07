@@ -72,7 +72,12 @@ public class ShaderUtils {
         if (shader instanceof LightShader) {
             fragPrefix += "#define numPointLights " + MAX_POINT_LIGHTS + "\n";
             fragPrefix += "#define numSpotLights " + MAX_SPOT_LIGHTS + "\n";
-            fragPrefix += Gdx.files.internal(LIGHT_SHADER_PREFIX).readString();
+
+            if (Gdx.app.getType() == Application.ApplicationType.WebGL) {
+                fragPrefix += Gdx.files.internal(LIGHT_SHADER_PREFIX).readString();
+            } else {
+                fragPrefix +=  Gdx.files.classpath(LIGHT_SHADER_PREFIX).readString();
+            }
         }
 
         return fragPrefix;

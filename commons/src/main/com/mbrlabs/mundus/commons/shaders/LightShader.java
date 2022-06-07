@@ -39,7 +39,7 @@ public abstract class LightShader extends ClippableShader {
     protected final int UNIFORM_DIRECTIONAL_LIGHT_INTENSITY_AMBIENT = register(new Uniform("gDirectionalLight.Base.AmbientIntensity"));
 
     // Point Lights
-    protected final int UNIFORM_POINT_LIGHT_NUM = register(new Uniform("gNumPointLights"));
+    protected final int UNIFORM_POINT_LIGHT_NUM_ACTIVE = register(new Uniform("u_activeNumPointLights"));
 
     protected int[] UNIFORM_POINT_LIGHT_COLOR = new int[ShaderUtils.MAX_POINT_LIGHTS];
     protected int[] UNIFORM_POINT_LIGHT_INTENSITY = new int[ShaderUtils.MAX_POINT_LIGHTS];
@@ -51,7 +51,7 @@ public abstract class LightShader extends ClippableShader {
     protected int[] UNIFORM_POINT_LIGHT_ATT_EXP = new int[ShaderUtils.MAX_POINT_LIGHTS];
 
     // SpotLights
-    protected final int UNIFORM_SPOT_LIGHT_NUM = register(new Uniform("gNumSpotLights"));
+    protected final int UNIFORM_SPOT_LIGHT_NUM_ACTIVE = register(new Uniform("u_activeNumSpotLights"));
 
     protected int[] UNIFORM_SPOT_LIGHT_COLOR = new int[ShaderUtils.MAX_SPOT_LIGHTS];
     protected int[] UNIFORM_SPOT_LIGHT_INTENSITY = new int[ShaderUtils.MAX_SPOT_LIGHTS];
@@ -114,7 +114,7 @@ public abstract class LightShader extends ClippableShader {
         PointLightsAttribute attr = env.get(PointLightsAttribute.class, PointLightsAttribute.Type);
         final Array<PointLight> pointLights = attr == null ? null : attr.lights;
         if (pointLights != null && pointLights.size > 0) {
-            set(UNIFORM_POINT_LIGHT_NUM, pointLights.size);
+            set(UNIFORM_POINT_LIGHT_NUM_ACTIVE, pointLights.size);
 
             if (pointLights.size > ShaderUtils.MAX_POINT_LIGHTS) {
                 throw new GdxRuntimeException("Too many point lights. Current: " + pointLights.size + " Max: " + ShaderUtils.MAX_POINT_LIGHTS);
@@ -132,14 +132,14 @@ public abstract class LightShader extends ClippableShader {
                 set(UNIFORM_POINT_LIGHT_ATT_EXP[i] , light.attenuation.exponential);
             }
         } else {
-            set(UNIFORM_POINT_LIGHT_NUM, 0);
+            set(UNIFORM_POINT_LIGHT_NUM_ACTIVE, 0);
         }
 
         // spotlights
         SpotLightsAttribute spotAttr = env.get(SpotLightsAttribute.class, SpotLightsAttribute.Type);
         final Array<SpotLight> spotLights = spotAttr == null ? null : spotAttr.lights;
         if (spotLights != null && spotLights.size > 0) {
-            set(UNIFORM_SPOT_LIGHT_NUM, spotLights.size);
+            set(UNIFORM_SPOT_LIGHT_NUM_ACTIVE, spotLights.size);
 
             if (spotLights.size > ShaderUtils.MAX_SPOT_LIGHTS) {
                 throw new GdxRuntimeException("Too many spotlights. Current: " + spotLights.size + " Max: " + ShaderUtils.MAX_SPOT_LIGHTS);
@@ -159,7 +159,7 @@ public abstract class LightShader extends ClippableShader {
                 set(UNIFORM_SPOT_LIGHT_ATT_EXP[i] , light.attenuation.exponential);
             }
         } else {
-            set(UNIFORM_SPOT_LIGHT_NUM, 0);
+            set(UNIFORM_SPOT_LIGHT_NUM_ACTIVE, 0);
         }
 
     }

@@ -51,11 +51,13 @@ void main(void) {
 
     vec4 totalLight = CalcDirectionalLight(v_normal);
 
-    for (int i = 0 ; i < gNumPointLights ; i++) {
+    for (int i = 0 ; i < numPointLights ; i++) {
+        if (i >= u_activeNumPointLights){break;}
         totalLight += CalcPointLight(gPointLights[i], v_normal);
     }
 
-    for (int i = 0 ;i < gNumSpotLights ;i++) {
+    for (int i = 0 ; i < numSpotLights; i++) {
+        if (i >= u_activeNumSpotLights){break;}
         totalLight += CalcSpotLight(gSpotLights[i], v_normal);
     }
 

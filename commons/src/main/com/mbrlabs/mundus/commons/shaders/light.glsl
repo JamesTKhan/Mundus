@@ -1,4 +1,7 @@
 // Lighting adapted from OGLDEV tutorials https://www.youtube.com/c/OGLDEV
+#ifdef GL_ES
+precision mediump float;
+#endif
 
 struct BaseLight
 {
@@ -45,8 +48,8 @@ struct Material
 varying vec3 v_worldPos;
 
 uniform DirectionalLight gDirectionalLight;
-uniform int gNumPointLights;
-uniform int gNumSpotLights;
+uniform int u_activeNumPointLights;
+uniform int u_activeNumSpotLights;
 uniform PointLight gPointLights[numPointLights];
 uniform SpotLight gSpotLights[numSpotLights];
 uniform Material gMaterial;
