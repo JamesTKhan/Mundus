@@ -21,7 +21,6 @@ attribute vec2 a_texCoord0;
 uniform mat4 u_transMatrix;
 uniform mat4 u_projViewMatrix;
 uniform vec3 u_camPos;
-uniform float u_shininess;
 
 // Fog
 uniform float  u_fogDensity;

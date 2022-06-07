@@ -29,7 +29,6 @@ varying vec3 v_normal;
 
 // diffuse material
 uniform sampler2D   u_diffuseTexture;
-uniform vec4        u_diffuseColor;
 uniform int         u_diffuseUseTexture;
 
 // enviroment
@@ -47,7 +46,7 @@ void main(void) {
         //        discard;
         //    }
     } else {
-        gl_FragColor = u_diffuseColor;
+        gl_FragColor = vec4(gMaterial.DiffuseColor, 1.0);
     }
 
     vec4 totalLight = CalcDirectionalLight(v_normal);

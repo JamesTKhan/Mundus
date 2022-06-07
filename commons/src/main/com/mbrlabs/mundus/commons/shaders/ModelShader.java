@@ -40,9 +40,7 @@ public class ModelShader extends LightShader {
 
     // ============================ MATERIALS ============================
     protected final int UNIFORM_MATERIAL_DIFFUSE_TEXTURE = register(new Uniform("u_diffuseTexture"));
-    protected final int UNIFORM_MATERIAL_DIFFUSE_COLOR = register(new Uniform("u_diffuseColor"));
     protected final int UNIFORM_MATERIAL_DIFFUSE_USE_TEXTURE = register(new Uniform("u_diffuseUseTexture"));
-    protected final int UNIFORM_MATERIAL_SHININESS = register(new Uniform("u_shininess"));
 
 
     // ============================ MATRICES & CAM POSITION ============================
@@ -108,14 +106,25 @@ public class ModelShader extends LightShader {
             set(UNIFORM_MATERIAL_DIFFUSE_TEXTURE, diffuseTexture.textureDescription.texture);
             set(UNIFORM_MATERIAL_DIFFUSE_USE_TEXTURE, 1);
         } else {
-            set(UNIFORM_MATERIAL_DIFFUSE_COLOR, diffuseColor.color);
             set(UNIFORM_MATERIAL_DIFFUSE_USE_TEXTURE, 0);
         }
+
+        set(UNIFORM_USE_MATERIAL, 1); // Use material for lighting
+        set(UNIFORM_MATERIAL_DIFFUSE_COLOR, diffuseColor.color.r, diffuseColor.color.g, diffuseColor.color.b);
 
         // shininess
         if (renderable.material.has(FloatAttribute.Shininess)) {
             float shininess = ((FloatAttribute) renderable.material.get(FloatAttribute.Shininess)).value;
-            set(UNIFORM_MATERIAL_SHININESS, shininess);
+
+            if (shininess > 0f) {
+                set(UNIFORM_MATERIAL_SHININESS, shininess);
+                set(UNIFORM_USE_SPECULAR, 1);
+            } else {
+                set(UNIFORM_USE_SPECULAR, 0);
+            }
+
+        } else {
+            set(UNIFORM_USE_SPECULAR, 0);
         }
 
         // Fog

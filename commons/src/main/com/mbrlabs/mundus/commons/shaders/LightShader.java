@@ -23,6 +23,14 @@ import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 public abstract class LightShader extends ClippableShader {
     // ============================ LIGHTS ============================
 
+    // Specular
+    protected final int UNIFORM_USE_SPECULAR = register(new Uniform("u_useSpecular"));
+    protected final int UNIFORM_MATERIAL_SHININESS = register(new Uniform("u_shininess"));
+
+    // Material properties
+    protected final int UNIFORM_USE_MATERIAL = register(new Uniform("u_useMaterial"));
+    protected final int UNIFORM_MATERIAL_DIFFUSE_COLOR = register(new Uniform("gMaterial.DiffuseColor"));
+
     // Directional Light
     protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR = register(new Uniform("gDirectionalLight.Base.Color"));
     protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR_AMBIENT = register(new Uniform("gDirectionalLight.Base.AmbientColor"));

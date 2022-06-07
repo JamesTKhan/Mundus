@@ -51,6 +51,10 @@ uniform PointLight gPointLights[numPointLights];
 uniform SpotLight gSpotLights[numSpotLights];
 uniform Material gMaterial;
 uniform vec3 u_camPos;
+uniform float u_shininess;
+
+uniform int u_useSpecular;
+uniform int u_useMaterial;
 
 vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
 {
@@ -62,20 +66,27 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
     vec4 SpecularColor = vec4(0, 0, 0, 0);
 
     if (DiffuseFactor > 0.0) {
-        DiffuseColor = vec4(Light.Color, 1.0) *
-        Light.DiffuseIntensity * /* vec4(gMaterial.DiffuseColor, 1.0) * */ DiffuseFactor;
+        DiffuseColor = vec4(Light.Color, 1.0) * Light.DiffuseIntensity * DiffuseFactor;
 
-        vec3 PixelToCamera = normalize(u_camPos - v_worldPos);
-        vec3 LightReflect = normalize(reflect(LightDirection, Normal));
-        float SpecularFactor = dot(PixelToCamera, LightReflect);
-        //        if (SpecularFactor > 0.0) {
-        //            float SpecularExponent = texture2D(gSamplerSpecularExponent, TexCoord0).r * 255.0;
-        //            SpecularFactor = pow(SpecularFactor, SpecularExponent);
-        //            SpecularColor = vec4(Light.Color, 1.0) *
-        //            Light.DiffuseIntensity * // using the diffuse intensity for diffuse/specular
-        //            vec4(gMaterial.SpecularColor, 1.0) *
-        //            SpecularFactor;
-        //        }
+        if (u_useMaterial == 1) {
+            DiffuseColor *= vec4(gMaterial.DiffuseColor, 1.0);
+        }
+
+        if (u_useSpecular == 1) {
+            vec3 PixelToCamera = normalize(u_camPos - v_worldPos);
+            vec3 LightReflect = normalize(reflect(LightDirection, Normal));
+            float SpecularFactor = dot(PixelToCamera, LightReflect);
+            if (SpecularFactor > 0.0) {
+                // This is for specular map textures, which we may want later but not right now.
+                //float SpecularExponent = texture2D(gSamplerSpecularExponent, TexCoord0).r * 255.0;
+                float SpecularExponent = u_shininess;
+                SpecularFactor = pow(SpecularFactor, SpecularExponent);
+                SpecularColor = vec4(Light.Color, 1.0) *
+                Light.DiffuseIntensity *// using the diffuse intensity for diffuse/specular
+                /* vec4(gMaterial.SpecularColor, 1.0) * */
+                SpecularFactor;
+            }
+        }
     }
 
     return (AmbientColor + DiffuseColor + SpecularColor);
