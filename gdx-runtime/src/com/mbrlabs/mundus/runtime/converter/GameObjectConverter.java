@@ -56,6 +56,10 @@ public class GameObjectConverter {
             go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, shaders.getWaterShader(), assetManager));
         }
 
+        if (dto.getLightComponent() != null) {
+            go.getComponents().add(LightComponentConverter.convert(dto.getLightComponent(), go));
+        }
+
         // recursively convert children
         if (dto.getChilds() != null) {
             for (GameObjectDTO c : dto.getChilds()) {
