@@ -17,6 +17,9 @@ import com.mbrlabs.mundus.commons.env.lights.SpotLightsAttribute;
  */
 public class LightUtils {
 
+    public static final int MAX_POINT_LIGHTS = 12;
+    public static final int MAX_SPOT_LIGHTS = 12;
+
     public static Array<PointLight> getPointLights(Environment env) {
         PointLightsAttribute attr = env.get(PointLightsAttribute.class, PointLightsAttribute.Type);
         return attr == null ? new Array<PointLight>() : attr.lights;
@@ -49,9 +52,9 @@ public class LightUtils {
             case DIRECTIONAL_LIGHT:
                 return false;
             case POINT_LIGHT:
-                return getPointLightsCount(env) < ShaderUtils.MAX_POINT_LIGHTS;
+                return getPointLightsCount(env) < LightUtils.MAX_POINT_LIGHTS;
             case SPOT_LIGHT:
-                return getSpotLightsCount(env) < ShaderUtils.MAX_SPOT_LIGHTS;
+                return getSpotLightsCount(env) < LightUtils.MAX_SPOT_LIGHTS;
         }
         return false;
     }

@@ -12,7 +12,6 @@ import com.mbrlabs.mundus.commons.env.lights.LightType
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.utils.LightUtils
-import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
@@ -92,13 +91,13 @@ class AddComponentDialog : BaseDialog("Add Component") {
         if (LightUtils.canCreateLight(env, LightType.POINT_LIGHT)) {
             return PickableLightComponent(go, LightType.POINT_LIGHT)
         } else if (LightUtils.canCreateLight(env, LightType.SPOT_LIGHT)) {
-            Dialogs.showOKDialog(UI, "Info", "Max point lights reached ("+ShaderUtils.MAX_POINT_LIGHTS+"), switching to spotlight.")
+            Dialogs.showOKDialog(UI, "Info", "Max point lights reached ("+LightUtils.MAX_POINT_LIGHTS+"), switching to spotlight.")
             return PickableLightComponent(go, LightType.SPOT_LIGHT)
         } else {
             val str = buildString {
                 append("Max lighting reached, cannot add additional point or spot lights.\n")
-                append("\nPoint Lights: " + ShaderUtils.MAX_POINT_LIGHTS)
-                append("\nSpot Lights: " + ShaderUtils.MAX_SPOT_LIGHTS)
+                append("\nPoint Lights: " + LightUtils.MAX_POINT_LIGHTS)
+                append("\nSpot Lights: " + LightUtils.MAX_SPOT_LIGHTS)
             }
             Dialogs.showOKDialog(UI, "Info", str)
             return null

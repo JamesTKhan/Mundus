@@ -29,9 +29,6 @@ import com.mbrlabs.mundus.commons.shaders.LightShader;
  */
 public class ShaderUtils {
 
-    public static final int MAX_POINT_LIGHTS = 4;
-    public static final int MAX_SPOT_LIGHTS = 4;
-
     protected static final String LIGHT_SHADER_PREFIX = "com/mbrlabs/mundus/commons/shaders/light.glsl";
 
     /**
@@ -70,8 +67,8 @@ public class ShaderUtils {
         String fragPrefix = "";
 
         if (shader instanceof LightShader) {
-            fragPrefix += "#define numPointLights " + MAX_POINT_LIGHTS + "\n";
-            fragPrefix += "#define numSpotLights " + MAX_SPOT_LIGHTS + "\n";
+            fragPrefix += "#define numPointLights " + LightUtils.MAX_POINT_LIGHTS + "\n";
+            fragPrefix += "#define numSpotLights " + LightUtils.MAX_SPOT_LIGHTS + "\n";
 
             if (Gdx.app.getType() == Application.ApplicationType.WebGL) {
                 fragPrefix += Gdx.files.internal(LIGHT_SHADER_PREFIX).readString();

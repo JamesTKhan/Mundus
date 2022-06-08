@@ -12,7 +12,7 @@ import com.mbrlabs.mundus.commons.env.lights.PointLight;
 import com.mbrlabs.mundus.commons.env.lights.PointLightsAttribute;
 import com.mbrlabs.mundus.commons.env.lights.SpotLight;
 import com.mbrlabs.mundus.commons.env.lights.SpotLightsAttribute;
-import com.mbrlabs.mundus.commons.utils.ShaderUtils;
+import com.mbrlabs.mundus.commons.utils.LightUtils;
 
 /**
  * Extend this shader and call setLights method to apply lighting uniforms.
@@ -41,34 +41,34 @@ public abstract class LightShader extends ClippableShader {
     // Point Lights
     protected final int UNIFORM_POINT_LIGHT_NUM_ACTIVE = register(new Uniform("u_activeNumPointLights"));
 
-    protected int[] UNIFORM_POINT_LIGHT_COLOR = new int[ShaderUtils.MAX_POINT_LIGHTS];
-    protected int[] UNIFORM_POINT_LIGHT_INTENSITY = new int[ShaderUtils.MAX_POINT_LIGHTS];
-    protected int[] UNIFORM_POINT_LIGHT_INTENSITY_AMBIENT = new int[ShaderUtils.MAX_POINT_LIGHTS];
+    protected int[] UNIFORM_POINT_LIGHT_COLOR = new int[LightUtils.MAX_POINT_LIGHTS];
+    protected int[] UNIFORM_POINT_LIGHT_INTENSITY = new int[LightUtils.MAX_POINT_LIGHTS];
+    protected int[] UNIFORM_POINT_LIGHT_INTENSITY_AMBIENT = new int[LightUtils.MAX_POINT_LIGHTS];
 
-    protected int[] UNIFORM_POINT_LIGHT_POS = new int[ShaderUtils.MAX_POINT_LIGHTS];
-    protected int[] UNIFORM_POINT_LIGHT_ATT_CONSTANT = new int[ShaderUtils.MAX_POINT_LIGHTS];
-    protected int[] UNIFORM_POINT_LIGHT_ATT_LINEAR = new int[ShaderUtils.MAX_POINT_LIGHTS];
-    protected int[] UNIFORM_POINT_LIGHT_ATT_EXP = new int[ShaderUtils.MAX_POINT_LIGHTS];
+    protected int[] UNIFORM_POINT_LIGHT_POS = new int[LightUtils.MAX_POINT_LIGHTS];
+    protected int[] UNIFORM_POINT_LIGHT_ATT_CONSTANT = new int[LightUtils.MAX_POINT_LIGHTS];
+    protected int[] UNIFORM_POINT_LIGHT_ATT_LINEAR = new int[LightUtils.MAX_POINT_LIGHTS];
+    protected int[] UNIFORM_POINT_LIGHT_ATT_EXP = new int[LightUtils.MAX_POINT_LIGHTS];
 
     // SpotLights
     protected final int UNIFORM_SPOT_LIGHT_NUM_ACTIVE = register(new Uniform("u_activeNumSpotLights"));
 
-    protected int[] UNIFORM_SPOT_LIGHT_COLOR = new int[ShaderUtils.MAX_SPOT_LIGHTS];
-    protected int[] UNIFORM_SPOT_LIGHT_INTENSITY = new int[ShaderUtils.MAX_SPOT_LIGHTS];
-    protected int[] UNIFORM_SPOT_LIGHT_INTENSITY_AMBIENT = new int[ShaderUtils.MAX_SPOT_LIGHTS];
+    protected int[] UNIFORM_SPOT_LIGHT_COLOR = new int[LightUtils.MAX_SPOT_LIGHTS];
+    protected int[] UNIFORM_SPOT_LIGHT_INTENSITY = new int[LightUtils.MAX_SPOT_LIGHTS];
+    protected int[] UNIFORM_SPOT_LIGHT_INTENSITY_AMBIENT = new int[LightUtils.MAX_SPOT_LIGHTS];
 
-    protected int[] UNIFORM_SPOT_LIGHT_POS = new int[ShaderUtils.MAX_SPOT_LIGHTS];
-    protected int[] UNIFORM_SPOT_LIGHT_DIRECTION = new int[ShaderUtils.MAX_SPOT_LIGHTS];
-    protected int[] UNIFORM_SPOT_LIGHT_CUT_OFF = new int[ShaderUtils.MAX_SPOT_LIGHTS];
-    protected int[] UNIFORM_SPOT_LIGHT_ATT_CONSTANT = new int[ShaderUtils.MAX_SPOT_LIGHTS];
-    protected int[] UNIFORM_SPOT_LIGHT_ATT_LINEAR = new int[ShaderUtils.MAX_SPOT_LIGHTS];
-    protected int[] UNIFORM_SPOT_LIGHT_ATT_EXP = new int[ShaderUtils.MAX_SPOT_LIGHTS];
+    protected int[] UNIFORM_SPOT_LIGHT_POS = new int[LightUtils.MAX_SPOT_LIGHTS];
+    protected int[] UNIFORM_SPOT_LIGHT_DIRECTION = new int[LightUtils.MAX_SPOT_LIGHTS];
+    protected int[] UNIFORM_SPOT_LIGHT_CUT_OFF = new int[LightUtils.MAX_SPOT_LIGHTS];
+    protected int[] UNIFORM_SPOT_LIGHT_ATT_CONSTANT = new int[LightUtils.MAX_SPOT_LIGHTS];
+    protected int[] UNIFORM_SPOT_LIGHT_ATT_LINEAR = new int[LightUtils.MAX_SPOT_LIGHTS];
+    protected int[] UNIFORM_SPOT_LIGHT_ATT_EXP = new int[LightUtils.MAX_SPOT_LIGHTS];
 
     @Override
     public void init(ShaderProgram program, Renderable renderable) {
 
         // Register point light uniform array
-        for (int i = 0; i < ShaderUtils.MAX_POINT_LIGHTS; i++) {
+        for (int i = 0; i < LightUtils.MAX_POINT_LIGHTS; i++) {
             UNIFORM_POINT_LIGHT_COLOR[i] = register(new Uniform("gPointLights["+ i +"].Base.Color"));
             UNIFORM_POINT_LIGHT_INTENSITY[i] = register(new Uniform("gPointLights["+ i +"].Base.DiffuseIntensity"));
             UNIFORM_POINT_LIGHT_INTENSITY_AMBIENT[i] = register(new Uniform("gPointLights["+ i +"].Base.AmbientIntensity"));
@@ -80,7 +80,7 @@ public abstract class LightShader extends ClippableShader {
         }
 
         // Register spotlight uniform array
-        for (int i = 0; i < ShaderUtils.MAX_SPOT_LIGHTS; i++) {
+        for (int i = 0; i < LightUtils.MAX_SPOT_LIGHTS; i++) {
             UNIFORM_SPOT_LIGHT_COLOR[i] = register(new Uniform("gSpotLights["+ i +"].Base.Base.Color"));
             UNIFORM_SPOT_LIGHT_INTENSITY[i] = register(new Uniform("gSpotLights["+ i +"].Base.Base.DiffuseIntensity"));
             UNIFORM_SPOT_LIGHT_INTENSITY_AMBIENT[i] = register(new Uniform("gSpotLights["+ i +"].Base.Base.AmbientIntensity"));
@@ -116,8 +116,8 @@ public abstract class LightShader extends ClippableShader {
         if (pointLights != null && pointLights.size > 0) {
             set(UNIFORM_POINT_LIGHT_NUM_ACTIVE, pointLights.size);
 
-            if (pointLights.size > ShaderUtils.MAX_POINT_LIGHTS) {
-                throw new GdxRuntimeException("Too many point lights. Current: " + pointLights.size + " Max: " + ShaderUtils.MAX_POINT_LIGHTS);
+            if (pointLights.size > LightUtils.MAX_POINT_LIGHTS) {
+                throw new GdxRuntimeException("Too many point lights. Current: " + pointLights.size + " Max: " + LightUtils.MAX_POINT_LIGHTS);
             }
 
             for (int i = 0; i < pointLights.size; i++) {
@@ -141,8 +141,8 @@ public abstract class LightShader extends ClippableShader {
         if (spotLights != null && spotLights.size > 0) {
             set(UNIFORM_SPOT_LIGHT_NUM_ACTIVE, spotLights.size);
 
-            if (spotLights.size > ShaderUtils.MAX_SPOT_LIGHTS) {
-                throw new GdxRuntimeException("Too many spotlights. Current: " + spotLights.size + " Max: " + ShaderUtils.MAX_SPOT_LIGHTS);
+            if (spotLights.size > LightUtils.MAX_SPOT_LIGHTS) {
+                throw new GdxRuntimeException("Too many spotlights. Current: " + spotLights.size + " Max: " + LightUtils.MAX_SPOT_LIGHTS);
             }
 
             for (int i = 0; i < spotLights.size; i++) {
