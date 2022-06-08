@@ -19,7 +19,7 @@ public class LightUtils {
 
     public static Array<PointLight> getPointLights(Environment env) {
         PointLightsAttribute attr = env.get(PointLightsAttribute.class, PointLightsAttribute.Type);
-        return attr == null ? new Array<>() : attr.lights;
+        return attr == null ? new Array<PointLight>() : attr.lights;
     }
 
     public static int getPointLightsCount(Environment env) {
@@ -29,7 +29,7 @@ public class LightUtils {
 
     public static Array<SpotLight> getSpotLights(Environment env) {
         SpotLightsAttribute spotAttr = env.get(SpotLightsAttribute.class, SpotLightsAttribute.Type);
-        return spotAttr == null ? new Array<>() : spotAttr.lights;
+        return spotAttr == null ? new Array<SpotLight>() : spotAttr.lights;
     }
 
     public static int getSpotLightsCount(Environment env) {
