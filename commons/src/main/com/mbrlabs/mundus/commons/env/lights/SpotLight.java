@@ -16,7 +16,7 @@ public class SpotLight extends PointLight {
     public SpotLight() {
         super();
         this.lightType = LightType.SPOT_LIGHT;
-        this.direction = DEFAULT_DIRECTION;
+        this.direction = DEFAULT_DIRECTION.cpy();
         this.cutoff = DEFAULT_CUTOFF;
     }
 

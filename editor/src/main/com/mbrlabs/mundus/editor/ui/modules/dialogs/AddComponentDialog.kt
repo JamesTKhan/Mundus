@@ -46,11 +46,12 @@ class AddComponentDialog : BaseDialog("Add Component") {
         root.add(addBtn).left().growX()
 
         // Load types into select box
-        val types = Array<Component.Type>()
-        for (type in Component.Type.values())
-            types.add(type)
+        val addableTypes = Array<Component.Type>()
 
-        selectBox.items = types
+        // At the moment, only light components are supported for dynamically adding
+        addableTypes.add(Component.Type.LIGHT)
+
+        selectBox.items = addableTypes
 
         add(root)
     }
@@ -71,6 +72,9 @@ class AddComponentDialog : BaseDialog("Add Component") {
         })
     }
 
+    /**
+     * Retrieve a new component for the given type. Only Light components are supported right now.
+     */
     private fun getNewComponent(type: Component.Type, go: GameObject): Component? {
         when(type) {
             Component.Type.MODEL -> TODO()
@@ -82,12 +86,12 @@ class AddComponentDialog : BaseDialog("Add Component") {
     }
 
     private fun getNewLightComponent(go: GameObject): Component? {
-        val pointLights = LightUtils.getPointLights(projectManager.current().currScene.environment)
-        val spotLights = LightUtils.getSpotLights(projectManager.current().currScene.environment)
+        val env = projectManager.current().currScene.environment
 
-        if (pointLights == null || pointLights.size < ShaderUtils.MAX_POINT_LIGHTS) {
+        // Create a point or spotlight based on maximum lights allowed
+        if (LightUtils.canCreateLight(env, LightType.POINT_LIGHT)) {
             return PickableLightComponent(go, LightType.POINT_LIGHT)
-        } else if (spotLights == null || spotLights.size < ShaderUtils.MAX_SPOT_LIGHTS) {
+        } else if (LightUtils.canCreateLight(env, LightType.SPOT_LIGHT)) {
             Dialogs.showOKDialog(UI, "Info", "Max point lights reached ("+ShaderUtils.MAX_POINT_LIGHTS+"), switching to spotlight.")
             return PickableLightComponent(go, LightType.SPOT_LIGHT)
         } else {

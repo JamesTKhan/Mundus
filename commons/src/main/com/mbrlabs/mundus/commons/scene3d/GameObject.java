@@ -22,6 +22,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.ClippableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 import com.mbrlabs.mundus.commons.scene3d.traversal.DepthFirstIterator;
+import com.mbrlabs.mundus.commons.utils.LightUtils;
 
 import java.util.Iterator;
 
@@ -286,7 +287,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
         // On adding of GameObject with a Light, add it to environment
         if (component != null) {
-            sceneGraph.scene.environment.add(component.getLight());
+            LightUtils.addLightIfMissing(sceneGraph.scene.environment, component.getLight());
         }
     }
 

@@ -1,13 +1,17 @@
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.env.lights.LightType;
 import com.mbrlabs.mundus.commons.env.lights.PointLight;
 import com.mbrlabs.mundus.commons.env.lights.SpotLight;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.utils.LightUtils;
 
 public class LightComponent extends AbstractComponent {
+    private static final String TAG = LightComponent.class.getSimpleName();
+
     private PointLight light;
     protected final Vector3 tmp = new Vector3();
 
@@ -50,7 +54,15 @@ public class LightComponent extends AbstractComponent {
 
     @Override
     public Component clone(GameObject go) {
-        return null;
+        if (!LightUtils.canCreateLight(go.sceneGraph.scene.environment, this.getLight().lightType)) {
+            Gdx.app.log(TAG, "Could not clone Light Component, max lights reached.");
+            return null;
+        }
+
+        LightComponent lightComponent = new LightComponent(go, this.getLight().lightType);
+        LightUtils.copyLightSettings(getLight(), lightComponent.getLight());
+
+        return lightComponent;
     }
 
     public PointLight getLight() {
