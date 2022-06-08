@@ -209,9 +209,9 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
 
         // Disable spotlight check box if the corresponding light counts are maxed out.
         val env: Environment = lightComponent.gameObject.sceneGraph.scene.environment
-        if (!spotlightCheckbox.isChecked && LightUtils.getSpotLightsCount(env) >= ShaderUtils.MAX_SPOT_LIGHTS) {
+        if (!spotlightCheckbox.isChecked && !LightUtils.canCreateLight(env, LightType.SPOT_LIGHT)) {
             spotlightCheckbox.isDisabled = true
-        } else if (spotlightCheckbox.isChecked && LightUtils.getPointLightsCount(env) >= ShaderUtils.MAX_POINT_LIGHTS) {
+        } else if (spotlightCheckbox.isChecked && !LightUtils.canCreateLight(env, LightType.POINT_LIGHT)) {
             spotlightCheckbox.isDisabled = true
         }
 
