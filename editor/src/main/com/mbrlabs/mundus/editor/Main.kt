@@ -22,11 +22,15 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import com.kotcrab.vis.ui.util.OsUtils
 import com.mbrlabs.mundus.editor.utils.Log
+import com.mbrlabs.mundus.editor.utils.StartOnFirstThreadHelper
 
 const private val TAG = "Main"
-const val TITLE = "Mundus v0.3.0"
+const val TITLE = "Mundus v0.3.1"
 
 fun main(arg: Array<String>) {
+    // Temporary fix for MacOS, we should be able to remove when we update libGDX to 1.11.0 and use
+    //  gdx-lwjgl3-glfw-awt-macos extension instead https://libgdx.com/news/2022/05/gdx-1-11
+    StartOnFirstThreadHelper.startNewJvmIfRequired()
     Log.init()
     launchEditor()
 }

@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.Disposable;
@@ -57,6 +58,10 @@ public abstract class BasePicker implements Disposable {
     }
 
     protected void begin(Viewport viewport) {
+        // Per LibGDX WIKI, we need to set to Pixels temporarily when capturing Scene2D elements otherwise we run into
+        // issues on retina screens. Observed issues on Mac with tools not detecting clicks
+        // https://libgdx.com/wiki/graphics/opengl-utils/frame-buffer-objects
+        HdpiUtils.setMode(HdpiMode.Pixels);
         fbo.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         HdpiUtils.glViewport(viewport.getScreenX(), viewport.getScreenY(), viewport.getScreenWidth(),
@@ -65,6 +70,7 @@ public abstract class BasePicker implements Disposable {
 
     protected void end() {
         fbo.end();
+        HdpiUtils.setMode(HdpiMode.Logical);
     }
 
     public Pixmap getFrameBufferPixmap(Viewport viewport) {
