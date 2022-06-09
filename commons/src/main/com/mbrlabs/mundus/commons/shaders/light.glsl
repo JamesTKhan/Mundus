@@ -1,6 +1,6 @@
 // Lighting adapted from OGLDEV tutorials https://www.youtube.com/c/OGLDEV
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 struct BaseLight

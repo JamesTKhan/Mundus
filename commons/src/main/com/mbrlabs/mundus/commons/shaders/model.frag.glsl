@@ -15,7 +15,7 @@
  */
 
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 const vec4 COLOR_TURQUOISE = vec4(0,0.714,0.586, 1.0);
