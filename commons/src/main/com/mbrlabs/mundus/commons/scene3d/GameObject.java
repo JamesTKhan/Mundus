@@ -250,6 +250,10 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
      */
     public void removeComponent(Component component) {
         components.removeValue(component, true);
+
+        if (component instanceof LightComponent) {
+            sceneGraph.scene.environment.remove(((LightComponent)component).getLight());
+        }
     }
 
     /**
