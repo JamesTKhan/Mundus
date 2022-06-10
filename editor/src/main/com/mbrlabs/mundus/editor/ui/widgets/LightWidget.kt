@@ -20,7 +20,6 @@ import com.mbrlabs.mundus.commons.env.lights.SpotLight
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.commons.utils.MathUtils
-import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
@@ -201,7 +200,7 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
     }
 
     private fun setFieldsToCurrentValues() {
-        colorPickerField.color = lightComponent.light.color
+        colorPickerField.selectedColor = lightComponent.light.color
         diffuseIntensityField.text = lightComponent.light.intensity.toString()
         linearField.text = lightComponent.light.attenuation.linear.toString()
         exponentialField.text = lightComponent.light.attenuation.exponential.toString()

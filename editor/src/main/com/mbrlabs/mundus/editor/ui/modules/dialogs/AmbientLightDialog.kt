@@ -99,7 +99,7 @@ class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.Proj
     private fun resetValues() {
         val light = projectManager.current().currScene.environment.ambientLight
         intensity.text = light.intensity.toString()
-        colorPickerField.color = light.color
+        colorPickerField.selectedColor = light.color
     }
 
     private fun convert(input: String): Float? {
