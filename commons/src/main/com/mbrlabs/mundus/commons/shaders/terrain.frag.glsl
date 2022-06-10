@@ -87,12 +87,12 @@ void main(void) {
 
     for (int i = 0 ; i < numPointLights ; i++) {
         if (i >= u_activeNumPointLights){break;}
-        totalLight += CalcPointLight(gPointLights[i], v_normal);
+        totalLight += CalcPointLight(u_pointLights[i], v_normal);
     }
 
     for (int i = 0; i < numSpotLights; i++) {
         if (i >= u_activeNumSpotLights){break;}
-        totalLight += CalcSpotLight(gSpotLights[i], v_normal);
+        totalLight += CalcSpotLight(u_spotLights[i], v_normal);
     }
 
     gl_FragColor *= totalLight;

@@ -53,19 +53,19 @@ void main(void) {
         //        discard;
         //    }
     } else {
-        gl_FragColor = vec4(gMaterial.DiffuseColor, 1.0);
+        gl_FragColor = vec4(u_material.DiffuseColor, 1.0);
     }
 
     vec4 totalLight = CalcDirectionalLight(v_normal);
 
     for (int i = 0 ; i < numPointLights ; i++) {
         if (i >= u_activeNumPointLights){break;}
-        totalLight += CalcPointLight(gPointLights[i], v_normal);
+        totalLight += CalcPointLight(u_pointLights[i], v_normal);
     }
 
     for (int i = 0 ; i < numSpotLights; i++) {
         if (i >= u_activeNumSpotLights){break;}
-        totalLight += CalcSpotLight(gSpotLights[i], v_normal);
+        totalLight += CalcSpotLight(u_spotLights[i], v_normal);
     }
 
     gl_FragColor = max(gl_FragColor, AMBIENT); // TODO make ambient color a unifrom

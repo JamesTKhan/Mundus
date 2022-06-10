@@ -150,22 +150,22 @@ void main() {
     vec4 totalLight = CalcDirectionalLight(normal);
 
     // Calculate specular hightlights for directional light
-    vec3 specularHighlights = calcSpecularHighlights(gDirectionalLight.Base, gDirectionalLight.Direction, normal, viewVector, waterDepth);
+    vec3 specularHighlights = calcSpecularHighlights(u_directionalLight.Base, u_directionalLight.Direction, normal, viewVector, waterDepth);
 
     // Calculate specular and lighting for point lights
     for (int i = 0 ; i < numPointLights ; i++) {
         if (i >= u_activeNumPointLights){break;}
-        vec4 lightColor = vec4(gPointLights[i].Base.Color, 1.0) * gPointLights[i].Base.DiffuseIntensity;
+        vec4 lightColor = vec4(u_pointLights[i].Base.Color, 1.0) * u_pointLights[i].Base.DiffuseIntensity;
 
-        vec3 lightDirection = v_worldPos - gPointLights[i].LocalPos;
+        vec3 lightDirection = v_worldPos - u_pointLights[i].LocalPos;
         float dist = length(lightDirection);
         lightDirection = normalize(lightDirection);
 
-        float attenuation =  gPointLights[i].Atten.Constant +
-        gPointLights[i].Atten.Linear * dist +
-        gPointLights[i].Atten.Exp * dist * dist;
+        float attenuation =  u_pointLights[i].Atten.Constant +
+        u_pointLights[i].Atten.Linear * dist +
+        u_pointLights[i].Atten.Exp * dist * dist;
 
-        float specularDistanceFactor = length(u_cameraPosition - gPointLights[i].LocalPos);
+        float specularDistanceFactor = length(u_cameraPosition - u_pointLights[i].LocalPos);
 
         // Limit distance of point lights specular highlights over water by 500 units
         specularDistanceFactor = clamp(1.0 - specularDistanceFactor / 500.0, 0.0, 1.0);
@@ -174,7 +174,7 @@ void main() {
         float specularAttenuationFactor = 0.1;
 
         // Add point light contribution to specular highlights
-        specularHighlights += (calcSpecularHighlights(gPointLights[i].Base, lightDirection, normal, viewVector, waterDepth) * specularDistanceFactor) / (attenuation * specularAttenuationFactor);
+        specularHighlights += (calcSpecularHighlights(u_pointLights[i].Base, lightDirection, normal, viewVector, waterDepth) * specularDistanceFactor) / (attenuation * specularAttenuationFactor);
 
         // Apply point light colors to overall color
         totalLight += lightColor / attenuation;
@@ -182,7 +182,7 @@ void main() {
 
     for (int i = 0; i < numSpotLights; i++) {
         if (i >= u_activeNumSpotLights){break;}
-        totalLight += CalcSpotLight(gSpotLights[i], normal);
+        totalLight += CalcSpotLight(u_spotLights[i], normal);
     }
 
     // Apply all lighting

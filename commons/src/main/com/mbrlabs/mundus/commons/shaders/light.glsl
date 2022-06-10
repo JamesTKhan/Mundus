@@ -54,21 +54,20 @@ struct Material
 
 varying vec3 v_worldPos;
 
-uniform DirectionalLight gDirectionalLight;
-uniform int u_activeNumPointLights;
-uniform int u_activeNumSpotLights;
-uniform PointLight gPointLights[numPointLights];
-uniform SpotLight gSpotLights[numSpotLights];
-uniform Material gMaterial;
-uniform vec3 u_camPos;
-uniform MED float u_shininess;
-
 uniform int u_useSpecular;
 uniform int u_useMaterial;
+uniform int u_activeNumPointLights;
+uniform int u_activeNumSpotLights;
+uniform vec3 u_camPos;
+uniform MED float u_shininess;
+uniform DirectionalLight u_directionalLight;
+uniform PointLight u_pointLights[numPointLights];
+uniform SpotLight u_spotLights[numSpotLights];
+uniform Material u_material;
 
 vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
 {
-    vec4 AmbientColor = vec4(Light.AmbientColor, 1.0) * Light.AmbientIntensity; /* vec4(gMaterial.AmbientColor, 1.0); */
+    vec4 AmbientColor = vec4(Light.AmbientColor, 1.0) * Light.AmbientIntensity; /* vec4(u_material.AmbientColor, 1.0); */
 
     float DiffuseFactor = dot(Normal, -LightDirection);
 
@@ -79,7 +78,7 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
         DiffuseColor = vec4(Light.Color, 1.0) * Light.DiffuseIntensity * DiffuseFactor;
 
         if (u_useMaterial == 1) {
-            DiffuseColor *= vec4(gMaterial.DiffuseColor, 1.0);
+            DiffuseColor *= vec4(u_material.DiffuseColor, 1.0);
         }
 
         if (u_useSpecular == 1) {
@@ -93,7 +92,7 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
                 SpecularFactor = pow(SpecularFactor, SpecularExponent);
                 SpecularColor = vec4(Light.Color, 1.0) *
                 Light.DiffuseIntensity *// using the diffuse intensity for diffuse/specular
-                /* vec4(gMaterial.SpecularColor, 1.0) * */
+                /* vec4(u_material.SpecularColor, 1.0) * */
                 SpecularFactor;
             }
         }
@@ -133,5 +132,5 @@ vec4 CalcSpotLight(SpotLight l, vec3 Normal)
 
 vec4 CalcDirectionalLight(vec3 Normal)
 {
-    return CalcLightInternal(gDirectionalLight.Base, gDirectionalLight.Direction, Normal);
+    return CalcLightInternal(u_directionalLight.Base, u_directionalLight.Direction, Normal);
 }

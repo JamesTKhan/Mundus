@@ -29,14 +29,14 @@ public abstract class LightShader extends ClippableShader {
 
     // Material properties
     protected final int UNIFORM_USE_MATERIAL = register(new Uniform("u_useMaterial"));
-    protected final int UNIFORM_MATERIAL_DIFFUSE_COLOR = register(new Uniform("gMaterial.DiffuseColor"));
+    protected final int UNIFORM_MATERIAL_DIFFUSE_COLOR = register(new Uniform("u_material.DiffuseColor"));
 
     // Directional Light
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR = register(new Uniform("gDirectionalLight.Base.Color"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR_AMBIENT = register(new Uniform("gDirectionalLight.Base.AmbientColor"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_DIR = register(new Uniform("gDirectionalLight.Direction"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_INTENSITY = register(new Uniform("gDirectionalLight.Base.DiffuseIntensity"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_INTENSITY_AMBIENT = register(new Uniform("gDirectionalLight.Base.AmbientIntensity"));
+    protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR = register(new Uniform("u_directionalLight.Base.Color"));
+    protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR_AMBIENT = register(new Uniform("u_directionalLight.Base.AmbientColor"));
+    protected final int UNIFORM_DIRECTIONAL_LIGHT_DIR = register(new Uniform("u_directionalLight.Direction"));
+    protected final int UNIFORM_DIRECTIONAL_LIGHT_INTENSITY = register(new Uniform("u_directionalLight.Base.DiffuseIntensity"));
+    protected final int UNIFORM_DIRECTIONAL_LIGHT_INTENSITY_AMBIENT = register(new Uniform("u_directionalLight.Base.AmbientIntensity"));
 
     // Point Lights
     protected final int UNIFORM_POINT_LIGHT_NUM_ACTIVE = register(new Uniform("u_activeNumPointLights"));
@@ -69,28 +69,28 @@ public abstract class LightShader extends ClippableShader {
 
         // Register point light uniform array
         for (int i = 0; i < LightUtils.MAX_POINT_LIGHTS; i++) {
-            UNIFORM_POINT_LIGHT_COLOR[i] = register(new Uniform("gPointLights["+ i +"].Base.Color"));
-            UNIFORM_POINT_LIGHT_INTENSITY[i] = register(new Uniform("gPointLights["+ i +"].Base.DiffuseIntensity"));
-            UNIFORM_POINT_LIGHT_INTENSITY_AMBIENT[i] = register(new Uniform("gPointLights["+ i +"].Base.AmbientIntensity"));
+            UNIFORM_POINT_LIGHT_COLOR[i] = register(new Uniform("u_pointLights["+ i +"].Base.Color"));
+            UNIFORM_POINT_LIGHT_INTENSITY[i] = register(new Uniform("u_pointLights["+ i +"].Base.DiffuseIntensity"));
+            UNIFORM_POINT_LIGHT_INTENSITY_AMBIENT[i] = register(new Uniform("u_pointLights["+ i +"].Base.AmbientIntensity"));
 
-            UNIFORM_POINT_LIGHT_POS[i] = register(new Uniform("gPointLights["+ i +"].LocalPos"));
-            UNIFORM_POINT_LIGHT_ATT_CONSTANT[i] = register(new Uniform("gPointLights["+ i +"].Atten.Constant"));
-            UNIFORM_POINT_LIGHT_ATT_LINEAR[i] = register(new Uniform("gPointLights["+ i +"].Atten.Linear"));
-            UNIFORM_POINT_LIGHT_ATT_EXP[i] = register(new Uniform("gPointLights["+ i +"].Atten.Exp"));
+            UNIFORM_POINT_LIGHT_POS[i] = register(new Uniform("u_pointLights["+ i +"].LocalPos"));
+            UNIFORM_POINT_LIGHT_ATT_CONSTANT[i] = register(new Uniform("u_pointLights["+ i +"].Atten.Constant"));
+            UNIFORM_POINT_LIGHT_ATT_LINEAR[i] = register(new Uniform("u_pointLights["+ i +"].Atten.Linear"));
+            UNIFORM_POINT_LIGHT_ATT_EXP[i] = register(new Uniform("u_pointLights["+ i +"].Atten.Exp"));
         }
 
         // Register spotlight uniform array
         for (int i = 0; i < LightUtils.MAX_SPOT_LIGHTS; i++) {
-            UNIFORM_SPOT_LIGHT_COLOR[i] = register(new Uniform("gSpotLights["+ i +"].Base.Base.Color"));
-            UNIFORM_SPOT_LIGHT_INTENSITY[i] = register(new Uniform("gSpotLights["+ i +"].Base.Base.DiffuseIntensity"));
-            UNIFORM_SPOT_LIGHT_INTENSITY_AMBIENT[i] = register(new Uniform("gSpotLights["+ i +"].Base.Base.AmbientIntensity"));
+            UNIFORM_SPOT_LIGHT_COLOR[i] = register(new Uniform("u_spotLights["+ i +"].Base.Base.Color"));
+            UNIFORM_SPOT_LIGHT_INTENSITY[i] = register(new Uniform("u_spotLights["+ i +"].Base.Base.DiffuseIntensity"));
+            UNIFORM_SPOT_LIGHT_INTENSITY_AMBIENT[i] = register(new Uniform("u_spotLights["+ i +"].Base.Base.AmbientIntensity"));
 
-            UNIFORM_SPOT_LIGHT_POS[i] = register(new Uniform("gSpotLights["+ i +"].Base.LocalPos"));
-            UNIFORM_SPOT_LIGHT_DIRECTION[i] = register(new Uniform("gSpotLights["+ i +"].Direction"));
-            UNIFORM_SPOT_LIGHT_CUT_OFF[i] = register(new Uniform("gSpotLights["+ i +"].Cutoff"));
-            UNIFORM_SPOT_LIGHT_ATT_CONSTANT[i] = register(new Uniform("gSpotLights["+ i +"].Base.Atten.Constant"));
-            UNIFORM_SPOT_LIGHT_ATT_LINEAR[i] = register(new Uniform("gSpotLights["+ i +"].Base.Atten.Linear"));
-            UNIFORM_SPOT_LIGHT_ATT_EXP[i] = register(new Uniform("gSpotLights["+ i +"].Base.Atten.Exp"));
+            UNIFORM_SPOT_LIGHT_POS[i] = register(new Uniform("u_spotLights["+ i +"].Base.LocalPos"));
+            UNIFORM_SPOT_LIGHT_DIRECTION[i] = register(new Uniform("u_spotLights["+ i +"].Direction"));
+            UNIFORM_SPOT_LIGHT_CUT_OFF[i] = register(new Uniform("u_spotLights["+ i +"].Cutoff"));
+            UNIFORM_SPOT_LIGHT_ATT_CONSTANT[i] = register(new Uniform("u_spotLights["+ i +"].Base.Atten.Constant"));
+            UNIFORM_SPOT_LIGHT_ATT_LINEAR[i] = register(new Uniform("u_spotLights["+ i +"].Base.Atten.Linear"));
+            UNIFORM_SPOT_LIGHT_ATT_EXP[i] = register(new Uniform("u_spotLights["+ i +"].Base.Atten.Exp"));
         }
 
         super.init(program, renderable);
