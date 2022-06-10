@@ -15,13 +15,20 @@
  */
 
 #ifdef GL_ES
+#define LOW lowp
+#define MED mediump
+#define HIGH highp
 precision highp float;
+#else
+#define MED
+#define LOW
+#define HIGH
 #endif
 
-const vec4 COLOR_TURQUOISE = vec4(0,0.714,0.586, 1.0);
-const vec4 AMBIENT = vec4(0.05,0.05,0.05,0.05);
+const MED vec4 COLOR_TURQUOISE = vec4(0,0.714,0.586, 1.0);
+const MED vec4 AMBIENT = vec4(0.05,0.05,0.05,0.05);
 
-varying vec2    v_texCoord0;
+varying MED vec2    v_texCoord0;
 varying vec3    v_vectorToLight;
 varying vec3    v_surfaceNormal;
 varying float   v_fog;
@@ -32,7 +39,7 @@ uniform sampler2D   u_diffuseTexture;
 uniform int         u_diffuseUseTexture;
 
 // enviroment
-uniform vec4 u_fogColor;
+uniform MED vec4 u_fogColor;
 
 varying float v_clipDistance;
 

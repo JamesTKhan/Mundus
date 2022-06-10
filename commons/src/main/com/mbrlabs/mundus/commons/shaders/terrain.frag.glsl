@@ -15,16 +15,23 @@
  */
 
 #ifdef GL_ES
+#define LOW lowp
+#define MED mediump
+#define HIGH highp
 precision highp float;
+#else
+#define MED
+#define LOW
+#define HIGH
 #endif
 
 #define PI 3.1415926535897932384626433832795
 
-const vec4 COLOR_TURQUOISE = vec4(0,0.714,0.586, 1.0);
-const vec4 COLOR_WHITE = vec4(1,1,1, 1.0);
-const vec4 COLOR_DARK = vec4(0.05,0.05,0.05, 1.0);
-const vec4 COLOR_BRIGHT = vec4(0.8,0.8,0.8, 1.0);
-const vec4 COLOR_BRUSH = vec4(0.4,0.4,0.4, 0.4);
+const MED vec4 COLOR_TURQUOISE = vec4(0,0.714,0.586, 1.0);
+const MED vec4 COLOR_WHITE = vec4(1,1,1, 1.0);
+const MED vec4 COLOR_DARK = vec4(0.05,0.05,0.05, 1.0);
+const MED vec4 COLOR_BRIGHT = vec4(0.8,0.8,0.8, 1.0);
+const MED vec4 COLOR_BRUSH = vec4(0.4,0.4,0.4, 0.4);
 
 // splat textures
 uniform sampler2D u_texture_base;
@@ -44,12 +51,12 @@ uniform int u_pickerActive;
 varying vec3 v_pos;
 #endif
 
-uniform vec4 u_fogColor;
+uniform MED vec4 u_fogColor;
 
 // light
 varying vec3 v_normal;
 
-varying vec2 v_texCoord0;
+varying MED vec2 v_texCoord0;
 varying float v_fog;
 
 varying vec2 splatPosition;

@@ -1,20 +1,27 @@
 // Lighting adapted from OGLDEV tutorials https://www.youtube.com/c/OGLDEV
 #ifdef GL_ES
+#define LOW lowp
+#define MED mediump
+#define HIGH highp
 precision highp float;
+#else
+#define MED
+#define LOW
+#define HIGH
 #endif
 
 struct BaseLight
 {
-    vec3 Color;
-    vec3 AmbientColor;
-    float AmbientIntensity;
-    float DiffuseIntensity;
+    MED vec3 Color;
+    MED vec3 AmbientColor;
+    MED float AmbientIntensity;
+    MED float DiffuseIntensity;
 };
 
 struct DirectionalLight
 {
     BaseLight Base;
-    vec3 Direction;
+    MED vec3 Direction;
 };
 
 struct Attenuation
@@ -27,22 +34,22 @@ struct Attenuation
 struct PointLight
 {
     BaseLight Base;
-    vec3 LocalPos;
+    MED vec3 LocalPos;
     Attenuation Atten;
 };
 
 struct SpotLight
 {
     PointLight Base;
-    vec3 Direction;
-    float Cutoff;
+    MED vec3 Direction;
+    MED float Cutoff;
 };
 
 struct Material
 {
-    vec3 AmbientColor;
-    vec3 DiffuseColor;
-    vec3 SpecularColor;
+    MED vec3 AmbientColor;
+    MED vec3 DiffuseColor;
+    MED vec3 SpecularColor;
 };
 
 varying vec3 v_worldPos;
@@ -54,7 +61,7 @@ uniform PointLight gPointLights[numPointLights];
 uniform SpotLight gSpotLights[numSpotLights];
 uniform Material gMaterial;
 uniform vec3 u_camPos;
-uniform float u_shininess;
+uniform MED float u_shininess;
 
 uniform int u_useSpecular;
 uniform int u_useMaterial;
@@ -65,8 +72,8 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
 
     float DiffuseFactor = dot(Normal, -LightDirection);
 
-    vec4 DiffuseColor = vec4(0, 0, 0, 0);
-    vec4 SpecularColor = vec4(0, 0, 0, 0);
+    MED vec4 DiffuseColor = vec4(0, 0, 0, 0);
+    MED vec4 SpecularColor = vec4(0, 0, 0, 0);
 
     if (DiffuseFactor > 0.0) {
         DiffuseColor = vec4(Light.Color, 1.0) * Light.DiffuseIntensity * DiffuseFactor;

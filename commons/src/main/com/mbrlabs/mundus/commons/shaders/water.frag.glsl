@@ -1,35 +1,42 @@
 #ifdef GL_ES
+#define LOW lowp
+#define MED mediump
+#define HIGH highp
 precision highp float;
+#else
+#define MED
+#define LOW
+#define HIGH
 #endif
 
-varying vec2 v_texCoord0;
+varying MED vec2 v_texCoord0;
 varying vec2 v_waterTexCoords;
 varying vec4 v_clipSpace;
 varying vec3 v_toCameraVector;
 varying vec2 v_diffuseUV;
 
-uniform vec3 u_color;
+uniform MED vec3 u_color;
 uniform sampler2D u_texture;
 uniform sampler2D u_refractionTexture;
 uniform sampler2D u_refractionDepthTexture;
 uniform sampler2D u_dudvTexture;
 uniform sampler2D u_normalMapTexture;
 uniform sampler2D u_foamTexture;
-uniform float u_waveStrength;
-uniform float u_moveFactor;
-uniform float u_shineDamper;
-uniform float u_reflectivity;
-uniform float u_foamScale;
-uniform float u_foamEdgeBias;
-uniform float u_foamEdgeDistance;
-uniform float u_foamFallOffDistance;
-uniform float u_foamScrollSpeed;
+uniform MED float u_waveStrength;
+uniform MED float u_moveFactor;
+uniform MED float u_shineDamper;
+uniform MED float u_reflectivity;
+uniform MED float u_foamScale;
+uniform MED float u_foamEdgeBias;
+uniform MED float u_foamEdgeDistance;
+uniform MED float u_foamFallOffDistance;
+uniform MED float u_foamScrollSpeed;
 uniform vec3 u_cameraPosition;
 uniform float u_camNearPlane;
 uniform float u_camFarPlane;
-uniform vec4 u_fogColor;
-uniform float u_fogDensity;
-uniform float u_fogGradient;
+uniform MED vec4 u_fogColor;
+uniform MED float u_fogDensity;
+uniform MED float u_fogGradient;
 
 const vec4 COLOR_TURQUOISE = vec4(0,0.5,0.686, 0.2);
 
