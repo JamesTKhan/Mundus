@@ -9,6 +9,15 @@ import com.mbrlabs.mundus.commons.env.lights.SpotLight;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
 
+/**
+ * LightComponent allows attachment of a Point or SpotLight to a GameObject.
+ * LightComponent holds reference to the actual Light object. LightComponents do not
+ * have associated assets, instead their data is saved within the GameObjects json inside
+ * the scene file.
+ *
+ * @author James Pooley
+ * @version May 30, 2022
+ */
 public class LightComponent extends AbstractComponent {
     private static final String TAG = LightComponent.class.getSimpleName();
 

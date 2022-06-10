@@ -14,7 +14,7 @@ public class Attenuation {
     public Attenuation() {
         this.constant = DEFAULT_CONSTANT;
         this.linear = DEFAULT_LINEAR;
-        exponential = DEFAULT_EXPONENTIAL;
+        this.exponential = DEFAULT_EXPONENTIAL;
     }
 
     public Attenuation(float constant, float linear, float exponential) {
