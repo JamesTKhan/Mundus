@@ -4,6 +4,7 @@
 - Added new Add Component Dialog which only supports Light Components for now.
 - Added new Gizmo feature for displaying decal Icons over objects like Light sources.
 - Update water shader to fade out water foam over distance, to minimize ugly 1 pixel white lines from a distance.
+- Updated libGDX to 1.11.0
 
 [0.3.1] ~ 07/06/2022
 - Added functionality to the editor to generate the assets.txt file, PR #45
