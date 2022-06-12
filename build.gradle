@@ -26,7 +26,7 @@ allprojects {
 
     ext {
         appName = "Mundus"
-        gdxVersion = '1.10.0'
+        gdxVersion = '1.11.0'
         visuiVersion = '1.5.0'
         kryoVersion = '5.2.0'
         junitVersion = '4.13.2'
