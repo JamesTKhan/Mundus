@@ -22,6 +22,11 @@ import com.mbrlabs.mundus.commons.utils.LightUtils;
  */
 public abstract class LightShader extends ClippableShader {
     // ============================ LIGHTS ============================
+    protected final int UNIFORM_SHADOW_BIAS = register(new Uniform("u_shadowBias"));
+    protected final int UNIFORM_USE_SHADOWS = register(new Uniform("u_useShadows"));
+    protected final int UNIFORM_SHADOW_TEXTURE = register(new Uniform("u_shadowTexture"));
+    protected final int UNIFORM_SHADOW_VIEW = register(new Uniform("u_shadowMapProjViewTrans"));
+    protected final int UNIFORM_SHADOW_PCF_OFFSET = register(new Uniform("u_shadowPCFOffset"));
 
     // Specular
     protected final int UNIFORM_USE_SPECULAR = register(new Uniform("u_useSpecular"));
@@ -63,6 +68,8 @@ public abstract class LightShader extends ClippableShader {
     protected int[] UNIFORM_SPOT_LIGHT_ATT_CONSTANT = new int[LightUtils.MAX_SPOT_LIGHTS];
     protected int[] UNIFORM_SPOT_LIGHT_ATT_LINEAR = new int[LightUtils.MAX_SPOT_LIGHTS];
     protected int[] UNIFORM_SPOT_LIGHT_ATT_EXP = new int[LightUtils.MAX_SPOT_LIGHTS];
+
+    private float shadowBias = 1f/255f;
 
     @Override
     public void init(ShaderProgram program, Renderable renderable) {
@@ -162,5 +169,15 @@ public abstract class LightShader extends ClippableShader {
             set(UNIFORM_SPOT_LIGHT_NUM_ACTIVE, 0);
         }
 
+    }
+
+    protected void setShadows(MundusEnvironment env) {
+        if (env.shadowMap != null) {
+            set(UNIFORM_SHADOW_BIAS, shadowBias);
+            set(UNIFORM_USE_SHADOWS, 1);
+            set(UNIFORM_SHADOW_TEXTURE, env.shadowMap.getDepthMap());
+            set(UNIFORM_SHADOW_VIEW, env.shadowMap.getProjViewTrans());
+            set(UNIFORM_SHADOW_PCF_OFFSET,  1.f / (2f * env.shadowMap.getDepthMap().texture.getWidth()));
+        }
     }
 }

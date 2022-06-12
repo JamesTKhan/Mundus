@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -32,8 +33,12 @@ import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
+import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.commons.shaders.DepthShader;
+import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
+import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
@@ -66,16 +71,24 @@ public class Scene implements Disposable {
     private FrameBuffer fboWaterRefraction;
     private FrameBuffer fboDepthRefraction;
 
+    private ShadowMapper shadowMapper = null;
+
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
 
     private final float distortionEdgeCorrection = 1f;
 
+    private final DepthShader depthShader = new DepthShader();
+    private final ShadowMapShader shadowMapShader = new ShadowMapShader();
+
     public Scene() {
         environment = new MundusEnvironment();
         currentSelection = null;
         terrains = new Array<>();
+
+        depthShader.init();
+        shadowMapShader.init();
 
         cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 1, -3);
@@ -111,8 +124,30 @@ public class Scene implements Disposable {
         }
 
         renderSkybox();
+        renderShadowMap(delta);
         renderObjects(delta);
         renderWater(delta);
+
+    }
+
+    private void renderShadowMap(float delta) {
+        //TODO: Remove GDX input, testing only
+        if (shadowMapper == null || Gdx.input.isKeyJustPressed(Input.Keys.F5)) {
+            final DirectionalLightsAttribute dirLightAttribs = environment.get(DirectionalLightsAttribute.class,
+                    DirectionalLightsAttribute.Type);
+            final Array<DirectionalLight> dirLights = dirLightAttribs == null ? null : dirLightAttribs.lights;
+            if (dirLights != null && dirLights.size > 0) {
+                shadowMapper = new ShadowMapper(4096, 4096, (int) cam.viewportWidth, (int) cam.viewportHeight, 0f, cam.far, dirLights.get(0).direction);
+                environment.shadowMap = shadowMapper;
+            }
+        }
+
+        shadowMapper.setCenter(cam.position);
+        shadowMapper.begin();
+        batch.begin(shadowMapper.getCam());
+        sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
+        batch.end();
+        shadowMapper.end();
     }
 
     private void renderObjects(float delta) {
@@ -179,7 +214,7 @@ public class Scene implements Disposable {
         fboDepthRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin(cam);
-        sceneGraph.renderDepth(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection);
+        sceneGraph.renderDepth(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection, depthShader);
         batch.end();
         fboDepthRefraction.end();
     }

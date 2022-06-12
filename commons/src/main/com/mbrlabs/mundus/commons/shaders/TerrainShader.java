@@ -106,6 +106,7 @@ public class TerrainShader extends LightShader {
         final MundusEnvironment env = (MundusEnvironment) renderable.environment;
 
         setLights(env);
+        setShadows(env);
         setTerrainSplatTextures(renderable);
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
 

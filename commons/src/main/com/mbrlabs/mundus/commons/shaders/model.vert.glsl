@@ -39,6 +39,9 @@ varying vec3 v_worldPos;
 varying float v_clipDistance;
 uniform vec4 u_clipPlane;
 
+uniform mat4 u_shadowMapProjViewTrans;
+varying vec3 v_shadowMapUv;
+
 void main(void) {
     vec4 worldPos = u_transMatrix * vec4(a_position, 1.0);
     v_texCoord0 = a_texCoord0;
@@ -54,6 +57,10 @@ void main(void) {
     // normal for lighting
     v_normal = normalize((u_transMatrix * vec4(a_normal, 0.0)).xyz);
     v_worldPos = worldPos.xyz;
+
+    vec4 spos = u_shadowMapProjViewTrans * worldPos;
+    v_shadowMapUv.xy = (spos.xy / spos.w) * 0.5 + 0.5;
+    v_shadowMapUv.z = min(spos.z * 0.5 + 0.5, 0.998);
 
     // =================================================================
     //                          /Lighting

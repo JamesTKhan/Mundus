@@ -16,8 +16,8 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.shaders.DepthShader;
 
 /**
  * @author Marcus Brummer
@@ -35,7 +35,7 @@ public interface Component {
 
     void update(float delta);
 
-    void setDepthShader(DepthShader shader);
+    void setDepthShader(Shader shader);
 
     Type getType();
 
