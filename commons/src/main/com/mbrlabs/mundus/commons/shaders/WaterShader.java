@@ -4,20 +4,16 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
-import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import com.mbrlabs.mundus.commons.water.Water;
 import com.mbrlabs.mundus.commons.water.WaterFloatAttribute;
 import com.mbrlabs.mundus.commons.water.WaterTextureAttribute;
 
-public class WaterShader extends BaseShader {
+public class WaterShader extends LightShader {
 
     protected static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/water.vert.glsl";
     protected static final String FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/water.frag.glsl";
@@ -50,13 +46,6 @@ public class WaterShader extends BaseShader {
     protected final int UNIFORM_CAM_NEAR_PLANE= register(new Uniform("u_camNearPlane"));
     protected final int UNIFORM_CAM_FAR_PLANE= register(new Uniform("u_camFarPlane"));
 
-    // ============================ LIGHTS ============================
-    protected final int UNIFORM_AMBIENT_LIGHT_COLOR = register(new Uniform("u_ambientLight.color"));
-    protected final int UNIFORM_AMBIENT_LIGHT_INTENSITY = register(new Uniform("u_ambientLight.intensity"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR = register(new Uniform("u_directionalLight.color"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_DIR = register(new Uniform("u_directionalLight.direction"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_INTENSITY = register(new Uniform("u_directionalLight.intensity"));
-
     // ============================ FOG ============================
     protected final int UNIFORM_FOG_DENSITY = register(new Uniform("u_fogDensity"));
     protected final int UNIFORM_FOG_GRADIENT = register(new Uniform("u_fogGradient"));
@@ -67,7 +56,7 @@ public class WaterShader extends BaseShader {
 
 
     public WaterShader() {
-        program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER);
+        program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER, this);
     }
 
     @Override
@@ -171,27 +160,6 @@ public class WaterShader extends BaseShader {
 
         // bind attributes, bind mesh & render; then unbinds everything
         renderable.meshPart.render(program);
-    }
-
-    private void setLights(MundusEnvironment env) {
-        // ambient
-        set(UNIFORM_AMBIENT_LIGHT_COLOR, env.getAmbientLight().color);
-        set(UNIFORM_AMBIENT_LIGHT_INTENSITY, env.getAmbientLight().intensity);
-
-        // TODO light array for each light type
-
-        // directional lights
-        final DirectionalLightsAttribute dirLightAttribs = env.get(DirectionalLightsAttribute.class,
-                DirectionalLightsAttribute.Type);
-        final Array<DirectionalLight> dirLights = dirLightAttribs == null ? null : dirLightAttribs.lights;
-        if (dirLights != null && dirLights.size > 0) {
-            final DirectionalLight light = dirLights.first();
-            set(UNIFORM_DIRECTIONAL_LIGHT_COLOR, light.color);
-            set(UNIFORM_DIRECTIONAL_LIGHT_DIR, light.direction);
-            set(UNIFORM_DIRECTIONAL_LIGHT_INTENSITY, light.intensity);
-        }
-
-        // TODO point lights, spot lights
     }
 
     private void setFloatUniform(Renderable renderable, long attribute, int uniform, float defaultValue) {

@@ -24,6 +24,7 @@ import com.badlogic.gdx.math.Vector3;
  * @version 03-12-2015
  */
 public class MathUtils {
+    private static final Vector3 tmp = new Vector3();
 
     public static float barryCentric(Vector3 p1, Vector3 p2, Vector3 p3, Vector2 pos) {
         float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
@@ -44,6 +45,41 @@ public class MathUtils {
      */
     public static float angle(float x1, float y1, float x2, float y2) {
         return (float) Math.toDegrees(Math.atan2(x2 - x1, y2 - y1));
+    }
+
+    /**
+     * Get an angle between two Vector3s
+     *
+     * @param from the vector to compare
+     * @param to the vector to compare with
+     * @return angle in degrees
+     */
+    public static float getAngleBetween(Vector3 from, Vector3 to) {
+        float absolute = (float) Math.sqrt(from.len() * to.len());
+        if (com.badlogic.gdx.math.MathUtils.isZero(absolute))
+            return 0; // It is close enough to just return 0
+
+        float angleDot = from.dot(to);
+        float dot = com.badlogic.gdx.math.MathUtils.clamp(angleDot / absolute, -1f, 1f);
+        return com.badlogic.gdx.math.MathUtils.acos(dot) * com.badlogic.gdx.math.MathUtils.radiansToDegrees;
+    }
+
+    /**
+     * Rotate a directional vector up/down by given angle.
+     *
+     * @param vectorToRotate the vector to rotate
+     * @param angleDegrees the angle in degrees to rotate by
+     */
+    public static void rotateUpDown(Vector3 vectorToRotate, float angleDegrees) {
+        tmp.set(vectorToRotate);
+
+        // Determine the axis to use
+        Vector3 axis = tmp.crs(Vector3.Y);
+
+        // If collinear, set to right
+        if (axis == Vector3.Zero) axis = Vector3.X;
+
+        vectorToRotate.rotate(axis, angleDegrees);
     }
 
 }

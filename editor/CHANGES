@@ -1,3 +1,10 @@
+[0.4.0] ~ 07/10/2022
+- Lighting overhaul for Directional and Ambient lighting.
+- Added new Light Component and accompanying Light Shader which prefixes shaders with additional shader lighting code.
+- Added new Add Component Dialog which only supports Light Components for now.
+- Added new Gizmo feature for displaying decal Icons over objects like Light sources.
+- Update water shader to fade out water foam over distance, to minimize ugly 1 pixel white lines from a distance.
+
 [0.3.1] ~ 07/06/2022
 - Added functionality to the editor to generate the assets.txt file, PR #45
 - Added Ambient Light and Directional Light to Environment menu

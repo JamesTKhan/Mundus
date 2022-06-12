@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#ifdef GL_ES
+precision highp float;
+#endif
+
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec2 a_texCoord0;
@@ -22,28 +26,14 @@ uniform mat4 u_transMatrix;
 uniform mat4 u_projViewMatrix;
 uniform vec3 u_camPos;
 
-// lights
-struct DirectionalLight {
-	vec4 color;
-	vec3 direction;
-    float intensity;
-};
-struct AmbientLight {
-	vec4 color;
-	float intensity;
-};
-uniform AmbientLight        u_ambientLight;
-uniform DirectionalLight    u_directionalLight;
-
-uniform float u_shininess;
-
 // Fog
 uniform float  u_fogDensity;
 uniform float  u_fogGradient;
 
-varying vec2    v_texCoord0;
-varying float   v_fog;
-varying vec4    v_lighting;
+varying float v_fog;
+varying vec2 v_texCoord0;
+varying vec3 v_normal;
+varying vec3 v_worldPos;
 
 // clipping plane
 varying float v_clipDistance;
@@ -60,20 +50,10 @@ void main(void) {
     // =================================================================
     //                          Lighting
     // =================================================================
-    vec3 normal = normalize((u_transMatrix * vec4(a_normal, 0.0)).xyz);
 
-    // diffuse light
-    v_lighting = u_directionalLight.color
-        * (dot(-u_directionalLight.direction, normal) * u_directionalLight.intensity);
-
-    // specular light
-    vec3 vertexToCam = normalize(u_camPos - worldPos.xyz);
-    vec3 reflectedLightDirection = reflect(u_directionalLight.direction, normal);
-    float specularity = max(dot(reflectedLightDirection, vertexToCam), 0.0) * u_shininess;
-    v_lighting += specularity * u_directionalLight.color * u_directionalLight.intensity;
-
-    // ambient light
-    v_lighting += u_ambientLight.color * u_ambientLight.intensity;
+    // normal for lighting
+    v_normal = normalize((u_transMatrix * vec4(a_normal, 0.0)).xyz);
+    v_worldPos = worldPos.xyz;
 
     // =================================================================
     //                          /Lighting

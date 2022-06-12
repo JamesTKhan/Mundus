@@ -23,11 +23,8 @@ import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.TerrainTexture;
 import com.mbrlabs.mundus.commons.terrain.TerrainTextureAttribute;
@@ -37,7 +34,7 @@ import com.mbrlabs.mundus.commons.utils.ShaderUtils;
  * @author Marcus Brummer
  * @version 22-11-2015
  */
-public class TerrainShader extends ClippableShader {
+public class TerrainShader extends LightShader {
 
     protected static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/terrain.vert.glsl";
     protected static final String FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/terrain.frag.glsl";
@@ -46,13 +43,6 @@ public class TerrainShader extends ClippableShader {
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
     protected final int UNIFORM_CAM_POS = register(new Uniform("u_camPos"));
-
-    // ============================ LIGHTS ============================
-    protected final int UNIFORM_AMBIENT_LIGHT_COLOR = register(new Uniform("u_ambientLight.color"));
-    protected final int UNIFORM_AMBIENT_LIGHT_INTENSITY = register(new Uniform("u_ambientLight.intensity"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR = register(new Uniform("u_directionalLight.color"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_DIR = register(new Uniform("u_directionalLight.direction"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_INTENSITY = register(new Uniform("u_directionalLight.intensity"));
 
     // ============================ TEXTURE SPLATTING ============================
     protected final int UNIFORM_TERRAIN_SIZE = register(new Uniform("u_terrainSize"));
@@ -70,13 +60,12 @@ public class TerrainShader extends ClippableShader {
     protected final int UNIFORM_FOG_GRADIENT = register(new Uniform("u_fogGradient"));
     protected final int UNIFORM_FOG_COLOR = register(new Uniform("u_fogColor"));
 
-
-    private Vector2 terrainSize = new Vector2();
+    private final Vector2 terrainSize = new Vector2();
 
     protected ShaderProgram program;
 
     public TerrainShader() {
-        program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER);
+        program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER, this);
     }
 
     @Override
@@ -96,6 +85,7 @@ public class TerrainShader extends ClippableShader {
 
     @Override
     public void begin(Camera camera, RenderContext context) {
+        this.camera = camera;
         this.context = context;
         context.begin();
         context.setCullFace(GL20.GL_BACK);
@@ -132,27 +122,6 @@ public class TerrainShader extends ClippableShader {
 
         // bind attributes, bind mesh & render; then unbinds everything
         renderable.meshPart.render(program);
-    }
-
-    protected void setLights(MundusEnvironment env) {
-        // ambient
-        set(UNIFORM_AMBIENT_LIGHT_COLOR, env.getAmbientLight().color);
-        set(UNIFORM_AMBIENT_LIGHT_INTENSITY, env.getAmbientLight().intensity);
-
-        // TODO light array for each light type
-
-        // directional lights
-        final DirectionalLightsAttribute dirLightAttribs = env.get(DirectionalLightsAttribute.class,
-                DirectionalLightsAttribute.Type);
-        final Array<DirectionalLight> dirLights = dirLightAttribs == null ? null : dirLightAttribs.lights;
-        if (dirLights != null && dirLights.size > 0) {
-            final DirectionalLight light = dirLights.first();
-            set(UNIFORM_DIRECTIONAL_LIGHT_COLOR, light.color);
-            set(UNIFORM_DIRECTIONAL_LIGHT_DIR, light.direction);
-            set(UNIFORM_DIRECTIONAL_LIGHT_INTENSITY, light.intensity);
-        }
-
-        // TODO point lights, spot lights
     }
 
     protected void setTerrainSplatTextures(Renderable renderable) {

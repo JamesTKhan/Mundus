@@ -26,6 +26,7 @@ import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
+import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
 import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
 import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent
 import com.mbrlabs.mundus.editor.ui.UI
@@ -38,6 +39,7 @@ import com.mbrlabs.mundus.editor.utils.Log
 class Inspector : VisTable(),
         GameObjectSelectedEvent.GameObjectSelectedListener,
         GameObjectModifiedEvent.GameObjectModifiedListener,
+        ComponentAddedEvent.ComponentAddedListener,
         AssetSelectedEvent.AssetSelectedListener {
 
     companion object {
@@ -106,6 +108,10 @@ class Inspector : VisTable(),
             root.add(assetInspector).grow().row()
         }
         assetInspector.asset = event.asset
+    }
+
+    override fun onComponentAdded(event: ComponentAddedEvent) {
+        goInspector.addComponent(event.component)
     }
 
 }

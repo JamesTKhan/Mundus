@@ -15,16 +15,23 @@
  */
 
 #ifdef GL_ES
-precision mediump float;
+#define LOW lowp
+#define MED mediump
+#define HIGH highp
+precision highp float;
+#else
+#define MED
+#define LOW
+#define HIGH
 #endif
 
 #define PI 3.1415926535897932384626433832795
 
-const vec4 COLOR_TURQUOISE = vec4(0,0.714,0.586, 1.0);
-const vec4 COLOR_WHITE = vec4(1,1,1, 1.0);
-const vec4 COLOR_DARK = vec4(0.05,0.05,0.05, 1.0);
-const vec4 COLOR_BRIGHT = vec4(0.8,0.8,0.8, 1.0);
-const vec4 COLOR_BRUSH = vec4(0.4,0.4,0.4, 0.4);
+const MED vec4 COLOR_TURQUOISE = vec4(0,0.714,0.586, 1.0);
+const MED vec4 COLOR_WHITE = vec4(1,1,1, 1.0);
+const MED vec4 COLOR_DARK = vec4(0.05,0.05,0.05, 1.0);
+const MED vec4 COLOR_BRIGHT = vec4(0.8,0.8,0.8, 1.0);
+const MED vec4 COLOR_BRUSH = vec4(0.4,0.4,0.4, 0.4);
 
 // splat textures
 uniform sampler2D u_texture_base;
@@ -44,29 +51,16 @@ uniform int u_pickerActive;
 varying vec3 v_pos;
 #endif
 
-uniform vec4 u_fogColor;
+uniform MED vec4 u_fogColor;
 
 // light
-varying vec4 v_lighting;
 varying vec3 v_normal;
 
-varying vec2 v_texCoord0;
+varying MED vec2 v_texCoord0;
 varying float v_fog;
 
 varying vec2 splatPosition;
 
-// lights
-struct DirectionalLight {
-	vec4 color;
-	vec3 direction;
-	float intensity;
-};
-struct AmbientLight {
-	vec4 color;
-	float intensity;
-};
-uniform AmbientLight u_ambientLight;
-uniform DirectionalLight u_directionalLight;
 
 varying float v_clipDistance;
 
@@ -89,16 +83,23 @@ void main(void) {
     // =================================================================
     //                          Lighting
     // =================================================================
-    vec4 diffuse_light = u_directionalLight.color
-        * (dot(-u_directionalLight.direction, v_normal) * u_directionalLight.intensity);
+    vec4 totalLight = CalcDirectionalLight(v_normal);
 
-    // ambient light
-    diffuse_light += u_ambientLight.color * u_ambientLight.intensity;
+    for (int i = 0 ; i < numPointLights ; i++) {
+        if (i >= u_activeNumPointLights){break;}
+        totalLight += CalcPointLight(u_pointLights[i], v_normal);
+    }
 
-    gl_FragColor *= diffuse_light;
+    for (int i = 0; i < numSpotLights; i++) {
+        if (i >= u_activeNumSpotLights){break;}
+        totalLight += CalcSpotLight(u_spotLights[i], v_normal);
+    }
+
+    gl_FragColor *= totalLight;
     // =================================================================
     //                          /Lighting
     // =================================================================
+
 
     // fog
     gl_FragColor = mix(gl_FragColor, u_fogColor, v_fog);

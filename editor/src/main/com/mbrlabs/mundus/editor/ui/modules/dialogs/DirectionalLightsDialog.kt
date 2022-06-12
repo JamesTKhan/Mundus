@@ -153,10 +153,10 @@ class DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChangedE
 
     private fun resetValues() {
         val light = getDirectionalLight()
-        intensity.text = light?.intensity.toString()
-        colorPickerField.color = light?.color
+        intensity.text = light!!.intensity.toString()
+        colorPickerField.selectedColor = light.color
 
-        dirXSlider.value = light?.direction!!.x
+        dirXSlider.value = light.direction!!.x
         dirYSlider.value = light.direction!!.y
         dirZSlider.value = light.direction!!.z
     }
