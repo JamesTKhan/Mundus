@@ -3,11 +3,7 @@ package com.mbrlabs.mundus.commons.utils;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
-import com.mbrlabs.mundus.commons.env.lights.LightType;
-import com.mbrlabs.mundus.commons.env.lights.PointLight;
-import com.mbrlabs.mundus.commons.env.lights.PointLightsAttribute;
-import com.mbrlabs.mundus.commons.env.lights.SpotLight;
-import com.mbrlabs.mundus.commons.env.lights.SpotLightsAttribute;
+import com.mbrlabs.mundus.commons.env.lights.*;
 
 /**
  * Utilities class for lighting.
@@ -19,6 +15,18 @@ public class LightUtils {
 
     public static final int MAX_POINT_LIGHTS = 12;
     public static final int MAX_SPOT_LIGHTS = 12;
+
+    /**
+     * Return the first Directional Light. Currently only one Directional Light is supported.
+     */
+    public static DirectionalLight getDirectionalLight(Environment env) {
+        DirectionalLightsAttribute dirLightAttribs = env.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
+        Array<DirectionalLight> dirLights = dirLightAttribs.lights;
+        if (dirLights != null && dirLights.size > 0) {
+            return dirLights.first();
+        }
+        return null;
+    }
 
     public static Array<PointLight> getPointLights(Environment env) {
         PointLightsAttribute attr = env.get(PointLightsAttribute.class, PointLightsAttribute.Type);

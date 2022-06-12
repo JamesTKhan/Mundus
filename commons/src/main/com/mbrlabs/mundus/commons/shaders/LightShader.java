@@ -172,7 +172,13 @@ public abstract class LightShader extends ClippableShader {
     }
 
     protected void setShadows(MundusEnvironment env) {
-        if (env.shadowMap != null) {
+        DirectionalLight dirLight = LightUtils.getDirectionalLight(env);
+        if (dirLight != null && env.shadowMap != null) {
+            if (!dirLight.castsShadows) {
+                set(UNIFORM_USE_SHADOWS, 0);
+                return;
+            }
+
             set(UNIFORM_SHADOW_BIAS, shadowBias);
             set(UNIFORM_USE_SHADOWS, 1);
             set(UNIFORM_SHADOW_TEXTURE, env.shadowMap.getDepthMap());
