@@ -33,13 +33,16 @@ import com.kotcrab.vis.ui.widget.*
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph
 import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
+import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.*
 import com.mbrlabs.mundus.editor.history.CommandHistory
 import com.mbrlabs.mundus.editor.history.commands.DeleteCommand
+import com.mbrlabs.mundus.editor.scene3d.components.PickableLightComponent
 import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
@@ -357,6 +360,24 @@ class Outline : VisTable(),
         Log.trace(TAG, "Duplicate [{}] with parent [{}]", go, parent)
         val goCopy = GameObject(go, projectManager.current().obtainID())
 
+        // Handle duplicated light components
+        val lightComponent = goCopy.findComponentByType(Component.Type.LIGHT)
+        if (lightComponent != null) {
+            lightComponent as LightComponent
+
+            // Remove the duplicated light component
+            goCopy.removeComponent(lightComponent)
+            lightComponent.remove()
+
+            // This is a bit of a workaround, since we are in editor here, we replace the duplicated lightComponent
+            // with a pickable version instead.
+            val pickableLightComponent = PickableLightComponent(goCopy, lightComponent.light.lightType)
+            LightUtils.copyLightSettings(lightComponent.light, pickableLightComponent.light)
+
+            goCopy.addComponent(pickableLightComponent)
+            Mundus.postEvent(ComponentAddedEvent(pickableLightComponent))
+        }
+
         // add copy to tree
         val n = tree.findNode(parent)
         addGoToTree(n, goCopy)
@@ -536,7 +557,6 @@ class Outline : VisTable(),
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     if (selectedGO != null) {
                         removeGo(selectedGO!!)
-                        Mundus.postEvent(SceneGraphChangedEvent())
                     }
                 }
             })

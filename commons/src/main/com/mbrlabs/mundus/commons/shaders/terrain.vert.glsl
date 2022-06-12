@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#ifdef GL_ES
+precision highp float;
+#endif
+
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec2 a_texCoord0;
@@ -31,8 +35,8 @@ uniform vec2 u_terrainSize;
 varying vec2 v_texCoord0;
 varying vec2 splatPosition;
 varying float v_fog;
-varying vec4 v_lighting;
 varying vec3 v_normal;
+varying vec3 v_worldPos;
 
 #ifdef PICKER
 varying vec3 v_pos;
@@ -56,6 +60,8 @@ void main(void) {
     // texture stuff
     v_texCoord0 = a_texCoord0;
     splatPosition = vec2(a_position.x / u_terrainSize.x, a_position.z / u_terrainSize);
+
+    v_worldPos = worldPos.xyz;
 
     // fog
     if(u_fogDensity > 0.0 && u_fogGradient > 0.0) {

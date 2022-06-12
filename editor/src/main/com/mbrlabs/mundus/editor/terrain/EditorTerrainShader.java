@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.shaders.TerrainShader;
+import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 
 public class EditorTerrainShader extends TerrainShader {
 
@@ -38,7 +39,7 @@ public class EditorTerrainShader extends TerrainShader {
         String vertexShader = "\n#define PICKER\n" + Gdx.files.classpath(VERTEX_SHADER).readString();
         String fragmentShader = "\n#define PICKER\n" + Gdx.files.classpath(FRAGMENT_SHADER).readString();
 
-        program = new ShaderProgram(vertexShader, fragmentShader);
+        program = new ShaderProgram(vertexShader, ShaderUtils.getShaderPrefix(this) + fragmentShader);
         if (!program.isCompiled()) {
             throw new GdxRuntimeException(program.getLog());
         }

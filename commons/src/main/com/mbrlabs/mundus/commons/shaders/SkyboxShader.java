@@ -58,7 +58,7 @@ public class SkyboxShader extends BaseShader {
 
     public SkyboxShader() {
         super();
-        program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER);
+        program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER, this);
     }
 
     @Override

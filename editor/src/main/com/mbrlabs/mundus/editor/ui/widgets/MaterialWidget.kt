@@ -38,6 +38,8 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetMaterialFilter
 import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 
@@ -147,10 +149,14 @@ class MaterialWidget : VisTable() {
         shininessField.addListener(object: ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 if(shininessField.isInputValid && !shininessField.isEmpty) {
-                    material?.shininess = shininessField.text.toFloat()
-                    applyMaterialToModelAssets()
-                    applyMaterialToModelComponents()
-                    projectManager.current().assetManager.addModifiedAsset(material!!)
+                    try {
+                        material?.shininess = shininessField.text.toFloat()
+                        applyMaterialToModelAssets()
+                        applyMaterialToModelComponents()
+                        projectManager.current().assetManager.addModifiedAsset(material!!)
+                    } catch (ex : NumberFormatException) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + shininessField.name))
+                    }
                 }
             }
         })

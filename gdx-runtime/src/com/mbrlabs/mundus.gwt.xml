@@ -14,5 +14,6 @@
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/water.vert.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/depth.frag.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/depth.vert.glsl" />
+    <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/light.glsl" />
 
 </module>

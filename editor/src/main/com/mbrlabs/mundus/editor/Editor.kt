@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.editor.input.InputManager
 import com.mbrlabs.mundus.editor.input.ShortcutController
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.ui.gizmos.GizmoManager
 import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
@@ -58,16 +59,17 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var projectManager: ProjectManager
     private lateinit var registry: Registry
     private lateinit var toolManager: ToolManager
+    private lateinit var gizmoManager: GizmoManager
 
     override fun create() {
         Mundus.registerEventListener(this)
-
         camController = Mundus.inject()
         shortcutController = Mundus.inject()
         inputManager = Mundus.inject()
         projectManager = Mundus.inject()
         registry = Mundus.inject()
         toolManager = Mundus.inject()
+        gizmoManager = Mundus.inject()
         setupInput()
 
         // TODO dispose this
@@ -120,9 +122,11 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             scene.render()
 
             toolManager.render()
+            gizmoManager.render()
             compass.render(batch)
         }
 
+        gizmoManager.setCamera(context.currScene.cam)
         compass.setWorldCam(context.currScene.cam)
         camController.setCamera(context.currScene.cam)
         UI.sceneWidget.setCam(context.currScene.cam)

@@ -20,7 +20,7 @@ public class DepthShader extends ClippableShader {
     protected ShaderProgram program;
 
     public DepthShader() {
-        program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER);
+        program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER, this);
     }
 
     @Override

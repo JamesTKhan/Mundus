@@ -23,6 +23,9 @@ import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
+import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
+import com.mbrlabs.mundus.editor.Mundus;
+import com.mbrlabs.mundus.editor.events.ComponentAddedEvent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableWaterComponent;
@@ -65,6 +68,13 @@ public class GameObjectConverter {
             go.getComponents().add(TerrainComponentConverter.convert(dto.getTerrainComponent(), go, assets));
         } else if (dto.getWaterComponent() != null) {
             go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, assets));
+        }
+
+        // Convert light component
+        if (dto.getLightComponent() != null) {
+            LightComponent component = PickableLightComponentConverter.convert(dto.getLightComponent(), go);
+            go.getComponents().add(component);
+            Mundus.INSTANCE.postEvent(new ComponentAddedEvent(component));
         }
 
         // recursively convert children
@@ -115,6 +125,8 @@ public class GameObjectConverter {
                 descriptor.setTerrainComponent(TerrainComponentConverter.convert((PickableTerrainComponent) c));
             } else if (c.getType() == Component.Type.WATER) {
                 descriptor.setWaterComponent(WaterComponentConverter.convert((PickableWaterComponent) c));
+            } else if (c.getType() == Component.Type.LIGHT) {
+                descriptor.setLightComponent(PickableLightComponentConverter.convert((LightComponent) c));
             }
         }
 

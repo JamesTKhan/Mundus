@@ -1,53 +1,57 @@
 #ifdef GL_ES
-precision mediump float;
+#define LOW lowp
+#define MED mediump
+#define HIGH highp
+precision highp float;
+#else
+#define MED
+#define LOW
+#define HIGH
 #endif
 
-varying vec2 v_texCoord0;
+varying MED vec2 v_texCoord0;
 varying vec2 v_waterTexCoords;
 varying vec4 v_clipSpace;
 varying vec3 v_toCameraVector;
-varying vec3 v_fromLightVector;
-varying float v_fog;
+varying vec2 v_diffuseUV;
 
-uniform vec3 u_color;
+uniform MED vec3 u_color;
 uniform sampler2D u_texture;
 uniform sampler2D u_refractionTexture;
 uniform sampler2D u_refractionDepthTexture;
 uniform sampler2D u_dudvTexture;
 uniform sampler2D u_normalMapTexture;
 uniform sampler2D u_foamTexture;
-uniform float u_waveStrength;
-uniform float u_moveFactor;
-uniform float u_shineDamper;
-uniform float u_reflectivity;
-uniform float u_foamScale;
-uniform float u_foamEdgeBias;
-uniform float u_foamEdgeDistance;
-uniform float u_foamFallOffDistance;
-uniform float u_foamScrollSpeed;
+uniform MED float u_waveStrength;
+uniform MED float u_moveFactor;
+uniform MED float u_shineDamper;
+uniform MED float u_reflectivity;
+uniform MED float u_foamScale;
+uniform MED float u_foamEdgeBias;
+uniform MED float u_foamEdgeDistance;
+uniform MED float u_foamFallOffDistance;
+uniform MED float u_foamScrollSpeed;
+uniform vec3 u_cameraPosition;
 uniform float u_camNearPlane;
 uniform float u_camFarPlane;
-varying vec2 v_diffuseUV;
-uniform vec4 u_fogColor;
-
-struct AmbientLight {
-    vec4 color;
-    float intensity;
-};
-uniform AmbientLight u_ambientLight;
-
-struct DirectionalLight {
-    vec4 color;
-    vec3 direction;
-    float intensity;
-};
-uniform DirectionalLight u_directionalLight;
+uniform MED vec4 u_fogColor;
+uniform MED float u_fogDensity;
+uniform MED float u_fogGradient;
 
 const vec4 COLOR_TURQUOISE = vec4(0,0.5,0.686, 0.2);
 
 //https://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
 float DecodeFloatRGBA( vec4 rgba ) {
     return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );
+}
+
+vec3 calcSpecularHighlights(BaseLight baseLight, vec3 direction, vec3 normal, vec3 viewVector, float waterDepth) {
+    vec3 reflectedLight = reflect(normalize(direction), normal);
+    float specular = max(dot(reflectedLight, viewVector), 0.0);
+    specular = pow(specular, u_shineDamper);
+    vec3 specularHighlights = vec3(baseLight.Color) * baseLight.DiffuseIntensity * specular * u_reflectivity * clamp(waterDepth/5.0, 0.0, 1.0);
+
+    return specularHighlights;
 }
 
 void main() {
@@ -94,15 +98,10 @@ void main() {
     // Fresnel Effect
     vec3 viewVector = normalize(v_toCameraVector);
     float refractiveFactor = dot(viewVector, normal);
-
-    // Calculate specular hightlights
-    vec3 reflectedLight = reflect(normalize(u_directionalLight.direction), normal);
-    float specular = max(dot(reflectedLight, viewVector), 0.0);
-    specular = pow(specular, u_shineDamper);
-    vec3 specularHighlights = vec3(u_directionalLight.color) * u_directionalLight.intensity * specular * u_reflectivity * clamp(waterDepth/5.0, 0.0, 1.0);
-
     vec4 color =  mix(reflectColor, refractColor, refractiveFactor);
-    color = mix(color, COLOR_TURQUOISE, 0.2) + vec4(specularHighlights, 0.0);
+
+    // Mix some color in
+    color = mix(color, COLOR_TURQUOISE, 0.2);
 
     // Water Foam implemented from http://fire-face.com/personal/water/
     float edgePatternScroll = u_moveFactor * u_foamScrollSpeed;
@@ -139,15 +138,67 @@ void main() {
     // This is a workaround fix to resolve an issue when using packed depth that causes white borders on water
     // so if the red channel is full 1.0 its probably pure white (border) so we ignore it.
     if (edge.r < 0.99) {
+        // Fade foam out after a distance, otherwise we get ugly 1 pixel lines
+        float distanceToCam = length(v_worldPos - u_cameraPosition);
+        float foamVisibleFactor = clamp(1.0 - distanceToCam / 500.0, 0.0, 1.0);
+
         // Subtract mask value from foam gradient, then add the foam value to the final pixel color
-        color.rgb += clamp(edge - vec3(mask), 0.0, 1.0);
+        color.rgb += clamp(edge - vec3(mask), 0.0, 1.0) * foamVisibleFactor;
     }
 
-    // Fog
-    color = mix(color, u_fogColor, v_fog);
+    // Get directional light
+    vec4 totalLight = CalcDirectionalLight(normal);
 
-    // ambient light
-   color *= u_ambientLight.color * u_ambientLight.intensity;
+    // Calculate specular hightlights for directional light
+    vec3 specularHighlights = calcSpecularHighlights(u_directionalLight.Base, u_directionalLight.Direction, normal, viewVector, waterDepth);
+
+    // Calculate specular and lighting for point lights
+    for (int i = 0 ; i < numPointLights ; i++) {
+        if (i >= u_activeNumPointLights){break;}
+        vec4 lightColor = vec4(u_pointLights[i].Base.Color, 1.0) * u_pointLights[i].Base.DiffuseIntensity;
+
+        vec3 lightDirection = v_worldPos - u_pointLights[i].LocalPos;
+        float dist = length(lightDirection);
+        lightDirection = normalize(lightDirection);
+
+        float attenuation =  u_pointLights[i].Atten.Constant +
+        u_pointLights[i].Atten.Linear * dist +
+        u_pointLights[i].Atten.Exp * dist * dist;
+
+        float specularDistanceFactor = length(u_cameraPosition - u_pointLights[i].LocalPos);
+
+        // Limit distance of point lights specular highlights over water by 500 units
+        specularDistanceFactor = clamp(1.0 - specularDistanceFactor / 500.0, 0.0, 1.0);
+
+        // We want specular to adjust based on attenuation, but not to the same degree otherwise we lose too much
+        float specularAttenuationFactor = 0.1;
+
+        // Add point light contribution to specular highlights
+        specularHighlights += (calcSpecularHighlights(u_pointLights[i].Base, lightDirection, normal, viewVector, waterDepth) * specularDistanceFactor) / (attenuation * specularAttenuationFactor);
+
+        // Apply point light colors to overall color
+        totalLight += lightColor / attenuation;
+    }
+
+    for (int i = 0; i < numSpotLights; i++) {
+        if (i >= u_activeNumSpotLights){break;}
+        totalLight += CalcSpotLight(u_spotLights[i], normal);
+    }
+
+    // Apply all lighting
+    color *= totalLight;
+
+    // Apply final specular values
+    color += vec4(specularHighlights, 0.0);
+
+    // Fog
+    float v_fog = 0.0;
+    if(u_fogDensity > 0.0 && u_fogGradient > 0.0) {
+        v_fog = waterDistance;
+        v_fog = exp(-pow(v_fog * u_fogDensity, u_fogGradient));
+        v_fog = 1.0 - clamp(v_fog, 0.0, 1.0);
+    }
+    color = mix(color, u_fogColor, v_fog);
 
     gl_FragColor = color;
     //gl_FragColor = vec4(waterDepth/50.0);

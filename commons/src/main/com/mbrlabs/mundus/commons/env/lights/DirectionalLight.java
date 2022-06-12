@@ -30,4 +30,7 @@ public class DirectionalLight extends BaseLight {
 
     public final Vector3 direction = new Vector3();
 
+    public DirectionalLight() {
+        lightType = LightType.DIRECTIONAL_LIGHT;
+    }
 }

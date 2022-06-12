@@ -15,25 +15,31 @@
  */
 
 #ifdef GL_ES
-precision mediump float;
+#define LOW lowp
+#define MED mediump
+#define HIGH highp
+precision highp float;
+#else
+#define MED
+#define LOW
+#define HIGH
 #endif
 
-const vec4 COLOR_TURQUOISE = vec4(0,0.714,0.586, 1.0);
-const vec4 AMBIENT = vec4(0.05,0.05,0.05,0.05);
+const MED vec4 COLOR_TURQUOISE = vec4(0,0.714,0.586, 1.0);
+const MED vec4 AMBIENT = vec4(0.05,0.05,0.05,0.05);
 
-varying vec2    v_texCoord0;
+varying MED vec2    v_texCoord0;
 varying vec3    v_vectorToLight;
 varying vec3    v_surfaceNormal;
 varying float   v_fog;
-varying vec4    v_lighting;
+varying vec3 v_normal;
 
 // diffuse material
 uniform sampler2D   u_diffuseTexture;
-uniform vec4        u_diffuseColor;
 uniform int         u_diffuseUseTexture;
 
 // enviroment
-uniform vec4 u_fogColor;
+uniform MED vec4 u_fogColor;
 
 varying float v_clipDistance;
 
@@ -47,10 +53,22 @@ void main(void) {
         //        discard;
         //    }
     } else {
-        gl_FragColor = u_diffuseColor;
+        gl_FragColor = vec4(u_material.DiffuseColor, 1.0);
+    }
+
+    vec4 totalLight = CalcDirectionalLight(v_normal);
+
+    for (int i = 0 ; i < numPointLights ; i++) {
+        if (i >= u_activeNumPointLights){break;}
+        totalLight += CalcPointLight(u_pointLights[i], v_normal);
+    }
+
+    for (int i = 0 ; i < numSpotLights; i++) {
+        if (i >= u_activeNumSpotLights){break;}
+        totalLight += CalcSpotLight(u_spotLights[i], v_normal);
     }
 
     gl_FragColor = max(gl_FragColor, AMBIENT); // TODO make ambient color a unifrom
-    gl_FragColor *= v_lighting;
+    gl_FragColor *= totalLight;
     gl_FragColor = mix(gl_FragColor, u_fogColor, v_fog);
 }

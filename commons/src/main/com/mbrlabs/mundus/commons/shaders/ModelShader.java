@@ -25,40 +25,28 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 
 /**
  * @author Marcus Brummer
  * @version 22-11-2015
  */
-public class ModelShader extends ClippableShader {
+public class ModelShader extends LightShader {
 
     private static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/model.vert.glsl";
     private static final String FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/model.frag.glsl";
 
     // ============================ MATERIALS ============================
     protected final int UNIFORM_MATERIAL_DIFFUSE_TEXTURE = register(new Uniform("u_diffuseTexture"));
-    protected final int UNIFORM_MATERIAL_DIFFUSE_COLOR = register(new Uniform("u_diffuseColor"));
     protected final int UNIFORM_MATERIAL_DIFFUSE_USE_TEXTURE = register(new Uniform("u_diffuseUseTexture"));
-    protected final int UNIFORM_MATERIAL_SHININESS = register(new Uniform("u_shininess"));
 
 
     // ============================ MATRICES & CAM POSITION ============================
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
     protected final int UNIFORM_CAM_POS = register(new Uniform("u_camPos"));
-
-    // ============================ LIGHTS ============================
-    protected final int UNIFORM_AMBIENT_LIGHT_COLOR = register(new Uniform("u_ambientLight.color"));
-    protected final int UNIFORM_AMBIENT_LIGHT_INTENSITY = register(new Uniform("u_ambientLight.intensity"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR = register(new Uniform("u_directionalLight.color"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_DIR = register(new Uniform("u_directionalLight.direction"));
-    protected final int UNIFORM_DIRECTIONAL_LIGHT_INTENSITY = register(new Uniform("u_directionalLight.intensity"));
 
     // ============================ FOG ============================
     protected final int UNIFORM_FOG_DENSITY = register(new Uniform("u_fogDensity"));
@@ -68,8 +56,7 @@ public class ModelShader extends ClippableShader {
     private ShaderProgram program;
 
     public ModelShader() {
-        super();
-        program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER);
+        program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER, this);
     }
 
     @Override
@@ -119,14 +106,25 @@ public class ModelShader extends ClippableShader {
             set(UNIFORM_MATERIAL_DIFFUSE_TEXTURE, diffuseTexture.textureDescription.texture);
             set(UNIFORM_MATERIAL_DIFFUSE_USE_TEXTURE, 1);
         } else {
-            set(UNIFORM_MATERIAL_DIFFUSE_COLOR, diffuseColor.color);
             set(UNIFORM_MATERIAL_DIFFUSE_USE_TEXTURE, 0);
         }
+
+        set(UNIFORM_USE_MATERIAL, 1); // Use material for lighting
+        set(UNIFORM_MATERIAL_DIFFUSE_COLOR, diffuseColor.color.r, diffuseColor.color.g, diffuseColor.color.b);
 
         // shininess
         if (renderable.material.has(FloatAttribute.Shininess)) {
             float shininess = ((FloatAttribute) renderable.material.get(FloatAttribute.Shininess)).value;
-            set(UNIFORM_MATERIAL_SHININESS, shininess);
+
+            if (shininess > 0f) {
+                set(UNIFORM_MATERIAL_SHININESS, shininess);
+                set(UNIFORM_USE_SPECULAR, 1);
+            } else {
+                set(UNIFORM_USE_SPECULAR, 0);
+            }
+
+        } else {
+            set(UNIFORM_USE_SPECULAR, 0);
         }
 
         // Fog
@@ -142,27 +140,6 @@ public class ModelShader extends ClippableShader {
 
         // bind attributes, bind mesh & render; then unbinds everything
         renderable.meshPart.render(program);
-    }
-
-    private void setLights(MundusEnvironment env) {
-        // ambient
-        set(UNIFORM_AMBIENT_LIGHT_COLOR, env.getAmbientLight().color);
-        set(UNIFORM_AMBIENT_LIGHT_INTENSITY, env.getAmbientLight().intensity);
-
-        // TODO light array for each light type
-
-        // directional lights
-        final DirectionalLightsAttribute dirLightAttribs = env.get(DirectionalLightsAttribute.class,
-                DirectionalLightsAttribute.Type);
-        final Array<DirectionalLight> dirLights = dirLightAttribs == null ? null : dirLightAttribs.lights;
-        if (dirLights != null && dirLights.size > 0) {
-            final DirectionalLight light = dirLights.first();
-            set(UNIFORM_DIRECTIONAL_LIGHT_COLOR, light.color);
-            set(UNIFORM_DIRECTIONAL_LIGHT_DIR, light.direction);
-            set(UNIFORM_DIRECTIONAL_LIGHT_INTENSITY, light.intensity);
-        }
-
-        // TODO point lights, spot lights
     }
 
     @Override

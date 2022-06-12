@@ -22,7 +22,6 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
-import com.mbrlabs.mundus.commons.shaders.ModelShader;
 
 /**
  * @author Marcus Brummer
@@ -71,10 +70,11 @@ public class Mundus implements Disposable {
     private void init() {
         try {
             assetManager.loadAssets(null, true);
-            shaders = new Shaders();
         } catch (Exception e) {
             Gdx.app.log(TAG, e.getMessage());
         }
+
+        shaders = new Shaders();
     }
 
 }

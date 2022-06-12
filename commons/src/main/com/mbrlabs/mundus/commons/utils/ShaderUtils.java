@@ -18,14 +18,18 @@ package com.mbrlabs.mundus.commons.utils;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.mbrlabs.mundus.commons.shaders.LightShader;
 
 /**
  * @author Marcus Brummer
  * @version 23-11-2015
  */
 public class ShaderUtils {
+
+    protected static final String LIGHT_SHADER_PREFIX = "com/mbrlabs/mundus/commons/shaders/light.glsl";
 
     /**
      * Compiles and links shader.
@@ -34,10 +38,12 @@ public class ShaderUtils {
      *            path to vertex shader
      * @param fragmentShader
      *            path to fragment shader
+     * @param shader
+     *            the shader to compile a program for
      *
      * @return compiled shader program
      */
-    public static ShaderProgram compile(String vertexShader, String fragmentShader) {
+    public static ShaderProgram compile(String vertexShader, String fragmentShader, Shader shader) {
         String vert;
         String frag;
 
@@ -49,12 +55,29 @@ public class ShaderUtils {
             frag = Gdx.files.classpath(fragmentShader).readString();
         }
 
-        ShaderProgram program = new ShaderProgram(vert, frag);
+        ShaderProgram program = new ShaderProgram(vert, getShaderPrefix(shader) + frag);
         if (!program.isCompiled()) {
             throw new GdxRuntimeException(program.getLog());
         }
 
         return program;
+    }
+
+    public static String getShaderPrefix(Shader shader) {
+        String fragPrefix = "";
+
+        if (shader instanceof LightShader) {
+            fragPrefix += "#define numPointLights " + LightUtils.MAX_POINT_LIGHTS + "\n";
+            fragPrefix += "#define numSpotLights " + LightUtils.MAX_SPOT_LIGHTS + "\n";
+
+            if (Gdx.app.getType() == Application.ApplicationType.WebGL) {
+                fragPrefix += Gdx.files.internal(LIGHT_SHADER_PREFIX).readString();
+            } else {
+                fragPrefix +=  Gdx.files.classpath(LIGHT_SHADER_PREFIX).readString();
+            }
+        }
+
+        return fragPrefix;
     }
 
 }

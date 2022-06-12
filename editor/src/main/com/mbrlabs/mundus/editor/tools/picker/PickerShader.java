@@ -45,7 +45,7 @@ public class PickerShader extends BaseShader {
             + "vec4 worldPos = u_transMatrix * vec4(a_position, 1.0);" + "gl_Position = u_projViewMatrix * worldPos;"
             + "}";
 
-    private static final String FRAGMENT_SHADER = "#ifdef GL_ES\n" + "precision mediump float;\n" + "#endif \n"
+    private static final String FRAGMENT_SHADER = "#ifdef GL_ES\n" + "precision highp float;\n" + "#endif \n"
             + "uniform vec3 u_color;" + "void main(void) {"
             + "gl_FragColor = vec4(u_color.r/255.0, u_color.g/255.0, u_color.b/255.0, 1.0);" + "}";
 

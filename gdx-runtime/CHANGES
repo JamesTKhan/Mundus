@@ -1,4 +1,7 @@
-[0.3.1] ~ TBD
+[0.4.0] ~ 07/10/2022
+- Add converter for Light Components
+
+[0.3.1] ~ 07/06/2022
 - Set Source Compatibility to 1.7, PR #47
 - Update to support GWT builds
 - Add directional light to Scene Converter

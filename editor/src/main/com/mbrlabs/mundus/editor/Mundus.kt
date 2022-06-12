@@ -40,6 +40,7 @@ import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker
+import com.mbrlabs.mundus.editor.ui.gizmos.GizmoManager
 import com.mbrlabs.mundus.editor.utils.Fa
 import ktx.inject.Context
 import ktx.inject.register
@@ -63,6 +64,7 @@ object Mundus {
 
     private val modelBatch: ModelBatch
     private val toolManager: ToolManager
+    private val gizmoManager: GizmoManager
     private val input: InputManager
     private val freeCamController: FreeCamController
     private val shortcutController: ShortcutController
@@ -102,6 +104,7 @@ object Mundus {
         projectManager = ProjectManager(kryoManager, registry, modelBatch)
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, modelBatch, shapeRenderer,
                 commandHistory)
+        gizmoManager = GizmoManager()
         shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager)
         json = Json()
 
@@ -118,6 +121,7 @@ object Mundus {
             bindSingleton(modelImporter)
             bindSingleton(projectManager)
             bindSingleton(toolManager)
+            bindSingleton(gizmoManager)
             bindSingleton(shortcutController)
             bindSingleton(freeCamController)
             bindSingleton(json)
@@ -173,7 +177,7 @@ object Mundus {
                 addIcon(Fa.CIRCLE_O).addIcon(Fa.CIRCLE).addIcon(Fa.MINUS).addIcon(Fa.CARET_DOWN).
                 addIcon(Fa.CARET_UP).addIcon(Fa.TIMES).addIcon(Fa.SORT).addIcon(Fa.HASHTAG).
                 addIcon(Fa.PAINT_BRUSH).addIcon(Fa.STAR).addIcon(Fa.REFRESH).addIcon(Fa.EXPAND).
-                addIcon(Fa.ARROWS_ALT).build()
+                addIcon(Fa.ARROWS_ALT).addIcon(Fa.EYE).addIcon(Fa.EYE_SLASH).build()
     }
 
     /**
