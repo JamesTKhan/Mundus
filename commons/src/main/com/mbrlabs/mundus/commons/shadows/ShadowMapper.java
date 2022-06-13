@@ -26,6 +26,7 @@ import com.badlogic.gdx.graphics.g3d.environment.ShadowMap;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 
@@ -37,11 +38,13 @@ import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
  */
 public class ShadowMapper implements ShadowMap {
 
+    protected final TextureDescriptor textureDesc;
+    protected final Vector3 center = new Vector3();
+
+    protected ShadowResolution shadowResolution;
     protected FrameBuffer fbo;
     protected Camera cam;
     protected Vector3 direction;
-    protected final TextureDescriptor textureDesc;
-    protected final Vector3 center = new Vector3();
 
     int textureWidth;
     int textureHeight;
@@ -50,9 +53,11 @@ public class ShadowMapper implements ShadowMap {
     float near;
     float far;
 
-    public ShadowMapper(int textureWidth, int textureHeight, int viewportWidth, int viewportHeight, float near, float far, Vector3 direction) {
-        this.textureWidth = textureWidth;
-        this.textureHeight = textureHeight;
+    public ShadowMapper(ShadowResolution resolution, int viewportWidth, int viewportHeight, float near, float far, Vector3 direction) {
+        Vector2 res = resolution.getResolutionValues();
+        this.shadowResolution = resolution;
+        this.textureWidth = (int) res.x;
+        this.textureHeight = (int) res.y;
         this.viewportWidth = viewportWidth;
         this.viewportHeight = viewportHeight;
         this.near = near;
@@ -106,6 +111,19 @@ public class ShadowMapper implements ShadowMap {
 
     public void setDirection(Vector3 direction) {
         this.direction = direction;
+    }
+
+    public ShadowResolution getShadowResolution() {
+        return shadowResolution;
+    }
+
+    public void setShadowResolution(ShadowResolution resolution) {
+        Vector2 res = resolution.getResolutionValues();
+        this.shadowResolution = resolution;
+        this.textureWidth = (int) res.x;
+        this.textureHeight = (int) res.y;
+        fbo.dispose();
+        fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
     }
 
     @Override

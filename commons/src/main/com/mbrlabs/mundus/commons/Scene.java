@@ -33,13 +33,14 @@ import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.shaders.DepthShader;
 import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
 import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
+import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
+import com.mbrlabs.mundus.commons.utils.LightUtils;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 
@@ -104,6 +105,8 @@ public class Scene implements Disposable {
         environment.add(dirLight);
         environment.getAmbientLight().intensity = 0.8f;
 
+        setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
+
         sceneGraph = new SceneGraph(this);
     }
 
@@ -133,13 +136,8 @@ public class Scene implements Disposable {
     private void renderShadowMap(float delta) {
         //TODO: Remove GDX input, testing only
         if (shadowMapper == null || Gdx.input.isKeyJustPressed(Input.Keys.F5)) {
-            final DirectionalLightsAttribute dirLightAttribs = environment.get(DirectionalLightsAttribute.class,
-                    DirectionalLightsAttribute.Type);
-            final Array<DirectionalLight> dirLights = dirLightAttribs == null ? null : dirLightAttribs.lights;
-            if (dirLights != null && dirLights.size > 0) {
-                shadowMapper = new ShadowMapper(4096, 4096, (int) cam.viewportWidth, (int) cam.viewportHeight, 0f, cam.far, dirLights.get(0).direction);
-                environment.shadowMap = shadowMapper;
-            }
+            shadowMapper = new ShadowMapper(ShadowResolution._4096, (int) cam.viewportWidth , (int) cam.viewportHeight, cam.near, cam.far, LightUtils.getDirectionalLight(environment).direction);
+            environment.shadowMap = shadowMapper;
         }
 
         shadowMapper.setCenter(cam.position);
@@ -254,6 +252,10 @@ public class Scene implements Disposable {
         this.id = id;
     }
 
+    public ShadowMapper getShadowMapper() {
+        return shadowMapper;
+    }
+
     /**
      * Set the water resolution to use for water reflection and refractions.
      * This will reinitialize the frame buffers with the given resolution.
@@ -263,6 +265,19 @@ public class Scene implements Disposable {
         this.waterResolution = resolution;
         Vector2 res = waterResolution.getResolutionValues();
         initFrameBuffers((int) res.x, (int) res.y);
+    }
+
+    public void setShadowQuality(ShadowResolution shadowResolution) {
+        DirectionalLight light = LightUtils.getDirectionalLight(environment);
+        if (light == null) return;
+
+        if (shadowMapper == null) {
+            shadowMapper = new ShadowMapper(shadowResolution, (int) cam.viewportWidth, (int) cam.viewportHeight, cam.near, cam.far, light.direction);
+        } else {
+            shadowMapper.setShadowResolution(shadowResolution);
+        }
+
+        environment.shadowMap = shadowMapper;
     }
 
     /**
