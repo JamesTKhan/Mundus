@@ -3,6 +3,9 @@ package com.mbrlabs.mundus.commons.shadows;
 import com.badlogic.gdx.math.Vector2;
 
 /**
+ * Represents options for Shadow Mapping texture resolution. Higher resolutions will look
+ * sharper but use more resources.
+ *
  * @author James Pooley
  * @version June 12, 2022
  */

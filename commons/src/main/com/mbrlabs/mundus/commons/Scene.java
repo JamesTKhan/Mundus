@@ -130,14 +130,12 @@ public class Scene implements Disposable {
         renderShadowMap(delta);
         renderObjects(delta);
         renderWater(delta);
-
     }
 
     private void renderShadowMap(float delta) {
         //TODO: Remove GDX input, testing only
         if (shadowMapper == null || Gdx.input.isKeyJustPressed(Input.Keys.F5)) {
-            shadowMapper = new ShadowMapper(ShadowResolution._4096, (int) cam.viewportWidth , (int) cam.viewportHeight, cam.near, cam.far, LightUtils.getDirectionalLight(environment).direction);
-            environment.shadowMap = shadowMapper;
+            setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
         }
 
         shadowMapper.setCenter(cam.position);
@@ -267,12 +265,17 @@ public class Scene implements Disposable {
         initFrameBuffers((int) res.x, (int) res.y);
     }
 
+    /**
+     * Set shadow quality for scenes DirectionalLight.
+     *
+     * @param shadowResolution the shadow resolution to use.
+     */
     public void setShadowQuality(ShadowResolution shadowResolution) {
         DirectionalLight light = LightUtils.getDirectionalLight(environment);
         if (light == null) return;
 
         if (shadowMapper == null) {
-            shadowMapper = new ShadowMapper(shadowResolution, (int) cam.viewportWidth, (int) cam.viewportHeight, cam.near, cam.far, light.direction);
+            shadowMapper = new ShadowMapper(shadowResolution, 512, 512, cam.near, cam.far, light.direction);
         } else {
             shadowMapper.setShadowResolution(shadowResolution);
         }
