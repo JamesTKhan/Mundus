@@ -53,6 +53,8 @@ project(":commons") {
     dependencies {
         implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
 
+        api "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
+
         // Include HTML sources in commons as well for GWT support
         api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
         api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion:sources"
@@ -78,6 +80,9 @@ project(":editor") {
         // libGDX
         implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+
+        // Bullet physics
+        implementation "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
 
         // gdx-freetype
         implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"

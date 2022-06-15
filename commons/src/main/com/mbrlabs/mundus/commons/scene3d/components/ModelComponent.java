@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons.scene3d.components;
 
 import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector3;
@@ -69,6 +70,11 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
             }
         }
         applyMaterials();
+    }
+
+    public void setModel(Model model) {
+        modelInstance = new ModelInstance(model);
+        modelInstance.transform = gameObject.getTransform();
     }
 
     public ObjectMap<String, MaterialAsset> getMaterials() {
