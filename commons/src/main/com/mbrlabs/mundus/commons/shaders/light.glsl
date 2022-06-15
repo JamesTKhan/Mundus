@@ -52,6 +52,16 @@ struct Material
     MED vec3 SpecularColor;
 };
 
+struct ShadowCascade
+{
+    int ViewportSize;
+};
+
+
+const MED vec4 COLOR_RED = vec4(1,0.0,0.0, 1.0);
+const MED vec4 COLOR_GREEN = vec4(0.0,1.0,0.0, 1.0);
+const MED vec4 COLOR_BLUE = vec4(0.0,0.0,1.0, 1.0);
+
 varying vec3 v_worldPos;
 
 uniform int u_useSpecular;
@@ -65,16 +75,37 @@ uniform PointLight u_pointLights[numPointLights];
 uniform SpotLight u_spotLights[numSpotLights];
 uniform Material u_material;
 
+const int CASCADE_NUM = 4;
+uniform ShadowCascade u_shadowCascades[CASCADE_NUM];
 uniform sampler2D u_shadowTexture;
+uniform sampler2D u_shadowTexture_2;
+uniform sampler2D u_shadowTexture_3;
 uniform float u_shadowPCFOffset;
 uniform float u_shadowBias;
 uniform int u_useShadows;
 varying vec3 v_shadowMapUv;
+varying vec3 v_shadowMapUv_2;
+varying vec3 v_shadowMapUv_3;
+varying vec3 mvVertexPos;
+
 
 float getShadowness(vec2 offset)
 {
+    float near = 0.2;
+    float far = 10000.0;
+    float depth = gl_FragCoord.z;
+    float dist = 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
+
     const vec4 bitShifts = vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0);
-    return step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts) + u_shadowBias) /*+(.5/255.0)*/;
+    float value = 0.0;
+    if (dist < u_shadowCascades[0].ViewportSize) {
+        value += step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts) + u_shadowBias) /*+(.5/255.0)*/;
+    } else if (dist < u_shadowCascades[1].ViewportSize) {
+        value += step(v_shadowMapUv_2.z, dot(texture2D(u_shadowTexture_2, v_shadowMapUv_2.xy + offset), bitShifts) + u_shadowBias) /*+(.5/255.0)*/;
+    } else {
+        value += step(v_shadowMapUv_3.z, dot(texture2D(u_shadowTexture_3, v_shadowMapUv_3.xy + offset), bitShifts) + u_shadowBias) /*+(.5/255.0)*/;
+    }
+    return value;
 }
 
 float getShadow()
@@ -103,7 +134,20 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
         }
 
         if (u_useShadows == 1) {
-            DiffuseColor *= getShadow();
+            float near = 0.2;
+            float far = 10000.0;
+            float depth = gl_FragCoord.z;
+            float dist = 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
+            vec4 color;
+            if (dist < u_shadowCascades[0].ViewportSize) {
+                color = COLOR_GREEN;
+            } else if (dist < u_shadowCascades[1].ViewportSize) {
+                color = COLOR_RED;
+            } else {
+                color = COLOR_BLUE;
+            }
+
+            DiffuseColor *= getShadow() ;//* color;
         }
 
         if (u_useSpecular == 1) {

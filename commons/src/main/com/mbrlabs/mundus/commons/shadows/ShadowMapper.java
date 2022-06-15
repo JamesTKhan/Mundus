@@ -20,6 +20,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.environment.ShadowMap;
@@ -43,7 +44,7 @@ public class ShadowMapper implements ShadowMap {
 
     protected ShadowResolution shadowResolution;
     protected FrameBuffer fbo;
-    protected Camera cam;
+    protected OrthographicCamera cam;
     protected Vector3 direction;
 
     int textureWidth;
@@ -53,7 +54,7 @@ public class ShadowMapper implements ShadowMap {
     float near;
     float far;
 
-    public ShadowMapper(ShadowResolution resolution, int viewportWidth, int viewportHeight, float near, float far, Vector3 direction) {
+    public ShadowMapper(ShadowResolution resolution, int viewportWidth, int viewportHeight, float near, float far, Vector3 lightDirection) {
         Vector2 res = resolution.getResolutionValues();
         this.shadowResolution = resolution;
         this.textureWidth = (int) res.x;
@@ -62,9 +63,9 @@ public class ShadowMapper implements ShadowMap {
         this.viewportHeight = viewportHeight;
         this.near = near;
         this.far = far;
-        this.direction = direction;
+        this.direction = lightDirection;
 
-        fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
+        fbo = new NestableFrameBuffer(Pixmap.Format.RGB888, textureWidth, textureHeight, true);
         cam = new OrthographicCamera(viewportWidth, viewportHeight);
         cam.near = near;
         cam.far = far;
@@ -74,11 +75,14 @@ public class ShadowMapper implements ShadowMap {
         textureDesc.uWrap = textureDesc.vWrap = Texture.TextureWrap.ClampToEdge;
     }
 
-    public void begin() {
+    public void begin(PerspectiveCamera camera, Vector3 lightDirection) {
+        direction = lightDirection;
         float halfDepth = cam.near + 0.5f * (cam.far - cam.near);
         cam.direction.set(direction).nor();
         cam.position.set(direction).scl(-halfDepth).add(center);
-        cam.normalizeUp();
+        cam.up.set(lightDirection.cpy().scl(-1));
+        //cam.normalizeUp();
+        //cam.up.set(Vector3.Y);
         cam.update();
 
         final int w = fbo.getWidth();

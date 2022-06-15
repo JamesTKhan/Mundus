@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Matrix4;
 import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
@@ -46,6 +47,7 @@ public class ModelShader extends LightShader {
     // ============================ MATRICES & CAM POSITION ============================
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
+    protected final int UNIFORM_PROJ_VIEW_WORLD_MATRIX = register(new Uniform("u_viewWorldTrans"));
     protected final int UNIFORM_CAM_POS = register(new Uniform("u_camPos"));
 
     // ============================ FOG ============================
@@ -73,10 +75,11 @@ public class ModelShader extends LightShader {
     public boolean canRender(Renderable instance) {
         return true;
     }
-
+    private final Matrix4 tmpMatrix = new Matrix4();
     @Override
     public void begin(Camera camera, RenderContext context) {
         this.context = context;
+        this.camera = camera;
         context.begin();
 
         this.context.setCullFace(GL20.GL_BACK);
@@ -98,6 +101,7 @@ public class ModelShader extends LightShader {
         setLights(env);
         setShadows(env);
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
+        set(UNIFORM_PROJ_VIEW_WORLD_MATRIX,  tmpMatrix.set(camera.view).mul(renderable.worldTransform));
 
         // texture uniform
         TextureAttribute diffuseTexture = ((TextureAttribute) (renderable.material.get(TextureAttribute.Diffuse)));

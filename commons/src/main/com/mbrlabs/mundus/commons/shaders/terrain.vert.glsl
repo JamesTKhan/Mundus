@@ -46,8 +46,14 @@ varying vec3 v_pos;
 varying float v_clipDistance;
 uniform vec4 u_clipPlane;
 
+uniform mat4 u_viewWorldTrans;
 uniform mat4 u_shadowMapProjViewTrans;
+uniform mat4 u_shadowMapProjViewTrans_2;
+uniform mat4 u_shadowMapProjViewTrans_3;
 varying vec3 v_shadowMapUv;
+varying vec3 v_shadowMapUv_2;
+varying vec3 v_shadowMapUv_3;
+varying vec3 mvVertexPos;
 
 void main(void) {
     // position
@@ -57,6 +63,17 @@ void main(void) {
     vec4 spos = u_shadowMapProjViewTrans * worldPos;
     v_shadowMapUv.xy = (spos.xy / spos.w) * 0.5 + 0.5;
     v_shadowMapUv.z = min(spos.z * 0.5 + 0.5, 0.998);
+
+    spos = u_shadowMapProjViewTrans_2 * worldPos;
+    v_shadowMapUv_2.xy = (spos.xy / spos.w) * 0.5 + 0.5;
+    v_shadowMapUv_2.z = min(spos.z * 0.5 + 0.5, 0.998);
+
+    spos = u_shadowMapProjViewTrans_3 * worldPos;
+    v_shadowMapUv_3.xy = (spos.xy / spos.w) * 0.5 + 0.5;
+    v_shadowMapUv_3.z = min(spos.z * 0.5 + 0.5, 0.998);
+
+    vec4 mvPos = u_viewWorldTrans * vec4(a_position, 1.0);
+    mvVertexPos = mvPos.xyz;
 
     // normal for lighting
     v_normal = normalize((u_transMatrix * vec4(a_normal, 0.0)).xyz);

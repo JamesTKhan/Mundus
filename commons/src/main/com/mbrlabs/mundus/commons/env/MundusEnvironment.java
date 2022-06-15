@@ -26,6 +26,7 @@ import com.mbrlabs.mundus.commons.env.lights.SpotLight;
 import com.mbrlabs.mundus.commons.env.lights.SpotLightsAttribute;
 import com.mbrlabs.mundus.commons.env.lights.SunLight;
 import com.mbrlabs.mundus.commons.env.lights.SunLightsAttribute;
+import com.mbrlabs.mundus.commons.shadows.CascadeShadowMapper;
 
 /**
  * @author Marcus Brummer
@@ -35,6 +36,7 @@ public class MundusEnvironment extends Environment {
 
     private Fog fog;
     private BaseLight ambientLight;
+    public CascadeShadowMapper cascadeShadowMapper;
 
     public MundusEnvironment() {
         super();

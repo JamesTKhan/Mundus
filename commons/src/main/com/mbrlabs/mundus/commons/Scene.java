@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -37,6 +38,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.shaders.DepthShader;
 import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
+import com.mbrlabs.mundus.commons.shadows.CascadeShadowMapper;
 import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
@@ -82,6 +84,8 @@ public class Scene implements Disposable {
 
     private final DepthShader depthShader = new DepthShader();
     private final ShadowMapShader shadowMapShader = new ShadowMapShader();
+    private CascadeShadowMapper cascadeShadowMapper;
+    private SpriteBatch spriteBatch = new SpriteBatch();
 
     public Scene() {
         environment = new MundusEnvironment();
@@ -115,6 +119,11 @@ public class Scene implements Disposable {
     }
 
     public void render(float delta) {
+        if (cascadeShadowMapper == null || Gdx.input.isKeyJustPressed(Input.Keys.F5)) {
+            cascadeShadowMapper = new CascadeShadowMapper(cam, LightUtils.getDirectionalLight(environment).direction);
+            environment.cascadeShadowMapper = cascadeShadowMapper;
+        }
+
         if (fboWaterReflection == null) {
             Vector2 res = waterResolution.getResolutionValues();
             initFrameBuffers((int) res.x, (int) res.y);
@@ -130,24 +139,29 @@ public class Scene implements Disposable {
         renderShadowMap(delta);
         renderObjects(delta);
         renderWater(delta);
+
+        //Texture text = shadowMapper.getFbo().getColorBufferTexture();
+        Texture text = cascadeShadowMapper.shadowMappers.get(0).getFbo().getColorBufferTexture();
+        int width = text.getWidth() / 12;
+        spriteBatch.begin();
+        spriteBatch.draw(text, 0,0,width, width);
+        spriteBatch.draw(cascadeShadowMapper.shadowMappers.get(1).getFbo().getColorBufferTexture(), width + 5,0,text.getWidth() /12, text.getHeight() / 12);
+        spriteBatch.draw(cascadeShadowMapper.shadowMappers.get(2).getFbo().getColorBufferTexture(), 10+(width * 2),0,text.getWidth() /12, text.getHeight() / 12);
+        spriteBatch.end();
     }
 
     private void renderShadowMap(float delta) {
         //TODO: Remove GDX input, testing only
-        if (shadowMapper == null || Gdx.input.isKeyJustPressed(Input.Keys.F5)) {
+        if (shadowMapper == null) {
             setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
         }
 
-        shadowMapper.setCenter(cam.position);
-        shadowMapper.begin();
-        batch.begin(shadowMapper.getCam());
-        sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
-        batch.end();
-        shadowMapper.end();
+        cascadeShadowMapper.render(cam, delta, batch, sceneGraph, shadowMapShader);
     }
 
     private void renderObjects(float delta) {
         // Render objects
+       // batch.begin(cascadeShadowMapper.shadowMappers.get(1).getCam());
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneDisable, 0);
         batch.end();
@@ -275,7 +289,7 @@ public class Scene implements Disposable {
         if (light == null) return;
 
         if (shadowMapper == null) {
-            shadowMapper = new ShadowMapper(shadowResolution, 512, 512, cam.near, cam.far, light.direction);
+            shadowMapper = new ShadowMapper(shadowResolution, 1024, 1024, cam.near, cam.far, light.direction);
         } else {
             shadowMapper.setShadowResolution(shadowResolution);
         }

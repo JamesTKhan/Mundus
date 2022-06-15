@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
@@ -42,6 +43,7 @@ public class TerrainShader extends LightShader {
     // ============================ MATRICES & CAM POSITION ============================
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
+    protected final int UNIFORM_PROJ_VIEW_WORLD_MATRIX = register(new Uniform("u_viewWorldTrans"));
     protected final int UNIFORM_CAM_POS = register(new Uniform("u_camPos"));
 
     // ============================ TEXTURE SPLATTING ============================
@@ -98,7 +100,7 @@ public class TerrainShader extends LightShader {
         set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined);
         set(UNIFORM_CAM_POS, camera.position);
     }
-
+    private final Matrix4 tmpMatrix = new Matrix4();
     @Override
     public void render(Renderable renderable) {
         super.render(renderable);
@@ -109,6 +111,7 @@ public class TerrainShader extends LightShader {
         setShadows(env);
         setTerrainSplatTextures(renderable);
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
+        set(UNIFORM_PROJ_VIEW_WORLD_MATRIX, tmpMatrix.set(camera.view).mul(renderable.worldTransform));
 
         // Fog
         final Fog fog = env.getFog();

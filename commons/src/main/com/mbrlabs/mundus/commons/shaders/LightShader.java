@@ -12,6 +12,7 @@ import com.mbrlabs.mundus.commons.env.lights.PointLight;
 import com.mbrlabs.mundus.commons.env.lights.PointLightsAttribute;
 import com.mbrlabs.mundus.commons.env.lights.SpotLight;
 import com.mbrlabs.mundus.commons.env.lights.SpotLightsAttribute;
+import com.mbrlabs.mundus.commons.shadows.CascadeShadowMapper;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
 
 /**
@@ -22,11 +23,22 @@ import com.mbrlabs.mundus.commons.utils.LightUtils;
  */
 public abstract class LightShader extends ClippableShader {
     // ============================ LIGHTS ============================
+
+    // Shadows
+    protected int[] UNIFORM_SHADOW_CASCADE_VIEWPORT = new int[CascadeShadowMapper.CASCADE_MAP_COUNT];
+
     protected final int UNIFORM_SHADOW_BIAS = register(new Uniform("u_shadowBias"));
     protected final int UNIFORM_USE_SHADOWS = register(new Uniform("u_useShadows"));
+
     protected final int UNIFORM_SHADOW_TEXTURE = register(new Uniform("u_shadowTexture"));
+    protected final int UNIFORM_SHADOW_TEXTURE_2 = register(new Uniform("u_shadowTexture_2"));
+    protected final int UNIFORM_SHADOW_TEXTURE_3 = register(new Uniform("u_shadowTexture_3"));
+
     protected final int UNIFORM_SHADOW_VIEW = register(new Uniform("u_shadowMapProjViewTrans"));
+    protected final int UNIFORM_SHADOW_VIEW_2 = register(new Uniform("u_shadowMapProjViewTrans_2"));
+    protected final int UNIFORM_SHADOW_VIEW_3 = register(new Uniform("u_shadowMapProjViewTrans_3"));
     protected final int UNIFORM_SHADOW_PCF_OFFSET = register(new Uniform("u_shadowPCFOffset"));
+
 
     // Specular
     protected final int UNIFORM_USE_SPECULAR = register(new Uniform("u_useSpecular"));
@@ -98,6 +110,10 @@ public abstract class LightShader extends ClippableShader {
             UNIFORM_SPOT_LIGHT_ATT_CONSTANT[i] = register(new Uniform("u_spotLights["+ i +"].Base.Atten.Constant"));
             UNIFORM_SPOT_LIGHT_ATT_LINEAR[i] = register(new Uniform("u_spotLights["+ i +"].Base.Atten.Linear"));
             UNIFORM_SPOT_LIGHT_ATT_EXP[i] = register(new Uniform("u_spotLights["+ i +"].Base.Atten.Exp"));
+        }
+
+        for (int i = 0; i < CascadeShadowMapper.CASCADE_MAP_COUNT; i++) {
+            UNIFORM_SHADOW_CASCADE_VIEWPORT[i] = register(new Uniform("u_shadowCascades["+ i +"].ViewportSize"));
         }
 
         super.init(program, renderable);
@@ -181,9 +197,20 @@ public abstract class LightShader extends ClippableShader {
 
             set(UNIFORM_SHADOW_BIAS, shadowBias);
             set(UNIFORM_USE_SHADOWS, 1);
-            set(UNIFORM_SHADOW_TEXTURE, env.shadowMap.getDepthMap());
-            set(UNIFORM_SHADOW_VIEW, env.shadowMap.getProjViewTrans());
-            set(UNIFORM_SHADOW_PCF_OFFSET,  1.f / (2f * env.shadowMap.getDepthMap().texture.getWidth()));
+
+            set(UNIFORM_SHADOW_TEXTURE, env.cascadeShadowMapper.shadowMappers.get(0).getDepthMap());
+            set(UNIFORM_SHADOW_VIEW,env.cascadeShadowMapper.shadowMappers.get(0).getProjViewTrans());
+            set(UNIFORM_SHADOW_PCF_OFFSET,  1.f / (2f * env.cascadeShadowMapper.shadowMappers.get(0).getDepthMap().texture.getWidth()));
+
+            set(UNIFORM_SHADOW_TEXTURE_2, env.cascadeShadowMapper.shadowMappers.get(1).getDepthMap());
+            set(UNIFORM_SHADOW_VIEW_2,env.cascadeShadowMapper.shadowMappers.get(1).getProjViewTrans());
+
+            set(UNIFORM_SHADOW_TEXTURE_3, env.cascadeShadowMapper.shadowMappers.get(2).getDepthMap());
+            set(UNIFORM_SHADOW_VIEW_3,env.cascadeShadowMapper.shadowMappers.get(2).getProjViewTrans());
+
+            for (int i = 0; i < CascadeShadowMapper.CASCADE_MAP_COUNT; i++) {
+                set(UNIFORM_SHADOW_CASCADE_VIEWPORT[i],((int) env.cascadeShadowMapper.viewportSizes[i] / 2));
+            }
         }
     }
 }
