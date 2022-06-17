@@ -27,8 +27,6 @@ import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.bullet.DebugDrawer;
-import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
@@ -108,7 +106,7 @@ public class Scene implements Disposable {
         render(Gdx.graphics.getDeltaTime());
     }
 
-    DebugDrawer debugDrawer;
+//    DebugDrawer debugDrawer;
     public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F3))
             pausePhysics();
@@ -132,14 +130,14 @@ public class Scene implements Disposable {
         renderObjects(delta);
         renderWater(delta);
 
-        if (debugDrawer == null)  {
-            debugDrawer = new DebugDrawer();
-            debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_DrawAabb);
-            physicsSystem.getDynamicsWorld().setDebugDrawer(debugDrawer);
-        }
-        debugDrawer.begin(cam);
-        physicsSystem.getDynamicsWorld().debugDrawWorld();
-        debugDrawer.end();
+//        if (debugDrawer == null)  {
+//            debugDrawer = new DebugDrawer();
+//            debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_DrawAabb);
+//            physicsSystem.getDynamicsWorld().setDebugDrawer(debugDrawer);
+//        }
+//        debugDrawer.begin(cam);
+//        physicsSystem.getDynamicsWorld().debugDrawWorld();
+//        debugDrawer.end();
     }
 
     private void updatePhysics(float delta) {
@@ -148,12 +146,12 @@ public class Scene implements Disposable {
         }
     }
 
-    private void pausePhysics() {
+    public void pausePhysics() {
         physicsState = PhysicsState.PAUSED;
         physicsSystem.removeGameObjectsFromPhysics(sceneGraph.getGameObjects());
     }
 
-    private void runPhysics() {
+    public void runPhysics() {
         physicsState = PhysicsState.RUNNING;
         if (!physicsSystem.isBodiesInitialized()) {
             physicsSystem.initializeGameObjects(sceneGraph.getGameObjects());
