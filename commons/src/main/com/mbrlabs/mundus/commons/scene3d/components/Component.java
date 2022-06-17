@@ -26,7 +26,7 @@ import com.mbrlabs.mundus.commons.shaders.DepthShader;
 public interface Component {
 
     enum Type {
-        MODEL, TERRAIN, LIGHT, PARTICLE_SYSTEM, WATER
+        MODEL, TERRAIN, LIGHT, PARTICLE_SYSTEM, WATER, PHYSICS
     }
 
     GameObject getGameObject();

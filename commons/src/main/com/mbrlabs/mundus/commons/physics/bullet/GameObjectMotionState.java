@@ -12,6 +12,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
  */
 public class GameObjectMotionState extends btMotionState {
     private static final Vector3 tmp = new Vector3();
+    private static final Vector3 tmp2 = new Vector3();
     private static final Quaternion tmpQuat = new Quaternion();
     GameObject gameObject;
 
@@ -21,7 +22,7 @@ public class GameObjectMotionState extends btMotionState {
 
     @Override
     public void getWorldTransform (Matrix4 worldTrans) {
-        worldTrans.set(gameObject.getTransform());
+        worldTrans.set(gameObject.getPosition(tmp), gameObject.getRotation(tmpQuat), gameObject.getLocalScale(tmp2));
     }
 
     @Override

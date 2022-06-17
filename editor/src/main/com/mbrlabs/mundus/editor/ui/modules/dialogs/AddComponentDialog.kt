@@ -81,6 +81,7 @@ class AddComponentDialog : BaseDialog("Add Component") {
             Component.Type.LIGHT -> return getNewLightComponent(go)
             Component.Type.PARTICLE_SYSTEM -> TODO()
             Component.Type.WATER -> TODO()
+            Component.Type.PHYSICS -> TODO()
         }
     }
 

@@ -54,6 +54,7 @@ public class GameObjectConverter {
             go.getComponents().add(TerrainComponentConverter.convert(dto.getTerrainComponent(), go, shaders, assetManager));
         } else if (dto.getWaterComponent() != null) {
             go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, shaders.getWaterShader(), assetManager));
+            go.hasWaterComponent = true;
         }
 
         if (dto.getLightComponent() != null) {

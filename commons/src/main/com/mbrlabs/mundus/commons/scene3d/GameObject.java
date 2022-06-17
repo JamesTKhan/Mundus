@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.scene3d.components.ClippableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.commons.scene3d.traversal.DepthFirstIterator;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
 
@@ -36,6 +37,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
     public String name;
     public boolean active;
+    public boolean hasWaterComponent = false;
     private Array<String> tags;
     private Array<Component> components;
 
@@ -254,6 +256,10 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         if (component instanceof LightComponent) {
             sceneGraph.scene.environment.remove(((LightComponent)component).getLight());
         }
+
+        if (component instanceof WaterComponent) {
+            hasWaterComponent = false;
+        }
     }
 
     /**
@@ -266,6 +272,9 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
     public void addComponent(Component component) throws InvalidComponentException {
         isComponentAddable(component);
         components.add(component);
+        if (component instanceof WaterComponent) {
+            hasWaterComponent = true;
+        }
     }
 
     /**

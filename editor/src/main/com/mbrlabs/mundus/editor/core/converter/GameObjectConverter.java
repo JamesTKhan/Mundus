@@ -68,6 +68,7 @@ public class GameObjectConverter {
             go.getComponents().add(TerrainComponentConverter.convert(dto.getTerrainComponent(), go, assets));
         } else if (dto.getWaterComponent() != null) {
             go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, assets));
+            go.hasWaterComponent = true;
         }
 
         // Convert light component

@@ -20,6 +20,7 @@ package com.mbrlabs.mundus.editor
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
+import com.badlogic.gdx.physics.bullet.Bullet
 import com.kotcrab.vis.ui.util.OsUtils
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.StartOnFirstThreadHelper
@@ -31,6 +32,7 @@ fun main(arg: Array<String>) {
     // Temporary fix for MacOS, we should be able to remove when we update libGDX to 1.11.0 and use
     //  gdx-lwjgl3-glfw-awt-macos extension instead https://libgdx.com/news/2022/05/gdx-1-11
     StartOnFirstThreadHelper.startNewJvmIfRequired()
+    Bullet.init()
     Log.init()
     launchEditor()
 }
