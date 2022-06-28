@@ -79,6 +79,8 @@ public class BulletPhysicsSystem implements PhysicsSystem {
                 .activationState(Collision.DISABLE_DEACTIVATION) // Must parameterize this
                 .build();
 
+        result.rigidBody.setWorldTransform(worldTrans);
+
         dynamicsWorld.addRigidBody(result.rigidBody);
         rigidBodyList.add(result.rigidBody);
 
@@ -144,7 +146,11 @@ public class BulletPhysicsSystem implements PhysicsSystem {
                 .boundingBox(boundingBox)
                 .build();
 
-        RigidBodyResult result = addRigidBody(shape, 40f, .9f, modelComponent.getModelInstance().transform, new GameObjectMotionState(gameObject), gameObject);
+        // We pass a start transform to bullet that has + model half height so that it lines up with the position in editor.
+        GameObjectMotionState motionState = new GameObjectMotionState(gameObject);
+        Matrix4 trans = modelComponent.getModelInstance().transform.cpy().translate(0, motionState.halfHeight, 0);
+
+        RigidBodyResult result = addRigidBody(shape, 40f, .9f, trans, motionState, gameObject);
 
         RigidBodyPhysicsComponent component = new RigidBodyPhysicsComponent(gameObject, result.constructionInfo, shape, result.rigidBody);
 
