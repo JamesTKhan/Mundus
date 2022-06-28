@@ -27,8 +27,8 @@ public class CascadeShadowMapper {
         shadowCascadeEnd[2] = cam.far ;
 
         viewportSizes[0] = viewportSize * 0.1f;
-        viewportSizes[1] = viewportSize * 0.5f;
-        viewportSizes[2] = viewportSize * 2;
+        viewportSizes[1] = viewportSize * 0.8f;
+        viewportSizes[2] = viewportSize;
 
         for (int i = 0; i < CASCADE_MAP_COUNT; i++) {
             shadowMappers.add(new ShadowMapper(ShadowResolution._4096, (int) viewportSizes[i], (int) viewportSizes[i], cam.near, shadowCascadeEnd[i], lightDirection));
@@ -42,6 +42,9 @@ public class CascadeShadowMapper {
             ShadowMapper shadowMapper = shadowMappers.get(i);
 
             tmp.set(cam.position);
+
+            if (i != 0)
+                tmp.y = 100;
 
             // Shift the ortho cams "forward" a bit (cascade)
             if (i >0) {
