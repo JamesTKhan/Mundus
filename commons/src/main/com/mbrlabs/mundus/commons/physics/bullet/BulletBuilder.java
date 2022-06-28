@@ -126,7 +126,7 @@ public class BulletBuilder {
                     // Get the dimensions
                     Vector3 dim = new Vector3();
                     boundingBox.getDimensions(dim);
-                    dim.scl(0.4f);// half extents plus a bit more
+                    dim.scl(0.5f);// half extents plus a bit more
 
                      // Handle scale
                     if (scale == null) scale = new Vector3(1,1,1);
