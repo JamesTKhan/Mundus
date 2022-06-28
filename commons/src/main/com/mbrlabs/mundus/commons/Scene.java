@@ -141,13 +141,13 @@ public class Scene implements Disposable {
         renderWater(delta);
 
         //Texture text = shadowMapper.getFbo().getColorBufferTexture();
-        Texture text = cascadeShadowMapper.shadowMappers.get(0).getFbo().getColorBufferTexture();
-        int width = text.getWidth() / 12;
-        spriteBatch.begin();
-        spriteBatch.draw(text, 0,0,width, width);
-        spriteBatch.draw(cascadeShadowMapper.shadowMappers.get(1).getFbo().getColorBufferTexture(), width + 5,0,text.getWidth() /12, text.getHeight() / 12);
-        spriteBatch.draw(cascadeShadowMapper.shadowMappers.get(2).getFbo().getColorBufferTexture(), 10+(width * 2),0,text.getWidth() /12, text.getHeight() / 12);
-        spriteBatch.end();
+//        Texture text = cascadeShadowMapper.shadowMappers.get(0).getFbo().getColorBufferTexture();
+//        int width = text.getWidth() / 12;
+//        spriteBatch.begin();
+//        spriteBatch.draw(text, 0,0,width, width);
+//        spriteBatch.draw(cascadeShadowMapper.shadowMappers.get(1).getFbo().getColorBufferTexture(), width + 5,0,text.getWidth() /12, text.getHeight() / 12);
+//        spriteBatch.draw(cascadeShadowMapper.shadowMappers.get(2).getFbo().getColorBufferTexture(), 10+(width * 2),0,text.getWidth() /12, text.getHeight() / 12);
+//        spriteBatch.end();
     }
 
     private void renderShadowMap(float delta) {
