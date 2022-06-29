@@ -80,11 +80,15 @@ void main(void) {
     if ( v_clipDistance < 0.0 )
         discard;
 
-    vec3 normal = v_TBN[2];
+    vec3 normal;
 
     // blend textures
     if(u_texture_has_diffuse == 1) {
         gl_FragColor = texture2D(u_texture_base, v_texCoord0);
+
+        if (u_texture_has_normal_base == 1) {
+            normal = texture2D(u_texture_base_normal, v_texCoord0).rgb;
+        }
     }
     if(u_texture_has_splatmap == 1) {
         vec4 splat = texture2D(u_texture_splat, splatPosition);
@@ -95,11 +99,6 @@ void main(void) {
 
         // Mix in splat map normals
         if (u_texture_has_normals == 1) {
-            if (u_texture_has_normal_base == 1) {
-                normal = texture2D(u_texture_base_normal, v_texCoord0).rgb;
-            } else {
-                normal = vec3(1);
-            }
 
             if (u_texture_has_normal_r == 1) {
                 normal = mix(normal, texture2D(u_texture_r_normal, v_texCoord0).rgb, splat.r);
@@ -114,8 +113,13 @@ void main(void) {
                 normal = mix(normal, texture2D(u_texture_a_normal, v_texCoord0).rgb, splat.a);
             }
 
-            normal = normalize(v_TBN * ((2.0 * normal - 1.0)));
         }
+    }
+
+    if (u_texture_has_normals == 1) {
+        normal = normalize(v_TBN * ((2.0 * normal - 1.0)));
+    } else {
+        normal = normalize(v_TBN[2].xyz);
     }
 
     // =================================================================
