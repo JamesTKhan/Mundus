@@ -21,10 +21,12 @@ precision highp float;
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec2 a_texCoord0;
+attribute vec4 a_tangent;
 
 uniform mat4 u_transMatrix;
 uniform mat4 u_projViewMatrix;
 uniform vec3 u_camPos;
+uniform mat3 u_normalMatrix;
 
 // Fog
 uniform float u_fogDensity;
@@ -37,6 +39,7 @@ varying vec2 splatPosition;
 varying float v_fog;
 varying vec3 v_normal;
 varying vec3 v_worldPos;
+varying mat3 v_TBN;
 
 #ifdef PICKER
 varying vec3 v_pos;
@@ -53,6 +56,13 @@ void main(void) {
 
     // normal for lighting
     v_normal = normalize((u_transMatrix * vec4(a_normal, 0.0)).xyz);
+
+    // Logic for Tangent/Bi-tangent/Normal from gdx-gltf
+    vec3 tangent = a_tangent.xyz;
+    vec3 normalW = normalize(vec3(u_normalMatrix * a_normal.xyz));
+    vec3 tangentW = normalize(vec3(u_transMatrix * vec4(tangent, 0.0)));
+    vec3 bitangentW = cross(normalW, tangentW) * a_tangent.w;
+    v_TBN = mat3(tangentW, bitangentW, normalW);
 
     // clipping plane
     v_clipDistance = dot(worldPos, u_clipPlane);

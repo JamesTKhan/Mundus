@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
 import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
@@ -42,6 +43,7 @@ public class TerrainShader extends LightShader {
     // ============================ MATRICES & CAM POSITION ============================
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
+    protected final int UNIFORM_NORMAL_MATRIX = register(new Uniform("u_normalMatrix"));
     protected final int UNIFORM_CAM_POS = register(new Uniform("u_camPos"));
 
     // ============================ TEXTURE SPLATTING ============================
@@ -55,11 +57,25 @@ public class TerrainShader extends LightShader {
     protected final int UNIFORM_TEXTURE_HAS_SPLATMAP = register(new Uniform("u_texture_has_splatmap"));
     protected final int UNIFORM_TEXTURE_HAS_DIFFUSE = register(new Uniform("u_texture_has_diffuse"));
 
+    // Splat normals
+    protected final int UNIFORM_TEXTURE_HAS_NORMALS = register(new Uniform("u_texture_has_normals"));
+    protected final int UNIFORM_TEXTURE_BASE_NORMAL = register(new Uniform("u_texture_base_normal"));
+    protected final int UNIFORM_TEXTURE_BASE_NORMAL_PRESENT = register(new Uniform("u_texture_has_normal_base"));
+    protected final int UNIFORM_TEXTURE_R_NORMAL = register(new Uniform("u_texture_r_normal"));
+    protected final int UNIFORM_TEXTURE_R_NORMAL_PRESENT = register(new Uniform("u_texture_has_normal_r"));
+    protected final int UNIFORM_TEXTURE_G_NORMAL = register(new Uniform("u_texture_g_normal"));
+    protected final int UNIFORM_TEXTURE_G_NORMAL_PRESENT = register(new Uniform("u_texture_has_normal_g"));
+    protected final int UNIFORM_TEXTURE_B_NORMAL = register(new Uniform("u_texture_b_normal"));
+    protected final int UNIFORM_TEXTURE_B_NORMAL_PRESENT = register(new Uniform("u_texture_has_normal_b"));
+    protected final int UNIFORM_TEXTURE_A_NORMAL = register(new Uniform("u_texture_a_normal"));
+    protected final int UNIFORM_TEXTURE_A_NORMAL_PRESENT = register(new Uniform("u_texture_has_normal_a"));
+
     // ============================ FOG ============================
     protected final int UNIFORM_FOG_DENSITY = register(new Uniform("u_fogDensity"));
     protected final int UNIFORM_FOG_GRADIENT = register(new Uniform("u_fogGradient"));
     protected final int UNIFORM_FOG_COLOR = register(new Uniform("u_fogColor"));
 
+    private final Matrix3 tmpM = new Matrix3();
     private final Vector2 terrainSize = new Vector2();
 
     protected ShaderProgram program;
@@ -108,6 +124,7 @@ public class TerrainShader extends LightShader {
         setLights(env);
         setTerrainSplatTextures(renderable);
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
+        set(UNIFORM_NORMAL_MATRIX, tmpM.set(renderable.worldTransform).inv().transpose());
 
         // Fog
         final Fog fog = env.getFog();
@@ -150,6 +167,19 @@ public class TerrainShader extends LightShader {
             if (st != null) set(UNIFORM_TEXTURE_B, st.texture.getTexture());
             st = terrainTexture.getTexture(SplatTexture.Channel.A);
             if (st != null) set(UNIFORM_TEXTURE_A, st.texture.getTexture());
+
+            // Normal maps
+            if (terrainTexture.hasNormalTextures()) {
+                set(UNIFORM_TEXTURE_HAS_NORMALS, 1);
+                setNormalTexture(terrainTexture, SplatTexture.Channel.BASE, UNIFORM_TEXTURE_BASE_NORMAL, UNIFORM_TEXTURE_BASE_NORMAL_PRESENT);
+                setNormalTexture(terrainTexture, SplatTexture.Channel.R, UNIFORM_TEXTURE_R_NORMAL, UNIFORM_TEXTURE_R_NORMAL_PRESENT);
+                setNormalTexture(terrainTexture, SplatTexture.Channel.G, UNIFORM_TEXTURE_G_NORMAL, UNIFORM_TEXTURE_G_NORMAL_PRESENT);
+                setNormalTexture(terrainTexture, SplatTexture.Channel.B, UNIFORM_TEXTURE_B_NORMAL, UNIFORM_TEXTURE_B_NORMAL_PRESENT);
+                setNormalTexture(terrainTexture, SplatTexture.Channel.A, UNIFORM_TEXTURE_A_NORMAL, UNIFORM_TEXTURE_A_NORMAL_PRESENT);
+            } else {
+                set(UNIFORM_TEXTURE_HAS_NORMALS, 0);
+            }
+
         } else {
             set(UNIFORM_TEXTURE_HAS_SPLATMAP, 0);
         }
@@ -158,6 +188,16 @@ public class TerrainShader extends LightShader {
         terrainSize.x = terrainTexture.getTerrain().terrainWidth;
         terrainSize.y = terrainTexture.getTerrain().terrainDepth;
         set(UNIFORM_TERRAIN_SIZE, terrainSize);
+    }
+
+    public void setNormalTexture(TerrainTexture terrainTexture, SplatTexture.Channel channel, int textureUniform, int uniformPresent) {
+        SplatTexture st = terrainTexture.getNormalTexture(channel);
+        if (st != null) {
+            set(uniformPresent, 1);
+            set(textureUniform, st.texture.getTexture());
+        } else {
+            set(uniformPresent, 0);
+        }
     }
 
     @Override
