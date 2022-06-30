@@ -53,7 +53,7 @@ public class ModelShader extends LightShader {
     protected final int UNIFORM_FOG_GRADIENT = register(new Uniform("u_fogGradient"));
     protected final int UNIFORM_FOG_COLOR = register(new Uniform("u_fogColor"));
 
-    private ShaderProgram program;
+    private final ShaderProgram program;
 
     public ModelShader() {
         program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER, this);
@@ -96,6 +96,7 @@ public class ModelShader extends LightShader {
         final MundusEnvironment env = (MundusEnvironment) renderable.environment;
 
         setLights(env);
+        setShadows(env);
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
 
         // texture uniform

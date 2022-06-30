@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.scene3d;
 
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.scene3d.components.ClippableComponent;
@@ -134,17 +135,19 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
      * @param delta delta time
      * @param clippingPlane the clipping plane to use
      * @param clipHeight clipping height for the clipping plane
+     * @param shader
      */
-    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight) {
+    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader) {
         if (active) {
             for (Component component : this.components) {
-                if (component instanceof ClippableComponent)
-                    ((ClippableComponent)component).renderDepth(delta, clippingPlane, clipHeight);
+                if (component instanceof ClippableComponent) {
+                    ((ClippableComponent) component).renderDepth(delta, clippingPlane, clipHeight, shader);
+                }
             }
 
             if (getChildren() != null) {
                 for (GameObject node : getChildren()) {
-                    node.renderDepth(delta, clippingPlane, clipHeight);
+                    node.renderDepth(delta, clippingPlane, clipHeight, shader);
                 }
             }
         }

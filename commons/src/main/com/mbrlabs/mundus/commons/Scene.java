@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -39,7 +40,12 @@ import com.mbrlabs.mundus.commons.physics.PhysicsState;
 import com.mbrlabs.mundus.commons.physics.bullet.BulletPhysicsSystem;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.commons.shaders.DepthShader;
+import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
+import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
+import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
+import com.mbrlabs.mundus.commons.utils.LightUtils;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 
@@ -72,6 +78,8 @@ public class Scene implements Disposable {
     private FrameBuffer fboWaterRefraction;
     private FrameBuffer fboDepthRefraction;
 
+    private ShadowMapper shadowMapper = null;
+
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
@@ -80,10 +88,16 @@ public class Scene implements Disposable {
 
     private PhysicsState physicsState = PhysicsState.PAUSED;
 
+    private final DepthShader depthShader = new DepthShader();
+    private final ShadowMapShader shadowMapShader = new ShadowMapShader();
+
     public Scene() {
         environment = new MundusEnvironment();
         currentSelection = null;
         terrains = new Array<>();
+
+        depthShader.init();
+        shadowMapShader.init();
 
         physicsSystem = new BulletPhysicsSystem();
 
@@ -100,6 +114,8 @@ public class Scene implements Disposable {
         dirLight.direction.nor();
         environment.add(dirLight);
         environment.getAmbientLight().intensity = 0.8f;
+
+        setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
 
         sceneGraph = new SceneGraph(this);
     }
@@ -129,6 +145,7 @@ public class Scene implements Disposable {
         }
 
         renderSkybox();
+        renderShadowMap(delta);
         renderObjects(delta);
         renderWater(delta);
 
@@ -158,6 +175,22 @@ public class Scene implements Disposable {
         if (!physicsSystem.isBodiesInitialized()) {
             physicsSystem.initializeGameObjects(sceneGraph.getGameObjects());
         }
+    }
+
+    private void renderShadowMap(float delta) {
+        //TODO: Remove GDX input, testing only
+        if (shadowMapper == null || Gdx.input.isKeyJustPressed(Input.Keys.F5)) {
+            setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
+        }
+        DirectionalLight light = LightUtils.getDirectionalLight(environment);
+        if (light == null) return;
+
+        shadowMapper.setCenter(cam.position);
+        shadowMapper.begin(light.direction);
+        batch.begin(shadowMapper.getCam());
+        sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
+        batch.end();
+        shadowMapper.end();
     }
 
     private void renderObjects(float delta) {
@@ -224,7 +257,7 @@ public class Scene implements Disposable {
         fboDepthRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin(cam);
-        sceneGraph.renderDepth(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection);
+        sceneGraph.renderDepth(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection, depthShader);
         batch.end();
         fboDepthRefraction.end();
     }
@@ -264,6 +297,10 @@ public class Scene implements Disposable {
         this.id = id;
     }
 
+    public ShadowMapper getShadowMapper() {
+        return shadowMapper;
+    }
+
     public BulletPhysicsSystem getPhysicsSystem() {
         return physicsSystem;
     }
@@ -277,6 +314,24 @@ public class Scene implements Disposable {
         this.waterResolution = resolution;
         Vector2 res = waterResolution.getResolutionValues();
         initFrameBuffers((int) res.x, (int) res.y);
+    }
+
+    /**
+     * Set shadow quality for scenes DirectionalLight.
+     *
+     * @param shadowResolution the shadow resolution to use.
+     */
+    public void setShadowQuality(ShadowResolution shadowResolution) {
+        DirectionalLight light = LightUtils.getDirectionalLight(environment);
+        if (light == null) return;
+
+        if (shadowMapper == null) {
+            shadowMapper = new ShadowMapper(shadowResolution, 512, 512, cam.near, cam.far);
+        } else {
+            shadowMapper.setShadowResolution(shadowResolution);
+        }
+
+        environment.shadowMap = shadowMapper;
     }
 
     /**

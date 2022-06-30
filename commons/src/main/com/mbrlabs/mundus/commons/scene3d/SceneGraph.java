@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.commons.scene3d;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.Scene;
@@ -65,10 +66,10 @@ public class SceneGraph {
         }
     }
 
-    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight) {
+    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader) {
         for (GameObject go : root.getChildren()) {
             if (go.hasWaterComponent) continue;
-            go.renderDepth(delta, clippingPlane, clipHeight);
+            go.renderDepth(delta, clippingPlane, clipHeight, shader);
         }
     }
 

@@ -16,8 +16,8 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.shaders.DepthShader;
 
 /**
  * @author Marcus Brummer
@@ -26,7 +26,7 @@ import com.mbrlabs.mundus.commons.shaders.DepthShader;
 public abstract class AbstractComponent implements Component {
 
     public GameObject gameObject;
-    protected DepthShader depthShader;
+    protected Shader depthShader;
     protected Type type;
 
     public AbstractComponent(GameObject go) {
@@ -34,7 +34,7 @@ public abstract class AbstractComponent implements Component {
     }
 
     @Override
-    public void setDepthShader(DepthShader depthShader) {
+    public void setDepthShader(Shader depthShader) {
         this.depthShader = depthShader;
     }
 
