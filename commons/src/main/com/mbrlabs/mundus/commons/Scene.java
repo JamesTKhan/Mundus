@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -138,6 +139,7 @@ public class Scene implements Disposable {
             setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
         }
         DirectionalLight light = LightUtils.getDirectionalLight(environment);
+        if (light == null) return;
 
         shadowMapper.setCenter(cam.position);
         shadowMapper.begin(light.direction);
