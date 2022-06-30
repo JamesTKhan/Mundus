@@ -20,6 +20,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.environment.ShadowMap;
@@ -28,6 +29,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 
 /**
@@ -44,7 +46,6 @@ public class ShadowMapper implements ShadowMap {
     protected ShadowResolution shadowResolution;
     protected FrameBuffer fbo;
     protected Camera cam;
-    protected Vector3 direction;
 
     int textureWidth;
     int textureHeight;
@@ -53,7 +54,7 @@ public class ShadowMapper implements ShadowMap {
     float near;
     float far;
 
-    public ShadowMapper(ShadowResolution resolution, int viewportWidth, int viewportHeight, float near, float far, Vector3 direction) {
+    public ShadowMapper(ShadowResolution resolution, int viewportWidth, int viewportHeight, float near, float far) {
         Vector2 res = resolution.getResolutionValues();
         this.shadowResolution = resolution;
         this.textureWidth = (int) res.x;
@@ -61,23 +62,22 @@ public class ShadowMapper implements ShadowMap {
         this.viewportWidth = viewportWidth;
         this.viewportHeight = viewportHeight;
         this.near = near;
-        this.far = far;
-        this.direction = direction;
+        this.far = far * .2f;
 
-        fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
+        fbo = new NestableFrameBuffer(Pixmap.Format.RGB888, textureWidth, textureHeight, true);
         cam = new OrthographicCamera(viewportWidth, viewportHeight);
         cam.near = near;
-        cam.far = far;
+        cam.far = this.far;
 
         textureDesc = new TextureDescriptor();
         textureDesc.minFilter = textureDesc.magFilter = Texture.TextureFilter.Nearest;
         textureDesc.uWrap = textureDesc.vWrap = Texture.TextureWrap.ClampToEdge;
     }
 
-    public void begin() {
+    public void begin(Vector3 lightDirection) {
         float halfDepth = cam.near + 0.5f * (cam.far - cam.near);
-        cam.direction.set(direction).nor();
-        cam.position.set(direction).scl(-halfDepth).add(center);
+        cam.direction.set(lightDirection).nor();
+        cam.position.set(lightDirection).scl(-halfDepth).add(center);
         cam.normalizeUp();
         cam.update();
 
@@ -109,10 +109,6 @@ public class ShadowMapper implements ShadowMap {
         return cam;
     }
 
-    public void setDirection(Vector3 direction) {
-        this.direction = direction;
-    }
-
     public ShadowResolution getShadowResolution() {
         return shadowResolution;
     }
@@ -123,7 +119,7 @@ public class ShadowMapper implements ShadowMap {
         this.textureWidth = (int) res.x;
         this.textureHeight = (int) res.y;
         fbo.dispose();
-        fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
+        fbo = new NestableFrameBuffer(Pixmap.Format.RGB888, textureWidth, textureHeight, true);
     }
 
     @Override

@@ -137,9 +137,10 @@ public class Scene implements Disposable {
         if (shadowMapper == null || Gdx.input.isKeyJustPressed(Input.Keys.F5)) {
             setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
         }
+        DirectionalLight light = LightUtils.getDirectionalLight(environment);
 
         shadowMapper.setCenter(cam.position);
-        shadowMapper.begin();
+        shadowMapper.begin(light.direction);
         batch.begin(shadowMapper.getCam());
         sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
         batch.end();
@@ -275,7 +276,7 @@ public class Scene implements Disposable {
         if (light == null) return;
 
         if (shadowMapper == null) {
-            shadowMapper = new ShadowMapper(shadowResolution, 512, 512, cam.near, cam.far, light.direction);
+            shadowMapper = new ShadowMapper(shadowResolution, 512, 512, cam.near, cam.far);
         } else {
             shadowMapper.setShadowResolution(shadowResolution);
         }
