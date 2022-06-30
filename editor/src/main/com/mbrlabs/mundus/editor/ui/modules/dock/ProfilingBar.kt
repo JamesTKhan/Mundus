@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.editor.ui.modules.dock
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisScrollPane
@@ -19,6 +20,9 @@ class ProfilingBar : Tab(false, false) {
     private val root = VisTable()
     private val profileTable = VisTable()
     private val pane = VisScrollPane(profileTable)
+
+    private val fpsLabel = VisLabel("FPS : ")
+    private val fps = VisLabel()
 
     private val drawCountLabel = VisLabel("Draw calls: ")
     private val drawCount = VisLabel()
@@ -45,6 +49,9 @@ class ProfilingBar : Tab(false, false) {
         root.add(pane).top().fillX().expandX()
 
         pane.fadeScrollBars = false
+
+        profileTable.add(fpsLabel).left().pad(cellPadding)
+        profileTable.add(fps).left().pad(cellPadding).expand().row()
 
         profileTable.add(drawCountLabel).left().pad(cellPadding)
         profileTable.add(drawCount).left().pad(cellPadding).expand().row()
@@ -81,6 +88,7 @@ class ProfilingBar : Tab(false, false) {
 
     fun update() {
         if (!glProfile.isEnabled) return
+        fps.setText(Gdx.graphics.framesPerSecond)
         drawCount.setText(glProfile.drawCalls)
         vertexCount.setText(String.format("%,d", glProfile.vertexCount.total.toLong()))
         shaderSwitches.setText(glProfile.shaderSwitches)
