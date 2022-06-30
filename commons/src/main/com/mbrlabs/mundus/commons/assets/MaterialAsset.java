@@ -113,6 +113,11 @@ public class MaterialAsset extends Asset {
         } else {
             material.remove(TextureAttribute.Diffuse);
         }
+        if (normalMap != null) {
+            material.set(new TextureAttribute(TextureAttribute.Normal, normalMap.getTexture()));
+        } else {
+            material.remove(TextureAttribute.Normal);
+        }
         material.set(new FloatAttribute(FloatAttribute.Shininess, shininess));
 
         return material;
@@ -140,7 +145,11 @@ public class MaterialAsset extends Asset {
 
     public void setNormalMap(TextureAsset normalMap) {
         this.normalMap = normalMap;
-        normalMapID = normalMap.getID();
+        if (normalMap != null) {
+            this.normalMapID = normalMap.getID();
+        } else {
+            this.normalMapID = null;
+        }
     }
 
     public TextureAsset getDiffuseTexture() {

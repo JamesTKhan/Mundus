@@ -60,6 +60,7 @@ class MaterialWidget : VisTable() {
     private val matNameLabel: VisLabel = VisLabel()
     private val diffuseColorField: ColorPickerField = ColorPickerField()
     private val diffuseAssetField: AssetSelectionField = AssetSelectionField()
+    private val normalMapField: AssetSelectionField = AssetSelectionField()
     private val shininessField = VisTextField()
 
     private val projectManager: ProjectManager = Mundus.inject()
@@ -73,6 +74,7 @@ class MaterialWidget : VisTable() {
                 field = value
                 diffuseColorField.selectedColor = value.diffuseColor
                 diffuseAssetField.setAsset(value.diffuseTexture)
+                normalMapField.setAsset(value.normalMap)
                 matNameLabel.setText(value.name)
                 shininessField.text = value.shininess.toString()
             }
@@ -112,6 +114,8 @@ class MaterialWidget : VisTable() {
 
         add(VisLabel("Diffuse texture")).grow().row()
         add(diffuseAssetField).growX().row()
+        add(VisLabel("Normal map")).grow().row()
+        add(normalMapField).growX().row()
         add(VisLabel("Diffuse color")).grow().row()
         add(diffuseColorField).growX().row()
         add(VisLabel("Shininess")).growX().row()
@@ -128,6 +132,17 @@ class MaterialWidget : VisTable() {
         diffuseAssetField.pickerListener = object: AssetPickerDialog.AssetPickerListener {
             override fun onSelected(asset: Asset?) {
                 material?.diffuseTexture = asset as? TextureAsset
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        }
+
+        // normal texture
+        normalMapField.assetFilter = AssetTextureFilter()
+        normalMapField.pickerListener = object: AssetPickerDialog.AssetPickerListener {
+            override fun onSelected(asset: Asset?) {
+                material?.normalMap = asset as? TextureAsset
                 applyMaterialToModelAssets()
                 applyMaterialToModelComponents()
                 projectManager.current().assetManager.addModifiedAsset(material!!)
