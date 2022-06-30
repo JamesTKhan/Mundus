@@ -25,6 +25,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
+import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -107,7 +109,7 @@ public class MaterialAsset extends Asset {
             material.set(new ColorAttribute(ColorAttribute.Diffuse, diffuseColor));
         }
         if (diffuseTexture != null) {
-            material.set(new TextureAttribute(TextureAttribute.Diffuse, diffuseTexture.getTexture()));
+            material.set(new PBRTextureAttribute(PBRTextureAttribute.BaseColorTexture, diffuseTexture.getTexture()));
         } else {
             material.remove(TextureAttribute.Diffuse);
         }

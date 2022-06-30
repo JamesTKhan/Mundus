@@ -350,7 +350,7 @@ public class RotateTool extends TransformTool {
 
         @Override
         public void render(ModelBatch batch) {
-            batch.render(modelInstance);
+            batch.render(modelInstance, getEnvironment());
         }
 
         @Override

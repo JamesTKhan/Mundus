@@ -408,7 +408,7 @@ public class ScaleTool extends TransformTool {
 
         @Override
         public void render(ModelBatch batch) {
-            batch.render(modelInstance);
+            batch.render(modelInstance, getEnvironment());
         }
 
         @Override

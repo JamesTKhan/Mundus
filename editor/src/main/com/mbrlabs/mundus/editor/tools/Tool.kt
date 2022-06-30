@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editor.tools
 
 import com.badlogic.gdx.InputAdapter
+import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.Shader
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
@@ -37,6 +38,7 @@ abstract class Tool(protected var projectManager: ProjectManager, protected var 
     abstract val name: String
     abstract val icon: Drawable
     abstract val iconFont: String
+    val environment: Environment = Environment()
 
     abstract fun render()
     abstract fun act()

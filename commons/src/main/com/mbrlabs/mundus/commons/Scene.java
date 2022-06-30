@@ -21,8 +21,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -37,6 +39,8 @@ import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
+import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
+import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
 
 /**
  * @author Marcus Brummer
@@ -49,6 +53,7 @@ public class Scene implements Disposable {
 
     public SceneGraph sceneGraph;
     public MundusEnvironment environment;
+    public Environment environmentpbr;
     public Skybox skybox;
     public String skyboxAssetId;
     public float waterHeight = 0f;
@@ -74,6 +79,8 @@ public class Scene implements Disposable {
 
     public Scene() {
         environment = new MundusEnvironment();
+        environmentpbr = new Environment();
+        environmentpbr.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.01f, 0.01f, 0.01f, 1));
         currentSelection = null;
         terrains = new Array<>();
 
@@ -90,6 +97,14 @@ public class Scene implements Disposable {
         dirLight.direction.nor();
         environment.add(dirLight);
         environment.getAmbientLight().intensity = 0.8f;
+
+        DirectionalLightEx directionalLightEx = new DirectionalLightEx();
+        directionalLightEx.intensity = DirectionalLight.DEFAULT_INTENSITY;
+        directionalLightEx.setColor(DirectionalLight.DEFAULT_COLOR);
+        directionalLightEx.direction.set(DirectionalLight.DEFAULT_DIRECTION);
+        environmentpbr.add(directionalLightEx);
+
+        environmentpbr.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.01f, 0.01f, 0.01f, 1));
 
         sceneGraph = new SceneGraph(this);
     }

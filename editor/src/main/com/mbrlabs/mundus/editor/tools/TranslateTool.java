@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.tools;
 
+import com.badlogic.gdx.graphics.g3d.Environment;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import org.lwjgl.opengl.GL11;
 
@@ -329,7 +330,7 @@ public class TranslateTool extends TransformTool {
 
         @Override
         public void render(ModelBatch batch) {
-            batch.render(modelInstance);
+            batch.render(modelInstance, getEnvironment());
         }
 
         @Override
