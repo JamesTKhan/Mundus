@@ -82,7 +82,7 @@ class ProfilingBar : Tab(false, false) {
     fun update() {
         if (!glProfile.isEnabled) return
         drawCount.setText(glProfile.drawCalls)
-        vertexCount.setText(glProfile.vertexCount.total.toString())
+        vertexCount.setText(String.format("%,d", glProfile.vertexCount.total.toLong()))
         shaderSwitches.setText(glProfile.shaderSwitches)
         textureBind.setText(glProfile.textureBindings)
     }
