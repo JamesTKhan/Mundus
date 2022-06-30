@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -39,8 +40,10 @@ import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
+import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
-import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
+import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 
 /**
  * @author Marcus Brummer
@@ -71,6 +74,11 @@ public class Scene implements Disposable {
     private FrameBuffer fboWaterRefraction;
     private FrameBuffer fboDepthRefraction;
 
+    private Texture brdfLUT;
+    private Cubemap diffuseCubemap;
+    private Cubemap environmentCubemap;
+    private Cubemap specularCubemap;
+
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
@@ -80,7 +88,6 @@ public class Scene implements Disposable {
     public Scene() {
         environment = new MundusEnvironment();
         environmentpbr = new Environment();
-        environmentpbr.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.01f, 0.01f, 0.01f, 1));
         currentSelection = null;
         terrains = new Array<>();
 
@@ -97,16 +104,30 @@ public class Scene implements Disposable {
         dirLight.direction.nor();
         environment.add(dirLight);
         environment.getAmbientLight().intensity = 0.8f;
+        
+        initPBR();
 
+        sceneGraph = new SceneGraph(this);
+    }
+
+    private void initPBR() {
         DirectionalLightEx directionalLightEx = new DirectionalLightEx();
         directionalLightEx.intensity = DirectionalLight.DEFAULT_INTENSITY;
         directionalLightEx.setColor(DirectionalLight.DEFAULT_COLOR);
         directionalLightEx.direction.set(DirectionalLight.DEFAULT_DIRECTION);
         environmentpbr.add(directionalLightEx);
 
-        environmentpbr.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.01f, 0.01f, 0.01f, 1));
+        IBLBuilder iblBuilder = IBLBuilder.createOutdoor(directionalLightEx);
+        environmentCubemap = iblBuilder.buildEnvMap(1024);
+        diffuseCubemap = iblBuilder.buildIrradianceMap(256);
+        specularCubemap = iblBuilder.buildRadianceMap(10);
+        iblBuilder.dispose();
 
-        sceneGraph = new SceneGraph(this);
+        brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
+        environmentpbr.set(new ColorAttribute(ColorAttribute.AmbientLight, .3f, .3f, .3f, 1));
+        environmentpbr.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
+        environmentpbr.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
+        environmentpbr.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
     }
 
     public void render() {
