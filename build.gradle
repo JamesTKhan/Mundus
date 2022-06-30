@@ -33,7 +33,7 @@ allprojects {
         mockitoVersion = '1.10.19'
         commonsIoVersion = '2.5'
         commonsLangVersion = '3.12.0'
-        gltfVersion = '2.0.0-rc.1'
+        gltfVersion = 'master-SNAPSHOT'
 
         ktxVersion = '1.10.0-b2'
     }
