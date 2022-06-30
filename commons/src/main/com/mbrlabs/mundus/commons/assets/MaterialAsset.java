@@ -20,8 +20,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
@@ -111,14 +109,14 @@ public class MaterialAsset extends Asset {
         if (diffuseTexture != null) {
             material.set(new PBRTextureAttribute(PBRTextureAttribute.BaseColorTexture, diffuseTexture.getTexture()));
         } else {
-            material.remove(TextureAttribute.Diffuse);
+            material.remove(PBRTextureAttribute.Diffuse);
         }
         if (normalMap != null) {
-            material.set(new TextureAttribute(TextureAttribute.Normal, normalMap.getTexture()));
+            material.set(new PBRTextureAttribute(PBRTextureAttribute.NormalTexture, normalMap.getTexture()));
         } else {
-            material.remove(TextureAttribute.Normal);
+            material.remove(PBRTextureAttribute.NormalTexture);
         }
-        material.set(new FloatAttribute(FloatAttribute.Shininess, shininess));
+        material.set(PBRFloatAttribute.createRoughness(shininess));
 
         return material;
     }
