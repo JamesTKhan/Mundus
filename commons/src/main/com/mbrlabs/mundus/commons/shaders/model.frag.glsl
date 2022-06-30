@@ -62,7 +62,7 @@ void main(void) {
     vec3 normal;
 
     if (u_useNormalMap == 1) {
-        normal = texture2D(u_normalTexture, v_texCoord0);
+        normal = texture2D(u_normalTexture, v_texCoord0).rgb;
         normal = normalize(v_TBN * ((2.0 * normal - 1.0)));
     } else {
         normal = v_normal;
