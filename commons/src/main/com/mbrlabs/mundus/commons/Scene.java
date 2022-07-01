@@ -17,12 +17,12 @@
 package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -56,7 +56,6 @@ public class Scene implements Disposable {
 
     public SceneGraph sceneGraph;
     public MundusEnvironment environment;
-    public Environment environmentpbr;
     public Skybox skybox;
     public String skyboxAssetId;
     public float waterHeight = 0f;
@@ -87,7 +86,6 @@ public class Scene implements Disposable {
 
     public Scene() {
         environment = new MundusEnvironment();
-        environmentpbr = new Environment();
         currentSelection = null;
         terrains = new Array<>();
 
@@ -104,6 +102,7 @@ public class Scene implements Disposable {
         dirLight.direction.nor();
         environment.add(dirLight);
         environment.getAmbientLight().intensity = 0.8f;
+        environment.set(ColorAttribute.createAmbientLight(Color.WHITE));
         
         initPBR();
 
@@ -115,7 +114,6 @@ public class Scene implements Disposable {
         directionalLightEx.intensity = DirectionalLight.DEFAULT_INTENSITY;
         directionalLightEx.setColor(DirectionalLight.DEFAULT_COLOR);
         directionalLightEx.direction.set(DirectionalLight.DEFAULT_DIRECTION);
-        environmentpbr.add(directionalLightEx);
 
         IBLBuilder iblBuilder = IBLBuilder.createOutdoor(directionalLightEx);
         environmentCubemap = iblBuilder.buildEnvMap(1024);
@@ -124,10 +122,10 @@ public class Scene implements Disposable {
         iblBuilder.dispose();
 
         brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
-        environmentpbr.set(new ColorAttribute(ColorAttribute.AmbientLight, .3f, .3f, .3f, 1));
-        environmentpbr.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
-        environmentpbr.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
-        environmentpbr.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, .3f, .3f, .3f, 1));
+        environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
+        environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
+        environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
     }
 
     public void render() {

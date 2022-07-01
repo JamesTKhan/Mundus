@@ -99,7 +99,6 @@ class DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChangedE
                 if (d != null) {
                     val light = getDirectionalLight()
                     light?.intensity = d
-                    getDirectionalPBRLight()?.intensity = d
                 }
             }
         })
@@ -109,41 +108,34 @@ class DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChangedE
             override fun finished(newColor: Color) {
                 val light = getDirectionalLight()
                 light?.color?.set(newColor)
-                getDirectionalPBRLight()?.setColor(newColor)
             }
 
             override fun changed(newColor: Color?) {
                 val light = getDirectionalLight()
                 light?.color?.set(newColor)
-                getDirectionalPBRLight()?.setColor(newColor)
             }
 
             override fun canceled(oldColor: Color?) {
                 val light = getDirectionalLight()
                 light?.color?.set(oldColor)
-                getDirectionalPBRLight()?.setColor(oldColor)
             }
         }
 
         dirXSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 getDirectionalLight()?.direction?.x = dirXSlider.value
-                getDirectionalPBRLight()?.direction?.x = dirXSlider.value
             }
         })
 
         dirYSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 getDirectionalLight()?.direction?.y = dirYSlider.value
-                getDirectionalPBRLight()?.direction?.y = dirYSlider.value
-
             }
         })
 
         dirZSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 getDirectionalLight()?.direction?.z = dirZSlider.value
-                getDirectionalPBRLight()?.direction?.z = dirZSlider.value
             }
         })
 
@@ -188,20 +180,6 @@ class DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChangedE
         val dirLights = dirLightAttribs.lights
         if (dirLights != null && dirLights.size > 0) {
             return dirLights.first()
-        }
-        return null
-    }
-
-    private fun getDirectionalPBRLight() : DirectionalLightEx? {
-        var dla = projectManager.current().currScene.environmentpbr.get(com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute::class.java,
-            com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute.Type)
-
-        if (dla != null) {
-            for (light in dla.lights) {
-                if (light is DirectionalLightEx) {
-                    return light
-                }
-            }
         }
         return null
     }

@@ -123,7 +123,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
             toolManager.render()
             gizmoManager.render()
-            compass.render(batch, scene.environmentpbr)
+            compass.render(batch, scene.environment)
         }
 
         gizmoManager.setCamera(context.currScene.cam)
