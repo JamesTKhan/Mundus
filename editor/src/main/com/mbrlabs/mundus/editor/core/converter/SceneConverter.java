@@ -65,6 +65,8 @@ public class SceneConverter {
         dto.setWaterResolution(scene.waterResolution);
         dto.setWaterHeight(scene.waterHeight);
 
+        dto.setShadowResolution(scene.getShadowMapper().getShadowResolution());
+
         // camera
         dto.setCamPosX(scene.cam.position.x);
         dto.setCamPosY(scene.cam.position.y);

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,22 +14,9 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.commons.env.lights;
+attribute vec3 a_position;
+uniform mat4 u_projViewWorldTrans;
 
-import com.badlogic.gdx.graphics.Color;
-
-/**
- * @author Marcus Brummer
- * @version 14-02-2016
- */
-public class BaseLight {
-
-    public final Color color = new Color(1, 1, 1, 1);
-    public float intensity = 1f;
-    public boolean castsShadows = false;
-    public LightType lightType;
-
-    public void setColor(Color color) {
-        this.color.set(color);
-    }
+void main() {
+    gl_Position = u_projViewWorldTrans * vec4(a_position, 1.0);
 }

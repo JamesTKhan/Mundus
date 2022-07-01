@@ -64,6 +64,8 @@ class MaterialWidget : VisTable() {
 
     private val roughnessField = ImprovedSlider(0.0f, 1.0f, 0.05f)
     private val metallicField = ImprovedSlider(0.0f, 1.0f, 0.05f)
+    private val opacityField = ImprovedSlider(0.0f, 1.0f, 0.05f)
+    private val alphaTestField = ImprovedSlider(0.0f, 1.0f, 0.05f)
 
     private val projectManager: ProjectManager = Mundus.inject()
 
@@ -80,6 +82,8 @@ class MaterialWidget : VisTable() {
                 matNameLabel.setText(value.name)
                 roughnessField.value = value.roughness
                 metallicField.value = value.metallic
+                opacityField.value = value.opacity
+                alphaTestField.value = value.alphaTest
             }
         }
 
@@ -126,6 +130,10 @@ class MaterialWidget : VisTable() {
         add(roughnessField).growX().row()
         add(VisLabel("Metallic")).growX().row()
         add(metallicField).growX().row()
+        add(VisLabel("Opacity")).growX().row()
+        add(opacityField).growX().row()
+        add(VisLabel("Alpha Test")).growX().row()
+        add(alphaTestField).growX().row()
 
         matChangedBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -181,6 +189,28 @@ class MaterialWidget : VisTable() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 if (material?.metallic == metallicField.value) return
                 material?.metallic = metallicField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        })
+
+        // opacity
+        opacityField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.opacity == opacityField.value) return
+                material?.opacity = opacityField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        })
+
+        // alpha test
+        alphaTestField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.alphaTest == alphaTestField.value) return
+                material?.alphaTest = alphaTestField.value
                 applyMaterialToModelAssets()
                 applyMaterialToModelComponents()
                 projectManager.current().assetManager.addModifiedAsset(material!!)

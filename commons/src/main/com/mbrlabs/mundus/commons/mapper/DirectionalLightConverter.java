@@ -15,6 +15,7 @@ public class DirectionalLightConverter {
         light.intensity = dto.getIntensity();
         light.color.set(dto.getColor());
         light.direction.set(dto.getDirection());
+        light.castsShadows = dto.isCastsShadows();
 
         return light;
     }
@@ -28,6 +29,7 @@ public class DirectionalLightConverter {
         lightDescriptor.setIntensity(light.intensity);
         lightDescriptor.setColor(Color.rgba8888(light.color));
         lightDescriptor.setDirection(light.direction);
+        lightDescriptor.setCastsShadows(light.castsShadows);
 
         return lightDescriptor;
     }

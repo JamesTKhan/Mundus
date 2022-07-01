@@ -19,9 +19,13 @@ varying vec4 v_clipSpace;
 varying vec3 v_toCameraVector;
 varying vec3 v_worldPos;
 
+varying vec3 v_shadowMapUv;
+
 void main() {
     vec4 worldPos = u_transMatrix * vec4(a_position, 1.0);
     v_worldPos = worldPos.xyz;
+
+    v_shadowMapUv = vec3(0.0);
 
     v_clipSpace = u_projViewMatrix * worldPos;
     gl_Position = v_clipSpace;

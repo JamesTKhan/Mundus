@@ -19,6 +19,7 @@ package com.mbrlabs.mundus.commons.assets;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.PropertiesUtils;
@@ -44,8 +45,10 @@ public class MaterialAsset extends Asset {
     public static final String PROP_DIFFUSE_COLOR = "diffuse.color";
     public static final String PROP_DIFFUSE_TEXTURE = "diffuse.texture";
     public static final String PROP_MAP_NORMAL = "map.normal";
-    public static final String PROP_SHININESS = "shininess";
+    public static final String PROP_ROUGHNESS = "roughness";
     public static final String PROP_OPACITY = "opacity";
+    public static final String PROP_METALLIC = "metallic";
+    public static final String PROP_ALPHA_TEST = "alphaTest";
 
     // ids of dependent assets
     private String diffuseTextureID;
@@ -56,7 +59,8 @@ public class MaterialAsset extends Asset {
     private TextureAsset normalMap;
     private float roughness = 0f;
     private float metallic = 0f;
-    private float opacity = 0f;
+    private float opacity = 1f;
+    private float alphaTest = 0f;
 
     public MaterialAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
@@ -69,15 +73,23 @@ public class MaterialAsset extends Asset {
             Reader reader = file.reader();
             PropertiesUtils.load(MAP, reader);
             reader.close();
-            // shininess & opacity
+
             try {
-                String value = MAP.get(PROP_SHININESS, null);
+                String value = MAP.get(PROP_ROUGHNESS, null);
                 if (value != null) {
                     roughness = Float.valueOf(value);
                 }
                 value = MAP.get(PROP_OPACITY, null);
                 if (value != null) {
                     opacity = Float.valueOf(value);
+                }
+                value = MAP.get(PROP_METALLIC, null);
+                if (value != null) {
+                    metallic = Float.valueOf(value);
+                }
+                value = MAP.get(PROP_ALPHA_TEST, null);
+                if (value != null) {
+                    alphaTest = Float.valueOf(value);
                 }
             } catch (NumberFormatException nfe) {
                 nfe.printStackTrace();
@@ -117,8 +129,28 @@ public class MaterialAsset extends Asset {
         } else {
             material.remove(PBRTextureAttribute.NormalTexture);
         }
+
         material.set(PBRFloatAttribute.createRoughness(roughness));
         material.set(PBRFloatAttribute.createMetallic(metallic));
+
+        if (opacity < 1f) {
+            material.set(new BlendingAttribute(true, opacity));
+        } else {
+            if (alphaTest == 0) {
+                material.remove(BlendingAttribute.Type);
+            }
+        }
+
+        if (alphaTest > 0) {
+            material.set(PBRFloatAttribute.createAlphaTest(alphaTest));
+            // We need blending attribute to trip the blendedFlag in shader
+            material.set(new BlendingAttribute(false, opacity));
+        } else {
+            material.remove(PBRFloatAttribute.AlphaTest);
+            if (opacity == 1f) {
+                material.remove(BlendingAttribute.Type);
+            }
+        }
 
         return material;
     }
@@ -145,6 +177,14 @@ public class MaterialAsset extends Asset {
 
     public void setOpacity(float opacity) {
         this.opacity = opacity;
+    }
+
+    public float getAlphaTest() {
+        return alphaTest;
+    }
+
+    public void setAlphaTest(float alphaTest) {
+        this.alphaTest = alphaTest;
     }
 
     public TextureAsset getNormalMap() {
