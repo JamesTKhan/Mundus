@@ -401,7 +401,7 @@ public class ScaleTool extends TransformTool {
         }
 
         public void changeColor(Color color) {
-            PBRColorAttribute diffuse = (PBRColorAttribute) modelInstance.materials.get(0).get(PBRColorAttribute.Diffuse);
+            PBRColorAttribute diffuse = (PBRColorAttribute) modelInstance.materials.get(0).get(PBRColorAttribute.BaseColorFactor);
             diffuse.color.set(color);
         }
 

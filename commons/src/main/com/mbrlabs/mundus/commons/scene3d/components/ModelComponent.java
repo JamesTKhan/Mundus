@@ -95,7 +95,7 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
     @Override
     public void render(float delta) {
         modelInstance.transform.set(gameObject.getTransform());
-        gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environmentpbr);
+        gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment);
     }
 
     @Override
