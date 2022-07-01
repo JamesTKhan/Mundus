@@ -19,6 +19,7 @@ package com.mbrlabs.mundus.commons.dto;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
+import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 
 /**
@@ -42,6 +43,7 @@ public class SceneDTO implements Json.Serializable {
     private float camDirZ = 0;
     private float waterHeight;
     private WaterResolution waterResolution;
+    private ShadowResolution shadowResolution;
 
     public SceneDTO() {
         gameObjects = new Array<>();
@@ -165,6 +167,14 @@ public class SceneDTO implements Json.Serializable {
 
     public String getSkyboxAssetId() {
         return skyboxAssetId;
+    }
+
+    public ShadowResolution getShadowResolution() {
+        return shadowResolution;
+    }
+
+    public void setShadowResolution(ShadowResolution shadowResolution) {
+        this.shadowResolution = shadowResolution;
     }
 
     @Override

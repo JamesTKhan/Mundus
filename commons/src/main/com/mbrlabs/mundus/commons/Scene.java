@@ -277,7 +277,7 @@ public class Scene implements Disposable {
      */
     public void setShadowQuality(ShadowResolution shadowResolution) {
         DirectionalLight light = LightUtils.getDirectionalLight(environment);
-        if (light == null) return;
+        if (light == null || shadowResolution == null) return;
 
         if (shadowMapper == null) {
             shadowMapper = new ShadowMapper(shadowResolution, 512, 512, cam.near, cam.far);
