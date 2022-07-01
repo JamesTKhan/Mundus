@@ -20,10 +20,10 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
@@ -117,7 +117,7 @@ public class MaterialAsset extends Asset {
      */
     public Material applyToMaterial(Material material) {
         if (diffuseColor != null) {
-            material.set(new ColorAttribute(ColorAttribute.Diffuse, diffuseColor));
+            material.set(PBRColorAttribute.createBaseColorFactor(diffuseColor));
         }
         if (diffuseTexture != null) {
             material.set(new PBRTextureAttribute(PBRTextureAttribute.BaseColorTexture, diffuseTexture.getTexture()));
