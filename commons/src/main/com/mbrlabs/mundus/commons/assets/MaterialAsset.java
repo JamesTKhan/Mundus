@@ -54,7 +54,8 @@ public class MaterialAsset extends Asset {
     private Color diffuseColor = Color.WHITE.cpy();
     private TextureAsset diffuseTexture;
     private TextureAsset normalMap;
-    private float shininess = 0f;
+    private float roughness = 0f;
+    private float metallic = 0f;
     private float opacity = 0f;
 
     public MaterialAsset(Meta meta, FileHandle assetFile) {
@@ -72,7 +73,7 @@ public class MaterialAsset extends Asset {
             try {
                 String value = MAP.get(PROP_SHININESS, null);
                 if (value != null) {
-                    shininess = Float.valueOf(value);
+                    roughness = Float.valueOf(value);
                 }
                 value = MAP.get(PROP_OPACITY, null);
                 if (value != null) {
@@ -116,17 +117,26 @@ public class MaterialAsset extends Asset {
         } else {
             material.remove(PBRTextureAttribute.NormalTexture);
         }
-        material.set(PBRFloatAttribute.createRoughness(shininess));
+        material.set(PBRFloatAttribute.createRoughness(roughness));
+        material.set(PBRFloatAttribute.createMetallic(metallic));
 
         return material;
     }
 
-    public float getShininess() {
-        return shininess;
+    public float getRoughness() {
+        return roughness;
     }
 
-    public void setShininess(float shininess) {
-        this.shininess = shininess;
+    public void setRoughness(float roughness) {
+        this.roughness = roughness;
+    }
+
+    public float getMetallic() {
+        return metallic;
+    }
+
+    public void setMetallic(float metallic) {
+        this.metallic = metallic;
     }
 
     public float getOpacity() {

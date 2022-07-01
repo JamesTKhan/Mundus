@@ -611,7 +611,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             props.setProperty(MaterialAsset.PROP_MAP_NORMAL, mat.normalMap.id)
         }
         props.setProperty(MaterialAsset.PROP_OPACITY, mat.opacity.toString())
-        props.setProperty(MaterialAsset.PROP_SHININESS, mat.shininess.toString())
+        props.setProperty(MaterialAsset.PROP_SHININESS, mat.roughness.toString())
 
         val fileOutputStream = FileOutputStream(mat.file.file())
         props.store(fileOutputStream, null)
