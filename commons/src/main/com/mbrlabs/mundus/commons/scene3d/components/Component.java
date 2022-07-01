@@ -35,8 +35,6 @@ public interface Component {
 
     void update(float delta);
 
-    void setDepthShader(Shader shader);
-
     Type getType();
 
     void setType(Type type);

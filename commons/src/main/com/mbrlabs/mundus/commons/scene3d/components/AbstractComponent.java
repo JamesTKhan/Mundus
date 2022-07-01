@@ -26,16 +26,10 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
 public abstract class AbstractComponent implements Component {
 
     public GameObject gameObject;
-    protected Shader depthShader;
     protected Type type;
 
     public AbstractComponent(GameObject go) {
         this.gameObject = go;
-    }
-
-    @Override
-    public void setDepthShader(Shader depthShader) {
-        this.depthShader = depthShader;
     }
 
     @Override
