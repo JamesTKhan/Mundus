@@ -26,6 +26,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.Json
 import com.kotcrab.vis.ui.VisUI
 import com.mbrlabs.mundus.commons.assets.meta.MetaLoader
+import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
 import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
@@ -92,14 +93,18 @@ object Mundus {
         initFontAwesome()
         eventBus = EventBus()
 
+        val VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/gdx-pbr.vs.glsl"
+        val FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl"
         val config = PBRShaderConfig()
         config.numDirectionalLights = 1
         config.numPointLights = 0
         config.numBones = 53
+        config.vertexShader = Gdx.files.internal(VERTEX_SHADER).readString()
+        config.fragmentShader = Gdx.files.internal(FRAGMENT_SHADER).readString()
 
         // DI
         shapeRenderer = ShapeRenderer()
-        modelBatch = ModelBatch(PBRShaderProvider(config))
+        modelBatch = ModelBatch(MundusPBRShaderProvider(config))
         //modelBatch = ModelBatch()
         input = InputManager()
         goPicker = GameObjectPicker()
