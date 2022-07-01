@@ -67,6 +67,8 @@ public class SceneConverter {
 
         scene.waterHeight = dto.getWaterHeight();
 
+        scene.setShadowQuality(dto.getShadowResolution());
+
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);
         for (GameObjectDTO descriptor : dto.getGameObjects()) {
