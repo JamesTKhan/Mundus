@@ -65,6 +65,9 @@ public class SceneLoader {
             scene.setSkybox(skyboxAsset, mundus.getShaders().getSkyboxShader());
         }
 
+        scene.setShadowMapShader(mundus.getShaders().getShadowMapShader());
+        scene.setDepthShader(mundus.getShaders().getDepthShader());
+
         SceneGraph sceneGraph = scene.sceneGraph;
         for (GameObject go : sceneGraph.getGameObjects()) {
             initGameObject(go);
