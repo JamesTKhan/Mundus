@@ -61,8 +61,9 @@ class MaterialWidget : VisTable() {
     private val diffuseColorField: ColorPickerField = ColorPickerField()
     private val diffuseAssetField: AssetSelectionField = AssetSelectionField()
     private val normalMapField: AssetSelectionField = AssetSelectionField()
-    private val roughnessField = VisTextField()
-    private val metallicField = VisTextField()
+
+    private val roughnessField = ImprovedSlider(0.0f, 1.0f, 0.05f)
+    private val metallicField = ImprovedSlider(0.0f, 1.0f, 0.05f)
 
     private val projectManager: ProjectManager = Mundus.inject()
 
@@ -77,8 +78,8 @@ class MaterialWidget : VisTable() {
                 diffuseAssetField.setAsset(value.diffuseTexture)
                 normalMapField.setAsset(value.normalMap)
                 matNameLabel.setText(value.name)
-                roughnessField.text = value.roughness.toString()
-                metallicField.text = value.metallic.toString()
+                roughnessField.value = value.roughness
+                metallicField.value = value.metallic
             }
         }
 
@@ -107,6 +108,7 @@ class MaterialWidget : VisTable() {
     }
 
     private fun setupWidgets() {
+        defaults().padBottom(4f)
         val table = VisTable()
         table.add(matNameLabel).grow()
         table.add<VisTextButton>(matChangedBtn).padLeft(4f).right().row()
@@ -164,36 +166,24 @@ class MaterialWidget : VisTable() {
         }
 
         // roughness
-        roughnessField.textFieldFilter = FloatDigitsOnlyFilter(false)
-        roughnessField.addListener(object: ChangeListener() {
-            override fun changed(event: ChangeEvent?, actor: Actor?) {
-                if(roughnessField.isInputValid && !roughnessField.isEmpty) {
-                    try {
-                        material?.roughness = roughnessField.text.toFloat()
-                        applyMaterialToModelAssets()
-                        applyMaterialToModelComponents()
-                        projectManager.current().assetManager.addModifiedAsset(material!!)
-                    } catch (ex : NumberFormatException) {
-                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + roughnessField.name))
-                    }
-                }
+        roughnessField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.roughness == roughnessField.value) return
+                material?.roughness = roughnessField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
             }
         })
 
         // metallic
-        metallicField.textFieldFilter = FloatDigitsOnlyFilter(false)
-        metallicField.addListener(object: ChangeListener() {
-            override fun changed(event: ChangeEvent?, actor: Actor?) {
-                if(metallicField.isInputValid && !metallicField.isEmpty) {
-                    try {
-                        material?.metallic = metallicField.text.toFloat()
-                        applyMaterialToModelAssets()
-                        applyMaterialToModelComponents()
-                        projectManager.current().assetManager.addModifiedAsset(material!!)
-                    } catch (ex : NumberFormatException) {
-                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + metallicField.name))
-                    }
-                }
+        metallicField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.metallic == metallicField.value) return
+                material?.metallic = metallicField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
             }
         })
 
