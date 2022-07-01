@@ -15,9 +15,6 @@
  */
 package com.mbrlabs.mundus.editor.tools;
 
-import com.mbrlabs.mundus.editor.history.commands.RotateCommand;
-import org.lwjgl.opengl.GL11;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -25,7 +22,6 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
@@ -38,11 +34,14 @@ import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
+import com.mbrlabs.mundus.editor.history.commands.RotateCommand;
 import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
 import com.mbrlabs.mundus.editor.utils.Fa;
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs;
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Rotate tool for game objects
@@ -325,7 +324,7 @@ public class RotateTool extends TransformTool {
 
         public RotateHandle(int id, Color color) {
             super(id);
-            model = UsefulMeshs.torus(new Material(ColorAttribute.createDiffuse(color)), 20, 1f, 50, 50);
+            model = UsefulMeshs.torus(new Material(PBRColorAttribute.createBaseColorFactor(color)), 20, 1f, 50, 50);
             modelInstance = new ModelInstance(model);
             modelInstance.materials.first().set(getIdAttribute());
             switch (id) {

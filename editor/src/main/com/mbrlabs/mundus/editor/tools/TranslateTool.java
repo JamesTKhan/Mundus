@@ -16,10 +16,6 @@
 
 package com.mbrlabs.mundus.editor.tools;
 
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.mbrlabs.mundus.commons.scene3d.components.Component;
-import org.lwjgl.opengl.GL11;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -29,12 +25,12 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent;
@@ -44,6 +40,8 @@ import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
 import com.mbrlabs.mundus.editor.utils.Fa;
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
+import org.lwjgl.opengl.GL11;
 
 /**
  * @author Marcus Brummer
@@ -81,16 +79,16 @@ public class TranslateTool extends TransformTool {
         ModelBuilder modelBuilder = new ModelBuilder();
 
         Model xHandleModel = modelBuilder.createArrow(0, 0, 0, 1, 0, 0, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS,
-                GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_X)),
+                GL20.GL_TRIANGLES, new Material(PBRColorAttribute.createBaseColorFactor(COLOR_X)),
                 VertexAttributes.Usage.Position);
         Model yHandleModel = modelBuilder.createArrow(0, 0, 0, 0, 1, 0, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS,
-                GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_Y)),
+                GL20.GL_TRIANGLES, new Material(PBRColorAttribute.createBaseColorFactor(COLOR_Y)),
                 VertexAttributes.Usage.Position);
         Model zHandleModel = modelBuilder.createArrow(0, 0, 0, 0, 0, 1, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS,
-                GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_Z)),
+                GL20.GL_TRIANGLES, new Material(PBRColorAttribute.createBaseColorFactor(COLOR_Z)),
                 VertexAttributes.Usage.Position);
         Model xzPlaneHandleModel = modelBuilder.createSphere(1, 1, 1, 20, 20,
-                new Material(ColorAttribute.createDiffuse(COLOR_XZ)), VertexAttributes.Usage.Position);
+                new Material(PBRColorAttribute.createBaseColorFactor(COLOR_XZ)), VertexAttributes.Usage.Position);
 
         xHandle = new TranslateHandle(X_HANDLE_ID, xHandleModel);
         yHandle = new TranslateHandle(Y_HANDLE_ID, yHandleModel);
@@ -324,7 +322,7 @@ public class TranslateTool extends TransformTool {
         }
 
         public void changeColor(Color color) {
-            ColorAttribute diffuse = (ColorAttribute) modelInstance.materials.get(0).get(ColorAttribute.Diffuse);
+            PBRColorAttribute diffuse = (PBRColorAttribute) modelInstance.materials.get(0).get(PBRColorAttribute.BaseColorFactor);
             diffuse.color.set(color);
         }
 

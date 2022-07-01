@@ -16,6 +16,7 @@
 package com.mbrlabs.mundus.editor.tools;
 
 import com.badlogic.gdx.math.Vector2;
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import org.lwjgl.opengl.GL11;
 
 import com.badlogic.gdx.Gdx;
@@ -26,7 +27,6 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
@@ -35,7 +35,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
-import com.mbrlabs.mundus.commons.utils.MathUtils;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
@@ -86,14 +85,14 @@ public class ScaleTool extends TransformTool {
         this.shapeRenderer = shapeRenderer;
 
         ModelBuilder modelBuilder = new ModelBuilder();
-        Model xPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(ColorAttribute.createDiffuse(COLOR_X)),
+        Model xPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(PBRColorAttribute.createBaseColorFactor(COLOR_X)),
                 Vector3.Zero, new Vector3(15, 0, 0));
-        Model yPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(ColorAttribute.createDiffuse(COLOR_Y)),
+        Model yPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(PBRColorAttribute.createBaseColorFactor(COLOR_Y)),
                 Vector3.Zero, new Vector3(0, 15, 0));
-        Model zPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(ColorAttribute.createDiffuse(COLOR_Z)),
+        Model zPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(PBRColorAttribute.createBaseColorFactor(COLOR_Z)),
                 Vector3.Zero, new Vector3(0, 0, 15));
         Model xyzPlaneHandleModel = modelBuilder.createBox(3, 3, 3,
-                new Material(ColorAttribute.createDiffuse(COLOR_XYZ)),
+                new Material(PBRColorAttribute.createBaseColorFactor(COLOR_XYZ)),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
         xHandle = new ScaleHandle(X_HANDLE_ID, xPlaneHandleModel);
@@ -402,7 +401,7 @@ public class ScaleTool extends TransformTool {
         }
 
         public void changeColor(Color color) {
-            ColorAttribute diffuse = (ColorAttribute) modelInstance.materials.get(0).get(ColorAttribute.Diffuse);
+            PBRColorAttribute diffuse = (PBRColorAttribute) modelInstance.materials.get(0).get(PBRColorAttribute.Diffuse);
             diffuse.color.set(color);
         }
 
