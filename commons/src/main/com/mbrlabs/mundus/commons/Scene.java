@@ -17,12 +17,10 @@
 package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -78,6 +76,8 @@ public class Scene implements Disposable {
     private FrameBuffer fboWaterRefraction;
     private FrameBuffer fboDepthRefraction;
 
+    private DepthShader depthShader;
+    private ShadowMapShader shadowMapShader;
     private ShadowMapper shadowMapper = null;
 
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
@@ -88,16 +88,10 @@ public class Scene implements Disposable {
 
     private PhysicsState physicsState = PhysicsState.PAUSED;
 
-    private final DepthShader depthShader = new DepthShader();
-    private final ShadowMapShader shadowMapShader = new ShadowMapShader();
-
     public Scene() {
         environment = new MundusEnvironment();
         currentSelection = null;
         terrains = new Array<>();
-
-        depthShader.init();
-        shadowMapShader.init();
 
         physicsSystem = new BulletPhysicsSystem();
 
@@ -177,22 +171,6 @@ public class Scene implements Disposable {
         }
     }
 
-    private void renderShadowMap(float delta) {
-        //TODO: Remove GDX input, testing only
-        if (shadowMapper == null || Gdx.input.isKeyJustPressed(Input.Keys.F5)) {
-            setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
-        }
-        DirectionalLight light = LightUtils.getDirectionalLight(environment);
-        if (light == null) return;
-
-        shadowMapper.setCenter(cam.position);
-        shadowMapper.begin(light.direction);
-        batch.begin(shadowMapper.getCam());
-        sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
-        batch.end();
-        shadowMapper.end();
-    }
-
     private void renderObjects(float delta) {
         // Render objects
         batch.begin(cam);
@@ -216,6 +194,22 @@ public class Scene implements Disposable {
 
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
+    }
+
+    private void renderShadowMap(float delta) {
+        if (shadowMapper == null) {
+            setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
+        }
+
+        DirectionalLight light = LightUtils.getDirectionalLight(environment);
+        if (light == null) return;
+
+        shadowMapper.setCenter(cam.position);
+        shadowMapper.begin(light.direction);
+        batch.begin(shadowMapper.getCam());
+        sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
+        batch.end();
+        shadowMapper.end();
     }
 
     private void initFrameBuffers(int width, int height) {
@@ -303,6 +297,14 @@ public class Scene implements Disposable {
 
     public BulletPhysicsSystem getPhysicsSystem() {
         return physicsSystem;
+    }
+
+    public void setDepthShader(DepthShader depthShader) {
+        this.depthShader = depthShader;
+    }
+
+    public void setShadowMapShader(ShadowMapShader shadowMapShader) {
+        this.shadowMapShader = shadowMapShader;
     }
 
     /**
