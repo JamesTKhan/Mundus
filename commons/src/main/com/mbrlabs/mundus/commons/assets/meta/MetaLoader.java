@@ -66,6 +66,11 @@ public class MetaLoader {
         terrain.setSplatG(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_G, null));
         terrain.setSplatB(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_B, null));
         terrain.setSplatA(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_A, null));
+        terrain.setSplatBaseNormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_BASE_NORMAL, null));
+        terrain.setSplatRNormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_R_NORMAL, null));
+        terrain.setSplatGNormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_G_NORMAL, null));
+        terrain.setSplatBNormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_B_NORMAL, null));
+        terrain.setSplatANormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_A_NORMAL, null));
 
         meta.setTerrain(terrain);
     }

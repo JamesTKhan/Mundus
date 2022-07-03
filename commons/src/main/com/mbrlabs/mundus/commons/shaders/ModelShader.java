@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Matrix3;
 import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
@@ -41,17 +42,22 @@ public class ModelShader extends LightShader {
     // ============================ MATERIALS ============================
     protected final int UNIFORM_MATERIAL_DIFFUSE_TEXTURE = register(new Uniform("u_diffuseTexture"));
     protected final int UNIFORM_MATERIAL_DIFFUSE_USE_TEXTURE = register(new Uniform("u_diffuseUseTexture"));
+    protected final int UNIFORM_MATERIAL_NORMAL_TEXTURE = register(new Uniform("u_normalTexture"));
+    protected final int UNIFORM_MATERIAL_NORMAL_USE_TEXTURE = register(new Uniform("u_useNormalMap"));
 
 
     // ============================ MATRICES & CAM POSITION ============================
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
+    protected final int UNIFORM_NORMAL_MATRIX = register(new Uniform("u_normalMatrix"));
     protected final int UNIFORM_CAM_POS = register(new Uniform("u_camPos"));
 
     // ============================ FOG ============================
     protected final int UNIFORM_FOG_DENSITY = register(new Uniform("u_fogDensity"));
     protected final int UNIFORM_FOG_GRADIENT = register(new Uniform("u_fogGradient"));
     protected final int UNIFORM_FOG_COLOR = register(new Uniform("u_fogColor"));
+
+    private final Matrix3 tmpM = new Matrix3();
 
     private ShaderProgram program;
 
@@ -97,9 +103,11 @@ public class ModelShader extends LightShader {
 
         setLights(env);
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
+        set(UNIFORM_NORMAL_MATRIX, tmpM.set(renderable.worldTransform).inv().transpose());
 
         // texture uniform
         TextureAttribute diffuseTexture = ((TextureAttribute) (renderable.material.get(TextureAttribute.Diffuse)));
+        TextureAttribute normalMap = ((TextureAttribute) (renderable.material.get(TextureAttribute.Normal)));
         ColorAttribute diffuseColor = ((ColorAttribute) (renderable.material.get(ColorAttribute.Diffuse)));
 
         if (diffuseTexture != null) {
@@ -107,6 +115,13 @@ public class ModelShader extends LightShader {
             set(UNIFORM_MATERIAL_DIFFUSE_USE_TEXTURE, 1);
         } else {
             set(UNIFORM_MATERIAL_DIFFUSE_USE_TEXTURE, 0);
+        }
+
+        if (normalMap != null) {
+            set(UNIFORM_MATERIAL_NORMAL_TEXTURE, normalMap.textureDescription.texture);
+            set(UNIFORM_MATERIAL_NORMAL_USE_TEXTURE, 1);
+        } else {
+            set(UNIFORM_MATERIAL_NORMAL_USE_TEXTURE, 0);
         }
 
         set(UNIFORM_USE_MATERIAL, 1); // Use material for lighting
