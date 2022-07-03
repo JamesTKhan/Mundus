@@ -42,6 +42,12 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
 
     protected ObjectMap<String, MaterialAsset> materials;  // g3db material id to material asset uuid
 
+    public ModelComponent(GameObject go) {
+        super(go);
+        type = Type.MODEL;
+        materials = new ObjectMap<>();
+    }
+
     public ModelComponent(GameObject go, Shader shader) {
         super(go);
         type = Type.MODEL;

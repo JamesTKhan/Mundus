@@ -36,7 +36,7 @@ public class ModelComponentConverter {
      */
     public static ModelComponent convert(ModelComponentDTO modelComponentDTO, GameObject gameObject,
                                          Shaders shaders, AssetManager assetManager) {
-        ModelComponent mc = new ModelComponent(gameObject, shaders.getModelShader());
+        ModelComponent mc = new ModelComponent(gameObject);
         mc.setModel((ModelAsset) assetManager.findAssetByID(modelComponentDTO.getModelID()), false);
 
         for(Map.Entry<String, String> entry : modelComponentDTO.getMaterials().entrySet()) {

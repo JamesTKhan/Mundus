@@ -31,6 +31,10 @@ import com.mbrlabs.mundus.editor.tools.picker.PickerIDAttribute;
  */
 public class PickableModelComponent extends ModelComponent implements PickableComponent {
 
+    public PickableModelComponent(GameObject go) {
+        super(go, null);
+    }
+
     public PickableModelComponent(GameObject go, Shader shader) {
         super(go, shader);
     }

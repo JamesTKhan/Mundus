@@ -56,7 +56,6 @@ public class ModelPlacementTool extends Tool {
 
     public ModelPlacementTool(ProjectManager projectManager, ModelBatch batch, CommandHistory history) {
         super(projectManager, batch, history);
-        setShader(Shaders.INSTANCE.getModelShader());
         this.model = null;
         this.modelInstance = null;
     }
@@ -94,6 +93,7 @@ public class ModelPlacementTool extends Tool {
     public void render() {
         if (modelInstance != null) {
             getBatch().begin(getProjectManager().current().currScene.cam);
+            getBatch().render(modelInstance, getProjectManager().current().currScene.environment);
             getBatch().render(modelInstance, getProjectManager().current().currScene.environment, getShader());
             getBatch().end();
         }
@@ -116,8 +116,7 @@ public class ModelPlacementTool extends Tool {
             modelInstance.transform.getTranslation(tempV3);
             modelGo.translate(tempV3);
 
-            PickableModelComponent modelComponent = new PickableModelComponent(modelGo, Shaders.INSTANCE.getModelShader());
-            modelComponent.setShader(getShader());
+            PickableModelComponent modelComponent = new PickableModelComponent(modelGo);
             modelComponent.setModel(model, true);
             modelComponent.encodeRaypickColorId();
 

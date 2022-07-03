@@ -54,7 +54,7 @@ public class PickableLightComponent extends LightComponent implements PickableCo
         modelInstance.transform.setToTranslation(tmp);
 
         // Keeping this here for debugging if we need to render this cube
-        //gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, Shaders.INSTANCE.getModelShader());
+        //gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment));
     }
 
     @Override
