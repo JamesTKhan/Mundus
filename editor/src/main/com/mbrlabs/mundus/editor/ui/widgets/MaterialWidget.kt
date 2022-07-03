@@ -23,11 +23,9 @@ import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
-import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
-import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
@@ -38,8 +36,6 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetMaterialFilter
 import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.events.LogEvent
-import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 
@@ -66,6 +62,7 @@ class MaterialWidget : VisTable() {
     private val metallicField = ImprovedSlider(0.0f, 1.0f, 0.05f)
     private val opacityField = ImprovedSlider(0.0f, 1.0f, 0.05f)
     private val alphaTestField = ImprovedSlider(0.0f, 1.0f, 0.05f)
+    private val normalScaleField = ImprovedSlider(0.5f, 5f, 0.5f)
 
     private val projectManager: ProjectManager = Mundus.inject()
 
@@ -84,6 +81,7 @@ class MaterialWidget : VisTable() {
                 metallicField.value = value.metallic
                 opacityField.value = value.opacity
                 alphaTestField.value = value.alphaTest
+                normalScaleField.value = value.normalScale
             }
         }
 
@@ -118,7 +116,7 @@ class MaterialWidget : VisTable() {
         table.add<VisTextButton>(matChangedBtn).padLeft(4f).right().row()
         add(table).grow().row()
 
-        addSeparator().growX().row()
+        addSeparator().padTop(15f).padBottom(15f).growX().row()
 
         add(VisLabel("Diffuse texture")).grow().row()
         add(diffuseAssetField).growX().row()
@@ -126,14 +124,27 @@ class MaterialWidget : VisTable() {
         add(normalMapField).growX().row()
         add(VisLabel("Diffuse color")).grow().row()
         add(diffuseColorField).growX().row()
-        add(VisLabel("Roughness")).growX().row()
-        add(roughnessField).growX().row()
-        add(VisLabel("Metallic")).growX().row()
-        add(metallicField).growX().row()
-        add(VisLabel("Opacity")).growX().row()
-        add(opacityField).growX().row()
-        add(VisLabel("Alpha Test")).growX().row()
-        add(alphaTestField).growX().row()
+
+        addSeparator().padTop(15f).padBottom(15f).growX().row()
+
+        val sliderTable = VisTable()
+        sliderTable.defaults().padBottom(10f)
+        sliderTable.add(VisLabel("Roughness")).growX()
+        sliderTable.add(roughnessField).growX().row()
+
+        sliderTable.add(VisLabel("Metallic")).growX()
+        sliderTable.add(metallicField).growX().row()
+
+        sliderTable.add(VisLabel("Opacity")).growX()
+        sliderTable.add(opacityField).growX().row()
+
+        sliderTable.add(VisLabel("Alpha Test")).growX()
+        sliderTable.add(alphaTestField).growX().row()
+
+        sliderTable.add(VisLabel("Normal Scale")).growX()
+        sliderTable.add(normalScaleField).growX().row()
+
+        add(sliderTable).growX()
 
         matChangedBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -211,6 +222,18 @@ class MaterialWidget : VisTable() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 if (material?.alphaTest == alphaTestField.value) return
                 material?.alphaTest = alphaTestField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        })
+
+
+        // normal scale
+        normalScaleField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.normalScale == normalScaleField.value) return
+                material?.normalScale = normalScaleField.value
                 applyMaterialToModelAssets()
                 applyMaterialToModelComponents()
                 projectManager.current().assetManager.addModifiedAsset(material!!)

@@ -49,6 +49,7 @@ public class MaterialAsset extends Asset {
     public static final String PROP_OPACITY = "opacity";
     public static final String PROP_METALLIC = "metallic";
     public static final String PROP_ALPHA_TEST = "alphaTest";
+    public static final String PROP_NORMAL_SCALE = "normalScale";
 
     // ids of dependent assets
     private String diffuseTextureID;
@@ -61,6 +62,7 @@ public class MaterialAsset extends Asset {
     private float metallic = 0f;
     private float opacity = 1f;
     private float alphaTest = 0f;
+    private float normalScale = 1f;
 
     public MaterialAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
@@ -77,19 +79,23 @@ public class MaterialAsset extends Asset {
             try {
                 String value = MAP.get(PROP_ROUGHNESS, null);
                 if (value != null) {
-                    roughness = Float.valueOf(value);
+                    roughness = Float.parseFloat(value);
                 }
                 value = MAP.get(PROP_OPACITY, null);
                 if (value != null) {
-                    opacity = Float.valueOf(value);
+                    opacity = Float.parseFloat(value);
                 }
                 value = MAP.get(PROP_METALLIC, null);
                 if (value != null) {
-                    metallic = Float.valueOf(value);
+                    metallic = Float.parseFloat(value);
                 }
                 value = MAP.get(PROP_ALPHA_TEST, null);
                 if (value != null) {
-                    alphaTest = Float.valueOf(value);
+                    alphaTest = Float.parseFloat(value);
+                }
+                value = MAP.get(PROP_NORMAL_SCALE, null);
+                if (value != null) {
+                    normalScale = Float.parseFloat(value);
                 }
             } catch (NumberFormatException nfe) {
                 nfe.printStackTrace();
@@ -132,6 +138,7 @@ public class MaterialAsset extends Asset {
 
         material.set(PBRFloatAttribute.createRoughness(roughness));
         material.set(PBRFloatAttribute.createMetallic(metallic));
+        material.set(PBRFloatAttribute.createNormalScale(normalScale));
 
         if (opacity < 1f) {
             material.set(new BlendingAttribute(true, opacity));
@@ -185,6 +192,14 @@ public class MaterialAsset extends Asset {
 
     public void setAlphaTest(float alphaTest) {
         this.alphaTest = alphaTest;
+    }
+
+    public float getNormalScale() {
+        return normalScale;
+    }
+
+    public void setNormalScale(float normalScale) {
+        this.normalScale = normalScale;
     }
 
     public TextureAsset getNormalMap() {
