@@ -26,7 +26,12 @@ import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.physics.enums.PhysicsShape;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 
 /**
  * Helper class for building bullet shapes and collision objects. Expand upon as needed.
@@ -120,7 +125,7 @@ public class BulletBuilder {
                 rigidBody.setActivationState(activationState);
             }
 
-            if (collisionFlags != -1) {
+            if (collisionFlags != 0) {
                 rigidBody.setCollisionFlags(rigidBody.getCollisionFlags() | collisionFlags);
             }
 
@@ -137,6 +142,7 @@ public class BulletBuilder {
         private BoundingBox boundingBox = null;
         private Vector3 scale = null;
         private Model model = null;
+        private TerrainAsset terrainAsset = null;
 
         private float radius = 1f;
 
@@ -156,6 +162,11 @@ public class BulletBuilder {
 
         public ShapeBuilder model(Model model) {
             this.model = model;
+            return this;
+        }
+
+        public ShapeBuilder terrainAsset(TerrainAsset terrainAsset) {
+            this.terrainAsset = terrainAsset;
             return this;
         }
 
@@ -194,8 +205,7 @@ public class BulletBuilder {
                 case G_IMPACT_TRIANGLE_MESH:
                     return buildGimpactShape();
                 case TERRAIN:
-                    //TODO Try moving heightfield shape logic here
-                    throw new GdxRuntimeException("Terrain shape not implemented for manual creation.");
+                    return buildTerrainShape();
                 case SCALED_BVH_TRIANGLE:
                     throw new GdxRuntimeException("SCALED_BVH_TRIANGLE shape not implemented for manual creation.");
                 case BVH_TRIANGLE:
@@ -203,6 +213,41 @@ public class BulletBuilder {
             }
 
             return null;
+        }
+
+        private btCollisionShape buildTerrainShape() {
+            if (terrainAsset == null) {
+                throw new GdxRuntimeException("TerrainAsset object is required for ShapeBuilder to create terrain shapes.");
+            }
+
+            float minHeight = 999;// min height for entire chunk
+            float maxHeight = -999;// max height for entire chunk
+            for (float height : terrainAsset.getData()) {
+                // Set height min/maxes for bullet
+                if (height < minHeight)
+                    minHeight = height;
+                else if (height > maxHeight)
+                    maxHeight = height;
+            }
+
+            terrainAsset.setMaxHeight(maxHeight);
+            terrainAsset.setMinHeight(minHeight);
+
+            ByteBuffer vbb = ByteBuffer.allocateDirect(terrainAsset.getData().length * 4);
+            vbb.order(ByteOrder.nativeOrder());    // use the device hardware's native byte order
+
+            FloatBuffer fb;// This may have to saved in memory
+            fb = vbb.asFloatBuffer();  // create floating point buffer using bytebuffer
+            fb.put(terrainAsset.getData()); // add height data to buffer
+            fb.position(0);
+
+            float size = terrainAsset.getTerrain().terrainWidth;
+            float vertexCount = terrainAsset.getTerrain().vertexResolution;
+            btHeightfieldTerrainShape terrainShape = new btHeightfieldTerrainShape(terrainAsset.getTerrain().vertexResolution, terrainAsset.getTerrain().vertexResolution, fb, 1, minHeight, maxHeight, 1, true);
+            terrainShape.setLocalScaling(new Vector3((size) / ((vertexCount - 1)), 1, (size) / ((vertexCount - 1))));
+
+            shape = terrainShape;
+            return shape;
         }
 
         private btCollisionShape buildGimpactShape() {

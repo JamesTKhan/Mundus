@@ -16,10 +16,17 @@
 
 package com.mbrlabs.mundus.commons.physics.bullet;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.bullet.collision.*;
+import com.badlogic.gdx.physics.bullet.collision.Collision;
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
+import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
+import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
+import com.badlogic.gdx.physics.bullet.collision.btGImpactCollisionAlgorithm;
 import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
@@ -27,19 +34,11 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.physics.PhysicsSystem;
-import com.mbrlabs.mundus.commons.physics.enums.PhysicsBody;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.scene3d.InvalidComponentException;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.RigidBodyPhysicsComponent;
-import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 
 /**
  * @author James Pooley
@@ -103,67 +102,10 @@ public class BulletPhysicsSystem implements PhysicsSystem {
         return result;
     }
 
-    public void addComponentToPhysics(GameObject gameObject, TerrainComponent terrainComponent) {
-        float minHeightChunk = 999;// min height for entire chunk
-        float maxHeightChunk = -999;// max height for entire chunk
-        for (float height : terrainComponent.getTerrain().getData()) {
-            // Set height min/maxes for bullet
-            if (height < minHeightChunk)
-                minHeightChunk = height;
-            else if (height > maxHeightChunk)
-                maxHeightChunk = height;
-        }
-
-        ByteBuffer vbb = ByteBuffer.allocateDirect(terrainComponent.getTerrain().getData().length * 4);
-        vbb.order(ByteOrder.nativeOrder());    // use the device hardware's native byte order
-
-        FloatBuffer fb;// This may have to saved in memory
-        fb = vbb.asFloatBuffer();  // create floating point buffer using bytebuffer
-        fb.put(terrainComponent.getTerrain().getData()); // add height data to buffer
-        fb.position(0);
-
-        float size = terrainComponent.getTerrain().getTerrain().terrainWidth;
-        float vertexCount = terrainComponent.getTerrain().getTerrain().vertexResolution;
-        btHeightfieldTerrainShape terrainShape = new btHeightfieldTerrainShape(terrainComponent.getTerrain().getTerrain().vertexResolution, terrainComponent.getTerrain().getTerrain().vertexResolution, fb, 1, minHeightChunk, maxHeightChunk, 1, true);
-        terrainShape.setLocalScaling(new Vector3((size) / ((vertexCount - 1)), 1, (size) / ((vertexCount - 1))));
-        terrainShape.setMargin(0);
-        btRigidBody.btRigidBodyConstructionInfo constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(0, null, terrainShape, new Vector3( 0,0,0));
-        btRigidBody body = new btRigidBody(constructionInfo);
-        body.setCollisionFlags(body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | btCollisionObject.CollisionFlags.CF_DISABLE_VISUALIZE_OBJECT);
-
-        float adjustedHeight = (maxHeightChunk + minHeightChunk) / 2f;
-        body.setWorldTransform(body.getWorldTransform().setTranslation(new Vector3((size / 2f), adjustedHeight, (size / 2f))));
-
-        RigidBodyPhysicsComponent component = new RigidBodyPhysicsComponent(gameObject, constructionInfo, terrainShape, body, PhysicsBody.STATIC);
-
-        try {
-            gameObject.addComponent(component);
-        } catch (InvalidComponentException e) {
-            Gdx.app.error(TAG, "Error creating terrain component");
-            throw new GdxRuntimeException(e);
-        }
-
-        dynamicsWorld.addRigidBody(body);
-        rigidBodyList.add(body);
-    }
-
     public void initializePhysicsComponents(Array<GameObject> gameObjects) {
         for (GameObject gameObject : gameObjects) {
 
-            // Load terrain physics
-            TerrainComponent terrainComponent = (TerrainComponent) gameObject.findComponentByType(Component.Type.TERRAIN);
             RigidBodyPhysicsComponent physicsComponent = (RigidBodyPhysicsComponent) gameObject.findComponentByType(Component.Type.PHYSICS);
-
-            if (terrainComponent != null) {
-                if (physicsComponent != null) {
-                    physicsComponent.initializeBody();
-                    dynamicsWorld.addRigidBody((btRigidBody) physicsComponent.getCollisionObject());
-                    continue;
-                }
-
-                addComponentToPhysics(gameObject, terrainComponent);
-                continue;
-            }
 
             if (physicsComponent != null) {
                 physicsComponent.initializeBody();

@@ -16,6 +16,8 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
@@ -23,11 +25,13 @@ import com.badlogic.gdx.physics.bullet.collision.Collision;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.physics.bullet.BulletBuilder;
 import com.mbrlabs.mundus.commons.physics.bullet.GameObjectMotionState;
 import com.mbrlabs.mundus.commons.physics.bullet.RigidBodyResult;
 import com.mbrlabs.mundus.commons.physics.enums.PhysicsBody;
+import com.mbrlabs.mundus.commons.physics.enums.PhysicsShape;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 
 /**
@@ -64,6 +68,11 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
         super(gameObject, physicsBodyType);
     }
 
+    /**
+     * Initializes the physics body based on the components properties
+     * and other attached components (model, terrain, etc..).
+     *
+     */
     @Override
     public void initializeBody() {
         if (bodyInitialized) {
@@ -74,12 +83,24 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
 
         bodyInitialized = true;
 
-        // Get models bounding box
+        Model model = null;
         BoundingBox boundingBox = null;
+
         ModelComponent modelComponent = (ModelComponent) gameObject.findComponentByType(Type.MODEL);
+        TerrainComponent terrainComponent = (TerrainComponent) gameObject.findComponentByType(Type.TERRAIN);
+
         if (modelComponent != null) {
             boundingBox = new BoundingBox();
+            model = modelComponent.modelInstance.model;
             modelComponent.getModelInstance().calculateBoundingBox(boundingBox);
+        } else if (terrainComponent != null) {
+            model = terrainComponent.terrain.getTerrain().modelInstance.model;
+
+            if (physicsBodyType == PhysicsBody.STATIC) {
+                // For static terrains we use btHeightfieldTerrainShape which will only get be utilized
+                // for TERRAIN shapes, so default to terrain shape.
+                physicsShape = PhysicsShape.TERRAIN;
+            }
         }
 
         // Build the collision shape
@@ -90,23 +111,31 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
             collisionShape = new BulletBuilder.ShapeBuilder(physicsShape)
                     .scale(gameObject.getLocalScale(scale))
                     .boundingBox(boundingBox)
-                    .model(modelComponent == null ? null : modelComponent.getModelInstance().model)
+                    .model(model)
+                    .terrainAsset(terrainComponent != null && physicsShape == PhysicsShape.TERRAIN ? terrainComponent.getTerrain() : null)
                     .build();
         }
+
+        // Set collision flags accordingly
+        int collisionFlags = getCollisionFlags(model, terrainComponent);
 
         // Build the rigid body
         RigidBodyResult result = new BulletBuilder.RigidBodyBuilder(collisionShape)
                 .mass(physicsBodyType == PhysicsBody.DYNAMIC ? mass : 0f)
-                .friction(physicsBodyType == PhysicsBody.DYNAMIC ? friction : 0f)
-                .restitution(physicsBodyType == PhysicsBody.DYNAMIC ? restitution : 0f)
+                .friction(friction)
+                .restitution(restitution)
                 .btMotionState(physicsBodyType == PhysicsBody.DYNAMIC ? new GameObjectMotionState(gameObject) : null)
-                .collisionFlags(physicsBodyType == PhysicsBody.KINEMATIC ? btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT : -1)
+                .collisionFlags(collisionFlags)
                 .activationState(disableDeactivation ? Collision.DISABLE_DEACTIVATION : Collision.ACTIVE_TAG)
                 .build();
 
         // Set transform on static bodies
         if (physicsBodyType == PhysicsBody.STATIC && modelComponent != null) {
             result.rigidBody.setWorldTransform(gameObject.getTransform());
+        } else if (physicsShape == PhysicsShape.TERRAIN && terrainComponent != null) {
+            float size = terrainComponent.getTerrain().getTerrain().terrainWidth;
+            float adjustedHeight = (terrainComponent.terrain.getMaxHeight() + terrainComponent.terrain.getMinHeight()) / 2f;
+            result.rigidBody.setWorldTransform(result.rigidBody.getWorldTransform().setTranslation(new Vector3((size / 2f), adjustedHeight, (size / 2f))));
         }
 
         constructionInfo = result.constructionInfo;
@@ -115,6 +144,32 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
         constructionInfo.obtain();
         collisionObject.obtain();
         collisionShape.obtain();
+    }
+
+    private int getCollisionFlags(Model model, TerrainComponent terrainComponent) {
+        int collisionFlags = 0;
+        if (physicsBodyType == PhysicsBody.KINEMATIC) {
+            collisionFlags =  btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT;
+        } else if (physicsBodyType == PhysicsBody.STATIC) {
+            collisionFlags =  btCollisionObject.CollisionFlags.CF_STATIC_OBJECT;
+        }
+
+        if (gameObject.sceneGraph.scene.debugDrawMode == btIDebugDraw.DebugDrawModes.DBG_DrawWireframe) {
+            // Get vertices count
+            int numVertices = 0;
+            if (model != null) {
+                for (Mesh mesh : model.meshes) {
+                    numVertices += mesh.getNumVertices();
+                }
+            }
+
+            if (terrainComponent != null || numVertices > 10000) {
+                // Disable debug drawing for terrain or high vertices models due to performance issues on wireframe mode
+                collisionFlags = collisionFlags | btCollisionObject.CollisionFlags.CF_DISABLE_VISUALIZE_OBJECT;
+            }
+        }
+
+        return collisionFlags;
     }
 
     @Override

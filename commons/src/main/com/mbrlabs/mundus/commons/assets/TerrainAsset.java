@@ -38,6 +38,8 @@ import java.util.Map;
 public class TerrainAsset extends Asset {
 
     private float[] data;
+    private float maxHeight;
+    private float minHeight;
 
     // dependencies
     private PixmapTextureAsset splatmap;
@@ -402,5 +404,21 @@ public class TerrainAsset extends Asset {
         }
 
         return false;
+    }
+
+    public void setMaxHeight(float maxHeight) {
+        this.maxHeight = maxHeight;
+    }
+
+    public float getMaxHeight() {
+        return maxHeight;
+    }
+
+    public void setMinHeight(float minHeight) {
+        this.minHeight = minHeight;
+    }
+
+    public float getMinHeight() {
+        return minHeight;
     }
 }

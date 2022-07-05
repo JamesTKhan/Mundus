@@ -81,6 +81,9 @@ public class Scene implements Disposable {
     private ShadowMapShader shadowMapShader;
     private ShadowMapper shadowMapper = null;
 
+    private DebugDrawer debugDrawer;
+    public int debugDrawMode = btIDebugDraw.DebugDrawModes.DBG_DrawWireframe;
+
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
@@ -119,7 +122,6 @@ public class Scene implements Disposable {
         render(Gdx.graphics.getDeltaTime());
     }
 
-    DebugDrawer debugDrawer;
     public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F3))
             pausePhysics();
@@ -146,7 +148,7 @@ public class Scene implements Disposable {
 
         if (debugDrawer == null)  {
             debugDrawer = new DebugDrawer();
-            debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_DrawAabb);
+            debugDrawer.setDebugMode(debugDrawMode);
             physicsSystem.getDynamicsWorld().setDebugDrawer(debugDrawer);
         }
 

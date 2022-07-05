@@ -52,10 +52,14 @@ class PhysicsWidget(val physicsComponent: RigidBodyPhysicsComponent) : BaseWidge
             "Avoid large mass ratios. It is best to keep the mass around 1")
     private var massField = VisTextField()
 
-    private var frictionLabel = VisLabel("Friction ")
+    private var frictionLabel = ToolTipLabel("Friction ", "How strongly friction applies to this body.\n" +
+            "Friction is calculated by multiplying the friction coefficients from the two colliding objects.\nFor friction to apply, both objects must have a positive friction value. \n" +
+            "Zero friction will result in continuous sliding.")
     private var frictionField = VisTextField()
 
-    private var restitutionLabel = VisLabel("Restitution ")
+    private var restitutionLabel = ToolTipLabel("Restitution ", "How elastic or bouncy the body is.\n" +
+            "Restitution is calculated by multiplying the restitution coefficients from two colliding bodies.\n" +
+            "For restitution to apply, both objects must have a positive restitution value.")
     private var restitutionField = VisTextField()
 
     private var disableDeactivationLabel = ToolTipLabel("Disable Deactivation ", "Prevents body from auto deactivating shortly after it stops moving.")
@@ -91,7 +95,7 @@ class PhysicsWidget(val physicsComponent: RigidBodyPhysicsComponent) : BaseWidge
         defaults().align(Align.left)
 
         // Body Selector
-        add(ToolTipLabel("Body Type", "Static: Non-moving body\n\n" +
+        add(ToolTipLabel("Body Type", "Static: Non-moving body. Use for terrains and other static objects.\n\n" +
                 "Dynamic: Moving body driven by physics simulation\n\n" +
                 "Kinematic: Manually moved, influences other objects but does not receive any physics influence"))
         add(selectorsTable).left().row()
@@ -110,6 +114,12 @@ class PhysicsWidget(val physicsComponent: RigidBodyPhysicsComponent) : BaseWidge
         shapeSelectBox.items = shapes
         shapeTable.add(shapeSelectBox).left()
 
+        add(frictionLabel)
+        add(frictionField).row()
+
+        add(restitutionLabel)
+        add(restitutionField).row()
+
         if (physicsComponent.physicsBodyType == PhysicsBody.DYNAMIC) {
             addDynamicFields()
         } else {
@@ -124,12 +134,6 @@ class PhysicsWidget(val physicsComponent: RigidBodyPhysicsComponent) : BaseWidge
         massField.remove()
         massFieldLabel.remove()
 
-        frictionField.remove()
-        frictionLabel.remove()
-
-        restitutionField.remove()
-        restitutionLabel.remove()
-
         disableDeactivationCheckbox.remove()
         disableDeactivationLabel.remove()
     }
@@ -141,18 +145,14 @@ class PhysicsWidget(val physicsComponent: RigidBodyPhysicsComponent) : BaseWidge
         add(massFieldLabel)
         add(massField).row()
 
-        add(frictionLabel)
-        add(frictionField).row()
-
-        add(restitutionLabel)
-        add(restitutionField).row()
-
         add(disableDeactivationLabel)
         add(disableDeactivationCheckbox).row()
     }
 
     private fun updateValues() {
         bodySelectBox.selected = physicsComponent.physicsBodyType.value
+        shapeSelectBox.selected = physicsComponent.physicsShape.value
+
         massField.text = physicsComponent.mass.toString()
         frictionField.text = physicsComponent.friction.toString()
         restitutionField.text = physicsComponent.restitution.toString()
