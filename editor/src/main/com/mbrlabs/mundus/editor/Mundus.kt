@@ -177,7 +177,7 @@ object Mundus {
                 addIcon(Fa.CIRCLE_O).addIcon(Fa.CIRCLE).addIcon(Fa.MINUS).addIcon(Fa.CARET_DOWN).
                 addIcon(Fa.CARET_UP).addIcon(Fa.TIMES).addIcon(Fa.SORT).addIcon(Fa.HASHTAG).
                 addIcon(Fa.PAINT_BRUSH).addIcon(Fa.STAR).addIcon(Fa.REFRESH).addIcon(Fa.EXPAND).
-                addIcon(Fa.ARROWS_ALT).addIcon(Fa.EYE).addIcon(Fa.EYE_SLASH).build()
+                addIcon(Fa.ARROWS_ALT).addIcon(Fa.EYE).addIcon(Fa.EYE_SLASH).addIcon(Fa.INFO_CIRCLE).build()
     }
 
     /**

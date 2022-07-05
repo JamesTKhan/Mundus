@@ -32,7 +32,7 @@ fun main(arg: Array<String>) {
     // Temporary fix for MacOS, we should be able to remove when we update libGDX to 1.11.0 and use
     //  gdx-lwjgl3-glfw-awt-macos extension instead https://libgdx.com/news/2022/05/gdx-1-11
     StartOnFirstThreadHelper.startNewJvmIfRequired()
-    Bullet.init()
+    Bullet.init(true)
     Log.init()
     launchEditor()
 }

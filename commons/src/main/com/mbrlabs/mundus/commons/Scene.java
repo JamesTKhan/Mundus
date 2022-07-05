@@ -35,7 +35,7 @@ import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
-import com.mbrlabs.mundus.commons.physics.PhysicsState;
+import com.mbrlabs.mundus.commons.physics.enums.PhysicsState;
 import com.mbrlabs.mundus.commons.physics.bullet.BulletPhysicsSystem;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
@@ -149,9 +149,12 @@ public class Scene implements Disposable {
             debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_DrawAabb);
             physicsSystem.getDynamicsWorld().setDebugDrawer(debugDrawer);
         }
-        debugDrawer.begin(cam);
-        physicsSystem.getDynamicsWorld().debugDrawWorld();
-        debugDrawer.end();
+
+        if (physicsState == PhysicsState.RUNNING) {
+            debugDrawer.begin(cam);
+            physicsSystem.getDynamicsWorld().debugDrawWorld();
+            debugDrawer.end();
+        }
     }
 
     private void updatePhysics(float delta) {
@@ -168,7 +171,7 @@ public class Scene implements Disposable {
     public void runPhysics() {
         physicsState = PhysicsState.RUNNING;
         if (!physicsSystem.isBodiesInitialized()) {
-            physicsSystem.initializeGameObjects(sceneGraph.getGameObjects());
+            physicsSystem.initializePhysicsComponents(sceneGraph.getGameObjects());
         }
     }
 

@@ -1,12 +1,32 @@
+/*
+ * Copyright (c) 2022. See AUTHORS file.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mbrlabs.mundus.commons.physics.bullet;
 
+import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.model.MeshPart;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.physics.bullet.collision.Collision;
-import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.mbrlabs.mundus.commons.physics.enums.PhysicsShape;
 
 /**
  * Helper class for building bullet shapes and collision objects. Expand upon as needed.
@@ -24,8 +44,10 @@ public class BulletBuilder {
         private final Vector3 localInertia = new Vector3();
 
         private int activationState = Collision.ACTIVE_TAG;
+        private int collisionFlags = -1;
         private float mass = 0f;
         private float friction = 1f;
+        private float restitution = 0f;
         private btMotionState motionState = null;
         private Object userData = null;
 
@@ -40,6 +62,11 @@ public class BulletBuilder {
 
         public RigidBodyBuilder friction(float friction) {
             this.friction = friction;
+            return this;
+        }
+
+        public RigidBodyBuilder restitution(float restitution) {
+            this.restitution = restitution;
             return this;
         }
 
@@ -65,6 +92,11 @@ public class BulletBuilder {
             return this;
         }
 
+        public RigidBodyBuilder collisionFlags(int collisionFlags) {
+            this.collisionFlags = collisionFlags;
+            return this;
+        }
+
         public RigidBodyBuilder userData(Object userData) {
             this.userData = userData;
             return this;
@@ -78,6 +110,7 @@ public class BulletBuilder {
             btRigidBody.btRigidBodyConstructionInfo constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(
                     mass, null, shape, localInertia);
             constructionInfo.setFriction(friction);
+            constructionInfo.setRestitution(restitution);
 
             btRigidBody rigidBody = new btRigidBody(constructionInfo);
             rigidBody.setMotionState(motionState);
@@ -87,24 +120,27 @@ public class BulletBuilder {
                 rigidBody.setActivationState(activationState);
             }
 
-            constructionInfo.dispose();
+            if (collisionFlags != -1) {
+                rigidBody.setCollisionFlags(rigidBody.getCollisionFlags() | collisionFlags);
+            }
 
             return new RigidBodyResult(rigidBody, constructionInfo);
         }
 
     }
 
-    enum ShapeEnum {
-        BOX
-    }
-
     public static class ShapeBuilder {
+        private static final Vector3 dimensions = new Vector3();
+
         private btCollisionShape shape;
-        private ShapeEnum shapeEnum;
+        private final PhysicsShape shapeEnum;
         private BoundingBox boundingBox = null;
         private Vector3 scale = null;
+        private Model model = null;
 
-        public ShapeBuilder(ShapeEnum shapeEnum) {
+        private float radius = 1f;
+
+        public ShapeBuilder(PhysicsShape shapeEnum) {
             this.shapeEnum = shapeEnum;
         }
 
@@ -118,27 +154,125 @@ public class BulletBuilder {
             return this;
         }
 
+        public ShapeBuilder model(Model model) {
+            this.model = model;
+            return this;
+        }
+
         public btCollisionShape build() {
-            if (shapeEnum == ShapeEnum.BOX) {
-                if (boundingBox == null)
-                    shape = new btBoxShape(new Vector3(1,1,1));
-                else {
-                    // Get the dimensions
-                    Vector3 dim = new Vector3();
-                    boundingBox.getDimensions(dim);
-                    dim.scl(0.5f);// half extents plus a bit more
 
-                     // Handle scale
-                    if (scale == null) scale = new Vector3(1,1,1);
-                    dim.scl(scale);
+            // Get dimensions needed for shape building
+            if (boundingBox != null) {
+                // Get the dimensions
+                boundingBox.getDimensions(dimensions);
 
-                    shape = new btBoxShape(dim);
+                dimensions.scl(0.5f);// Scale for half extents
+
+                // Handle scale
+                if (scale != null) {
+                    dimensions.scl(scale);
                 }
 
-                return shape;
+                radius = dimensions.len() / 2f;
+            } else {
+                dimensions.set(1f,1f,1f);
+            }
+
+            switch (shapeEnum) {
+                case BOX:
+                    return buildBoxShape();
+                case SPHERE:
+                    return buildSphereShape();
+                case CAPSULE:
+                    return buildCapsuleShape();
+                case CYLINDER:
+                    return buildCylinderShape();
+                case CONE:
+                    return buildConeShape();
+                case CONVEX_HULL:
+                    return buildConvexHullShape();
+                case G_IMPACT_TRIANGLE_MESH:
+                    return buildGimpactShape();
+                case TERRAIN:
+                    //TODO Try moving heightfield shape logic here
+                    throw new GdxRuntimeException("Terrain shape not implemented for manual creation.");
+                case SCALED_BVH_TRIANGLE:
+                    throw new GdxRuntimeException("SCALED_BVH_TRIANGLE shape not implemented for manual creation.");
+                case BVH_TRIANGLE:
+                    throw new GdxRuntimeException("BVH_TRIANGLE shape not implemented for manual creation.");
             }
 
             return null;
+        }
+
+        private btCollisionShape buildGimpactShape() {
+            if (model == null) {
+                throw new GdxRuntimeException("Model is required for ShapeBuilder to create gimpact shapes.");
+            }
+            btTriangleIndexVertexArray chassisVertexArray = new btTriangleIndexVertexArray(model.meshParts);
+            shape = new btGImpactMeshShape(chassisVertexArray);
+
+            if (scale != null) {
+                shape.setLocalScaling(scale);
+            }
+
+            ((btGImpactMeshShape) shape).updateBound();
+            return shape;
+        }
+
+        private btCollisionShape buildConvexHullShape() {
+            if (model == null) {
+                throw new GdxRuntimeException("Model is required for ShapeBuilder to create convex hull shapes.");
+            }
+
+            btCompoundShape compoundShape = new btCompoundShape();
+
+            for (MeshPart meshPart : model.meshParts) {
+                Mesh mesh = meshPart.mesh;
+                btConvexHullShape convexHullShape = new btConvexHullShape(mesh.getVerticesBuffer(), mesh.getNumVertices(), mesh.getVertexSize());
+
+                final btShapeHull hull = new btShapeHull(convexHullShape);
+                hull.buildHull(convexHullShape.getMargin());
+                final btConvexHullShape result = new btConvexHullShape(hull);
+                compoundShape.addChildShape(new Matrix4().setToTranslation(meshPart.center), result);
+            }
+
+            shape = compoundShape;
+
+            if (scale != null) {
+                shape.setLocalScaling(scale);
+            }
+
+            return shape;
+        }
+
+        private btCollisionShape buildConeShape() {
+            shape = new btConeShape(radius, dimensions.y);
+            return shape;
+        }
+
+        private btCollisionShape buildCylinderShape() {
+            shape = new btCylinderShape(dimensions);
+            return shape;
+        }
+
+        private btCollisionShape buildSphereShape() {
+            shape = new btSphereShape(radius);
+            return shape;
+        }
+
+        private btCollisionShape buildCapsuleShape() {
+            shape = new btCapsuleShape(radius, dimensions.y);
+            return shape;
+        }
+
+        private btCollisionShape buildBoxShape() {
+            if (boundingBox == null)
+                shape = new btBoxShape(new Vector3(1,1,1));
+            else {
+                shape = new btBoxShape(dimensions);
+            }
+            return shape;
         }
 
     }

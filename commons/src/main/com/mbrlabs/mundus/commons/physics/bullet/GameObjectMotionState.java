@@ -1,13 +1,26 @@
+/*
+ * Copyright (c) 2022. See AUTHORS file.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mbrlabs.mundus.commons.physics.bullet;
 
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.scene3d.components.Component;
-import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
 /**
  * @author James Pooley
  * @version June 15, 2022
@@ -16,18 +29,11 @@ public class GameObjectMotionState extends btMotionState {
     private static final Vector3 tmp = new Vector3();
     private static final Vector3 tmp2 = new Vector3();
     private static final Quaternion tmpQuat = new Quaternion();
-    private static final BoundingBox boundingBox = new BoundingBox();
 
     GameObject gameObject;
-    float halfHeight = 0;
 
     public GameObjectMotionState(GameObject gameObject) {
         this.gameObject = gameObject;
-        ModelComponent modelComponent = (ModelComponent) gameObject.findComponentByType(Component.Type.MODEL);
-        if (modelComponent != null) {
-            modelComponent.getModelInstance().calculateBoundingBox(boundingBox);
-            halfHeight = boundingBox.getDimensions(tmp).y / 2f;
-        }
     }
 
     @Override
@@ -40,7 +46,7 @@ public class GameObjectMotionState extends btMotionState {
         // GameObjects rely on vectors, so we update their vectors and not a matrix.
         worldTrans.getTranslation(tmp);
         worldTrans.getRotation(tmpQuat);
-        gameObject.setLocalPosition(tmp.x, tmp.y - halfHeight, tmp.z);
+        gameObject.setLocalPosition(tmp.x, tmp.y, tmp.z);
         gameObject.setLocalRotation(tmpQuat.x, tmpQuat.y, tmpQuat.z, tmpQuat.w);
     }
 }

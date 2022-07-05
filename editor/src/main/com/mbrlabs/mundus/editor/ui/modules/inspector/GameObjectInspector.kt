@@ -26,6 +26,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
+import com.mbrlabs.mundus.commons.scene3d.components.RigidBodyPhysicsComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
 import com.mbrlabs.mundus.editor.ui.UI
@@ -33,6 +34,7 @@ import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.IdentifierWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.LightComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ModelComponentWidget
+import com.mbrlabs.mundus.editor.ui.modules.inspector.components.PhysicsComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.TransformWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.TerrainComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.WaterComponentWidget
@@ -107,6 +109,8 @@ class GameObjectInspector : VisTable() {
                     componentWidgets.add(WaterComponentWidget(component as WaterComponent))
                 } else if (component.type == Component.Type.LIGHT) {
                     componentWidgets.add(LightComponentWidget(component as LightComponent))
+                } else if (component.type == Component.Type.PHYSICS) {
+                    componentWidgets.add(PhysicsComponentWidget(component as RigidBodyPhysicsComponent))
                 }
             }
         }
@@ -122,6 +126,11 @@ class GameObjectInspector : VisTable() {
 
         if (component is LightComponent) {
             componentWidgets.add(LightComponentWidget(component))
+            componentTable.add(componentWidgets.last()).grow().row()
+        }
+
+        if (component is RigidBodyPhysicsComponent) {
+            componentWidgets.add(PhysicsComponentWidget(component))
             componentTable.add(componentWidgets.last()).grow().row()
         }
     }

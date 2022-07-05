@@ -1,9 +1,24 @@
+/*
+ * Copyright (c) 2022. See AUTHORS file.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mbrlabs.mundus.commons.physics.bullet;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
@@ -15,10 +30,10 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.physics.PhysicsSystem;
+import com.mbrlabs.mundus.commons.physics.enums.PhysicsBody;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.InvalidComponentException;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
-import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.RigidBodyPhysicsComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 
@@ -51,7 +66,9 @@ public class BulletPhysicsSystem implements PhysicsSystem {
         broadphase = new btDbvtBroadphase();
         constraintSolver = new btSequentialImpulseConstraintSolver();
         dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
-        dynamicsWorld.setGravity(new Vector3(0, -8f, 0));
+        dynamicsWorld.setGravity(new Vector3(0, -9.8f, 0));
+
+        btGImpactCollisionAlgorithm.registerAlgorithm((btCollisionDispatcher) dispatcher);
 
         collisionConfig.obtain();
         dispatcher.obtain();
@@ -62,10 +79,9 @@ public class BulletPhysicsSystem implements PhysicsSystem {
         rigidBodyList = new Array<>();
     }
 
-    public void removeAndDisposeRigidBody(btRigidBody rigidBody) {
+    public void removeRigidBody(btRigidBody rigidBody) {
         dynamicsWorld.removeCollisionObject(rigidBody);
         rigidBodyList.removeValue(rigidBody, true);
-        rigidBody.dispose();
     }
 
     public RigidBodyResult addRigidBody(btCollisionShape shape, float mass, float friction, Matrix4 worldTrans,
@@ -118,7 +134,7 @@ public class BulletPhysicsSystem implements PhysicsSystem {
         float adjustedHeight = (maxHeightChunk + minHeightChunk) / 2f;
         body.setWorldTransform(body.getWorldTransform().setTranslation(new Vector3((size / 2f), adjustedHeight, (size / 2f))));
 
-        RigidBodyPhysicsComponent component = new RigidBodyPhysicsComponent(gameObject, constructionInfo, terrainShape, body);
+        RigidBodyPhysicsComponent component = new RigidBodyPhysicsComponent(gameObject, constructionInfo, terrainShape, body, PhysicsBody.STATIC);
 
         try {
             gameObject.addComponent(component);
@@ -131,60 +147,28 @@ public class BulletPhysicsSystem implements PhysicsSystem {
         rigidBodyList.add(body);
     }
 
-    /**
-     * This will likely need changing, just a blanket method for auto adding physics for now.
-     * Mass and such is hard coded but more than likely users will end up having to specify these fields
-     * via UI.
-     */
-    public void addComponentToPhysics(GameObject gameObject, ModelComponent modelComponent) {
-        BoundingBox boundingBox = new BoundingBox();
-        Vector3 scale = new Vector3();
+    public void initializePhysicsComponents(Array<GameObject> gameObjects) {
+        for (GameObject gameObject : gameObjects) {
 
-        modelComponent.getModelInstance().calculateBoundingBox(boundingBox);
-        btCollisionShape shape = new BulletBuilder.ShapeBuilder(BulletBuilder.ShapeEnum.BOX)
-                .scale(gameObject.getLocalScale(scale))
-                .boundingBox(boundingBox)
-                .build();
+            // Load terrain physics
+            TerrainComponent terrainComponent = (TerrainComponent) gameObject.findComponentByType(Component.Type.TERRAIN);
+            RigidBodyPhysicsComponent physicsComponent = (RigidBodyPhysicsComponent) gameObject.findComponentByType(Component.Type.PHYSICS);
 
-        // We pass a start transform to bullet that has + model half height so that it lines up with the position in editor.
-        GameObjectMotionState motionState = new GameObjectMotionState(gameObject);
-        Matrix4 trans = modelComponent.getModelInstance().transform.cpy().translate(0, motionState.halfHeight, 0);
+            if (terrainComponent != null) {
+                if (physicsComponent != null) {
+                    physicsComponent.initializeBody();
+                    dynamicsWorld.addRigidBody((btRigidBody) physicsComponent.getCollisionObject());
+                    continue;
+                }
 
-        RigidBodyResult result = addRigidBody(shape, 40f, .9f, trans, motionState, gameObject);
-
-        RigidBodyPhysicsComponent component = new RigidBodyPhysicsComponent(gameObject, result.constructionInfo, shape, result.rigidBody);
-
-        try {
-            gameObject.addComponent(component);
-        } catch (InvalidComponentException e) {
-            Gdx.app.error(TAG, "Error creating terrain component");
-            throw new GdxRuntimeException(e);
-        }
-    }
-
-    /**
-     * Auto adds physics components to Model and Terrain components.
-     *
-     * @param gameObject the object to add physics component to
-     * @return true if successful, false if not.
-     */
-    public boolean addPhysicsToGameObject(GameObject gameObject) {
-        for (Component component : gameObject.getComponents()) {
-            if (component.getType() == Component.Type.MODEL) {
-                addComponentToPhysics(gameObject, (ModelComponent) component);
-                return true;
-            } else if (component.getType() == Component.Type.TERRAIN) {
-                addComponentToPhysics(gameObject, (TerrainComponent) component);
-                return true;
+                addComponentToPhysics(gameObject, terrainComponent);
+                continue;
             }
-        }
 
-        return false;
-    }
-
-    public void initializeGameObjects(Array<GameObject> gameObjects) {
-        for (GameObject object : gameObjects) {
-            addPhysicsToGameObject(object);
+            if (physicsComponent != null) {
+                physicsComponent.initializeBody();
+                dynamicsWorld.addRigidBody((btRigidBody) physicsComponent.getCollisionObject());
+            }
         }
 
         bodiesInitialized = true;
@@ -194,9 +178,7 @@ public class BulletPhysicsSystem implements PhysicsSystem {
         for (GameObject gameObject : gameObjects) {
             Component component = gameObject.findComponentByType(Component.Type.PHYSICS);
             if (component instanceof RigidBodyPhysicsComponent) {
-                removeAndDisposeRigidBody((btRigidBody) ((RigidBodyPhysicsComponent) component).getCollisionObject());
-                gameObject.removeComponent(component);
-                ((RigidBodyPhysicsComponent) component).dispose();
+                removeRigidBody((btRigidBody) ((RigidBodyPhysicsComponent) component).getCollisionObject());
             }
         }
 
@@ -225,7 +207,8 @@ public class BulletPhysicsSystem implements PhysicsSystem {
 
     private void disposeOfBodies() {
         for (btRigidBody rigidBody : rigidBodyList) {
-            removeAndDisposeRigidBody(rigidBody);
+            removeRigidBody(rigidBody);
+            rigidBody.release();
         }
         rigidBodyList.clear();
     }
@@ -239,11 +222,6 @@ public class BulletPhysicsSystem implements PhysicsSystem {
         dynamicsWorld.release();
 
         disposeOfBodies();
-        collisionConfig.dispose();
-        dispatcher.dispose();
-        dynamicsWorld.dispose();
-        broadphase.dispose();
-        constraintSolver.dispose();
     }
 
     public boolean isBodiesInitialized() {
