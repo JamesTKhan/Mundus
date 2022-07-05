@@ -211,12 +211,15 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
 
         private val removeTexture = MenuItem("Remove texture")
         private val changeTexture = MenuItem("Change texture")
+        private val addNormalMap = MenuItem("Add Normal Map")
+        private val removeNormalMap = MenuItem("Remove Normal Map")
 
         private var channel: SplatTexture.Channel? = null
 
         init {
             addItem(removeTexture)
             addItem(changeTexture)
+            addItem(addNormalMap)
 
             removeTexture.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -224,12 +227,16 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
                         val terrain = parentWidget.component.terrain
                         if (channel == SplatTexture.Channel.R) {
                             terrain.splatR = null
+                            terrain.splatRNormal = null
                         } else if (channel == SplatTexture.Channel.G) {
                             terrain.splatG = null
+                            terrain.splatGNormal = null
                         } else if (channel == SplatTexture.Channel.B) {
                             terrain.splatB = null
+                            terrain.splatBNormal = null
                         } else if (channel == SplatTexture.Channel.A) {
                             terrain.splatA = null
+                            terrain.splatANormal = null
                         } else {
                             UI.toaster.error("Can't remove the base texture")
                             return
@@ -272,6 +279,59 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
                 }
             })
 
+            addNormalMap.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    if (channel != null) {
+
+                        UI.assetSelectionDialog.show(false, AssetTextureFilter(), object: AssetPickerDialog.AssetPickerListener {
+                            override fun onSelected(asset: Asset?) {
+                                if (channel != null) {
+                                    val terrain = parentWidget.component.terrain
+                                    if (channel == SplatTexture.Channel.BASE) {
+                                        terrain.splatBaseNormal = asset as TextureAsset
+                                    } else if (channel == SplatTexture.Channel.R) {
+                                        terrain.splatRNormal = asset as TextureAsset
+                                    } else if (channel == SplatTexture.Channel.G) {
+                                        terrain.splatGNormal = asset as TextureAsset
+                                    } else if (channel == SplatTexture.Channel.B) {
+                                        terrain.splatBNormal = asset as TextureAsset
+                                    } else if (channel == SplatTexture.Channel.A) {
+                                        terrain.splatANormal = asset as TextureAsset
+                                    }
+
+                                    terrain.applyDependencies()
+                                    projectManager.current().assetManager.addModifiedAsset(terrain)
+                                }
+                            }
+                        })
+
+                    }
+                }
+            })
+
+            removeNormalMap.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    if (channel != null) {
+                        val terrain = parentWidget.component.terrain
+                        if (channel == SplatTexture.Channel.BASE) {
+                            terrain.splatBaseNormal = null
+                        }
+                        if (channel == SplatTexture.Channel.R) {
+                            terrain.splatRNormal = null
+                        } else if (channel == SplatTexture.Channel.G) {
+                            terrain.splatGNormal = null
+                        } else if (channel == SplatTexture.Channel.B) {
+                            terrain.splatBNormal = null
+                        } else if (channel == SplatTexture.Channel.A) {
+                            terrain.splatANormal = null
+                        }
+
+                        terrain.applyDependencies()
+                        projectManager.current().assetManager.addModifiedAsset(terrain)
+                    }
+                }
+            })
+
         }
 
         fun setChannel(channel: SplatTexture.Channel) {
@@ -279,7 +339,32 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
         }
 
         fun show() {
+            updateMenuVisibility()
             showMenu(UI, Gdx.input.x.toFloat(), (Gdx.graphics.height - Gdx.input.y).toFloat())
+        }
+
+        private fun updateMenuVisibility() {
+            // Show/Hide remove normal map button conditionally
+            var normalMapRemoveVisible = false
+            val terrain = parentWidget.component.terrain
+            if (channel == SplatTexture.Channel.BASE && terrain.splatBaseNormal != null) {
+                normalMapRemoveVisible = true
+            } else if (channel == SplatTexture.Channel.R && terrain.splatRNormal != null) {
+                normalMapRemoveVisible = true
+            } else if (channel == SplatTexture.Channel.G && terrain.splatGNormal != null) {
+                normalMapRemoveVisible = true
+            } else if (channel == SplatTexture.Channel.B && terrain.splatBNormal != null) {
+                normalMapRemoveVisible = true
+            } else if (channel == SplatTexture.Channel.A && terrain.splatANormal != null) {
+                normalMapRemoveVisible = true
+            }
+
+            if (normalMapRemoveVisible && !removeNormalMap.hasParent()) {
+                addItem(removeNormalMap)
+            } else if (!normalMapRemoveVisible) {
+                removeNormalMap.remove()
+            }
+            pack()
         }
 
     }

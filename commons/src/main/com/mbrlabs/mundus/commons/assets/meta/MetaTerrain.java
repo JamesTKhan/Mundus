@@ -31,6 +31,11 @@ public class MetaTerrain {
     public static final String JSON_SPLAT_G = "g";
     public static final String JSON_SPLAT_B = "b";
     public static final String JSON_SPLAT_A = "a";
+    public static final String JSON_SPLAT_BASE_NORMAL = "baseNorm";
+    public static final String JSON_SPLAT_R_NORMAL = "rNorm";
+    public static final String JSON_SPLAT_G_NORMAL = "gNorm";
+    public static final String JSON_SPLAT_B_NORMAL = "bNorm";
+    public static final String JSON_SPLAT_A_NORMAL = "aNorm";
     public static final String JSON_UV_SCALE= "uv";
 
     private int size;
@@ -42,6 +47,11 @@ public class MetaTerrain {
     private String splatG;
     private String splatB;
     private String splatA;
+    private String splatBaseNormal;
+    private String splatRNormal;
+    private String splatGNormal;
+    private String splatBNormal;
+    private String splatANormal;
 
     public String getSplatmap() {
         return splatmap;
@@ -115,6 +125,46 @@ public class MetaTerrain {
         this.uv = uv;
     }
 
+    public String getSplatBaseNormal() {
+        return splatBaseNormal;
+    }
+
+    public void setSplatBaseNormal(String splatBaseNormal) {
+        this.splatBaseNormal = splatBaseNormal;
+    }
+
+    public String getSplatRNormal() {
+        return splatRNormal;
+    }
+
+    public void setSplatRNormal(String splatRNormal) {
+        this.splatRNormal = splatRNormal;
+    }
+
+    public String getSplatGNormal() {
+        return splatGNormal;
+    }
+
+    public void setSplatGNormal(String splatGNormal) {
+        this.splatGNormal = splatGNormal;
+    }
+
+    public String getSplatBNormal() {
+        return splatBNormal;
+    }
+
+    public void setSplatBNormal(String splatBNormal) {
+        this.splatBNormal = splatBNormal;
+    }
+
+    public String getSplatANormal() {
+        return splatANormal;
+    }
+
+    public void setSplatANormal(String splatANormal) {
+        this.splatANormal = splatANormal;
+    }
+
     @Override
     public String toString() {
         return "MetaTerrain{" +
@@ -127,6 +177,11 @@ public class MetaTerrain {
                 ", splatG='" + splatG + '\'' +
                 ", splatB='" + splatB + '\'' +
                 ", splatA='" + splatA + '\'' +
+                ", splatBaseNormal='" + splatBaseNormal + '\'' +
+                ", splatRNormal='" + splatRNormal + '\'' +
+                ", splatGNormal='" + splatGNormal + '\'' +
+                ", splatBNormal='" + splatBNormal + '\'' +
+                ", splatANormal='" + splatANormal + '\'' +
                 '}';
     }
 }

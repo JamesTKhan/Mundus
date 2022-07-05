@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.commons.terrain;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -25,9 +26,9 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
-import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -36,6 +37,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
+import net.mgsx.gltf.loaders.shared.geometry.MeshTangentSpaceGenerator;
 
 /**
  * @author Marcus Brummer
@@ -60,13 +62,13 @@ public class Terrain implements RenderableProvider, Disposable {
     public int vertexResolution;
 
     // used for building the mesh
-    private VertexAttributes attribs;
+    private final VertexAttributes attribs;
     private Vector2 uvScale = new Vector2(DEFAULT_UV_SCALE, DEFAULT_UV_SCALE);
-    private float vertices[];
-    private int stride;
-    private int posPos;
-    private int norPos;
-    private int uvPos;
+    private float[] vertices;
+    private final int stride;
+    private final int posPos;
+    private final int norPos;
+    private final int uvPos;
 
     // Textures
     private TerrainTexture terrainTexture;
@@ -79,8 +81,13 @@ public class Terrain implements RenderableProvider, Disposable {
 
     private Terrain(int vertexResolution) {
         this.transform = new Matrix4();
-        this.attribs = MeshBuilder.createAttributes(VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
-                | VertexAttributes.Usage.TextureCoordinates);
+        this.attribs = new VertexAttributes(
+                VertexAttribute.Position(),
+                VertexAttribute.Normal(),
+                new VertexAttribute(VertexAttributes.Usage.Tangent, 4, ShaderProgram.TANGENT_ATTRIBUTE),
+                VertexAttribute.TexCoords(0)
+        );
+
         this.posPos = attribs.getOffset(VertexAttributes.Usage.Position, -1);
         this.norPos = attribs.getOffset(VertexAttributes.Usage.Normal, -1);
         this.uvPos = attribs.getOffset(VertexAttributes.Usage.TextureCoordinates, -1);
@@ -188,7 +195,7 @@ public class Terrain implements RenderableProvider, Disposable {
     private short[] buildIndices() {
         final int w = vertexResolution - 1;
         final int h = vertexResolution - 1;
-        short indices[] = new short[w * h * 6];
+        short[] indices = new short[w * h * 6];
         int i = -1;
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
@@ -350,6 +357,16 @@ public class Terrain implements RenderableProvider, Disposable {
 
     public void update() {
         buildVertices();
+
+        VertexAttribute normalMapUVs = null;
+        for(VertexAttribute a : attribs){
+            if(a.usage == VertexAttributes.Usage.TextureCoordinates){
+                normalMapUVs = a;
+            }
+        }
+        // Get tangents added to terrains vertices array for normal mapping
+        MeshTangentSpaceGenerator.computeTangentSpace(vertices, buildIndices(), attribs, false, true, normalMapUVs);
+
         mesh.setVertices(vertices);
     }
 
