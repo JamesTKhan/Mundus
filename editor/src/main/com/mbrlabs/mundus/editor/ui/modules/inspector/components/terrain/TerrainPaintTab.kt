@@ -227,12 +227,16 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
                         val terrain = parentWidget.component.terrain
                         if (channel == SplatTexture.Channel.R) {
                             terrain.splatR = null
+                            terrain.splatRNormal = null
                         } else if (channel == SplatTexture.Channel.G) {
                             terrain.splatG = null
+                            terrain.splatGNormal = null
                         } else if (channel == SplatTexture.Channel.B) {
                             terrain.splatB = null
+                            terrain.splatBNormal = null
                         } else if (channel == SplatTexture.Channel.A) {
                             terrain.splatA = null
+                            terrain.splatANormal = null
                         } else {
                             UI.toaster.error("Can't remove the base texture")
                             return

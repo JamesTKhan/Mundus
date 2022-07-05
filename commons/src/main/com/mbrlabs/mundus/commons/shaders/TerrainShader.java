@@ -147,11 +147,20 @@ public class TerrainShader extends LightShader {
                 .get(TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
         final TerrainTexture terrainTexture = splatAttrib.terrainTexture;
 
+        // Does terrain have normal maps
+        boolean hasNormals = terrainTexture.hasNormalTextures();
+        if (hasNormals) {
+            set(UNIFORM_TEXTURE_HAS_NORMALS, 1);
+        } else {
+            set(UNIFORM_TEXTURE_HAS_NORMALS, 0);
+        }
+
         // base texture
         SplatTexture st = terrainTexture.getTexture(SplatTexture.Channel.BASE);
         if (st != null) {
             set(UNIFORM_TEXTURE_BASE, st.texture.getTexture());
             set(UNIFORM_TEXTURE_HAS_DIFFUSE, 1);
+            setNormalTexture(terrainTexture, SplatTexture.Channel.BASE, UNIFORM_TEXTURE_BASE_NORMAL, UNIFORM_TEXTURE_BASE_NORMAL_PRESENT);
         } else {
             set(UNIFORM_TEXTURE_HAS_DIFFUSE, 0);
         }
@@ -170,15 +179,11 @@ public class TerrainShader extends LightShader {
             if (st != null) set(UNIFORM_TEXTURE_A, st.texture.getTexture());
 
             // Normal maps
-            if (terrainTexture.hasNormalTextures()) {
-                set(UNIFORM_TEXTURE_HAS_NORMALS, 1);
-                setNormalTexture(terrainTexture, SplatTexture.Channel.BASE, UNIFORM_TEXTURE_BASE_NORMAL, UNIFORM_TEXTURE_BASE_NORMAL_PRESENT);
+            if (hasNormals) {
                 setNormalTexture(terrainTexture, SplatTexture.Channel.R, UNIFORM_TEXTURE_R_NORMAL, UNIFORM_TEXTURE_R_NORMAL_PRESENT);
                 setNormalTexture(terrainTexture, SplatTexture.Channel.G, UNIFORM_TEXTURE_G_NORMAL, UNIFORM_TEXTURE_G_NORMAL_PRESENT);
                 setNormalTexture(terrainTexture, SplatTexture.Channel.B, UNIFORM_TEXTURE_B_NORMAL, UNIFORM_TEXTURE_B_NORMAL_PRESENT);
                 setNormalTexture(terrainTexture, SplatTexture.Channel.A, UNIFORM_TEXTURE_A_NORMAL, UNIFORM_TEXTURE_A_NORMAL_PRESENT);
-            } else {
-                set(UNIFORM_TEXTURE_HAS_NORMALS, 0);
             }
 
         } else {

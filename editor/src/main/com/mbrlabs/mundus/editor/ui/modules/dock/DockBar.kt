@@ -33,6 +33,7 @@ class DockBar(private val splitPane: MundusSplitPane) : VisTable(), TabbedPaneLi
 
     private val assetsDock = AssetsDock()
     private val logBar = LogBar()
+    private val profilingBar = ProfilingBar()
     private val tabbedPane: TabbedPane
 
 
@@ -48,6 +49,7 @@ class DockBar(private val splitPane: MundusSplitPane) : VisTable(), TabbedPaneLi
 
         tabbedPane.add(assetsDock)
         tabbedPane.add(logBar)
+        tabbedPane.add(profilingBar)
         add(tabbedPane.table).expandX().fillX().left().bottom().height(30f).row()
 
         // Keeping asset tab the default active tab
@@ -75,6 +77,7 @@ class DockBar(private val splitPane: MundusSplitPane) : VisTable(), TabbedPaneLi
 
     fun update() {
         tabbedPane.updateTabTitle(logBar)
+        profilingBar.update()
     }
 
 }

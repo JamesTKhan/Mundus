@@ -32,6 +32,7 @@ import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.input.FreeCamController
 import com.mbrlabs.mundus.editor.input.InputManager
 import com.mbrlabs.mundus.editor.input.ShortcutController
+import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.gizmos.GizmoManager
@@ -60,6 +61,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var registry: Registry
     private lateinit var toolManager: ToolManager
     private lateinit var gizmoManager: GizmoManager
+    private lateinit var glProfiler: MundusGLProfiler
 
     override fun create() {
         Mundus.registerEventListener(this)
@@ -70,6 +72,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         registry = Mundus.inject()
         toolManager = Mundus.inject()
         gizmoManager = Mundus.inject()
+        glProfiler = Mundus.inject()
         setupInput()
 
         // TODO dispose this
@@ -118,8 +121,10 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         UI.sceneWidget.setCam(context.currScene.cam)
         UI.sceneWidget.setRenderer {
 
+            glProfiler.resume()
             sg.update()
             scene.render()
+            glProfiler.pause()
 
             toolManager.render()
             gizmoManager.render()
@@ -136,6 +141,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     override fun render() {
         GlUtils.clearScreen(Color.WHITE)
         UI.act()
+        glProfiler.reset()
         camController.update()
         toolManager.act()
         UI.draw()

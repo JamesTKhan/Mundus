@@ -36,12 +36,15 @@ varying vec3 v_normal;
 
 // diffuse material
 uniform sampler2D   u_diffuseTexture;
+uniform sampler2D   u_normalTexture;
 uniform int         u_diffuseUseTexture;
+uniform int         u_useNormalMap;
 
 // enviroment
 uniform MED vec4 u_fogColor;
 
 varying float v_clipDistance;
+varying mat3 v_TBN;
 
 void main(void) {
     if ( v_clipDistance < 0.0 )
@@ -56,16 +59,25 @@ void main(void) {
         gl_FragColor = vec4(u_material.DiffuseColor, 1.0);
     }
 
-    vec4 totalLight = CalcDirectionalLight(v_normal);
+    vec3 normal;
+
+    if (u_useNormalMap == 1) {
+        normal = texture2D(u_normalTexture, v_texCoord0).rgb;
+        normal = normalize(v_TBN * ((2.0 * normal - 1.0)));
+    } else {
+        normal = v_normal;
+    }
+
+    vec4 totalLight = CalcDirectionalLight(normal);
 
     for (int i = 0 ; i < numPointLights ; i++) {
         if (i >= u_activeNumPointLights){break;}
-        totalLight += CalcPointLight(u_pointLights[i], v_normal);
+        totalLight += CalcPointLight(u_pointLights[i], normal);
     }
 
     for (int i = 0 ; i < numSpotLights; i++) {
         if (i >= u_activeNumSpotLights){break;}
-        totalLight += CalcSpotLight(u_spotLights[i], v_normal);
+        totalLight += CalcSpotLight(u_spotLights[i], normal);
     }
 
     gl_FragColor = max(gl_FragColor, AMBIENT); // TODO make ambient color a unifrom

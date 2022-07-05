@@ -21,9 +21,11 @@ precision highp float;
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec2 a_texCoord0;
+attribute vec4 a_tangent;
 
 uniform mat4 u_transMatrix;
 uniform mat4 u_projViewMatrix;
+uniform mat3 u_normalMatrix;
 uniform vec3 u_camPos;
 
 // Fog
@@ -34,6 +36,8 @@ varying float v_fog;
 varying vec2 v_texCoord0;
 varying vec3 v_normal;
 varying vec3 v_worldPos;
+varying mat3 v_TBN;
+
 
 // clipping plane
 varying float v_clipDistance;
@@ -57,6 +61,13 @@ void main(void) {
     // normal for lighting
     v_normal = normalize((u_transMatrix * vec4(a_normal, 0.0)).xyz);
     v_worldPos = worldPos.xyz;
+
+    // Logic for Tangent/Bi-tangent/Normal from gdx-gltf
+    vec3 tangent = a_tangent.xyz;
+    vec3 normalW = normalize(vec3(u_normalMatrix * a_normal.xyz));
+    vec3 tangentW = normalize(vec3(u_transMatrix * vec4(tangent, 0.0)));
+    vec3 bitangentW = cross(normalW, tangentW) * a_tangent.w;
+    v_TBN = mat3(tangentW, bitangentW, normalW);
 
     vec4 spos = u_shadowMapProjViewTrans * worldPos;
     v_shadowMapUv.xy = (spos.xy / spos.w) * 0.5 + 0.5;

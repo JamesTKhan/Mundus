@@ -27,6 +27,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.env.lights.LightType
 import com.mbrlabs.mundus.commons.physics.enums.PhysicsBody
 import com.mbrlabs.mundus.commons.scene3d.GameObject
+import com.mbrlabs.mundus.commons.scene3d.InvalidComponentException
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.RigidBodyPhysicsComponent
 import com.mbrlabs.mundus.commons.utils.LightUtils
@@ -82,8 +83,13 @@ class AddComponentDialog : BaseDialog("Add Component") {
 
                 val component = getNewComponent(selectBox.selected, go)
                 if (component != null) {
-                    go.addComponent(component)
-                    Mundus.postEvent(ComponentAddedEvent(component))
+                    try {
+                        go.addComponent(component)
+                        Mundus.postEvent(ComponentAddedEvent(component))
+                    } catch (ex: InvalidComponentException) {
+                        Dialogs.showErrorDialog(stage, "Cannot add a duplicate component.", ex)
+                    }
+
                     close()
                 }
             }
