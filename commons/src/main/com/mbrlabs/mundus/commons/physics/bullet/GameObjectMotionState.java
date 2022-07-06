@@ -38,7 +38,7 @@ public class GameObjectMotionState extends btMotionState {
 
     @Override
     public void getWorldTransform (Matrix4 worldTrans) {
-        worldTrans.set(gameObject.getPosition(tmp), gameObject.getRotation(tmpQuat), gameObject.getLocalScale(tmp2));
+        worldTrans.set(gameObject.getPosition(tmp), gameObject.getRotation(tmpQuat));
     }
 
     @Override

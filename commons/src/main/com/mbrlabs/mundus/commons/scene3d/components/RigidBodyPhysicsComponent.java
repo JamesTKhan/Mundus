@@ -18,12 +18,15 @@ package com.mbrlabs.mundus.commons.scene3d.components;
 
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.btTriangleIndexVertexArray;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.utils.Disposable;
@@ -40,9 +43,13 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
  */
 public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implements Disposable {
     private static final Vector3 scale = new Vector3();
+    private static final Vector3 translation = new Vector3();
+    private static final Quaternion rotation = new Quaternion();
 
     // We hold reference to this for memory reasons
     protected btRigidBody.btRigidBodyConstructionInfo constructionInfo;
+    // Only set for gimpact shape
+    private btTriangleIndexVertexArray vertexArray = null;
 
     protected float mass = 1f;
     protected float friction = 1f;
@@ -107,6 +114,13 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
         if (physicsBodyType == PhysicsBody.STATIC && modelComponent != null) {
             //TODO Many small btBvhTriangleMeshShape pollute the broadphase. Better combine them.
             collisionShape = Bullet.obtainStaticNodeShape(modelComponent.modelInstance.nodes);
+            collisionShape.setLocalScaling(gameObject.getLocalScale(scale));
+        } else if (physicsShape == PhysicsShape.G_IMPACT_TRIANGLE_MESH){
+            BulletBuilder.GimpactShapeBuilder.GimpactResult result  = new BulletBuilder.GimpactShapeBuilder(model, gameObject.getLocalScale(scale))
+                            .build();
+            collisionShape = result.shape;
+            vertexArray = result.vertexArray;
+            vertexArray.obtain();
         } else {
             collisionShape = new BulletBuilder.ShapeBuilder(physicsShape)
                     .scale(gameObject.getLocalScale(scale))
@@ -131,7 +145,18 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
 
         // Set transform on static bodies
         if (physicsBodyType == PhysicsBody.STATIC && modelComponent != null) {
-            result.rigidBody.setWorldTransform(gameObject.getTransform());
+            // You cannot set a scale on the rigid bodies transform (only set on shape)
+            // Otherwise it causes collisions to fail on static bodies. Instead, we get the
+            // rigid body transform and only apply position and rotation to it.
+            Matrix4 goTrans = gameObject.getTransform();
+            Matrix4 bodyTransform = result.rigidBody.getWorldTransform();
+
+            goTrans.getTranslation(translation);
+            goTrans.getRotation(rotation);
+
+            bodyTransform.set(goTrans.getTranslation(translation), goTrans.getRotation(rotation));
+
+            result.rigidBody.setWorldTransform(bodyTransform);
         } else if (physicsShape == PhysicsShape.TERRAIN && terrainComponent != null) {
             float size = terrainComponent.getTerrain().getTerrain().terrainWidth;
             float adjustedHeight = (terrainComponent.terrain.getMaxHeight() + terrainComponent.terrain.getMinHeight()) / 2f;
@@ -163,7 +188,7 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
                 }
             }
 
-            if (terrainComponent != null || numVertices > 10000) {
+            if (terrainComponent != null ) {
                 // Disable debug drawing for terrain or high vertices models due to performance issues on wireframe mode
                 collisionFlags = collisionFlags | btCollisionObject.CollisionFlags.CF_DISABLE_VISUALIZE_OBJECT;
             }

@@ -203,7 +203,7 @@ public class BulletBuilder {
                 case CONVEX_HULL:
                     return buildConvexHullShape();
                 case G_IMPACT_TRIANGLE_MESH:
-                    return buildGimpactShape();
+                    throw new GdxRuntimeException("Use GimpactShapeBuilder for Gimpact shapes");
                 case TERRAIN:
                     return buildTerrainShape();
                 case SCALED_BVH_TRIANGLE:
@@ -247,21 +247,6 @@ public class BulletBuilder {
             terrainShape.setLocalScaling(new Vector3((size) / ((vertexCount - 1)), 1, (size) / ((vertexCount - 1))));
 
             shape = terrainShape;
-            return shape;
-        }
-
-        private btCollisionShape buildGimpactShape() {
-            if (model == null) {
-                throw new GdxRuntimeException("Model is required for ShapeBuilder to create gimpact shapes.");
-            }
-            btTriangleIndexVertexArray chassisVertexArray = new btTriangleIndexVertexArray(model.meshParts);
-            shape = new btGImpactMeshShape(chassisVertexArray);
-
-            if (scale != null) {
-                shape.setLocalScaling(scale);
-            }
-
-            ((btGImpactMeshShape) shape).updateBound();
             return shape;
         }
 
@@ -320,6 +305,49 @@ public class BulletBuilder {
             return shape;
         }
 
+    }
+
+
+    /**
+     * Gimpact shape produces two bullet objects. The btGImpactMeshShape and the btTriangleIndexVertexArray.
+     *
+     * Due to Garbage Collection references to both objects must be kept in memory, so this returns both objects
+     * in a result object. Make sure to store references to both bullet objects while you need them.
+     */
+    public static class GimpactShapeBuilder {
+        private final Model model;
+        private final Vector3 scale;
+
+        public class GimpactResult {
+            public btTriangleIndexVertexArray vertexArray;
+            public btGImpactMeshShape shape;
+
+            public GimpactResult(btTriangleIndexVertexArray vertexArray, btGImpactMeshShape shape) {
+                this.vertexArray = vertexArray;
+                this.shape = shape;
+            }
+        }
+
+        public GimpactShapeBuilder(Model model, Vector3 scale) {
+            this.model = model;
+            this.scale = scale;
+        }
+
+        public GimpactResult build() {
+            if (model == null) {
+                throw new GdxRuntimeException("Model is required for ShapeBuilder to create gimpact shapes.");
+            }
+            btTriangleIndexVertexArray vertexArray = new btTriangleIndexVertexArray(model.meshParts);
+
+            btGImpactMeshShape shape = new btGImpactMeshShape(vertexArray);
+
+            if (scale != null) {
+                shape.setLocalScaling(scale);
+            }
+
+            shape.updateBound();
+            return new GimpactResult(vertexArray, shape);
+        }
     }
 
 }
