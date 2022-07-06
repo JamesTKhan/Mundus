@@ -37,6 +37,7 @@ public class GameObjectDTO {
     private TerrainComponentDTO terrainComponent;
     private WaterComponentDTO waterComponent;
     private LightComponentDTO lightComponent;
+    private PhysicsComponentDTO physicsComponent;
 
     public GameObjectDTO() {
         childs = new Array<>();
@@ -117,5 +118,13 @@ public class GameObjectDTO {
 
     public void setLightComponent(LightComponentDTO lightComponent) {
         this.lightComponent = lightComponent;
+    }
+
+    public PhysicsComponentDTO getPhysicsComponent() {
+        return physicsComponent;
+    }
+
+    public void setPhysicsComponent(PhysicsComponentDTO physicsComponent) {
+        this.physicsComponent = physicsComponent;
     }
 }

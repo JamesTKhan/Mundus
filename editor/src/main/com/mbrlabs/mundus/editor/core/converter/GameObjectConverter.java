@@ -22,6 +22,7 @@ import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.commons.scene3d.components.AbstractPhysicsComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 import com.mbrlabs.mundus.editor.Mundus;
@@ -69,6 +70,11 @@ public class GameObjectConverter {
         } else if (dto.getWaterComponent() != null) {
             go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, assets));
             go.hasWaterComponent = true;
+        }
+
+        // Convert physics component
+        if (dto.getPhysicsComponent() != null) {
+            go.getComponents().add(PhysicsComponentConverter.convert(dto.getPhysicsComponent(), go));
         }
 
         // Convert light component
@@ -128,6 +134,8 @@ public class GameObjectConverter {
                 descriptor.setWaterComponent(WaterComponentConverter.convert((PickableWaterComponent) c));
             } else if (c.getType() == Component.Type.LIGHT) {
                 descriptor.setLightComponent(PickableLightComponentConverter.convert((LightComponent) c));
+            } else if (c.getType() == Component.Type.PHYSICS) {
+                descriptor.setPhysicsComponent(PhysicsComponentConverter.convert((AbstractPhysicsComponent) c));
             }
         }
 

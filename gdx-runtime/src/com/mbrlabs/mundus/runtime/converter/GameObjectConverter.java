@@ -57,6 +57,11 @@ public class GameObjectConverter {
             go.hasWaterComponent = true;
         }
 
+        // Convert physics component
+        if (dto.getPhysicsComponent() != null) {
+            go.getComponents().add(PhysicsComponentConverter.convert(dto.getPhysicsComponent(), go));
+        }
+
         if (dto.getLightComponent() != null) {
             go.getComponents().add(LightComponentConverter.convert(dto.getLightComponent(), go));
         }
