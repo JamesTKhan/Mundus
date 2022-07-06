@@ -49,7 +49,7 @@ public class BulletBuilder {
         private final Vector3 localInertia = new Vector3();
 
         private int activationState = Collision.ACTIVE_TAG;
-        private int collisionFlags = -1;
+        private int collisionFlags = 0;
         private float mass = 0f;
         private float friction = 1f;
         private float restitution = 0f;
