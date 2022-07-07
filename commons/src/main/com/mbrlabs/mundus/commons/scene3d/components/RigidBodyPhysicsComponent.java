@@ -245,7 +245,13 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
 
     @Override
     public Component clone(GameObject go) {
-        return null;
+        RigidBodyPhysicsComponent component = new RigidBodyPhysicsComponent(go, physicsBodyType);
+        component.setPhysicsShape(physicsShape);
+        component.setMass(mass);
+        component.setRestitution(restitution);
+        component.setFriction(friction);
+        component.setDisableDeactivation(disableDeactivation);
+        return component;
     }
 
     @Override
