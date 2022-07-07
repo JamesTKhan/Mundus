@@ -179,7 +179,7 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
             collisionFlags =  btCollisionObject.CollisionFlags.CF_STATIC_OBJECT;
         }
 
-        if (gameObject.sceneGraph.scene.debugDrawMode == btIDebugDraw.DebugDrawModes.DBG_DrawWireframe) {
+        if (gameObject.sceneGraph.scene.physicsSystem.debugDrawMode == btIDebugDraw.DebugDrawModes.DBG_DrawWireframe) {
             // Get vertices count
             int numVertices = 0;
             if (model != null) {

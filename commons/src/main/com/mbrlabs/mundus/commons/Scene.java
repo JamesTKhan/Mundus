@@ -27,16 +27,14 @@ import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.bullet.DebugDrawer;
-import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
-import com.mbrlabs.mundus.commons.physics.enums.PhysicsState;
 import com.mbrlabs.mundus.commons.physics.bullet.BulletPhysicsSystem;
+import com.mbrlabs.mundus.commons.physics.enums.PhysicsState;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.shaders.DepthShader;
@@ -81,23 +79,16 @@ public class Scene implements Disposable {
     private ShadowMapShader shadowMapShader;
     private ShadowMapper shadowMapper = null;
 
-    private DebugDrawer debugDrawer;
-    public int debugDrawMode = btIDebugDraw.DebugDrawModes.DBG_DrawWireframe;
-
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
 
     private final float distortionEdgeCorrection = 1f;
 
-    private PhysicsState physicsState = PhysicsState.PAUSED;
-
     public Scene() {
         environment = new MundusEnvironment();
         currentSelection = null;
         terrains = new Array<>();
-
-        physicsSystem = new BulletPhysicsSystem();
 
         cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 1, -3);
@@ -146,32 +137,38 @@ public class Scene implements Disposable {
         renderObjects(delta);
         renderWater(delta);
 
-        if (debugDrawer == null)  {
-            debugDrawer = new DebugDrawer();
-            debugDrawer.setDebugMode(debugDrawMode);
-            physicsSystem.getDynamicsWorld().setDebugDrawer(debugDrawer);
-        }
-
-        if (physicsState == PhysicsState.RUNNING) {
-            debugDrawer.begin(cam);
-            physicsSystem.getDynamicsWorld().debugDrawWorld();
-            debugDrawer.end();
+        if (physicsSystem != null) {
+            physicsSystem.drawDebug(cam);
         }
     }
 
+    /**
+     * Updates the physics engine, normally called every frame.
+     * @param delta
+     */
     private void updatePhysics(float delta) {
-        if (physicsState == PhysicsState.RUNNING) {
-            physicsSystem.update(delta);
-        }
+        if (physicsSystem == null || !physicsSystem.isRunning()) return;
+        physicsSystem.update(delta);
     }
 
+    /**
+     * Pause physics which will stop physics engine updates.
+     */
     public void pausePhysics() {
-        physicsState = PhysicsState.PAUSED;
+        if (physicsSystem == null) return;
+        physicsSystem.setPhysicsState(PhysicsState.PAUSED);
         physicsSystem.removeGameObjectsFromPhysics(sceneGraph.getGameObjects());
     }
 
+    /**
+     * Start running physics.
+     */
     public void runPhysics() {
-        physicsState = PhysicsState.RUNNING;
+        if (physicsSystem == null) {
+            physicsSystem = new BulletPhysicsSystem();
+        }
+
+        physicsSystem.setPhysicsState(PhysicsState.RUNNING);
         if (!physicsSystem.isBodiesInitialized()) {
             physicsSystem.initializePhysicsComponents(sceneGraph.getGameObjects());
         }

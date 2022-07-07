@@ -16,8 +16,10 @@
 
 package com.mbrlabs.mundus.commons.physics.bullet;
 
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
@@ -32,10 +34,12 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
+import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.physics.PhysicsSystem;
+import com.mbrlabs.mundus.commons.physics.enums.PhysicsState;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.RigidBodyPhysicsComponent;
@@ -48,11 +52,15 @@ import com.mbrlabs.mundus.commons.scene3d.components.RigidBodyPhysicsComponent;
 public class BulletPhysicsSystem implements PhysicsSystem {
     private static final String TAG = AssetManager.class.getSimpleName();
 
+    private PhysicsState physicsState = PhysicsState.PAUSED;
+    public int debugDrawMode = btIDebugDraw.DebugDrawModes.DBG_DrawWireframe;
+
     private final btDynamicsWorld dynamicsWorld;
     private final btCollisionConfiguration collisionConfig;
     private final btDispatcher dispatcher;
     private final btBroadphaseInterface broadphase;
     private final btConstraintSolver constraintSolver;
+    private final DebugDrawer debugDrawer;
 
     private float timeStep = 1/60f;
     private final Array<btRigidBody> rigidBodyList;
@@ -76,6 +84,10 @@ public class BulletPhysicsSystem implements PhysicsSystem {
         dynamicsWorld.obtain();
 
         rigidBodyList = new Array<>();
+
+        debugDrawer = new DebugDrawer();
+        debugDrawer.setDebugMode(debugDrawMode);
+        dynamicsWorld.setDebugDrawer(debugDrawer);
     }
 
     public void removeRigidBody(btRigidBody rigidBody) {
@@ -131,6 +143,14 @@ public class BulletPhysicsSystem implements PhysicsSystem {
         return dynamicsWorld;
     }
 
+    public boolean isRunning() {
+        return physicsState == PhysicsState.RUNNING;
+    }
+
+    public void setPhysicsState(PhysicsState physicsState) {
+        this.physicsState = physicsState;
+    }
+
     @Override
     public void setGravity(float x, float y, float z) {
         dynamicsWorld.setGravity(new Vector3(x,y,z));
@@ -145,6 +165,18 @@ public class BulletPhysicsSystem implements PhysicsSystem {
     public void update(float delta) {
         // Update physics sim
         dynamicsWorld.stepSimulation(timeStep, 1, 1f / 60f);
+    }
+
+    public void drawDebug(PerspectiveCamera cam) {
+        debugDrawer.begin(cam);
+        dynamicsWorld.debugDrawWorld();
+        debugDrawer.end();
+    }
+
+    public void setDebugDrawMode(int debugDrawMode) {
+        this.debugDrawMode = debugDrawMode;
+        if (debugDrawer == null) return;
+        debugDrawer.setDebugMode(debugDrawMode);
     }
 
     private void disposeOfBodies() {
