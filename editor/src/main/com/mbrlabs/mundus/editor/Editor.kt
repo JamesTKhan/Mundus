@@ -17,8 +17,13 @@
 package com.mbrlabs.mundus.editor
 
 import com.badlogic.gdx.ApplicationListener
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowConfiguration
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
@@ -53,6 +58,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
     private lateinit var axesInstance: ModelInstance
     private lateinit var compass: Compass
+    private var previewOpen = false
 
     private lateinit var camController: FreeCamController
     private lateinit var shortcutController: ShortcutController
@@ -62,6 +68,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var toolManager: ToolManager
     private lateinit var gizmoManager: GizmoManager
     private lateinit var glProfiler: MundusGLProfiler
+    private lateinit var previewWindow: Lwjgl3Window
 
     override fun create() {
         Mundus.registerEventListener(this)
@@ -121,14 +128,16 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         UI.sceneWidget.setCam(context.currScene.cam)
         UI.sceneWidget.setRenderer {
 
-            glProfiler.resume()
-            sg.update()
-            scene.render()
-            glProfiler.pause()
+            if (!previewOpen) {
+                glProfiler.resume()
+                sg.update()
+                scene.render()
+                glProfiler.pause()
 
-            toolManager.render()
-            gizmoManager.render()
-            compass.render(batch)
+                toolManager.render()
+                gizmoManager.render()
+                compass.render(batch)
+            }
         }
 
         gizmoManager.setCamera(context.currScene.cam)
@@ -139,12 +148,48 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     override fun render() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_9)) {
+            openPreviewWindow()
+        }
+
         GlUtils.clearScreen(Color.WHITE)
         UI.act()
         glProfiler.reset()
         camController.update()
         toolManager.act()
         UI.draw()
+    }
+
+    private fun openPreviewWindow() {
+        val app = Gdx.app as Lwjgl3Application
+
+        val config = Lwjgl3WindowConfiguration()
+        val mode = Gdx.graphics.displayMode
+
+        val previewWidth = (mode.width * 0.5f).toInt()
+        val previewHeight = (mode.height * 0.5f).toInt()
+        config.setWindowedMode(previewWidth, previewHeight)
+        config.setWindowPosition((Gdx.graphics.width / 2) - previewWidth / 2, (Gdx.graphics.height / 2) - previewHeight / 2)
+
+        config.setTitle("Preview")
+        config.setWindowIcon("icon/logo.png")
+        config.useVsync(false)
+        config.setWindowListener(object : Lwjgl3WindowAdapter() {
+            override fun created(window: Lwjgl3Window) {
+                previewWindow = window
+                previewOpen = true
+            }
+
+            override fun closeRequested(): Boolean {
+                previewOpen = false
+                return super.closeRequested()
+            }
+        })
+
+        val listener = Preview()
+        listener.loadScene(projectManager.current().currScene.name)
+        listener.setCamPosition(projectManager.current().currScene.cam)
+        app.newWindow(listener, config)
     }
 
     override fun onProjectChanged(event: ProjectChangedEvent) {
