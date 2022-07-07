@@ -26,13 +26,14 @@ import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
-import com.badlogic.gdx.physics.bullet.collision.btTriangleIndexVertexArray;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.utils.Disposable;
-import com.mbrlabs.mundus.commons.physics.bullet.BulletBuilder;
 import com.mbrlabs.mundus.commons.physics.bullet.GameObjectMotionState;
-import com.mbrlabs.mundus.commons.physics.bullet.RigidBodyResult;
+import com.mbrlabs.mundus.commons.physics.bullet.builders.RigidBodyBuilder;
+import com.mbrlabs.mundus.commons.physics.bullet.builders.RigidBodyResult;
+import com.mbrlabs.mundus.commons.physics.bullet.builders.ShapeBuilder;
+import com.mbrlabs.mundus.commons.physics.bullet.builders.ShapeBuilderResult;
 import com.mbrlabs.mundus.commons.physics.enums.PhysicsBody;
 import com.mbrlabs.mundus.commons.physics.enums.PhysicsShape;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -46,10 +47,9 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
     private static final Vector3 translation = new Vector3();
     private static final Quaternion rotation = new Quaternion();
 
-    // We hold reference to this for memory reasons
+    // We hold reference to these for memory/GC reasons
+    private ShapeBuilderResult shapeBuilderResult;
     protected btRigidBody.btRigidBodyConstructionInfo constructionInfo;
-    // Only set for gimpact shape
-    private btTriangleIndexVertexArray vertexArray = null;
 
     protected float mass = 1f;
     protected float friction = 1f;
@@ -115,26 +115,22 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
             //TODO Many small btBvhTriangleMeshShape pollute the broadphase. Better combine them.
             collisionShape = Bullet.obtainStaticNodeShape(modelComponent.modelInstance.nodes);
             collisionShape.setLocalScaling(gameObject.getLocalScale(scale));
-        } else if (physicsShape == PhysicsShape.G_IMPACT_TRIANGLE_MESH){
-            BulletBuilder.GimpactShapeBuilder.GimpactResult result  = new BulletBuilder.GimpactShapeBuilder(model, gameObject.getLocalScale(scale))
-                            .build();
-            collisionShape = result.shape;
-            vertexArray = result.vertexArray;
-            vertexArray.obtain();
         } else {
-            collisionShape = new BulletBuilder.ShapeBuilder(physicsShape)
+            shapeBuilderResult = new ShapeBuilder(physicsShape)
                     .scale(gameObject.getLocalScale(scale))
                     .boundingBox(boundingBox)
                     .model(model)
                     .terrainAsset(terrainComponent != null && physicsShape == PhysicsShape.TERRAIN ? terrainComponent.getTerrain() : null)
                     .build();
+
+            collisionShape = shapeBuilderResult.shape;
         }
 
         // Set collision flags accordingly
         int collisionFlags = getCollisionFlags(model, terrainComponent);
 
         // Build the rigid body
-        RigidBodyResult result = new BulletBuilder.RigidBodyBuilder(collisionShape)
+        RigidBodyResult result = new RigidBodyBuilder(collisionShape)
                 .mass(physicsBodyType == PhysicsBody.DYNAMIC ? mass : 0f)
                 .friction(friction)
                 .restitution(restitution)
@@ -180,13 +176,14 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
         }
 
         if (gameObject.sceneGraph.scene.physicsSystem.debugDrawMode == btIDebugDraw.DebugDrawModes.DBG_DrawWireframe) {
+
             // Get vertices count
-            int numVertices = 0;
-            if (model != null) {
-                for (Mesh mesh : model.meshes) {
-                    numVertices += mesh.getNumVertices();
-                }
-            }
+//            int numVertices = 0;
+//            if (model != null) {
+//                for (Mesh mesh : model.meshes) {
+//                    numVertices += mesh.getNumVertices();
+//                }
+//            }
 
             if (terrainComponent != null ) {
                 // Disable debug drawing for terrain or high vertices models due to performance issues on wireframe mode

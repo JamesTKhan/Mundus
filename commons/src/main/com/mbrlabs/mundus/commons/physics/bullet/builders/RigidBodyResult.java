@@ -1,4 +1,4 @@
-package com.mbrlabs.mundus.commons.physics.bullet;
+package com.mbrlabs.mundus.commons.physics.bullet.builders;
 
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 
