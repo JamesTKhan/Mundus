@@ -55,7 +55,7 @@ public class SceneConverter {
         }
 
         // environment stuff
-        dto.setFog(FogConverter.convert(scene.environment.getFog()));
+        dto.setFog(FogConverter.convert(scene.environment));
         dto.setAmbientLight(BaseLightConverter.convert(scene.environment.getAmbientLight()));
 
         DirectionalLightsAttribute directionalLight = scene.environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
@@ -89,7 +89,7 @@ public class SceneConverter {
         scene.skyboxAssetId = dto.getSkyboxAssetId();
 
         // environment stuff
-        scene.environment.setFog(FogConverter.convert(dto.getFog()));
+        FogConverter.convert(dto.getFog(), scene.environment);
         BaseLight ambientLight = BaseLightConverter.convert(dto.getAmbientLight());
         if (ambientLight != null) {
             scene.environment.setAmbientLight(ambientLight);

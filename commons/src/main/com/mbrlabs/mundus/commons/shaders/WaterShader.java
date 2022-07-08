@@ -4,14 +4,16 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.mbrlabs.mundus.commons.env.Fog;
+import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import com.mbrlabs.mundus.commons.water.Water;
 import com.mbrlabs.mundus.commons.water.WaterFloatAttribute;
 import com.mbrlabs.mundus.commons.water.WaterTextureAttribute;
+import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 
 public class WaterShader extends LightShader {
 
@@ -47,8 +49,7 @@ public class WaterShader extends LightShader {
     protected final int UNIFORM_CAM_FAR_PLANE= register(new Uniform("u_camFarPlane"));
 
     // ============================ FOG ============================
-    protected final int UNIFORM_FOG_DENSITY = register(new Uniform("u_fogDensity"));
-    protected final int UNIFORM_FOG_GRADIENT = register(new Uniform("u_fogGradient"));
+    protected final int UNIFORM_FOG_EQUATION = register(new Uniform("u_fogEquation"));
     protected final int UNIFORM_FOG_COLOR = register(new Uniform("u_fogColor"));
 
 
@@ -89,7 +90,8 @@ public class WaterShader extends LightShader {
         set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined);
         set(UNIFORM_CAM_NEAR_PLANE, camera.near);
         set(UNIFORM_CAM_FAR_PLANE, camera.far);
-        set(UNIFORM_CAM_POS, camera.position);
+        set(UNIFORM_CAM_POS, camera.position.x, camera.position.y, camera.position.z,
+                1.1881f / (camera.far * camera.far));
     }
 
     @Override
@@ -148,14 +150,13 @@ public class WaterShader extends LightShader {
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
 
         // Fog
-        final Fog fog = env.getFog();
-        if (fog == null) {
-            set(UNIFORM_FOG_DENSITY, 0f);
-            set(UNIFORM_FOG_GRADIENT, 0f);
+        FogAttribute fogEquation = renderable.environment.get(FogAttribute.class, FogAttribute.FogEquation);
+        ColorAttribute colorAttribute = renderable.environment.get(ColorAttribute.class, ColorAttribute.Fog);
+        if (fogEquation != null && colorAttribute != null) {
+            set(UNIFORM_FOG_EQUATION, fogEquation.value);
+            set(UNIFORM_FOG_COLOR, colorAttribute.color);
         } else {
-            set(UNIFORM_FOG_DENSITY, fog.density);
-            set(UNIFORM_FOG_GRADIENT, fog.gradient);
-            set(UNIFORM_FOG_COLOR, fog.color);
+            set(UNIFORM_FOG_EQUATION, Vector3.Zero);
         }
 
         // bind attributes, bind mesh & render; then unbinds everything

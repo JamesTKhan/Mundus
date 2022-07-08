@@ -17,8 +17,10 @@
 package com.mbrlabs.mundus.commons.mapper;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.mbrlabs.mundus.commons.dto.FogDTO;
-import com.mbrlabs.mundus.commons.env.Fog;
+import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 
 /**
  * Converter for fog.
@@ -26,27 +28,38 @@ import com.mbrlabs.mundus.commons.env.Fog;
 public class FogConverter {
 
     /**
-     * Converts {@link FogDTO} to {@link Fog}.
+     * Converts {@link FogDTO} to Environment attributes.
      */
-    public static Fog convert(FogDTO dto) {
-        if (dto == null) return null;
-        Fog fog = new Fog();
-        fog.density = dto.getDensity();
-        fog.gradient = dto.getGradient();
-        fog.color = new Color(dto.getColor());
+    public static void convert(FogDTO dto, Environment environment) {
+        if (dto == null) return;
 
-        return fog;
+        // Backward compat, near and far plane are new, if not set, give them some
+        // default values otherwise entire scene will be foggy on load
+        if (dto.getNearPlane() == 0f) { dto.setNearPlane(500f); }
+        if (dto.getFarPlane() == 0f) { dto.setFarPlane(1000f); }
+
+        environment.set(new FogAttribute(FogAttribute.FogEquation).set(dto.getNearPlane(), dto.getFarPlane(), dto.getGradient()));
+
+        Color color = new Color();
+        Color.rgba8888ToColor(color, dto.getColor());
+        environment.set(ColorAttribute.createFog(color));
     }
 
     /**
-     * Converts {@link Fog} to {@link FogDTO}.
+     * Converts Fog attributes to {@link FogDTO}.
      */
-    public static FogDTO convert(Fog fog) {
-        if (fog == null) return null;
+    public static FogDTO convert(Environment environment) {
+        FogAttribute fogAttribute = environment.get(FogAttribute.class, FogAttribute.FogEquation);
+        ColorAttribute colorAttribute = environment.get(ColorAttribute.class, ColorAttribute.Fog);
+
+        if (fogAttribute == null || colorAttribute == null) return null;
+
         FogDTO fogDescriptor = new FogDTO();
-        fogDescriptor.setDensity(fog.density);
-        fogDescriptor.setGradient(fog.gradient);
-        fogDescriptor.setColor(Color.rgba8888(fog.color));
+
+        fogDescriptor.setNearPlane(fogAttribute.value.x);
+        fogDescriptor.setFarPlane(fogAttribute.value.y);
+        fogDescriptor.setGradient(fogAttribute.value.z);
+        fogDescriptor.setColor(Color.rgba8888(colorAttribute.color));
 
         return fogDescriptor;
     }

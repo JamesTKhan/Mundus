@@ -31,7 +31,6 @@ import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
-import com.mbrlabs.mundus.commons.env.Fog;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
@@ -139,7 +138,6 @@ public class ProjectManager implements Disposable {
         scene.setName(DEFAULT_SCENE_NAME);
         scene.skybox = SkyboxBuilder.createDefaultSkybox(Shaders.INSTANCE.getSkyboxShader());
         scene.skyboxAssetId = getDefaultSkyboxAsset(newProjectContext, true).getID();
-        scene.environment.setFog(new Fog());
         scene.setId(newProjectContext.obtainID());
         SceneManager.saveScene(newProjectContext, scene);
         scene.sceneGraph.scene.batch = modelBatch;

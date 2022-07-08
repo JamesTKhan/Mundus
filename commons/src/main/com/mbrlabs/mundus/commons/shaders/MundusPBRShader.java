@@ -3,6 +3,7 @@ package com.mbrlabs.mundus.commons.shaders;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
@@ -89,6 +90,10 @@ public class MundusPBRShader extends PBRShader {
                     program.setUniformf(idx + spotLightsIntensityOffset, spotLight.intensity);
                 if (spotLightsSize <= 0) break;
             }
+        }
+
+        if (attributes.has(ColorAttribute.Fog)) {
+            set(u_fogColor, ((ColorAttribute)attributes.get(ColorAttribute.Fog)).color);
         }
 
         if (!(renderable.environment instanceof MundusEnvironment)) return;

@@ -33,13 +33,11 @@ import com.mbrlabs.mundus.commons.env.lights.SunLightsAttribute;
  */
 public class MundusEnvironment extends Environment {
 
-    private Fog fog;
     private BaseLight ambientLight;
 
     public MundusEnvironment() {
         super();
         ambientLight = new BaseLight();
-        fog = null;
     }
 
     public MundusEnvironment add(SunLight light) {
@@ -108,14 +106,6 @@ public class MundusEnvironment extends Environment {
 
     public void setAmbientLight(BaseLight ambientLight) {
         this.ambientLight = ambientLight;
-    }
-
-    public Fog getFog() {
-        return fog;
-    }
-
-    public void setFog(Fog fog) {
-        this.fog = fog;
     }
 
 }

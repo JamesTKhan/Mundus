@@ -31,7 +31,8 @@ uniform MED float u_foamEdgeBias;
 uniform MED float u_foamEdgeDistance;
 uniform MED float u_foamFallOffDistance;
 uniform MED float u_foamScrollSpeed;
-uniform vec3 u_cameraPosition;
+uniform vec4 u_cameraPosition;
+uniform vec3 u_fogEquation;
 uniform float u_camNearPlane;
 uniform float u_camFarPlane;
 uniform MED vec4 u_fogColor;
@@ -139,7 +140,7 @@ void main() {
     // so if the red channel is full 1.0 its probably pure white (border) so we ignore it.
     if (edge.r < 0.99) {
         // Fade foam out after a distance, otherwise we get ugly 1 pixel lines
-        float distanceToCam = length(v_worldPos - u_cameraPosition);
+        float distanceToCam = length(v_worldPos - u_cameraPosition.xyz);
         float foamVisibleFactor = clamp(1.0 - distanceToCam / 500.0, 0.0, 1.0);
 
         // Subtract mask value from foam gradient, then add the foam value to the final pixel color
@@ -165,7 +166,7 @@ void main() {
         u_pointLights[i].Atten.Linear * dist +
         u_pointLights[i].Atten.Exp * dist * dist;
 
-        float specularDistanceFactor = length(u_cameraPosition - u_pointLights[i].LocalPos);
+        float specularDistanceFactor = length(u_cameraPosition.xyz - u_pointLights[i].LocalPos);
 
         // Limit distance of point lights specular highlights over water by 500 units
         specularDistanceFactor = clamp(1.0 - specularDistanceFactor / 500.0, 0.0, 1.0);
@@ -192,13 +193,13 @@ void main() {
     color += vec4(specularHighlights, 0.0);
 
     // Fog
-    float v_fog = 0.0;
-    if(u_fogDensity > 0.0 && u_fogGradient > 0.0) {
-        v_fog = waterDistance;
-        v_fog = exp(-pow(v_fog * u_fogDensity, u_fogGradient));
-        v_fog = 1.0 - clamp(v_fog, 0.0, 1.0);
+    if (u_fogEquation.z > 0) {
+        float fog = (waterDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
+        fog = clamp(fog, 0.0, 1.0);
+        fog = pow(fog, u_fogEquation.z);
+
+        color.rgb  = mix(color.rgb, u_fogColor.rgb, fog * u_fogColor.a);
     }
-    color = mix(color, u_fogColor, v_fog);
 
     gl_FragColor = color;
     //gl_FragColor = vec4(waterDepth/50.0);
