@@ -354,6 +354,10 @@ class MaterialWidget : VisTable() {
         fun materialChanged(materialAsset: MaterialAsset)
     }
 
+    /**
+     * Simple enum for GL Cull Face int values,
+     * used for select box in UI
+     */
     enum class CullFace(val value: Int) {
         DEFAULT(-1),
         GL_BACK(GL20.GL_BACK),
