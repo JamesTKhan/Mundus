@@ -373,14 +373,11 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
         private fun showPreview() {
             previewInstance = ModelInstance(previewModel!!)
 
-            val VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/gdx-pbr.vs.glsl"
-            val FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl"
             val config = PBRShaderConfig()
             config.numDirectionalLights = 1
-            config.numPointLights = 0
             config.numBones = 60
-            config.vertexShader = Gdx.files.internal(VERTEX_SHADER).readString()
-            config.fragmentShader = Gdx.files.internal(FRAGMENT_SHADER).readString()
+            config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.vs.glsl").readString()
+            config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl").readString()
 
             modelBatch = ModelBatch(PBRShaderProvider(config))
 

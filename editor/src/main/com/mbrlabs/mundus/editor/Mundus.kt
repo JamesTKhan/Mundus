@@ -94,16 +94,15 @@ object Mundus {
         initFontAwesome()
         eventBus = EventBus()
 
-        val VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/gdx-pbr.vs.glsl"
-        val FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl"
+        // PBR Shader configs for models
         val config = PBRShaderConfig()
         config.numDirectionalLights = 1
         config.numPointLights = LightUtils.MAX_POINT_LIGHTS
         config.numSpotLights = LightUtils.MAX_SPOT_LIGHTS
-        config.numBones = 53
+        config.numBones = 60
         config.defaultCullFace = GL20.GL_BACK
-        config.vertexShader = Gdx.files.internal(VERTEX_SHADER).readString()
-        config.fragmentShader = Gdx.files.internal(FRAGMENT_SHADER).readString()
+        config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.vs.glsl").readString()
+        config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl").readString()
 
         // DI
         shapeRenderer = ShapeRenderer()
