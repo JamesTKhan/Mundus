@@ -55,8 +55,12 @@ class MaterialWidget : VisTable() {
 
     private val matNameLabel: VisLabel = VisLabel()
     private val diffuseColorField: ColorPickerField = ColorPickerField()
+    private val emissiveColorField: ColorPickerField = ColorPickerField()
     private val diffuseAssetField: AssetSelectionField = AssetSelectionField()
     private val normalMapField: AssetSelectionField = AssetSelectionField()
+    private val emissiveAssetField: AssetSelectionField = AssetSelectionField()
+    private val metallicRoughnessAssetField: AssetSelectionField = AssetSelectionField()
+    private val occlusionAssetField: AssetSelectionField = AssetSelectionField()
 
     private val roughnessField = ImprovedSlider(0.0f, 1.0f, 0.05f)
     private val metallicField = ImprovedSlider(0.0f, 1.0f, 0.05f)
@@ -74,8 +78,12 @@ class MaterialWidget : VisTable() {
             if (value != null) {
                 field = value
                 diffuseColorField.selectedColor = value.diffuseColor
+                emissiveColorField.selectedColor = value.emissiveColor
                 diffuseAssetField.setAsset(value.diffuseTexture)
                 normalMapField.setAsset(value.normalMap)
+                emissiveAssetField.setAsset(value.emissiveTexture)
+                metallicRoughnessAssetField.setAsset(value.metallicRoughnessTexture)
+                occlusionAssetField.setAsset(value.occlusionTexture)
                 matNameLabel.setText(value.name)
                 roughnessField.value = value.roughness
                 metallicField.value = value.metallic
@@ -118,12 +126,21 @@ class MaterialWidget : VisTable() {
 
         addSeparator().padTop(15f).padBottom(15f).growX().row()
 
+        add(VisLabel("Diffuse color")).grow().row()
+        add(diffuseColorField).growX().row()
+        add(VisLabel("Emissive color")).grow().row()
+        add(emissiveColorField).growX().row()
+
         add(VisLabel("Diffuse texture")).grow().row()
         add(diffuseAssetField).growX().row()
         add(VisLabel("Normal map")).grow().row()
         add(normalMapField).growX().row()
-        add(VisLabel("Diffuse color")).grow().row()
-        add(diffuseColorField).growX().row()
+        add(VisLabel("Emissive texture")).grow().row()
+        add(emissiveAssetField).growX().row()
+        add(VisLabel("Metallic/Roughness Texture")).grow().row()
+        add(metallicRoughnessAssetField).growX().row()
+        add(VisLabel("Occlusion Texture")).grow().row()
+        add(occlusionAssetField).growX().row()
 
         addSeparator().padTop(15f).padBottom(15f).growX().row()
 
@@ -174,10 +191,53 @@ class MaterialWidget : VisTable() {
             }
         }
 
+        // emissive texture
+        emissiveAssetField.assetFilter = AssetTextureFilter()
+        emissiveAssetField.pickerListener = object: AssetPickerDialog.AssetPickerListener {
+            override fun onSelected(asset: Asset?) {
+                material?.emissiveTexture = asset as? TextureAsset
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        }
+
+        // metallic/roughness texture
+        metallicRoughnessAssetField.assetFilter = AssetTextureFilter()
+        metallicRoughnessAssetField.pickerListener = object: AssetPickerDialog.AssetPickerListener {
+            override fun onSelected(asset: Asset?) {
+                material?.metallicRoughnessTexture = asset as? TextureAsset
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        }
+
+        // occlusion texture
+        occlusionAssetField.assetFilter = AssetTextureFilter()
+        occlusionAssetField.pickerListener = object: AssetPickerDialog.AssetPickerListener {
+            override fun onSelected(asset: Asset?) {
+                material?.occlusionTexture = asset as? TextureAsset
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        }
+
         // diffuse color
         diffuseColorField.colorAdapter = object: ColorPickerAdapter() {
             override fun finished(newColor: Color) {
                 material?.diffuseColor?.set(newColor)
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        }
+
+        // emissive color
+        emissiveColorField.colorAdapter = object: ColorPickerAdapter() {
+            override fun finished(newColor: Color) {
+                material?.emissiveColor?.set(newColor)
                 applyMaterialToModelAssets()
                 applyMaterialToModelComponents()
                 projectManager.current().assetManager.addModifiedAsset(material!!)

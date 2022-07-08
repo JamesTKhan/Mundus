@@ -604,11 +604,23 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         if (mat.diffuseColor != null) {
             props.setProperty(MaterialAsset.PROP_DIFFUSE_COLOR, mat.diffuseColor.toString())
         }
+        if (mat.emissiveColor != null) {
+            props.setProperty(MaterialAsset.PROP_MAP_EMISSIVE_COLOR, mat.emissiveColor.toString())
+        }
         if (mat.diffuseTexture != null) {
             props.setProperty(MaterialAsset.PROP_DIFFUSE_TEXTURE, mat.diffuseTexture.id)
         }
         if (mat.normalMap != null) {
             props.setProperty(MaterialAsset.PROP_MAP_NORMAL, mat.normalMap.id)
+        }
+        if (mat.emissiveTexture != null) {
+            props.setProperty(MaterialAsset.PROP_MAP_EMISSIVE_TEXTURE, mat.emissiveTexture.id)
+        }
+        if (mat.metallicRoughnessTexture != null) {
+            props.setProperty(MaterialAsset.PROP_METAL_ROUGH_TEXTURE, mat.metallicRoughnessTexture.id)
+        }
+        if (mat.occlusionTexture != null) {
+            props.setProperty(MaterialAsset.PROP_OCCLUSION_TEXTURE, mat.occlusionTexture.id)
         }
         props.setProperty(MaterialAsset.PROP_OPACITY, mat.opacity.toString())
         props.setProperty(MaterialAsset.PROP_ROUGHNESS, mat.roughness.toString())

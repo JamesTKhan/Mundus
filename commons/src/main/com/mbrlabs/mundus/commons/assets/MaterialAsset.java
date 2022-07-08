@@ -45,6 +45,10 @@ public class MaterialAsset extends Asset {
     public static final String PROP_DIFFUSE_COLOR = "diffuse.color";
     public static final String PROP_DIFFUSE_TEXTURE = "diffuse.texture";
     public static final String PROP_MAP_NORMAL = "map.normal";
+    public static final String PROP_MAP_EMISSIVE_COLOR = "emissive.color";
+    public static final String PROP_MAP_EMISSIVE_TEXTURE = "emissive.texture";
+    public static final String PROP_METAL_ROUGH_TEXTURE = "metallicRoughTexture";
+    public static final String PROP_OCCLUSION_TEXTURE = "occlusionTexture";
     public static final String PROP_ROUGHNESS = "roughness";
     public static final String PROP_OPACITY = "opacity";
     public static final String PROP_METALLIC = "metallic";
@@ -54,10 +58,18 @@ public class MaterialAsset extends Asset {
     // ids of dependent assets
     private String diffuseTextureID;
     private String normalMapID;
+    private String emissiveTextureID;
+    private String metallicRoughnessTextureID;
+    private String occlusionTextureID;
 
     private Color diffuseColor = Color.WHITE.cpy();
+    private Color emissiveColor = Color.BLACK.cpy();
     private TextureAsset diffuseTexture;
     private TextureAsset normalMap;
+    private TextureAsset emissiveTexture;
+    private TextureAsset metallicRoughnessTexture;
+    private TextureAsset occlusionTexture;
+
     private float roughness = 0f;
     private float metallic = 0f;
     private float opacity = 1f;
@@ -107,9 +119,18 @@ public class MaterialAsset extends Asset {
                 diffuseColor = Color.valueOf(diffuseHex);
             }
 
+            // emissive color
+            String emissiveHex = MAP.get(PROP_MAP_EMISSIVE_COLOR);
+            if (emissiveHex != null) {
+                emissiveColor = Color.valueOf(emissiveHex);
+            }
+
             // asset dependencies
             diffuseTextureID = MAP.get(PROP_DIFFUSE_TEXTURE, null);
             normalMapID = MAP.get(PROP_MAP_NORMAL, null);
+            metallicRoughnessTextureID = MAP.get(PROP_METAL_ROUGH_TEXTURE, null);
+            emissiveTextureID = MAP.get(PROP_MAP_EMISSIVE_TEXTURE, null);
+            occlusionTextureID = MAP.get(PROP_OCCLUSION_TEXTURE, null);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -125,6 +146,9 @@ public class MaterialAsset extends Asset {
         if (diffuseColor != null) {
             material.set(PBRColorAttribute.createBaseColorFactor(diffuseColor));
         }
+        if (emissiveColor != null) {
+            material.set(PBRColorAttribute.createEmissive(emissiveColor));
+        }
         if (diffuseTexture != null) {
             material.set(new PBRTextureAttribute(PBRTextureAttribute.BaseColorTexture, diffuseTexture.getTexture()));
         } else {
@@ -134,6 +158,21 @@ public class MaterialAsset extends Asset {
             material.set(new PBRTextureAttribute(PBRTextureAttribute.NormalTexture, normalMap.getTexture()));
         } else {
             material.remove(PBRTextureAttribute.NormalTexture);
+        }
+        if (emissiveTexture != null) {
+            material.set(new PBRTextureAttribute(PBRTextureAttribute.EmissiveTexture, emissiveTexture.getTexture()));
+        } else {
+            material.remove(PBRTextureAttribute.EmissiveTexture);
+        }
+        if (metallicRoughnessTexture != null) {
+            material.set(new PBRTextureAttribute(PBRTextureAttribute.MetallicRoughnessTexture, metallicRoughnessTexture.getTexture()));
+        } else {
+            material.remove(PBRTextureAttribute.MetallicRoughnessTexture);
+        }
+        if (occlusionTexture != null) {
+            material.set(new PBRTextureAttribute(PBRTextureAttribute.OcclusionTexture, occlusionTexture.getTexture()));
+        } else {
+            material.remove(PBRTextureAttribute.OcclusionTexture);
         }
 
         material.set(PBRFloatAttribute.createRoughness(roughness));
@@ -228,6 +267,49 @@ public class MaterialAsset extends Asset {
         }
     }
 
+    public TextureAsset getEmissiveTexture() {
+        return emissiveTexture;
+    }
+
+    public void setEmissiveTexture(TextureAsset emissiveTexture) {
+        this.emissiveTexture = emissiveTexture;
+        if (emissiveTexture != null) {
+            this.emissiveTextureID = emissiveTexture.getID();
+        } else {
+            this.emissiveTextureID = null;
+        }
+    }
+
+    public Color getEmissiveColor() {
+        return emissiveColor;
+    }
+
+    public TextureAsset getMetallicRoughnessTexture() {
+        return metallicRoughnessTexture;
+    }
+
+    public void setMetallicRoughnessTexture(TextureAsset metallicRoughnessTexture) {
+        this.metallicRoughnessTexture = metallicRoughnessTexture;
+        if (metallicRoughnessTexture != null) {
+            this.metallicRoughnessTextureID = metallicRoughnessTexture.getID();
+        } else {
+            this.metallicRoughnessTextureID = null;
+        }
+    }
+
+    public TextureAsset getOcclusionTexture() {
+        return occlusionTexture;
+    }
+
+    public void setOcclusionTexture(TextureAsset occlusionTexture) {
+        this.occlusionTexture = occlusionTexture;
+        if (occlusionTexture != null) {
+            this.occlusionTextureID = occlusionTexture.getID();
+        } else {
+            this.occlusionTextureID = null;
+        }
+    }
+
     public Color getDiffuseColor() {
         return diffuseColor;
     }
@@ -239,6 +321,15 @@ public class MaterialAsset extends Asset {
         }
         if (normalMapID != null && assets.containsKey(normalMapID)) {
             normalMap = (TextureAsset) assets.get(normalMapID);
+        }
+        if (emissiveTextureID != null && assets.containsKey(emissiveTextureID)) {
+            emissiveTexture = (TextureAsset) assets.get(emissiveTextureID);
+        }
+        if (metallicRoughnessTextureID != null && assets.containsKey(metallicRoughnessTextureID)) {
+            metallicRoughnessTexture = (TextureAsset) assets.get(metallicRoughnessTextureID);
+        }
+        if (occlusionTextureID != null && assets.containsKey(occlusionTextureID)) {
+            occlusionTexture = (TextureAsset) assets.get(occlusionTextureID);
         }
     }
 
@@ -255,11 +346,16 @@ public class MaterialAsset extends Asset {
     @Override
     public boolean usesAsset(Asset assetToCheck) {
         if (assetToCheck instanceof TextureAsset) {
-            boolean diffuseMatch = diffuseTexture != null && diffuseTexture.getFile().path().equals(assetToCheck.getFile().path());
-            boolean normalMatch = normalMap != null && normalMap.getFile().path().equals(assetToCheck.getFile().path());
-
-            return diffuseMatch || normalMatch;
+            if (fileMatch(diffuseTexture, assetToCheck)) return true;
+            if (fileMatch(normalMap, assetToCheck)) return true;
+            if (fileMatch(emissiveTexture, assetToCheck)) return true;
+            if (fileMatch(metallicRoughnessTexture, assetToCheck)) return true;
+            return fileMatch(occlusionTexture, assetToCheck);
         }
         return false;
+    }
+
+    private boolean fileMatch(Asset childAsset, Asset assetToCheck) {
+        return childAsset != null && childAsset.getFile().path().equals(assetToCheck.getFile().path());
     }
 }
