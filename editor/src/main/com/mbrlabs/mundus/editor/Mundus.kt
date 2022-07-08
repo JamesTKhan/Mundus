@@ -38,6 +38,7 @@ import com.mbrlabs.mundus.editor.history.CommandHistory
 import com.mbrlabs.mundus.editor.input.FreeCamController
 import com.mbrlabs.mundus.editor.input.InputManager
 import com.mbrlabs.mundus.editor.input.ShortcutController
+import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
 import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker
@@ -81,6 +82,7 @@ object Mundus {
     private val goPicker: GameObjectPicker
     private val handlePicker: ToolHandlePicker
     private val json: Json
+    private val glProfiler: MundusGLProfiler
 
     init {
         // create home dir
@@ -121,6 +123,7 @@ object Mundus {
         gizmoManager = GizmoManager()
         shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager)
         json = Json()
+        glProfiler = MundusGLProfiler(Gdx.graphics)
 
         // add to DI container
         context.register {
@@ -139,6 +142,7 @@ object Mundus {
             bindSingleton(shortcutController)
             bindSingleton(freeCamController)
             bindSingleton(json)
+            bindSingleton(glProfiler)
 
             bindSingleton(MetaSaver())
             bindSingleton(MetaLoader())
@@ -231,6 +235,7 @@ object Mundus {
         modelBatch.dispose()
         goPicker.dispose()
         handlePicker.dispose()
+        glProfiler.disable()
     }
 
 }
