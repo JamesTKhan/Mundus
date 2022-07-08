@@ -134,6 +134,7 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
         mc.modelAsset = this.modelAsset;
         mc.modelInstance = new ModelInstance(modelAsset.getModel());
         mc.shader = this.shader;
+        mc.materials = this.materials;
         return mc;
     }
 
