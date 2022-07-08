@@ -20,6 +20,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
@@ -54,6 +55,7 @@ public class MaterialAsset extends Asset {
     public static final String PROP_METALLIC = "metallic";
     public static final String PROP_ALPHA_TEST = "alphaTest";
     public static final String PROP_NORMAL_SCALE = "normalScale";
+    public static final String PROP_CULL_FACE = "cullFace";
 
     // ids of dependent assets
     private String diffuseTextureID;
@@ -61,6 +63,9 @@ public class MaterialAsset extends Asset {
     private String emissiveTextureID;
     private String metallicRoughnessTextureID;
     private String occlusionTextureID;
+
+    // Possible values are GL_FRONT_AND_BACK, GL_BACK, GL_FRONT, or -1 to inherit default
+    private int cullFace = -1;
 
     private Color diffuseColor = Color.WHITE.cpy();
     private Color emissiveColor = Color.BLACK.cpy();
@@ -108,6 +113,10 @@ public class MaterialAsset extends Asset {
                 value = MAP.get(PROP_NORMAL_SCALE, null);
                 if (value != null) {
                     normalScale = Float.parseFloat(value);
+                }
+                value = MAP.get(PROP_CULL_FACE, null);
+                if (value != null) {
+                    cullFace = Integer.parseInt(value);
                 }
             } catch (NumberFormatException nfe) {
                 nfe.printStackTrace();
@@ -178,6 +187,12 @@ public class MaterialAsset extends Asset {
         material.set(PBRFloatAttribute.createRoughness(roughness));
         material.set(PBRFloatAttribute.createMetallic(metallic));
         material.set(PBRFloatAttribute.createNormalScale(normalScale));
+
+        if (cullFace != -1) {
+            material.set(IntAttribute.createCullFace(cullFace));
+        } else {
+            material.remove(IntAttribute.CullFace);
+        }
 
         if (opacity < 1f) {
             material.set(new BlendingAttribute(true, opacity));
@@ -312,6 +327,14 @@ public class MaterialAsset extends Asset {
 
     public Color getDiffuseColor() {
         return diffuseColor;
+    }
+
+    public int getCullFace() {
+        return cullFace;
+    }
+
+    public void setCullFace(int cullFace) {
+        this.cullFace = cullFace;
     }
 
     @Override

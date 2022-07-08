@@ -17,13 +17,16 @@
 package com.mbrlabs.mundus.editor.ui.widgets
 
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
@@ -68,6 +71,8 @@ class MaterialWidget : VisTable() {
     private val alphaTestField = ImprovedSlider(0.0f, 1.0f, 0.05f)
     private val normalScaleField = ImprovedSlider(0.5f, 5f, 0.5f)
 
+    private lateinit var cullFaceSelectBox: VisSelectBox<CullFace>
+
     private val projectManager: ProjectManager = Mundus.inject()
 
     /**
@@ -90,6 +95,7 @@ class MaterialWidget : VisTable() {
                 opacityField.value = value.opacity
                 alphaTestField.value = value.alphaTest
                 normalScaleField.value = value.normalScale
+                cullFaceSelectBox.selected = CullFace.getFromValue(value.cullFace)
             }
         }
 
@@ -161,7 +167,17 @@ class MaterialWidget : VisTable() {
         sliderTable.add(VisLabel("Normal Scale")).growX()
         sliderTable.add(normalScaleField).growX().row()
 
-        add(sliderTable).growX()
+        val values = Array<CullFace>()
+        for (value in CullFace.values())
+            values.add(value)
+
+        cullFaceSelectBox = VisSelectBox()
+        cullFaceSelectBox.items = values
+
+        sliderTable.add(VisLabel("Cull Face")).growX()
+        sliderTable.add(cullFaceSelectBox).left()
+
+        add(sliderTable).growX().row()
 
         matChangedBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -300,6 +316,16 @@ class MaterialWidget : VisTable() {
             }
         })
 
+        cullFaceSelectBox.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if (material?.cullFace == cullFaceSelectBox.selected.value) return
+                material?.cullFace = cullFaceSelectBox.selected.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        })
+
     }
 
     // TODO find better solution than iterating through all components
@@ -328,5 +354,22 @@ class MaterialWidget : VisTable() {
         fun materialChanged(materialAsset: MaterialAsset)
     }
 
+    enum class CullFace(val value: Int) {
+        DEFAULT(-1),
+        GL_BACK(GL20.GL_BACK),
+        GL_FRONT(GL20.GL_FRONT),
+        GL_FRONT_AND_BACK(GL20.GL_FRONT_AND_BACK);
 
+        companion object {
+            fun getFromValue(value: Int): CullFace {
+                when (value) {
+                    DEFAULT.value -> return DEFAULT
+                    GL_BACK.value -> return GL_BACK
+                    GL_FRONT.value -> return GL_FRONT
+                    GL_FRONT_AND_BACK.value -> return GL_FRONT_AND_BACK
+                }
+                return DEFAULT
+            }
+        }
+    }
 }

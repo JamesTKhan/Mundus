@@ -627,6 +627,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         props.setProperty(MaterialAsset.PROP_METALLIC, mat.metallic.toString())
         props.setProperty(MaterialAsset.PROP_ALPHA_TEST, mat.alphaTest.toString())
         props.setProperty(MaterialAsset.PROP_NORMAL_SCALE, mat.normalScale.toString())
+        props.setProperty(MaterialAsset.PROP_CULL_FACE, mat.cullFace.toString())
 
         val fileOutputStream = FileOutputStream(mat.file.file())
         props.store(fileOutputStream, null)

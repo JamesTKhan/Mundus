@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.Json
 import com.kotcrab.vis.ui.VisUI
 import com.mbrlabs.mundus.commons.assets.meta.MetaLoader
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
+import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
@@ -46,7 +47,7 @@ import com.mbrlabs.mundus.editor.utils.Fa
 import ktx.inject.Context
 import ktx.inject.register
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig
-import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider
+import org.lwjgl.opengl.GL20
 import java.io.File
 
 /**
@@ -97,15 +98,16 @@ object Mundus {
         val FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl"
         val config = PBRShaderConfig()
         config.numDirectionalLights = 1
-        config.numPointLights = 0
+        config.numPointLights = LightUtils.MAX_POINT_LIGHTS
+        config.numSpotLights = LightUtils.MAX_SPOT_LIGHTS
         config.numBones = 53
+        config.defaultCullFace = GL20.GL_BACK
         config.vertexShader = Gdx.files.internal(VERTEX_SHADER).readString()
         config.fragmentShader = Gdx.files.internal(FRAGMENT_SHADER).readString()
 
         // DI
         shapeRenderer = ShapeRenderer()
         modelBatch = ModelBatch(MundusPBRShaderProvider(config))
-        //modelBatch = ModelBatch()
         input = InputManager()
         goPicker = GameObjectPicker()
         handlePicker = ToolHandlePicker()
