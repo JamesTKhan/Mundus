@@ -45,17 +45,9 @@ struct SpotLight
     MED float Cutoff;
 };
 
-struct Material
-{
-    MED vec3 AmbientColor;
-    MED vec3 DiffuseColor;
-    MED vec3 SpecularColor;
-};
-
 varying vec3 v_worldPos;
 
 uniform int u_useSpecular;
-uniform int u_useMaterial;
 uniform int u_activeNumPointLights;
 uniform int u_activeNumSpotLights;
 uniform vec3 u_camPos;
@@ -63,7 +55,6 @@ uniform MED float u_shininess;
 uniform DirectionalLight u_directionalLight;
 uniform PointLight u_pointLights[numPointLights];
 uniform SpotLight u_spotLights[numSpotLights];
-uniform Material u_material;
 
 uniform sampler2D u_shadowTexture;
 uniform float u_shadowPCFOffset;
@@ -88,7 +79,7 @@ float getShadow()
 
 vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
 {
-    vec4 AmbientColor = vec4(Light.AmbientColor, 1.0) * Light.AmbientIntensity; /* vec4(u_material.AmbientColor, 1.0); */
+    vec4 AmbientColor = vec4(Light.AmbientColor, 1.0) * Light.AmbientIntensity;
 
     float DiffuseFactor = dot(Normal, -LightDirection);
 
@@ -97,10 +88,6 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
 
     if (DiffuseFactor > 0.0) {
         DiffuseColor = vec4(Light.Color, 1.0) * Light.DiffuseIntensity * DiffuseFactor;
-
-        if (u_useMaterial == 1) {
-            DiffuseColor *= vec4(u_material.DiffuseColor, 1.0);
-        }
 
         if (u_useShadows == 1) {
             DiffuseColor *= getShadow();
@@ -117,7 +104,6 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
                 SpecularFactor = pow(SpecularFactor, SpecularExponent);
                 SpecularColor = vec4(Light.Color, 1.0) *
                 Light.DiffuseIntensity *// using the diffuse intensity for diffuse/specular
-                /* vec4(u_material.SpecularColor, 1.0) * */
                 SpecularFactor;
             }
         }

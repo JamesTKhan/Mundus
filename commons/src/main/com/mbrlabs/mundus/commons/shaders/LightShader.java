@@ -32,10 +32,6 @@ public abstract class LightShader extends ClippableShader {
     protected final int UNIFORM_USE_SPECULAR = register(new Uniform("u_useSpecular"));
     protected final int UNIFORM_MATERIAL_SHININESS = register(new Uniform("u_shininess"));
 
-    // Material properties
-    protected final int UNIFORM_USE_MATERIAL = register(new Uniform("u_useMaterial"));
-    protected final int UNIFORM_MATERIAL_DIFFUSE_COLOR = register(new Uniform("u_material.DiffuseColor"));
-
     // Directional Light
     protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR = register(new Uniform("u_directionalLight.Base.Color"));
     protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR_AMBIENT = register(new Uniform("u_directionalLight.Base.AmbientColor"));
