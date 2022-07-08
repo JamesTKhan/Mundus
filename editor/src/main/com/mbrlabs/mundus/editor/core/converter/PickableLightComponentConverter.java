@@ -32,7 +32,7 @@ public class PickableLightComponentConverter {
 
         if (dto.getLightType() == LightType.SPOT_LIGHT) {
             ((SpotLight) light).direction.set(dto.getDirection());
-            ((SpotLight) light).cutoff = dto.getCutoff();
+            ((SpotLight) light).setCutoff(dto.getCutoff());
         }
 
         return component;
@@ -56,7 +56,7 @@ public class PickableLightComponentConverter {
         descriptor.setExponential(light.attenuation.exponential);
 
         if (lightComponent.getLight().lightType == LightType.SPOT_LIGHT) {
-            descriptor.setCutoff(((SpotLight)light).cutoff);
+            descriptor.setCutoff(((SpotLight)light).getCutoff());
             descriptor.setDirection(((SpotLight)light).direction);
         }
 

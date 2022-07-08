@@ -158,7 +158,7 @@ public abstract class LightShader extends ClippableShader {
                 set(UNIFORM_SPOT_LIGHT_COLOR[i], light.color.r, light.color.g, light.color.b);
                 set(UNIFORM_SPOT_LIGHT_POS[i], light.position);
                 set(UNIFORM_SPOT_LIGHT_DIRECTION[i], light.direction);
-                set(UNIFORM_SPOT_LIGHT_CUT_OFF[i], MathUtils.cosDeg(light.cutoff));
+                set(UNIFORM_SPOT_LIGHT_CUT_OFF[i], MathUtils.cosDeg(light.getCutoff()));
                 set(UNIFORM_SPOT_LIGHT_INTENSITY[i], light.intensity);
 
                 set(UNIFORM_SPOT_LIGHT_ATT_CONSTANT[i], light.attenuation.constant);

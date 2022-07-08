@@ -99,7 +99,7 @@ public class LightUtils {
         if (from instanceof SpotLight && to instanceof SpotLight) {
             SpotLight currentLight = (SpotLight) from;
             ((SpotLight) to).direction.set(currentLight.direction);
-            ((SpotLight) to).cutoff = currentLight.cutoff;
+            ((SpotLight) to).setCutoff(currentLight.getCutoff());
         }
     }
 

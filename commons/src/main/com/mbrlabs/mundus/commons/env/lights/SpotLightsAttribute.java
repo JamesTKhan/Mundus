@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Array;
  * @version June 02, 2022
  */
 public class SpotLightsAttribute extends Attribute {
-    public final static String Alias = "spotLights";
+    public final static String Alias = "spotLightsMundus";
     public final static long Type = register(Alias);
 
     public final static boolean is (final long mask) {

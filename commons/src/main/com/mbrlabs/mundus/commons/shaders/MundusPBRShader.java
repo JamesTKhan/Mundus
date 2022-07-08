@@ -8,6 +8,10 @@ import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
+import com.mbrlabs.mundus.commons.env.lights.PointLight;
+import com.mbrlabs.mundus.commons.env.lights.PointLightsAttribute;
+import com.mbrlabs.mundus.commons.env.lights.SpotLight;
+import com.mbrlabs.mundus.commons.env.lights.SpotLightsAttribute;
 import net.mgsx.gltf.scene3d.shaders.PBRShader;
 
 /**
@@ -47,7 +51,48 @@ public class MundusPBRShader extends PBRShader {
                     light.direction.y, light.direction.z);
         }
 
+        // Point Lights
+        PointLightsAttribute attr = renderable.environment.get(PointLightsAttribute.class, PointLightsAttribute.Type);
+        final Array<PointLight> pointLights = attr == null ? null : attr.lights;
+        if (pointLightsLoc >= 0 && pointLights != null) {
+            for (int i = 0; i < pointLights.size; i++) {
+
+                float intensityModifier = 100f;
+                PointLight light = pointLights.get(i);
+                int idx = pointLightsLoc + i * pointLightsSize;
+                program.setUniformf(idx + pointLightsColorOffset, light.color.r * light.intensity * intensityModifier,
+                        light.color.g * light.intensity * intensityModifier, light.color.b * light.intensity * intensityModifier);
+                program.setUniformf(idx + pointLightsPositionOffset, light.position.x, light.position.y,
+                        light.position.z);
+                if (pointLightsIntensityOffset >= 0) program.setUniformf(idx + pointLightsIntensityOffset, light.intensity);
+                if (pointLightsSize <= 0) break;
+            }
+        }
+
+        // Spot lights
+        SpotLightsAttribute spotAttr = renderable.environment.get(SpotLightsAttribute.class, SpotLightsAttribute.Type);
+        final Array<SpotLight> spotLights = spotAttr == null ? null : spotAttr.lights;
+        if (spotLightsLoc >= 0 && spotLights != null) {
+            for (int i = 0; i < spotLights.size; i++) {
+
+                SpotLight spotLight = spotLights.get(i);
+                float intensityModifier = 100f * spotLight.intensity;
+
+                int idx = spotLightsLoc + i * spotLightsSize;
+                program.setUniformf(idx + spotLightsColorOffset, spotLight.color.r * spotLight.intensity * intensityModifier,
+                        spotLight.color.g * spotLight.intensity * intensityModifier, spotLight.color.b * spotLight.intensity * intensityModifier);
+                program.setUniformf(idx + spotLightsPositionOffset, spotLight.position);
+                program.setUniformf(idx + spotLightsDirectionOffset, spotLight.direction);
+                program.setUniformf(idx + spotLightsCutoffAngleOffset, spotLight.cutoffAngle);
+                program.setUniformf(idx + spotLightsExponentOffset, spotLight.exponent);
+                if (spotLightsIntensityOffset >= 0)
+                    program.setUniformf(idx + spotLightsIntensityOffset, spotLight.intensity);
+                if (spotLightsSize <= 0) break;
+            }
+        }
+
         if (!(renderable.environment instanceof MundusEnvironment)) return;
+
         MundusEnvironment env = (MundusEnvironment) renderable.environment;
         Color color = env.getAmbientLight().color;
         float intensity = env.getAmbientLight().intensity;
