@@ -62,7 +62,8 @@ public class Mundus implements Disposable {
     }
 
     /**
-     * Loads a Scene with a model batch already instantiated.
+     * Loads a Scene. This is the default way to load a scene. Use overloaded
+     * methods if more customization is needed.
      */
     public Scene loadScene(final String name) {
         PBRShaderConfig config = new PBRShaderConfig();
