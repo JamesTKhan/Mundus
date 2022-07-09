@@ -47,7 +47,7 @@ public class SceneConverter {
         scene.skyboxAssetId = dto.getSkyboxAssetId();
 
         // environment stuff
-        scene.environment.setFog(FogConverter.convert(dto.getFog()));
+        FogConverter.convert(scene.environment);
         BaseLight ambientLight = BaseLightConverter.convert(dto.getAmbientLight());
         if (ambientLight != null) {
             scene.environment.setAmbientLight(ambientLight);
