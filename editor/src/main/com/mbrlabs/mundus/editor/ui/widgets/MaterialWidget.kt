@@ -359,6 +359,7 @@ class MaterialWidget : VisTable() {
      * used for select box in UI
      */
     enum class CullFace(val value: Int) {
+        NONE(0),
         DEFAULT(-1),
         GL_BACK(GL20.GL_BACK),
         GL_FRONT(GL20.GL_FRONT),
@@ -367,6 +368,7 @@ class MaterialWidget : VisTable() {
         companion object {
             fun getFromValue(value: Int): CullFace {
                 when (value) {
+                    NONE.value -> return NONE
                     DEFAULT.value -> return DEFAULT
                     GL_BACK.value -> return GL_BACK
                     GL_FRONT.value -> return GL_FRONT

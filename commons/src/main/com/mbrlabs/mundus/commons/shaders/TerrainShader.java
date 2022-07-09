@@ -108,7 +108,7 @@ public class TerrainShader extends LightShader {
         context.begin();
         context.setCullFace(GL20.GL_BACK);
 
-        this.context.setDepthTest(GL20.GL_LEQUAL, 0f, 1f);
+        this.context.setDepthTest(GL20.GL_LESS, 0f, 1f);
         this.context.setDepthMask(true);
 
         program.bind();
