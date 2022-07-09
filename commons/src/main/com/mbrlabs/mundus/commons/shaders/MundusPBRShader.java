@@ -101,6 +101,6 @@ public class MundusPBRShader extends PBRShader {
         MundusEnvironment env = (MundusEnvironment) renderable.environment;
         Color color = env.getAmbientLight().color;
         float intensity = env.getAmbientLight().intensity;
-        program.setUniformf(u_ambientLight, color.r * intensity * .1f, color.g * intensity * .1f, color.b * intensity * .1f );
+        program.setUniformf(u_ambientLight, color.r * intensity * 4, color.g * intensity * 4, color.b * intensity * 4);
     }
 }
