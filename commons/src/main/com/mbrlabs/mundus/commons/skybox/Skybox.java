@@ -49,6 +49,7 @@ public class Skybox implements Disposable {
     private FileHandle positiveZ;
     private FileHandle negativeZ;
 
+    private boolean useIBL;
     private boolean rotateEnabled;
     private float rotateSpeed;
 
@@ -121,6 +122,10 @@ public class Skybox implements Disposable {
             ((SkyboxShader) shader).setRotateEnabled(rotateEnabled);
     }
 
+    public Cubemap getCubemap() {
+        return cubemap;
+    }
+
     public float getRotateSpeed() {
         return rotateSpeed;
     }
@@ -138,4 +143,11 @@ public class Skybox implements Disposable {
         cubemap.dispose();
     }
 
+    public void setUseIBL(boolean value) {
+        useIBL = value;
+    }
+
+    public boolean useWithIBL() {
+        return useIBL;
+    }
 }

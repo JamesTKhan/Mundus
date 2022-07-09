@@ -121,6 +121,13 @@ public class Scene implements Disposable {
     }
 
     private void initPBR() {
+        brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, .3f, .3f, .3f, 1));
+        environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
+        initIBL();
+    }
+
+    private void initIBL() {
         DirectionalLightEx directionalLightEx = new DirectionalLightEx();
         directionalLightEx.intensity = DirectionalLight.DEFAULT_INTENSITY;
         directionalLightEx.setColor(DirectionalLight.DEFAULT_COLOR);
@@ -132,9 +139,6 @@ public class Scene implements Disposable {
         specularCubemap = iblBuilder.buildRadianceMap(10);
         iblBuilder.dispose();
 
-        brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, .3f, .3f, .3f, 1));
-        environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
         environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
         environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
     }
@@ -343,6 +347,12 @@ public class Scene implements Disposable {
         skybox.setRotateSpeed(skyboxAsset.rotateSpeed);
         skybox.setRotateEnabled(skyboxAsset.rotateEnabled);
 
+        skybox.setUseIBL(true);
+        if (skybox.useWithIBL()) {
+            environment.set(PBRCubemapAttribute.createDiffuseEnv(skybox.getCubemap()));
+        } else {
+            initIBL();
+        }
     }
 
     @Override
