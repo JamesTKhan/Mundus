@@ -31,7 +31,7 @@ public class LightComponentConverter {
 
         if (dto.getLightType() == LightType.SPOT_LIGHT) {
             ((SpotLight) light).direction.set(dto.getDirection());
-            ((SpotLight) light).cutoff = dto.getCutoff();
+            ((SpotLight) light).setCutoff(dto.getCutoff());
         }
 
         return component;
