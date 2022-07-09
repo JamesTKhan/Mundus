@@ -18,10 +18,16 @@ package com.mbrlabs.mundus.runtime;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.utils.RenderableSorter;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
+import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider;
+import com.mbrlabs.mundus.commons.utils.LightUtils;
+import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 
 /**
  * @author Marcus Brummer
@@ -55,10 +61,35 @@ public class Mundus implements Disposable {
         return shaders;
     }
 
-    public Scene loadScene(final String name, final ModelBatch batch) {
-        final Scene scene = sceneLoader.load(name);
-        scene.batch = batch;
+    /**
+     * Loads a Scene with a model batch already instantiated.
+     */
+    public Scene loadScene(final String name) {
+        PBRShaderConfig config = new PBRShaderConfig();
+        config.numDirectionalLights = 1;
+        config.numPointLights = LightUtils.MAX_POINT_LIGHTS;
+        config.numSpotLights = LightUtils.MAX_SPOT_LIGHTS;
+        config.numBones = 60;
+        config.defaultCullFace = GL20.GL_BACK;
+        config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.vs.glsl").readString();
+        config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl").readString();
 
+        return loadScene(name, config);
+    }
+
+    /**
+     * Optionally pass in your own PBRShaderConfig.
+     */
+    public Scene loadScene(final String name, PBRShaderConfig config) {
+        return loadScene(name, config, new SceneRenderableSorter());
+    }
+
+    /**
+     * Provide your own PBRShaderConfig and RenderableSorter
+     */
+    public Scene loadScene(final String name, PBRShaderConfig config, RenderableSorter renderableSorter) {
+        final Scene scene = sceneLoader.load(name);
+        scene.batch = new ModelBatch(new MundusPBRShaderProvider(config), renderableSorter);
         return scene;
     }
 
