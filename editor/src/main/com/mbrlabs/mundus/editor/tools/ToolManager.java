@@ -78,7 +78,7 @@ public class ToolManager extends InputAdapter implements Disposable {
         inputManager.addProcessor(activeTool);
         activeTool.onActivated();
 
-        if (shouldKeepSelection) {
+        if (shouldKeepSelection && selected != null) {
             ((SelectionTool)activeTool).gameObjectSelected(selected);
         }
     }
