@@ -52,11 +52,12 @@ class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChan
         addSeparator().padBottom(10f)
 
         val label = VisLabel()
-        label.wrap = true
         label.setText("Camera Settings are global for the entire project. You can change camera values at a per scene level" +
                 " by accessing the scene.cam object and modifying it in your runtime application.")
+        label.wrap = true
+        label.width = SettingsDialog.WIDTH * 0.7f
+        add(label).expandX().prefWidth(SettingsDialog.WIDTH * 0.7f).row()
 
-        add(label).grow().row()
 
         add(VisLabel("Near Plane")).row()
         add(nearPlane).left().row()

@@ -31,6 +31,10 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
  * @version 24-11-2015
  */
 class SettingsDialog : BaseDialog("Settings") {
+    companion object {
+        const val WIDTH = 700f
+        const val HEIGHT = 400f
+    }
 
     private val settingsTree = VisTree<SettingsNode, BaseSettingsTable>()
     private val content = VisTable()
@@ -43,15 +47,13 @@ class SettingsDialog : BaseDialog("Settings") {
     private val cameraSettings = CameraSettingsTable()
 
     init {
-        val width = 700f
-        val height = 400f
         val root = VisTable()
         content.padRight(UI.PAD_SIDE)
-        add(root).width(width).height(height).row()
+        add(root).width(WIDTH).height(HEIGHT).row()
 
-        root.add(settingsTree).width(width*0.3f).padRight(UI.PAD_SIDE).grow()
+        root.add(settingsTree).width(WIDTH*0.3f).padRight(UI.PAD_SIDE).grow()
         root.addSeparator(true).padLeft(5f).padRight(5f)
-        root.add(content).width(width*0.7f).grow().row()
+        root.add(content).width(WIDTH*0.7f).grow().row()
 
         // general
         val generalSettingsNode = SettingsNode(VisLabel("General"))
