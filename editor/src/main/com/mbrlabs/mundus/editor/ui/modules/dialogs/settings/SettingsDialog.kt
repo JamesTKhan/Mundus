@@ -40,6 +40,7 @@ class SettingsDialog : BaseDialog("Settings") {
     private val generalSettings = GeneralSettingsTable()
     private val exportSettings = ExportSettingsTable()
     private val appearenceSettings = AppearanceSettingsTable()
+    private val cameraSettings = CameraSettingsTable()
 
     init {
         val width = 700f
@@ -66,6 +67,10 @@ class SettingsDialog : BaseDialog("Settings") {
         val appearenceNode = SettingsNode(VisLabel("Appearance"))
         appearenceNode.value = appearenceSettings
         settingsTree.add(appearenceNode)
+
+        val cameraNode = SettingsNode(VisLabel("Camera"))
+        cameraNode.value = cameraSettings
+        settingsTree.add(cameraNode)
 
         // listener
         settingsTree.addListener(object : ClickListener() {
