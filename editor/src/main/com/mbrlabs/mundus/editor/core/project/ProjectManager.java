@@ -446,11 +446,6 @@ public class ProjectManager implements Disposable {
             }
         }
 
-        // Set camera settings to scene
-        scene.cam.near = context.settings.getCameraSettings().nearPlane;
-        scene.cam.far = context.settings.getCameraSettings().farPlane;
-        scene.cam.fieldOfView = context.settings.getCameraSettings().fieldOfView;
-
         return scene;
     }
 

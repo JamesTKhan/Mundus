@@ -26,14 +26,9 @@ import com.badlogic.gdx.utils.JsonWriter;
 public class ProjectSettings {
 
     private final ExportSettings export = new ExportSettings();
-    private final CameraSettings cameraSettings = new CameraSettings();
 
     public ExportSettings getExport() {
         return export;
-    }
-
-    public CameraSettings getCameraSettings() {
-        return cameraSettings;
     }
 
     /**
@@ -44,12 +39,6 @@ public class ProjectSettings {
         public boolean compressScenes = false;
         public boolean allAssets = true;
         public FileHandle outputFolder;
-    }
-
-    public class CameraSettings {
-        public float nearPlane;
-        public float farPlane;
-        public float fieldOfView;
     }
 
 }

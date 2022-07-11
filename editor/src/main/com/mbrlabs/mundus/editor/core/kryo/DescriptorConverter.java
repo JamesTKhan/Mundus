@@ -156,11 +156,6 @@ public class DescriptorConverter {
         }
         descriptor.setJsonType(settings.getExport().jsonType.toString());
 
-        // camera settings
-        descriptor.setNearPlane(settings.getCameraSettings().nearPlane);
-        descriptor.setFarPlane(settings.getCameraSettings().farPlane);
-        descriptor.setFieldOfView(settings.getCameraSettings().fieldOfView);
-
         return descriptor;
     }
 
@@ -175,11 +170,6 @@ public class DescriptorConverter {
             settings.getExport().outputFolder = new FileHandle(descriptor.getExportOutputFolder());
         }
         settings.getExport().jsonType = JsonWriter.OutputType.valueOf(descriptor.getJsonType());
-
-        // camera settings
-        settings.getCameraSettings().nearPlane = descriptor.getNearPlane() > 0 ? descriptor.getNearPlane() : 0.2f;
-        settings.getCameraSettings().farPlane = descriptor.getFarPlane() > 0 ? descriptor.getFarPlane() : 10000f;
-        settings.getCameraSettings().fieldOfView = descriptor.getFieldOfView() > 0 ? descriptor.getFieldOfView() : 67f;
 
         return settings;
     }

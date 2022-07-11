@@ -40,6 +40,9 @@ public class SceneDTO implements Json.Serializable {
     private float camDirX = 0;
     private float camDirY = 0;
     private float camDirZ = 0;
+    private float camNearPlane;
+    private float camFarPlane;
+    private float camFieldOfView;
     private float waterHeight;
     private WaterResolution waterResolution;
 
@@ -109,6 +112,30 @@ public class SceneDTO implements Json.Serializable {
 
     public void setCamDirZ(float camDirZ) {
         this.camDirZ = camDirZ;
+    }
+
+    public float getCamNearPlane() {
+        return camNearPlane;
+    }
+
+    public void setCamNearPlane(float camNearPlane) {
+        this.camNearPlane = camNearPlane;
+    }
+
+    public float getCamFarPlane() {
+        return camFarPlane;
+    }
+
+    public void setCamFarPlane(float camFarPlane) {
+        this.camFarPlane = camFarPlane;
+    }
+
+    public float getCamFieldOfView() {
+        return camFieldOfView;
+    }
+
+    public void setCamFieldOfView(float camFieldOfView) {
+        this.camFieldOfView = camFieldOfView;
     }
 
     public FogDTO getFog() {

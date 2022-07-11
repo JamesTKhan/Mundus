@@ -35,14 +35,6 @@ public class ProjectSettingsDescriptor {
     @Tag(3)
     private String jsonType;
 
-    // Camera
-    @Tag(4)
-    private float nearPlane;
-    @Tag(5)
-    private float farPlane;
-    @Tag(6)
-    private float fieldOfView;
-
     public String getJsonType() {
         return jsonType;
     }
@@ -73,29 +65,5 @@ public class ProjectSettingsDescriptor {
 
     public void setExportOutputFolder(String exportOutputFolder) {
         this.exportOutputFolder = exportOutputFolder;
-    }
-
-    public float getNearPlane() {
-        return nearPlane;
-    }
-
-    public void setNearPlane(float nearPlane) {
-        this.nearPlane = nearPlane;
-    }
-
-    public float getFarPlane() {
-        return farPlane;
-    }
-
-    public void setFarPlane(float farPlane) {
-        this.farPlane = farPlane;
-    }
-
-    public float getFieldOfView() {
-        return fieldOfView;
-    }
-
-    public void setFieldOfView(float fieldOfView) {
-        this.fieldOfView = fieldOfView;
     }
 }

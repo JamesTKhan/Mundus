@@ -22,28 +22,29 @@ import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.core.scene.SceneManager
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
+import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 
 /**
  * @author James Pooley
  * @version July 10, 2022
  */
-class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChangedListener{
+class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChangedListener, SceneChangedEvent.SceneChangedListener {
 
-    private var initialized = false
     private val projectManager: ProjectManager = Mundus.inject()
-    private val kryoManager: KryoManager = Mundus.inject()
 
     private val nearPlane = VisTextField("0")
     private val farPlane = VisTextField("0")
     private val fov = VisTextField("0")
 
     init {
+        Mundus.registerEventListener(this)
+
         top().left()
         defaults().left().pad(4f)
         padRight(5f).padLeft(6f)
@@ -52,12 +53,11 @@ class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChan
         addSeparator().padBottom(10f)
 
         val label = VisLabel()
-        label.setText("Camera Settings are global for the entire project. You can change camera values at a per scene level" +
-                " by accessing the scene.cam object and modifying it in your runtime application.")
+        label.setText("Camera Settings are per scene, not global. You can change camera values at runtime " +
+                "by accessing the scene.cam instance and modifying it in your runtime application as well.")
         label.wrap = true
         label.width = SettingsDialog.WIDTH * 0.7f
         add(label).expandX().prefWidth(SettingsDialog.WIDTH * 0.7f).row()
-
 
         add(VisLabel("Near Plane")).row()
         add(nearPlane).left().row()
@@ -71,21 +71,17 @@ class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChan
         registerListeners()
     }
 
-    override fun act(delta: Float) {
-        if (!initialized) {
-            updateValues()
-            initialized = true
-        }
-        super.act(delta)
-    }
-
     private fun updateValues() {
-        nearPlane.text = projectManager.current().settings.cameraSettings.nearPlane.toString()
-        farPlane.text = projectManager.current().settings.cameraSettings.farPlane.toString()
-        fov.text = projectManager.current().settings.cameraSettings.fieldOfView.toString()
+        nearPlane.text = projectManager.current().currScene.cam.near.toString()
+        farPlane.text = projectManager.current().currScene.cam.far.toString()
+        fov.text = projectManager.current().currScene.cam.fieldOfView.toString()
     }
 
     override fun onProjectChanged(event: ProjectChangedEvent) {
+        updateValues()
+    }
+
+    override fun onSceneChanged(event: SceneChangedEvent) {
         updateValues()
     }
 
@@ -134,12 +130,7 @@ class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChan
     }
 
     override fun onSave() {
-        val cameraSettings = projectManager.current().settings?.cameraSettings ?: return
-        cameraSettings.nearPlane =  nearPlane.text.toFloat()
-        cameraSettings.farPlane =  farPlane.text.toFloat()
-        cameraSettings.fieldOfView = fov.text.toFloat()
-
-        kryoManager.saveProjectContext(projectManager.current())
+        SceneManager.saveScene(projectManager.current(), projectManager.current().currScene)
         UI.toaster.success("Settings saved")
     }
 
