@@ -75,7 +75,7 @@ public class MaterialAsset extends Asset {
     private TextureAsset metallicRoughnessTexture;
     private TextureAsset occlusionTexture;
 
-    private float roughness = 0f;
+    private float roughness = 1f;
     private float metallic = 0f;
     private float opacity = 1f;
     private float alphaTest = 0f;
