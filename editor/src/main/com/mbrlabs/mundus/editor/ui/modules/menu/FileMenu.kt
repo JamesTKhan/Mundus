@@ -106,6 +106,7 @@ class FileMenu : Menu("File") {
         saveProject.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 projectManager.saveCurrentProject()
+                UI.toaster.success("Project saved")
             }
         })
 
