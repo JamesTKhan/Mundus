@@ -73,6 +73,12 @@ public class SceneConverter {
             scene.sceneGraph.addGameObject(GameObjectConverter.convert(descriptor, scene.sceneGraph, shaders, assetManager));
         }
 
+        // Set cam settings
+        scene.cam.near = dto.getCamNearPlane() > 0 ? dto.getCamNearPlane() : 0.2f;
+        scene.cam.far = dto.getCamFarPlane() > 0 ? dto.getCamFarPlane() : 10000f;
+        scene.cam.fieldOfView = dto.getCamFieldOfView() > 0 ? dto.getCamFieldOfView() : 67f;
+        scene.cam.update();
+
         return scene;
     }
 }
