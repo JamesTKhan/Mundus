@@ -46,6 +46,7 @@ import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
 import com.mbrlabs.mundus.editor.ui.UI;
 import com.mbrlabs.mundus.editor.utils.Fa;
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs;
+import org.lwjgl.opengl.GL20;
 
 /**
  * Scales valid game objects.
@@ -73,14 +74,14 @@ public class ScaleTool extends TransformTool {
     private final Vector3 tempScale = new Vector3();
     private final Vector3 tempScaleDst = new Vector3();
 
-    private ShapeRenderer shapeRenderer;
+    private final ShapeRenderer shapeRenderer;
 
     private TransformState state = TransformState.IDLE;
     private ScaleCommand command;
 
     public ScaleTool(ProjectManager projectManager, GameObjectPicker goPicker, ToolHandlePicker handlePicker,
-            ShapeRenderer shapeRenderer, ModelBatch batch, CommandHistory history) {
-        super(projectManager, goPicker, handlePicker, batch, history);
+            ShapeRenderer shapeRenderer, CommandHistory history) {
+        super(projectManager, goPicker, handlePicker, history);
 
         this.shapeRenderer = shapeRenderer;
 
@@ -93,7 +94,7 @@ public class ScaleTool extends TransformTool {
                 Vector3.Zero, new Vector3(0, 0, 15));
         Model xyzPlaneHandleModel = modelBuilder.createBox(3, 3, 3,
                 new Material(PBRColorAttribute.createBaseColorFactor(COLOR_XYZ)),
-                VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+                VertexAttributes.Usage.Position);
 
         xHandle = new ScaleHandle(X_HANDLE_ID, xPlaneHandleModel);
         yHandle = new ScaleHandle(Y_HANDLE_ID, yPlaneHandleModel);
@@ -107,15 +108,15 @@ public class ScaleTool extends TransformTool {
     public void render() {
         super.render();
 
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        GL20.glClear(GL20.GL_DEPTH_BUFFER_BIT);
         ProjectContext projectContext = getProjectManager().current();
         if (projectContext.currScene.currentSelection != null) {
-            getBatch().begin(projectContext.currScene.cam);
-            xHandle.render(getBatch());
-            yHandle.render(getBatch());
-            zHandle.render(getBatch());
-            xyzHandle.render(getBatch());
-            getBatch().end();
+            getProjectManager().getModelBatch().begin(projectContext.currScene.cam);
+            xHandle.render(getProjectManager().getModelBatch());
+            yHandle.render(getProjectManager().getModelBatch());
+            zHandle.render(getProjectManager().getModelBatch());
+            xyzHandle.render(getProjectManager().getModelBatch());
+            getProjectManager().getModelBatch().end();
 
             GameObject go = projectContext.currScene.currentSelection;
             go.getTransform().getTranslation(temp0);
@@ -319,11 +320,7 @@ public class ScaleTool extends TransformTool {
     }
 
     private boolean isScalable(GameObject go) {
-        if(go != null && go.findComponentByType(Component.Type.TERRAIN) != null) {
-            return false;
-        }
-
-        return true;
+        return go == null || go.findComponentByType(Component.Type.TERRAIN) == null;
     }
 
     @Override
@@ -389,8 +386,8 @@ public class ScaleTool extends TransformTool {
 
     private class ScaleHandle extends ToolHandle {
 
-        private Model model;
-        private ModelInstance modelInstance;
+        private final Model model;
+        private final ModelInstance modelInstance;
 
         public ScaleHandle(int id, Model model) {
             super(id);
@@ -412,7 +409,7 @@ public class ScaleTool extends TransformTool {
 
         @Override
         public void renderPick(ModelBatch modelBatch) {
-            getBatch().render(modelInstance, Shaders.INSTANCE.getPickerShader());
+            modelBatch.render(modelInstance, Shaders.INSTANCE.getPickerShader());
         }
 
         @Override

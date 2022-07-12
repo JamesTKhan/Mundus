@@ -104,7 +104,7 @@ object Mundus {
         commandHistory = CommandHistory(CommandHistory.DEFAULT_LIMIT)
         modelImporter = ModelImporter(registry)
         projectManager = ProjectManager(kryoManager, registry, modelBatch)
-        toolManager = ToolManager(input, projectManager, goPicker, handlePicker, modelBatch, shapeRenderer,
+        toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
                 commandHistory)
         gizmoManager = GizmoManager()
         shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager)
@@ -114,7 +114,6 @@ object Mundus {
         // add to DI container
         context.register {
             bindSingleton(shapeRenderer)
-            bindSingleton(modelBatch)
             bindSingleton(input)
             bindSingleton(goPicker)
             bindSingleton(handlePicker)

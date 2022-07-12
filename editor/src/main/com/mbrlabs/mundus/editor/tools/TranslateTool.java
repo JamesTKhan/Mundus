@@ -49,32 +49,31 @@ import org.lwjgl.opengl.GL11;
  */
 public class TranslateTool extends TransformTool {
 
-    private final float ARROW_THIKNESS = 0.4f;
-    private final float ARROW_CAP_SIZE = 0.15f;
-    private final int ARROW_DIVISIONS = 12;
+    private static final float ARROW_THIKNESS = 0.4f;
+    private static final float ARROW_CAP_SIZE = 0.15f;
+    private static final int ARROW_DIVISIONS = 12;
 
     public static final String NAME = "Translate Tool";
 
     private TransformState state = TransformState.IDLE;
     private boolean initTranslate = true;
 
-    private TranslateHandle xHandle;
-    private TranslateHandle yHandle;
-    private TranslateHandle zHandle;
-    private TranslateHandle xzPlaneHandle;
-    private TranslateHandle[] handles;
+    private final TranslateHandle xHandle;
+    private final TranslateHandle yHandle;
+    private final TranslateHandle zHandle;
+    private final TranslateHandle xzPlaneHandle;
+    private final TranslateHandle[] handles;
 
-    private Vector3 lastPos = new Vector3();
+    private final Vector3 lastPos = new Vector3();
     private boolean globalSpace = true;
 
-    private Vector3 temp0 = new Vector3();
+    private final Vector3 temp0 = new Vector3();
 
     private TranslateCommand command;
 
-    public TranslateTool(ProjectManager projectManager, GameObjectPicker goPicker, ToolHandlePicker handlePicker,
-            ModelBatch batch, CommandHistory history) {
+    public TranslateTool(ProjectManager projectManager, GameObjectPicker goPicker, ToolHandlePicker handlePicker, CommandHistory history) {
 
-        super(projectManager, goPicker, handlePicker, batch, history);
+        super(projectManager, goPicker, handlePicker, history);
 
         ModelBuilder modelBuilder = new ModelBuilder();
 
@@ -137,14 +136,14 @@ public class TranslateTool extends TransformTool {
     public void render() {
         super.render();
         if (getProjectManager().current().currScene.currentSelection != null) {
-            getBatch().begin(getProjectManager().current().currScene.cam);
+            getProjectManager().getModelBatch().begin(getProjectManager().current().currScene.cam);
             GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-            xHandle.render(getBatch());
-            yHandle.render(getBatch());
-            zHandle.render(getBatch());
-            xzPlaneHandle.render(getBatch());
+            xHandle.render(getProjectManager().getModelBatch());
+            yHandle.render(getProjectManager().getModelBatch());
+            zHandle.render(getProjectManager().getModelBatch());
+            xzPlaneHandle.render(getProjectManager().getModelBatch());
 
-            getBatch().end();
+            getProjectManager().getModelBatch().end();
         }
     }
 
@@ -311,8 +310,8 @@ public class TranslateTool extends TransformTool {
      */
     private class TranslateHandle extends ToolHandle {
 
-        private Model model;
-        private ModelInstance modelInstance;
+        private final Model model;
+        private final ModelInstance modelInstance;
 
         public TranslateHandle(int id, Model model) {
             super(id);
@@ -333,7 +332,7 @@ public class TranslateTool extends TransformTool {
 
         @Override
         public void renderPick(ModelBatch modelBatch) {
-            getBatch().render(modelInstance, Shaders.INSTANCE.getPickerShader());
+            getProjectManager().getModelBatch().render(modelInstance, Shaders.INSTANCE.getPickerShader());
         }
 
         @Override

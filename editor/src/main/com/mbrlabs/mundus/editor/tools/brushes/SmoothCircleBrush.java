@@ -29,8 +29,8 @@ import com.mbrlabs.mundus.editor.utils.Fa;
  */
 public class SmoothCircleBrush extends TerrainBrush {
 
-    public SmoothCircleBrush(ProjectManager projectManager, ModelBatch batch, CommandHistory history) {
-        super(projectManager, batch, history, Gdx.files.internal("brushes/circle_smooth.png"));
+    public SmoothCircleBrush(ProjectManager projectManager, CommandHistory history) {
+        super(projectManager, history, Gdx.files.internal("brushes/circle_smooth.png"));
     }
 
     @Override

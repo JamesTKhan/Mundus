@@ -17,7 +17,6 @@
 package com.mbrlabs.mundus.editor.tools;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.math.Vector3;
@@ -33,7 +32,6 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
-import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.ui.UI;
 import com.mbrlabs.mundus.editor.utils.TerrainUtils;
 
@@ -54,8 +52,8 @@ public class ModelPlacementTool extends Tool {
     private ModelAsset model;
     private ModelInstance modelInstance;
 
-    public ModelPlacementTool(ProjectManager projectManager, ModelBatch batch, CommandHistory history) {
-        super(projectManager, batch, history);
+    public ModelPlacementTool(ProjectManager projectManager, CommandHistory history) {
+        super(projectManager, history);
         this.model = null;
         this.modelInstance = null;
     }
@@ -92,10 +90,10 @@ public class ModelPlacementTool extends Tool {
     @Override
     public void render() {
         if (modelInstance != null) {
-            getBatch().begin(getProjectManager().current().currScene.cam);
-            getBatch().render(modelInstance, getProjectManager().current().currScene.environment);
-            getBatch().render(modelInstance, getProjectManager().current().currScene.environment, getShader());
-            getBatch().end();
+            getProjectManager().getModelBatch().begin(getProjectManager().current().currScene.cam);
+            getProjectManager().getModelBatch().render(modelInstance, getProjectManager().current().currScene.environment);
+            getProjectManager().getModelBatch().render(modelInstance, getProjectManager().current().currScene.environment, getShader());
+            getProjectManager().getModelBatch().end();
         }
     }
 
