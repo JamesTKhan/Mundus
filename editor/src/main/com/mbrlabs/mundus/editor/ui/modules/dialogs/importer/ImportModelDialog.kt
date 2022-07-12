@@ -26,9 +26,7 @@ import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
-import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -42,7 +40,6 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.ModelAsset
-import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight
 import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader
@@ -66,16 +63,13 @@ import com.mbrlabs.mundus.editor.utils.isGLTF
 import com.mbrlabs.mundus.editor.utils.isWavefont
 import net.mgsx.gltf.loaders.glb.GLBLoader
 import net.mgsx.gltf.loaders.gltf.GLTFLoader
-import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute
-import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider
 import net.mgsx.gltf.scene3d.utils.IBLBuilder
 import java.io.IOException
-import java.util.HashMap
 
 /**
  * @author Marcus Brummer
@@ -236,71 +230,7 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             for (mat in modelAsset.model.materials) {
                 val materialAsset = assetManager.createMaterialAsset(modelAsset.id.substring(0, 4) + "_" + mat.id)
 
-                // Import supported attributes from imported model materials into Mundus material assets
-
-                if (mat.has(BlendingAttribute.Type)) {
-                    val attr = mat.get(BlendingAttribute.Type) as BlendingAttribute
-                    materialAsset.opacity = attr.opacity
-                }
-
-                if (mat.has(IntAttribute.CullFace)) {
-                    val attr = mat.get(IntAttribute.CullFace) as IntAttribute
-                    materialAsset.cullFace = attr.value
-                }
-
-                // Color Attributes
-                if (mat.has(PBRColorAttribute.BaseColorFactor)) {
-                    val attr = mat.get(PBRColorAttribute.BaseColorFactor) as PBRColorAttribute
-                    materialAsset.diffuseColor.set(attr.color)
-                }
-
-                if (mat.has(ColorAttribute.Emissive)) {
-                    val attr = mat.get(ColorAttribute.Emissive) as ColorAttribute
-                    materialAsset.emissiveColor.set(attr.color)
-                }
-
-                // Texture Attributes
-                if (mat.has(PBRTextureAttribute.BaseColorTexture)) {
-                    materialAsset.diffuseTexture = getTextureAssetForMaterial(mat.id, PBRTextureAttribute.BaseColorTexture)
-                }
-
-                if (mat.has(PBRTextureAttribute.NormalTexture)) {
-                    materialAsset.normalMap = getTextureAssetForMaterial(mat.id, PBRTextureAttribute.NormalTexture)
-                }
-
-                if (mat.has(PBRTextureAttribute.EmissiveTexture)) {
-                    materialAsset.emissiveTexture = getTextureAssetForMaterial(mat.id, PBRTextureAttribute.EmissiveTexture)
-                }
-
-                if (mat.has(PBRTextureAttribute.MetallicRoughnessTexture)) {
-                    materialAsset.metallicRoughnessTexture = getTextureAssetForMaterial(mat.id, PBRTextureAttribute.MetallicRoughnessTexture)
-                }
-
-                if (mat.has(PBRTextureAttribute.OcclusionTexture)) {
-                    materialAsset.occlusionTexture = getTextureAssetForMaterial(mat.id, PBRTextureAttribute.OcclusionTexture)
-                }
-
-                // Float attributes
-                if (mat.has(PBRFloatAttribute.Metallic)) {
-                    val attr = mat.get(PBRFloatAttribute.Metallic) as PBRFloatAttribute
-                    materialAsset.metallic = attr.value
-                }
-
-                if (mat.has(PBRFloatAttribute.Roughness)) {
-                    val attr = mat.get(PBRFloatAttribute.Roughness) as PBRFloatAttribute
-                    materialAsset.roughness = attr.value
-                }
-
-                if (mat.has(PBRFloatAttribute.AlphaTest)) {
-                    val attr = mat.get(PBRFloatAttribute.AlphaTest) as PBRFloatAttribute
-                    materialAsset.alphaTest = attr.value
-                }
-
-                if (mat.has(PBRFloatAttribute.NormalScale)) {
-                    val attr = mat.get(PBRFloatAttribute.NormalScale) as PBRFloatAttribute
-                    materialAsset.normalScale = attr.value
-                }
-
+                modelImporter.populateMaterialAsset(importedModel!!, projectManager.current().assetManager, mat, materialAsset)
                 projectManager.current().assetManager.saveMaterialAsset(materialAsset)
 
                 modelAsset.meta.model.defaultMaterials.put(mat.id, materialAsset.id)
@@ -314,25 +244,6 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             modelAsset.applyDependencies()
 
             return modelAsset
-        }
-
-        private fun getTextureAssetForMaterial(materialName: String, textureAttribute: Long): TextureAsset? {
-            if (importedModel == null) return null
-
-            // If the parsed GLTF materials do not contain a material with this name, cannot continue
-            if (!importedModel!!.materialImageMap.contains(materialName)) return null
-
-            // Map that contains Attribute, Int. The Int is the images array index
-            val imageIndexMap: HashMap<Long, Int>? = importedModel!!.materialImageMap[materialName]
-
-            // If the map contains an image for the given texture attribute...
-            if (imageIndexMap!!.contains(textureAttribute)) {
-                // Retrieve the image index for this texture attribute and create a texture asset for it.
-                val index = imageIndexMap[textureAttribute]!!
-                return projectManager.current().assetManager.getOrCreateTextureAsset(importedModel!!.images.get(index))
-            }
-
-            return null
         }
 
         private fun loadAndShowPreview(model: FileHandle) {
