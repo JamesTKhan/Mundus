@@ -25,6 +25,7 @@ import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 
 /**
  * @author Marcus Brummer
@@ -44,24 +45,27 @@ class IdentifierWidget : VisTable() {
     }
 
     private fun setupUI() {
-        add<VisCheckBox>(active).padBottom(4f).left().top()
-        add<VisTextField>(name).padBottom(4f).left().top().expandX().fillX().row()
+        add(active).padBottom(4f).left().top()
+        add(name).padBottom(4f).left().top().expandX().fillX().row()
         add(VisLabel("Tag: ")).left().top()
-        add<VisTextField>(tag).top().left().expandX().fillX().row()
+        add(tag).top().left().expandX().fillX().row()
     }
 
     private fun setupListeners() {
-        val projectContext = projectManager.current()
 
         active.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                val projectContext = projectManager.current()
                 if (projectContext.currScene.currentSelection == null) return
+                if (projectContext.currScene.currentSelection.active == active.isChecked) return
                 projectContext.currScene.currentSelection.active = active.isChecked
+                Mundus.postEvent(SceneGraphChangedEvent())
             }
         })
 
         name.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                val projectContext = projectManager.current()
                 if (projectContext.currScene.currentSelection == null) return
                 projectContext.currScene.currentSelection.name = name.text
             }
