@@ -116,6 +116,7 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
         private var previewInstance: ModelInstance? = null
 
         private var importedModel: FileHandleWithDependencies? = null
+        private var maxBones = 0
 
         private var modelBatch: ModelBatch? = null
         private val cam: PerspectiveCamera = PerspectiveCamera()
@@ -255,6 +256,8 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
                 modelAsset.defaultMaterials.put(mat.id, materialAsset)
             }
 
+            modelAsset.meta.model.numBones = maxBones
+
             // save meta file
             val saver = MetaSaver()
             saver.save(modelAsset.meta)
@@ -279,7 +282,6 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
 
             // load and show preview
             if (importedModel != null) {
-                val maxBones: Int
                 try {
                     if (isG3DB(importedModel!!.file)) {
                         val modelData = MG3dModelLoader(UBJsonReader()).loadModelData(importedModel!!.file)
@@ -298,7 +300,7 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
                     }
 
                     previewInstance = ModelInstance(previewModel!!)
-                    showPreview(maxBones)
+                    showPreview()
                 } catch (e: GdxRuntimeException) {
                     Dialogs.showErrorDialog(stage, e.message)
                 }
@@ -306,7 +308,7 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             }
         }
 
-        private fun showPreview(maxBones: Int) {
+        private fun showPreview() {
             previewInstance = ModelInstance(previewModel!!)
 
             val config = PBRShaderConfig()

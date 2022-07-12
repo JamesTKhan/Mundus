@@ -533,6 +533,28 @@ public class ProjectManager implements Disposable {
                 + " - " + Main.TITLE;
     }
 
+    public ModelBatch getModelBatch() {
+        return modelBatch;
+    }
+
+    /**
+     * Disposes current model batch, assigns the new batch and updates the batch
+     * on the current scene.
+     *
+     * @param modelBatch new ModelBatch instance to use
+     */
+    public void setModelBatch(ModelBatch modelBatch) {
+        if (this.modelBatch != null) {
+            this.modelBatch.dispose();
+        }
+
+        this.modelBatch = modelBatch;
+
+        if (currentProject != null && currentProject.currScene != null) {
+            currentProject.currScene.batch = this.modelBatch;
+        }
+    }
+
     @Override
     public void dispose() {
         currentProject.dispose();

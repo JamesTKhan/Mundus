@@ -55,9 +55,9 @@ class MetaSaver {
     private fun addModel(meta: Meta, json: Json) {
         val model = meta.model ?: return
         json.writeObjectStart(Meta.JSON_MODEL)
+        json.writeValue(MetaModel.JSON_NUM_BONES, meta.model.numBones)
 
         // default materials
-
         if(model.defaultMaterials != null) {
             json.writeObjectStart(MetaModel.JSON_DEFAULT_MATERIALS)
             for (mat in model.defaultMaterials) {

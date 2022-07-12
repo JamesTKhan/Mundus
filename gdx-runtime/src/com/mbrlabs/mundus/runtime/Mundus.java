@@ -70,7 +70,7 @@ public class Mundus implements Disposable {
         config.numDirectionalLights = 1;
         config.numPointLights = LightUtils.MAX_POINT_LIGHTS;
         config.numSpotLights = LightUtils.MAX_SPOT_LIGHTS;
-        config.numBones = 60;
+        config.numBones = assetManager.maxNumBones;
         config.defaultCullFace = GL20.GL_BACK;
         config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.vs.glsl").readString();
         config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl").readString();
