@@ -50,6 +50,8 @@ import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.editor.ui.widgets.FileChooserField
@@ -156,7 +158,7 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
         }
 
         private fun setupUI() {
-            val root = Table()
+            val root = VisTable()
             // root.debugAll();
             root.padTop(6f).padRight(6f).padBottom(22f)
             add(root)
@@ -165,15 +167,22 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             renderWidget = RenderWidget(cam)
             renderWidget!!.setRenderer { camera ->
                 if (previewInstance != null) {
-                    Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT)
-                    previewInstance!!.transform.rotate(0f, 1f, 0f, -1f)
-                    modelBatch?.begin(camera)
-                    modelBatch?.render(previewInstance!!, env)
-                    modelBatch?.end()
+                    try {
+                        Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT)
+                        previewInstance!!.transform.rotate(0f, 1f, 0f, -1f)
+                        modelBatch?.begin(camera)
+                        modelBatch?.render(previewInstance!!, env)
+                        modelBatch?.end()
+                    } catch (ex: GdxRuntimeException) {
+                        Dialogs.showErrorDialog(stage, ex.message)
+                        Mundus.postEvent(LogEvent(LogType.ERROR, ex.toString()))
+                        previewInstance = null
+                    }
                 }
             }
 
             root.add(inputTable).width(300f).height(300f).padRight(10f)
+            root.addSeparator(true)
             root.add<RenderWidget>(renderWidget).width(300f).height(300f).expand().fill()
 
             inputTable.left().top()
@@ -270,19 +279,26 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
 
             // load and show preview
             if (importedModel != null) {
+                val maxBones: Int
                 try {
                     if (isG3DB(importedModel!!.file)) {
-                        previewModel = MG3dModelLoader(UBJsonReader()).loadModel(importedModel!!.file)
+                        val modelData = MG3dModelLoader(UBJsonReader()).loadModelData(importedModel!!.file)
+                        previewModel = Model(modelData)
+                        maxBones = MG3dModelLoader(UBJsonReader()).getMaxBones(importedModel!!.file)
                     } else if (isGLTF(importedModel!!.file)) {
-                        previewModel = GLTFLoader().load(importedModel!!.file).scene.model
+                        val sceneAsset = GLTFLoader().load(importedModel!!.file)
+                        previewModel = sceneAsset.scene.model
+                        maxBones = sceneAsset.maxBones
                     } else if (isGLB(importedModel!!.file)) {
+                        val sceneAsset = GLTFLoader().load(importedModel!!.file)
                         previewModel = GLBLoader().load(importedModel!!.file).scene.model
+                        maxBones = sceneAsset.maxBones
                     } else {
                         throw GdxRuntimeException("Unsupported 3D format")
                     }
 
                     previewInstance = ModelInstance(previewModel!!)
-                    showPreview()
+                    showPreview(maxBones)
                 } catch (e: GdxRuntimeException) {
                     Dialogs.showErrorDialog(stage, e.message)
                 }
@@ -290,12 +306,12 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             }
         }
 
-        private fun showPreview() {
+        private fun showPreview(maxBones: Int) {
             previewInstance = ModelInstance(previewModel!!)
 
             val config = PBRShaderConfig()
             config.numDirectionalLights = 1
-            config.numBones = 60
+            config.numBones = maxBones
             config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.vs.glsl").readString()
             config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl").readString()
 
