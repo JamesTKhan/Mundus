@@ -144,7 +144,7 @@ void main(void) {
     // =================================================================
 
     // fog
-    if (u_fogEquation.z > 0) {
+    if (u_fogEquation.z > 0.0) {
         vec3 surfaceToCamera = u_camPos.xyz - v_worldPos;
         float eyeDistance = length(surfaceToCamera);
 
