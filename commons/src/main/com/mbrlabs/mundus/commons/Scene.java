@@ -152,8 +152,8 @@ public class Scene implements Disposable {
 
         renderSkybox();
         renderShadowMap(delta);
-        renderObjects(delta);
         renderWater(delta);
+        renderObjects(delta);
     }
 
     private void renderObjects(float delta) {
