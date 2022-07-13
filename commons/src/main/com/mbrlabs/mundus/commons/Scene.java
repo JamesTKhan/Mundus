@@ -159,7 +159,7 @@ public class Scene implements Disposable {
         }
 
         DirectionalLight light = LightUtils.getDirectionalLight(environment);
-        if (light == null) return;
+        if (light == null || !light.castsShadows) return;
 
         shadowMapper.setCenter(cam.position);
         shadowMapper.begin(light.direction);

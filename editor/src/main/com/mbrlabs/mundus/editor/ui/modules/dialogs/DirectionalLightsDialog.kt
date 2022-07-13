@@ -5,7 +5,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.kotcrab.vis.ui.widget.Tooltip
 import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
@@ -203,6 +202,8 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
                 light?.intensity = DirectionalLight.DEFAULT_INTENSITY
                 light?.direction?.set(DirectionalLight.DEFAULT_DIRECTION)
 
+                light?.castsShadows = false
+                projectManager.current().currScene.shadowMapper.shadowResolution = ShadowResolution.DEFAULT_SHADOW_RESOLUTION
                 resetValues()
             }
         })
