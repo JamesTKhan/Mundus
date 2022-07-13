@@ -281,7 +281,7 @@ public class Scene implements Disposable {
         if (light == null || shadowResolution == null) return;
 
         if (shadowMapper == null) {
-            shadowMapper = new ShadowMapper(shadowResolution, 512, 512, cam.near, cam.far);
+            shadowMapper = new ShadowMapper(shadowResolution, 512, 512, cam.near, 800);
         } else {
             shadowMapper.setShadowResolution(shadowResolution);
         }

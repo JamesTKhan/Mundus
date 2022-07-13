@@ -62,10 +62,10 @@ public class ShadowMapper implements ShadowMap {
         this.viewportWidth = viewportWidth;
         this.viewportHeight = viewportHeight;
         this.near = near;
-        this.far = far * .2f;
+        this.far = far;
 
-        fbo = new NestableFrameBuffer(Pixmap.Format.RGB888, textureWidth, textureHeight, true);
-        cam = new OrthographicCamera(viewportWidth, viewportHeight);
+        fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
+        cam = new OrthographicCamera(this.viewportWidth, this.viewportHeight);
         cam.near = near;
         cam.far = this.far;
 
@@ -119,7 +119,7 @@ public class ShadowMapper implements ShadowMap {
         this.textureWidth = (int) res.x;
         this.textureHeight = (int) res.y;
         fbo.dispose();
-        fbo = new NestableFrameBuffer(Pixmap.Format.RGB888, textureWidth, textureHeight, true);
+        fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
     }
 
     @Override
