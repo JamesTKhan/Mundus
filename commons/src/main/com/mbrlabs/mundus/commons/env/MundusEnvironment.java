@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons.env;
 
 import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.env.lights.BaseLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
@@ -32,6 +33,9 @@ import com.mbrlabs.mundus.commons.env.lights.SunLightsAttribute;
  * @version 04-01-2016
  */
 public class MundusEnvironment extends Environment {
+
+    private float clippingHeight = 0;
+    private Vector3 clippingPlane = new Vector3();
 
     private BaseLight ambientLight;
 
@@ -108,4 +112,19 @@ public class MundusEnvironment extends Environment {
         this.ambientLight = ambientLight;
     }
 
+    public float getClippingHeight() {
+        return clippingHeight;
+    }
+
+    public void setClippingHeight(float clippingHeight) {
+        this.clippingHeight = clippingHeight;
+    }
+
+    public Vector3 getClippingPlane() {
+        return clippingPlane;
+    }
+
+    public void setClippingPlane(Vector3 clippingPlane) {
+        this.clippingPlane = clippingPlane;
+    }
 }

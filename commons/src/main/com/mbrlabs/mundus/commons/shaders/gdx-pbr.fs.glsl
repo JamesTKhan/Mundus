@@ -232,6 +232,7 @@ uniform vec4 u_cameraPosition;
 uniform vec2 u_MetallicRoughnessValues;
 
 varying vec3 v_position;
+varying float v_clipDistance;
 
 // Encapsulate the various inputs used by the various functions in the shading equation
 // We store values in structs to simplify the integration of alternative implementations
@@ -369,6 +370,9 @@ float microfacetDistribution(PBRSurfaceInfo pbrSurface, PBRLightInfo pbrLight)
 #ifdef unlitFlag
 
 void main() {
+    if ( v_clipDistance < 0.0 )
+        discard;
+
 #ifdef baseColorFactorFlag
 	vec4 baseColorFactor = u_BaseColorFactor;
 #else
@@ -485,6 +489,8 @@ vec3 getSpotLightContribution(PBRSurfaceInfo pbrSurface, SpotLight light)
 #endif
 
 void main() {
+    if ( v_clipDistance < 0.0 )
+        discard;
 	
     // Metallic and Roughness material properties are packed together
     // In glTF, these factors can be specified by fixed scalar values

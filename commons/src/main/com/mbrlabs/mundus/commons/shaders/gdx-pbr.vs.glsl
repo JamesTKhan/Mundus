@@ -228,6 +228,10 @@ uniform mat4 u_shadowMapProjViewTrans;
 varying vec3 v_shadowMapUv;
 #endif //shadowMapFlag
 
+// clipping plane
+varying float v_clipDistance;
+uniform vec4 u_clipPlane;
+
 void main() {
 	
 	#ifdef textureFlag
@@ -312,7 +316,8 @@ void main() {
 	#else
 		vec4 pos = u_worldTrans * vec4(morph_pos, 1.0);
 	#endif
-	
+
+	v_clipDistance = dot(pos, u_clipPlane);
 	v_position = vec3(pos.xyz) / pos.w;
 	gl_Position = u_projViewTrans * pos;
 	

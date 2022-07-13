@@ -101,7 +101,11 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
     @Override
     public void render(float delta) {
         modelInstance.transform.set(gameObject.getTransform());
-        gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment);
+        if (shader != null) {
+            gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
+        } else {
+            gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment);
+        }
     }
 
     @Override
@@ -116,10 +120,15 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
 
     @Override
     public void render(float delta, Vector3 clippingPlane, float clipHeight) {
-        if (shader instanceof ClippableShader) {
+        if (shader != null && shader instanceof ClippableShader) {
             ((ClippableShader) shader).setClippingPlane(clippingPlane);
             ((ClippableShader) shader).setClippingHeight(clipHeight);
+        } else {
+            // For use with PBR shader
+            gameObject.sceneGraph.scene.environment.setClippingHeight(clipHeight);
+            gameObject.sceneGraph.scene.environment.getClippingPlane().set(clippingPlane);
         }
+
         render(delta);
     }
 

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
@@ -20,6 +21,8 @@ import net.mgsx.gltf.scene3d.shaders.PBRShader;
  * @version July 01, 2022
  */
 public class MundusPBRShader extends PBRShader {
+
+    private final int u_clipPlane = register("u_clipPlane");
 
     private int u_ambientLight;
     private int u_dirLights0color;
@@ -99,6 +102,11 @@ public class MundusPBRShader extends PBRShader {
         if (!(renderable.environment instanceof MundusEnvironment)) return;
 
         MundusEnvironment env = (MundusEnvironment) renderable.environment;
+
+        // Set clipping plane
+        Vector3 clippingPlane = env.getClippingPlane();
+        set(u_clipPlane, clippingPlane.x, clippingPlane.y, clippingPlane.z, env.getClippingHeight());
+
         Color color = env.getAmbientLight().color;
         float intensity = env.getAmbientLight().intensity;
         program.setUniformf(u_ambientLight, color.r * intensity * 4, color.g * intensity * 4, color.b * intensity * 4);
