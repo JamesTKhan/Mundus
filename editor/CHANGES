@@ -8,6 +8,7 @@
 - Added new Gizmo feature for displaying decal Icons over objects like Light sources.
 - Added normal mapping for terrains and models
 - Added new profiling bar with GL profiler statistics
+- Added experimental basic directional light shadows
 - Update water shader to fade out water foam over distance, to minimize ugly 1 pixel white lines from a distance.
 - Fix broken checkbox to set game objects to active or inactive
 

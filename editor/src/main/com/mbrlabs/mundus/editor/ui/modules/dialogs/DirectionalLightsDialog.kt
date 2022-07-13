@@ -5,7 +5,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.kotcrab.vis.ui.widget.Tooltip
 import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
@@ -22,7 +21,7 @@ import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.ui.widgets.ColorPickerField
 import com.mbrlabs.mundus.editor.ui.widgets.ImprovedSlider
-import net.mgsx.gltf.scene3d.lights.DirectionalLightEx
+import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 
 /**
  * @author James Pooley
@@ -100,17 +99,20 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
     }
 
     private fun addShadowSection() {
-        root.add(VisLabel("Shadow Settings")).colspan(2).left().row()
+        val shadowLabel = ToolTipLabel("Shadow Settings", "Experimental for now." +
+                " Only a single pass shadow map with limited range.")
+        root.add(shadowLabel).colspan(2).left().row()
         root.addSeparator().colspan(2).row()
 
         // Settings
         val shadowSettingsTable = VisTable()
-        val enableLabel = VisLabel("Cast Dynamic Shadows: ")
+        val enableLabel = ToolTipLabel("Cast Dynamic Shadows: ", "Enables shadow mapping.")
         shadowSettingsTable.defaults().padBottom(5f).padLeft(6f).padRight(6f)
         shadowSettingsTable.add(enableLabel).left().padBottom(10f)
         shadowSettingsTable.add(castShadows).left().padBottom(10f).left().row()
 
-        val resolutionLabel = VisLabel("Shadow Resolution: ")
+        val resolutionLabel = ToolTipLabel("Shadow Resolution: ", "Higher resolution results in better " +
+                "shadows at the cost of performance.")
         val selectorsTable = VisTable(true)
         shadowResSelectBox = VisSelectBox<String>()
         shadowResSelectBox.setItems(
@@ -123,14 +125,6 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
 
         shadowSettingsTable.add(resolutionLabel).left().padBottom(10f)
         shadowSettingsTable.add(selectorsTable).padBottom(10f)
-
-        var tip = "Enables shadow mapping."
-        Tooltip.Builder(tip).target(enableLabel).build()
-        Tooltip.Builder(tip).target(castShadows).build()
-
-        tip = "Sets shadow texture resolution. Higher resolutions look better but uses more resources."
-        Tooltip.Builder(tip).target(resolutionLabel).build()
-        Tooltip.Builder(tip).target(shadowResSelectBox).build()
 
         root.add(shadowSettingsTable).left().row()
     }
@@ -208,6 +202,8 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
                 light?.intensity = DirectionalLight.DEFAULT_INTENSITY
                 light?.direction?.set(DirectionalLight.DEFAULT_DIRECTION)
 
+                light?.castsShadows = false
+                projectManager.current().currScene.shadowMapper.shadowResolution = ShadowResolution.DEFAULT_SHADOW_RESOLUTION
                 resetValues()
             }
         })
