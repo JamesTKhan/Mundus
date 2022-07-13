@@ -55,6 +55,7 @@ public class MaterialAsset extends Asset {
     public static final String PROP_METALLIC = "metallic";
     public static final String PROP_ALPHA_TEST = "alphaTest";
     public static final String PROP_NORMAL_SCALE = "normalScale";
+    public static final String PROP_SHADOW_BIAS = "shadowBias";
     public static final String PROP_CULL_FACE = "cullFace";
 
     // ids of dependent assets
@@ -80,6 +81,7 @@ public class MaterialAsset extends Asset {
     private float opacity = 1f;
     private float alphaTest = 0f;
     private float normalScale = 1f;
+    private float shadowBias = 0.4f;
 
     public MaterialAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
@@ -113,6 +115,10 @@ public class MaterialAsset extends Asset {
                 value = MAP.get(PROP_NORMAL_SCALE, null);
                 if (value != null) {
                     normalScale = Float.parseFloat(value);
+                }
+                value = MAP.get(PROP_SHADOW_BIAS, null);
+                if (value != null) {
+                    shadowBias = Float.parseFloat(value);
                 }
                 value = MAP.get(PROP_CULL_FACE, null);
                 if (value != null) {
@@ -148,8 +154,8 @@ public class MaterialAsset extends Asset {
     /**
      * Applies this material asset to the libGDX material.
      *
-     * @param material
-     * @return
+     * @param material the material to apply
+     * @return the material with asset attributes applied
      */
     public Material applyToMaterial(Material material) {
         if (diffuseColor != null) {
@@ -187,6 +193,7 @@ public class MaterialAsset extends Asset {
         material.set(PBRFloatAttribute.createRoughness(roughness));
         material.set(PBRFloatAttribute.createMetallic(metallic));
         material.set(PBRFloatAttribute.createNormalScale(normalScale));
+        material.set(new PBRFloatAttribute(PBRFloatAttribute.ShadowBias, shadowBias / 255f));
 
         if (cullFace != -1) {
             material.set(IntAttribute.createCullFace(cullFace));
@@ -254,6 +261,14 @@ public class MaterialAsset extends Asset {
 
     public void setNormalScale(float normalScale) {
         this.normalScale = normalScale;
+    }
+
+    public float getShadowBias() {
+        return shadowBias;
+    }
+
+    public void setShadowBias(float shadowBias) {
+        this.shadowBias = shadowBias;
     }
 
     public TextureAsset getNormalMap() {

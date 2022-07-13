@@ -70,6 +70,7 @@ class MaterialWidget : VisTable() {
     private val opacityField = ImprovedSlider(0.0f, 1.0f, 0.05f)
     private val alphaTestField = ImprovedSlider(0.0f, 1.0f, 0.05f)
     private val normalScaleField = ImprovedSlider(0.5f, 5f, 0.5f)
+    private val shadowBiasField = ImprovedSlider(0.1f, 2f, 0.05f)
 
     private lateinit var cullFaceSelectBox: VisSelectBox<CullFace>
 
@@ -95,6 +96,7 @@ class MaterialWidget : VisTable() {
                 opacityField.value = value.opacity
                 alphaTestField.value = value.alphaTest
                 normalScaleField.value = value.normalScale
+                shadowBiasField.value = value.shadowBias
                 cullFaceSelectBox.selected = CullFace.getFromValue(value.cullFace)
             }
         }
@@ -103,7 +105,7 @@ class MaterialWidget : VisTable() {
      * An optional listener for changing the material. If the property is null
      * the user will not be able to change the material.
      */
-    var matChangedListener: MaterialWidget.MaterialChangedListener? = null
+    var matChangedListener: MaterialChangedListener? = null
         set(value) {
             field = value
             matChangedBtn.touchable = if(value == null) Touchable.disabled else Touchable.enabled
@@ -166,6 +168,9 @@ class MaterialWidget : VisTable() {
 
         sliderTable.add(VisLabel("Normal Scale")).growX()
         sliderTable.add(normalScaleField).growX().row()
+
+        sliderTable.add(VisLabel("Shadow Bias")).growX()
+        sliderTable.add(shadowBiasField).growX().row()
 
         val values = Array<CullFace>()
         for (value in CullFace.values())
@@ -310,6 +315,16 @@ class MaterialWidget : VisTable() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 if (material?.normalScale == normalScaleField.value) return
                 material?.normalScale = normalScaleField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        })
+
+        shadowBiasField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.shadowBias == shadowBiasField.value) return
+                material?.shadowBias = shadowBiasField.value
                 applyMaterialToModelAssets()
                 applyMaterialToModelComponents()
                 projectManager.current().assetManager.addModifiedAsset(material!!)
