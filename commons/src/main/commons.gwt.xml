@@ -14,6 +14,7 @@
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.FogDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.ModelComponentDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.water.WaterResolution" />
+    <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.shadows.ShadowResolution" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.env.lights.LightType" />
 
 </module>

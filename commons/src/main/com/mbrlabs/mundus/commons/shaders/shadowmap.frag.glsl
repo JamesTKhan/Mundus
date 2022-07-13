@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#ifdef GL_ES
+precision highp float;
+#endif
+
 vec4 EncodeFloatRGBA( float v ) {
     vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;
     enc = fract(enc);
