@@ -33,12 +33,12 @@ vec4 EncodeFloatRGBA( float v ) {
 
 void main()
 {
-    // Encode the depth into RGBA values, for later decoding in other shaders, to improve precision
-    gl_FragColor = EncodeFloatRGBA(gl_FragCoord.z);
-
     if (u_useAlphaTest == 1) {
         if (texture2D(u_diffuseTexture, v_texCoords0).a < u_alphaTest) {
             discard;
         }
     }
+
+    // Encode the depth into RGBA values, for later decoding in other shaders, to improve precision
+    gl_FragColor = EncodeFloatRGBA(gl_FragCoord.z);
 }

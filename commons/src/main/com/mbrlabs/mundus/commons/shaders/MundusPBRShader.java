@@ -103,6 +103,13 @@ public class MundusPBRShader extends PBRShader {
 
         MundusEnvironment env = (MundusEnvironment) renderable.environment;
 
+        // set shadows
+        if (env.shadowMap != null) {
+            set(u_shadowMapProjViewTrans, env.shadowMap.getProjViewTrans());
+            set(u_shadowTexture, env.shadowMap.getDepthMap());
+            set(u_shadowPCFOffset, 1.f / (2f * env.shadowMap.getDepthMap().texture.getWidth()));
+        }
+
         // Set clipping plane
         Vector3 clippingPlane = env.getClippingPlane();
         set(u_clipPlane, clippingPlane.x, clippingPlane.y, clippingPlane.z, env.getClippingHeight());
