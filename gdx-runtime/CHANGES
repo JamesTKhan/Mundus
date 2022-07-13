@@ -1,5 +1,4 @@
 [0.4.0] ~ 07/10/2022
-- [BREAKING CHANGE] The loadScene method for the runtime has changed. A ModelBatch is no longer required to be passed in.
 - Add converter for Light Components
 
 [0.3.1] ~ 07/06/2022

@@ -1,7 +1,4 @@
 [0.4.0] ~ 07/10/2022
-- [BREAKING CHANGE] The ModelShader was replaced with custom PBR shader.
-- [BREAKING CHANGE] Models from older versions may be invisible as first and will need their opacity updated on materials.
-- [BREAKING CHANGE] Fog now has new parameters and more closely aligns with libGDX and PBR shaders. You may need to adjust fog.
 - Lighting overhaul for Directional and Ambient lighting.
 - Added new Light Component and accompanying Light Shader which prefixes shaders with additional shader lighting code.
 - Added new Add Component Dialog which only supports Light Components for now.
