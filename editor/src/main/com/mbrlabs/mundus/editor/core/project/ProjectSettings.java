@@ -25,7 +25,7 @@ import com.badlogic.gdx.utils.JsonWriter;
  */
 public class ProjectSettings {
 
-    private ExportSettings export = new ExportSettings();
+    private final ExportSettings export = new ExportSettings();
 
     public ExportSettings getExport() {
         return export;

@@ -30,6 +30,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
+import com.mbrlabs.mundus.commons.env.CameraSettings;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -77,11 +78,11 @@ public class Scene implements Disposable {
         currentSelection = null;
         terrains = new Array<>();
 
-        cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cam = new PerspectiveCamera(CameraSettings.DEFAULT_FOV, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 1, -3);
         cam.lookAt(0, 1, -1);
-        cam.near = 0.2f;
-        cam.far = 10000;
+        cam.near = CameraSettings.DEFAULT_NEAR_PLANE;
+        cam.far = CameraSettings.DEFAULT_FAR_PLANE;
 
         DirectionalLight dirLight = new DirectionalLight();
         dirLight.color.set(DirectionalLight.DEFAULT_COLOR);
