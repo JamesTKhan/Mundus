@@ -25,6 +25,7 @@ import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer.Tag;
  */
 public class ProjectSettingsDescriptor {
 
+    // Export
     @Tag(0)
     private boolean exportCompressScenes;
     @Tag(1)
@@ -65,5 +66,4 @@ public class ProjectSettingsDescriptor {
     public void setExportOutputFolder(String exportOutputFolder) {
         this.exportOutputFolder = exportOutputFolder;
     }
-
 }
