@@ -44,6 +44,7 @@ import com.mbrlabs.mundus.commons.assets.meta.MetaModel
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight
 import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
+import com.mbrlabs.mundus.commons.utils.ModelUtils
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -300,18 +301,15 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
                     if (isG3DB(importedModel!!.file)) {
                         val modelData = MG3dModelLoader(UBJsonReader()).loadModelData(importedModel!!.file)
                         previewModel = Model(modelData)
-                        maxBones = MG3dModelLoader(UBJsonReader()).getMaxBones(importedModel!!.file)
                     } else if (isGLTF(importedModel!!.file)) {
-                        val sceneAsset = GLTFLoader().load(importedModel!!.file)
-                        previewModel = sceneAsset.scene.model
-                        maxBones = sceneAsset.maxBones
+                        previewModel = GLTFLoader().load(importedModel!!.file).scene.model
                     } else if (isGLB(importedModel!!.file)) {
-                        val sceneAsset = GLTFLoader().load(importedModel!!.file)
                         previewModel = GLBLoader().load(importedModel!!.file).scene.model
-                        maxBones = sceneAsset.maxBones
                     } else {
                         throw GdxRuntimeException("Unsupported 3D format")
                     }
+
+                    maxBones = ModelUtils.getBoneCount(previewModel)
 
                     previewInstance = ModelInstance(previewModel!!)
                     showPreview()
