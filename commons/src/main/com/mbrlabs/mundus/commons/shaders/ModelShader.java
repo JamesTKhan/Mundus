@@ -59,7 +59,7 @@ public class ModelShader extends LightShader {
 
     private final Matrix3 tmpM = new Matrix3();
 
-    private ShaderProgram program;
+    private final ShaderProgram program;
 
     public ModelShader() {
         program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER, this);
@@ -102,6 +102,7 @@ public class ModelShader extends LightShader {
         final MundusEnvironment env = (MundusEnvironment) renderable.environment;
 
         setLights(env);
+        setShadows(env);
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
         set(UNIFORM_NORMAL_MATRIX, tmpM.set(renderable.worldTransform).inv().transpose());
 

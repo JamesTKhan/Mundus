@@ -35,7 +35,12 @@ import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.commons.shaders.DepthShader;
+import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
+import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
+import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
+import com.mbrlabs.mundus.commons.utils.LightUtils;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 
@@ -67,6 +72,10 @@ public class Scene implements Disposable {
     private FrameBuffer fboWaterRefraction;
     private FrameBuffer fboDepthRefraction;
 
+    private DepthShader depthShader;
+    private ShadowMapShader shadowMapShader;
+    private ShadowMapper shadowMapper = null;
+
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
@@ -92,6 +101,8 @@ public class Scene implements Disposable {
         environment.add(dirLight);
         environment.getAmbientLight().intensity = 0.8f;
 
+        setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
+
         sceneGraph = new SceneGraph(this);
     }
 
@@ -112,6 +123,7 @@ public class Scene implements Disposable {
         }
 
         renderSkybox();
+        renderShadowMap(delta);
         renderObjects(delta);
         renderWater(delta);
     }
@@ -139,6 +151,22 @@ public class Scene implements Disposable {
 
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
+    }
+
+    private void renderShadowMap(float delta) {
+        if (shadowMapper == null) {
+            setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
+        }
+
+        DirectionalLight light = LightUtils.getDirectionalLight(environment);
+        if (light == null || !light.castsShadows) return;
+
+        shadowMapper.setCenter(cam.position);
+        shadowMapper.begin(light.direction);
+        batch.begin(shadowMapper.getCam());
+        sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
+        batch.end();
+        shadowMapper.end();
     }
 
     private void initFrameBuffers(int width, int height) {
@@ -180,7 +208,7 @@ public class Scene implements Disposable {
         fboDepthRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin(cam);
-        sceneGraph.renderDepth(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection);
+        sceneGraph.renderDepth(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection, depthShader);
         batch.end();
         fboDepthRefraction.end();
     }
@@ -220,6 +248,18 @@ public class Scene implements Disposable {
         this.id = id;
     }
 
+    public ShadowMapper getShadowMapper() {
+        return shadowMapper;
+    }
+
+    public void setDepthShader(DepthShader depthShader) {
+        this.depthShader = depthShader;
+    }
+
+    public void setShadowMapShader(ShadowMapShader shadowMapShader) {
+        this.shadowMapShader = shadowMapShader;
+    }
+
     /**
      * Set the water resolution to use for water reflection and refractions.
      * This will reinitialize the frame buffers with the given resolution.
@@ -229,6 +269,24 @@ public class Scene implements Disposable {
         this.waterResolution = resolution;
         Vector2 res = waterResolution.getResolutionValues();
         initFrameBuffers((int) res.x, (int) res.y);
+    }
+
+    /**
+     * Set shadow quality for scenes DirectionalLight.
+     *
+     * @param shadowResolution the shadow resolution to use.
+     */
+    public void setShadowQuality(ShadowResolution shadowResolution) {
+        DirectionalLight light = LightUtils.getDirectionalLight(environment);
+        if (light == null || shadowResolution == null) return;
+
+        if (shadowMapper == null) {
+            shadowMapper = new ShadowMapper(shadowResolution, 512, 512, cam.near, 800);
+        } else {
+            shadowMapper.setShadowResolution(shadowResolution);
+        }
+
+        environment.shadowMap = shadowMapper;
     }
 
     /**

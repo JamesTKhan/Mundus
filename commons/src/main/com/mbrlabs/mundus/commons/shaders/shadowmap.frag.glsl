@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.commons.env.lights;
+#ifdef GL_ES
+precision highp float;
+#endif
 
-import com.badlogic.gdx.graphics.Color;
+vec4 EncodeFloatRGBA( float v ) {
+    vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;
+    enc = fract(enc);
+    enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);
+    return enc;
+}
 
-/**
- * @author Marcus Brummer
- * @version 14-02-2016
- */
-public class BaseLight {
-
-    public final Color color = new Color(1, 1, 1, 1);
-    public float intensity = 1f;
-    public boolean castsShadows = false;
-    public LightType lightType;
-
-    public void setColor(Color color) {
-        this.color.set(color);
-    }
+void main()
+{
+    // Encode the depth into RGBA values, for later decoding in other shaders, to improve precision
+    gl_FragColor = EncodeFloatRGBA(gl_FragCoord.z);
 }

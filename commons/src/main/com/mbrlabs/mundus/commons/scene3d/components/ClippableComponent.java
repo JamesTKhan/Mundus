@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector3;
 
 /**
@@ -14,6 +15,7 @@ public interface ClippableComponent {
      * @param delta
      * @param clippingPlane
      * @param clipHeight
+     * @param shader
      */
-    void renderDepth(float delta, Vector3 clippingPlane, float clipHeight);
+    void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader);
 }
