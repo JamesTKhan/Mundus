@@ -48,6 +48,7 @@ import com.mbrlabs.mundus.commons.water.WaterResolution;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 
 /**
@@ -77,11 +78,6 @@ public class Scene implements Disposable {
     private FrameBuffer fboWaterReflection;
     private FrameBuffer fboWaterRefraction;
     private FrameBuffer fboDepthRefraction;
-
-    private Texture brdfLUT;
-    private Cubemap diffuseCubemap;
-    private Cubemap environmentCubemap;
-    private Cubemap specularCubemap;
 
     private DepthShader depthShader;
     private ShadowMapShader shadowMapShader;
@@ -127,12 +123,11 @@ public class Scene implements Disposable {
         directionalLightEx.direction.set(DirectionalLight.DEFAULT_DIRECTION);
 
         IBLBuilder iblBuilder = IBLBuilder.createOutdoor(directionalLightEx);
-        environmentCubemap = iblBuilder.buildEnvMap(1024);
-        diffuseCubemap = iblBuilder.buildIrradianceMap(256);
-        specularCubemap = iblBuilder.buildRadianceMap(10);
+        Cubemap diffuseCubemap = iblBuilder.buildIrradianceMap(256);
+        Cubemap specularCubemap = iblBuilder.buildRadianceMap(10);
         iblBuilder.dispose();
 
-        brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
+        Texture brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, .3f, .3f, .3f, 1));
         environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
         environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));

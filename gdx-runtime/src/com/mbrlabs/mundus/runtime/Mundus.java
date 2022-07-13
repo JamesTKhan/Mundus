@@ -18,14 +18,13 @@ package com.mbrlabs.mundus.runtime;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.utils.RenderableSorter;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider;
-import com.mbrlabs.mundus.commons.utils.LightUtils;
+import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 
@@ -66,15 +65,7 @@ public class Mundus implements Disposable {
      * methods if more customization is needed.
      */
     public Scene loadScene(final String name) {
-        PBRShaderConfig config = new PBRShaderConfig();
-        config.numDirectionalLights = 1;
-        config.numPointLights = LightUtils.MAX_POINT_LIGHTS;
-        config.numSpotLights = LightUtils.MAX_SPOT_LIGHTS;
-        config.numBones = assetManager.maxNumBones;
-        config.defaultCullFace = GL20.GL_BACK;
-        config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.vs.glsl").readString();
-        config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl").readString();
-
+        PBRShaderConfig config = ShaderUtils.buildPBRShaderConfig(assetManager.maxNumBones);
         return loadScene(name, config);
     }
 

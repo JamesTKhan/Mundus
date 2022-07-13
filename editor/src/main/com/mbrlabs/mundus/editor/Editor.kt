@@ -17,7 +17,6 @@
 package com.mbrlabs.mundus.editor
 
 import com.badlogic.gdx.ApplicationListener
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter
 import com.badlogic.gdx.graphics.Color
@@ -25,7 +24,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
-import com.mbrlabs.mundus.commons.utils.LightUtils
+import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
@@ -43,10 +42,8 @@ import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
-import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
-import org.lwjgl.opengl.GL20
 
 /**
  * @author Marcus Brummer
@@ -123,16 +120,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         val scene = context.currScene
         val sg = scene.sceneGraph
 
-        // Initialize and set the PBR Shader for model rendering
-        val config = PBRShaderConfig()
-        config.numDirectionalLights = 1
-        config.numPointLights = LightUtils.MAX_POINT_LIGHTS
-        config.numSpotLights = LightUtils.MAX_SPOT_LIGHTS
-        config.numBones = projectManager.current().assetManager.maxNumBones
-        config.defaultCullFace = GL20.GL_BACK
-        config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.vs.glsl").readString()
-        config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl").readString()
-
+        val config = ShaderUtils.buildPBRShaderConfig(projectManager.current().assetManager.maxNumBones)
         projectManager.modelBatch = ModelBatch(MundusPBRShaderProvider(config), SceneRenderableSorter())
 
         UI.sceneWidget.setCam(context.currScene.cam)

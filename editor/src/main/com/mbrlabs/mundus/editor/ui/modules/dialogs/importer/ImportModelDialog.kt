@@ -43,6 +43,8 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight
 import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader
+import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
+import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.assets.FileHandleWithDependencies
@@ -68,6 +70,7 @@ import net.mgsx.gltf.loaders.gltf.GLTFLoader
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx
+import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider
 import net.mgsx.gltf.scene3d.utils.IBLBuilder
@@ -218,6 +221,17 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
                     if (previewModel != null && previewInstance != null) {
                         try {
                             val modelAsset = importModel()
+                            val modelBoneCount = modelAsset.meta.model.numBones
+
+                            // If the imported model has more bones than current shaders numBones, create new
+                            // shader provider with new max bones.
+                            if (modelBoneCount > projectManager.current().assetManager.maxNumBones) {
+                                val config = ShaderUtils.buildPBRShaderConfig(modelBoneCount)
+                                projectManager.modelBatch = ModelBatch(MundusPBRShaderProvider(config), SceneRenderableSorter())
+                                projectManager.current().assetManager.maxNumBones = modelBoneCount
+                                Mundus.postEvent(LogEvent(LogType.INFO, "Max Bone count increased to $modelBoneCount"))
+                            }
+
                             Mundus.postEvent(AssetImportEvent(modelAsset))
                             UI.toaster.success("Mesh imported")
                         } catch (e: IOException) {

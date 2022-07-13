@@ -18,10 +18,12 @@ package com.mbrlabs.mundus.commons.utils;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.shaders.LightShader;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 
 /**
  * @author Marcus Brummer
@@ -78,6 +80,24 @@ public class ShaderUtils {
         }
 
         return fragPrefix;
+    }
+
+    /**
+     * Builds and returns a PBRShaderConfig.
+     *
+     * @param numBones the numBones to use for the config
+     */
+    public static PBRShaderConfig buildPBRShaderConfig(int numBones) {
+        // Create and initialize PBR config
+        PBRShaderConfig config = new PBRShaderConfig();
+        config.numDirectionalLights = 1;
+        config.numPointLights = LightUtils.MAX_POINT_LIGHTS;
+        config.numSpotLights = LightUtils.MAX_SPOT_LIGHTS;
+        config.numBones = numBones;
+        config.defaultCullFace = GL20.GL_BACK;
+        config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.vs.glsl").readString();
+        config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/gdx-pbr.fs.glsl").readString();
+        return config;
     }
 
 }
