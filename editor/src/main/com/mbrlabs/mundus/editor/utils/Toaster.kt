@@ -21,6 +21,7 @@ import com.kotcrab.vis.ui.util.ToastManager
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.toast.Toast
+import java.util.*
 
 /**
  * Displays Android-like toasts at top right corner of the screen.
@@ -44,8 +45,9 @@ class Toaster(stage: Stage) {
      */
     fun info(msg: String) {
         val table = newTable(msg)
-        val toast = Toast(ToastType.INFO.name.toLowerCase(), table)
+        val toast = Toast(ToastType.INFO.name.lowercase(Locale.getDefault()), table)
         toastManager.show(toast, 3f)
+        toastManager.toFront()
     }
 
     /**
@@ -55,8 +57,9 @@ class Toaster(stage: Stage) {
      */
     fun error(msg: String) {
         val table = newTable(msg)
-        val toast = Toast(ToastType.ERROR.name.toLowerCase(), table)
+        val toast = Toast(ToastType.ERROR.name.lowercase(Locale.getDefault()), table)
         toastManager.show(toast, 5f)
+        toastManager.toFront()
     }
 
     /**
@@ -66,8 +69,9 @@ class Toaster(stage: Stage) {
      */
     fun success(msg: String) {
         val table = newTable(msg)
-        val toast = Toast(ToastType.SUCCESS.name.toLowerCase(), table)
+        val toast = Toast(ToastType.SUCCESS.name.lowercase(Locale.getDefault()), table)
         toastManager.show(toast, 3f)
+        toastManager.toFront()
     }
 
     /**
@@ -80,14 +84,15 @@ class Toaster(stage: Stage) {
         val table = newTable(msg)
         var toast: Toast? = null
         if (type == ToastType.SUCCESS) {
-            toast = Toast(ToastType.SUCCESS.name.toLowerCase(), table)
+            toast = Toast(ToastType.SUCCESS.name.lowercase(Locale.getDefault()), table)
         } else if (type == ToastType.INFO) {
-            toast = Toast(ToastType.INFO.name.toLowerCase(), table)
+            toast = Toast(ToastType.INFO.name.lowercase(Locale.getDefault()), table)
         } else if (type == ToastType.ERROR) {
-            toast = Toast(ToastType.ERROR.name.toLowerCase(), table)
+            toast = Toast(ToastType.ERROR.name.lowercase(Locale.getDefault()), table)
         }
 
         toastManager.show(toast)
+        toastManager.toFront()
     }
 
     private fun newTable(text: String): VisTable {
