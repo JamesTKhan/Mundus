@@ -193,7 +193,7 @@ void main() {
     color += vec4(specularHighlights, 0.0);
 
     // Fog
-    if (u_fogEquation.z > 0) {
+    if (u_fogEquation.z > 0.0) {
         float fog = (waterDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
         fog = clamp(fog, 0.0, 1.0);
         fog = pow(fog, u_fogEquation.z);
