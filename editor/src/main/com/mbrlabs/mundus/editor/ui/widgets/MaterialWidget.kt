@@ -141,13 +141,19 @@ class MaterialWidget : VisTable() {
 
         add(VisLabel("Diffuse texture")).grow().row()
         add(diffuseAssetField).growX().row()
+
         add(VisLabel("Normal map")).grow().row()
         add(normalMapField).growX().row()
-        add(VisLabel("Emissive texture")).grow().row()
+
+        add(ToolTipLabel("Emissive texture", "The emissive texture. It controls the color and intensity " +
+                "of the light being emitted by the material.\n This texture contains RGB components encoded with the sRGB transfer function.")).left().row()
         add(emissiveAssetField).growX().row()
-        add(VisLabel("Metallic/Roughness Texture")).grow().row()
+
+        add(ToolTipLabel("Metallic/Roughness Texture", "The textures for metalness and roughness properties are packed together in a single texture called\n"+
+                "metallicRoughnessTexture. Its green channel contains roughness values and its blue channel contains metalness values")).left().row()
         add(metallicRoughnessAssetField).growX().row()
-        add(VisLabel("Occlusion Texture")).grow().row()
+
+        add(ToolTipLabel("Occlusion Texture", "The occlusion texture. The occlusion values are linearly sampled from the R channel.")).left().row()
         add(occlusionAssetField).growX().row()
 
         addSeparator().padTop(15f).padBottom(15f).growX().row()
@@ -163,13 +169,16 @@ class MaterialWidget : VisTable() {
         sliderTable.add(VisLabel("Opacity")).growX()
         sliderTable.add(opacityField).growX().row()
 
-        sliderTable.add(VisLabel("Alpha Test")).growX()
+        sliderTable.add(ToolTipLabel("Alpha Test", "If the alpha value is greater than or equal to " +
+                "this value then it is rendered as fully opaque, otherwise, it is rendered as fully transparent.\n" +
+                "Useful for models like trees that have leaf textures with alpha values")).left()
         sliderTable.add(alphaTestField).growX().row()
 
         sliderTable.add(VisLabel("Normal Scale")).growX()
         sliderTable.add(normalScaleField).growX().row()
 
-        sliderTable.add(VisLabel("Shadow Bias")).growX()
+        sliderTable.add(ToolTipLabel("Shadow Bias", "Increase to reduce shadow acne. Increase wisely as " +
+                "higher bias results in peter-panning effect.")).left()
         sliderTable.add(shadowBiasField).growX().row()
 
         val values = Array<CullFace>()
@@ -179,7 +188,14 @@ class MaterialWidget : VisTable() {
         cullFaceSelectBox = VisSelectBox()
         cullFaceSelectBox.items = values
 
-        sliderTable.add(VisLabel("Cull Face")).growX()
+        val cullTip = buildString {
+            append("NONE: No culling\n")
+            append("DEFAULT: Use Mundus Default (GL_BACK)\n")
+            append("GL_BACK: Back face culling, recommended for performance.\n")
+            append("GL_FRONT: Front face culling.\n")
+            append("GL_FRONT_AND_BACK: Entire model culled (front and back).")
+        }
+        sliderTable.add(ToolTipLabel("Cull Face", cullTip)).left()
         sliderTable.add(cullFaceSelectBox).left()
 
         add(sliderTable).growX().row()

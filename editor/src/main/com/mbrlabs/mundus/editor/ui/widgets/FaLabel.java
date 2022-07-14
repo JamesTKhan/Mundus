@@ -29,13 +29,13 @@ public class FaLabel extends VisLabel {
 
     public final static LabelStyle style = new LabelStyle();
     static {
-        style.font = Mundus.INSTANCE.getFa();
+        style.font = Mundus.INSTANCE.getFaSmall();
         style.fontColor = Colors.INSTANCE.getTEAL();
     }
 
     public final static LabelStyle styleActive = new LabelStyle();
     static {
-        styleActive.font = Mundus.INSTANCE.getFa();
+        styleActive.font = Mundus.INSTANCE.getFaSmall();
         styleActive.fontColor = Color.WHITE;
     }
 
