@@ -23,12 +23,24 @@ import com.kotcrab.vis.ui.widget.Separator
 import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.file.FileChooser
+import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.Mundus.postEvent
+import com.mbrlabs.mundus.editor.VERSION
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
+import com.mbrlabs.mundus.editor.preferences.GlobalPreferencesManager
 import com.mbrlabs.mundus.editor.ui.modules.MundusToolbar
 import com.mbrlabs.mundus.editor.ui.modules.Outline
 import com.mbrlabs.mundus.editor.ui.modules.StatusBar
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.*
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.VersionDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.AddComponentDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.AmbientLightDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.DirectionalLightsDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExitDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExportDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.FogDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.LoadingProjectDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.NewProjectDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.SkyboxDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportModelDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportTextureDialog
@@ -84,14 +96,19 @@ object UI : Stage(ScreenViewport()) {
     val ambientLightDialog: AmbientLightDialog = AmbientLightDialog()
     var directionalLightDialog: DirectionalLightsDialog = DirectionalLightsDialog()
     var addComponentDialog: AddComponentDialog = AddComponentDialog()
+    val versionDialog: VersionDialog = VersionDialog()
     val exitDialog: ExitDialog = ExitDialog()
 
     // styles
     val greenSeperatorStyle: Separator.SeparatorStyle
 
+    private var globalPrefManager: GlobalPreferencesManager
+
     init {
         FileChooser.setDefaultPrefsName("com.mbrlabs.mundus.editor")
         greenSeperatorStyle = Separator.SeparatorStyle(VisUI.getSkin().getDrawable("mundus-separator-green"), 1)
+
+        globalPrefManager = Mundus.inject()
 
         root = VisTable()
         addActor(root)
@@ -170,5 +187,17 @@ object UI : Stage(ScreenViewport()) {
             isFullScreenRender = true
         }
 
+    }
+
+    /**
+     * Conditionally displays the versioning dialog based on stored preferences
+     */
+    fun processVersionDialog() {
+        val previousVersion = globalPrefManager.getString(GlobalPreferencesManager.MUNDUS_VERSION, "null")
+        if (previousVersion != VERSION) {
+            // If version changed, display dialog
+            globalPrefManager.set(GlobalPreferencesManager.MUNDUS_VERSION, VERSION)
+            showDialog(versionDialog)
+        }
     }
 }

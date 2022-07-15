@@ -96,10 +96,12 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
         // change project; this will fire a ProjectChangedEvent
         projectManager.changeProject(context)
+
+        UI.processVersionDialog()
     }
 
     private fun setupInput() {
-        // NOTE: order in wich processors are added is important: first added,
+        // NOTE: order in which processors are added is important: first added,
         // first executed!
         inputManager.addProcessor(shortcutController)
         inputManager.addProcessor(UI)

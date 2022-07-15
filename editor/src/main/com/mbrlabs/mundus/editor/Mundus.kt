@@ -26,6 +26,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.Json
 import com.kotcrab.vis.ui.VisUI
 import com.mbrlabs.mundus.commons.assets.meta.MetaLoader
+import com.mbrlabs.mundus.editor.preferences.GlobalPreferencesManager
 import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
@@ -79,6 +80,7 @@ object Mundus {
     private val goPicker: GameObjectPicker
     private val handlePicker: ToolHandlePicker
     private val json: Json
+    private val globalPrefManager: GlobalPreferencesManager
     private val glProfiler: MundusGLProfiler
 
     init {
@@ -110,6 +112,7 @@ object Mundus {
         gizmoManager = GizmoManager()
         shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager)
         json = Json()
+        globalPrefManager = GlobalPreferencesManager()
         glProfiler = MundusGLProfiler(Gdx.graphics)
 
         // add to DI container
@@ -128,6 +131,7 @@ object Mundus {
             bindSingleton(shortcutController)
             bindSingleton(freeCamController)
             bindSingleton(json)
+            bindSingleton(globalPrefManager)
             bindSingleton(glProfiler)
 
             bindSingleton(MetaSaver())
