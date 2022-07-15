@@ -170,6 +170,7 @@ class AssetsDock : Tab(false, false),
             val assetItem = AssetItem(asset)
             filesView.addActor(assetItem)
             assetItems.add(assetItem)
+            assetItem.layout()
         }
     }
 
