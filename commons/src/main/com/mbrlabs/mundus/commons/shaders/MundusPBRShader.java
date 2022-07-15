@@ -17,7 +17,7 @@ import com.mbrlabs.mundus.commons.env.lights.SpotLightsAttribute;
 import net.mgsx.gltf.scene3d.shaders.PBRShader;
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version July 01, 2022
  */
 public class MundusPBRShader extends PBRShader {

@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version July 13, 2022
  */
 public class ModelUtils {

@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 02, 2022
  */
 public class SpotLight extends PointLight {

@@ -14,7 +14,7 @@ import com.mbrlabs.mundus.editor.VERSION
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version July 15, 2022
  */
 class VersionDialog : BaseDialog("Version Info") {
@@ -42,7 +42,7 @@ class VersionDialog : BaseDialog("Version Info") {
         label.wrap = true
 
         root.add(label).expandX().prefWidth(width).padBottom(10f).row()
-        root.add(LinkLabel("Issues","https://github.com/jpooleycodes/Mundus/issues")).row()
+        root.add(LinkLabel("Issues","https://github.com/JamesTKhan/Mundus/issues")).row()
 
         label = VisLabel()
         label.setText("v0.4.0 introduces a modified implementation of gdx-gltf's PBR shader for model rendering as well as changes to the " +
@@ -68,7 +68,7 @@ class VersionDialog : BaseDialog("Version Info") {
 
         root.add(label).expandX().prefWidth(width).padBottom(10f).row()
 
-        root.add(LinkLabel("See list of changes","https://github.com/jpooleycodes/Mundus/releases/tag/$VERSION")).row()
+        root.add(LinkLabel("See list of changes","https://github.com/JamesTKhan/Mundus/releases/tag/$VERSION")).row()
 
         add(root)
 

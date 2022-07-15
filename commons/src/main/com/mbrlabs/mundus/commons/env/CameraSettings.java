@@ -3,7 +3,7 @@ package com.mbrlabs.mundus.commons.env;
 /**
  * Class for holding default values for camera settings.
  *
- * @author James Pooley
+ * @author JamesTKhan
  * @version July 11, 2022
  */
 public class CameraSettings {

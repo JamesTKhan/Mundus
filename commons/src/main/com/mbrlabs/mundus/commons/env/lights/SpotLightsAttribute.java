@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.utils.Array;
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 02, 2022
  */
 public class SpotLightsAttribute extends Attribute {

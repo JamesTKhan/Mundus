@@ -35,7 +35,7 @@ import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 /**
  * Wrapper around an FBO for shadow mapping, based on DirectionalShadowLight from libGDX and gdx-gltf
  *
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 10, 2022
  */
 public class ShadowMapper implements ShadowMap {

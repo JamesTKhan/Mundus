@@ -1,7 +1,7 @@
 package com.mbrlabs.mundus.editor.events
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 02, 2022
  */
 class ComponentRemovedEvent {

@@ -35,7 +35,7 @@ import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version July 10, 2022
  */
 class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChangedListener, SceneChangedEvent.SceneChangedListener {

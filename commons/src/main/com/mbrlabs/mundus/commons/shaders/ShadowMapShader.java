@@ -30,7 +30,7 @@ import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 10, 2022
  */
 public class ShadowMapShader extends BaseShader {

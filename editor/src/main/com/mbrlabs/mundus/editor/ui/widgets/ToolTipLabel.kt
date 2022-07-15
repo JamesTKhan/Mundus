@@ -28,7 +28,7 @@ import com.mbrlabs.mundus.editor.utils.Fa
 /**
  * A table containing both a label and tool tip icon.
  *
- * @author James Pooley
+ * @author JamesTKhan
  * @version July 05, 2022
  */
 class ToolTipLabel(val label: String, toolTipText: String) : VisTable() {

@@ -1,11 +1,11 @@
 <img alt="" src="logo.svg" height="80px" />
 
-# Mundus ![Java CI workflow](https://github.com/jpooleycodes/Mundus/actions/workflows/gradle.yml/badge.svg)
+# Mundus ![Java CI workflow](https://github.com/JamesTKhan/Mundus/actions/workflows/gradle.yml/badge.svg)
 Mundus is a platform independent 3D world editor, built with Java, Kotlin and LibGDX + VisUI. You can
 create your scenes in Mundus and then use the Mundus runtime to render and interact with
-those scenes in a libGDX project. See [runtime usage](https://github.com/jpooleycodes/Mundus/wiki/Runtime-usage)
+those scenes in a libGDX project. See [runtime usage](https://github.com/JamesTKhan/Mundus/wiki/Runtime-usage)
 for an example. You can see current milestones for
-releases on the [milestones](https://github.com/jpooleycodes/Mundus/milestones) page.
+releases on the [milestones](https://github.com/JamesTKhan/Mundus/milestones) page.
 
 ![Screenshot](https://raw.githubusercontent.com/mbrlabs/Mundus/master/screenshot.png)
 
@@ -44,17 +44,17 @@ being developed.
 because of the default GLFW keycode mapping. You can change the layout mapping in the settings dialog under Window -> Settings.
 
 ## Runtime
-The only runtime being developed is for libGDX, which is included in this repository. See [runtime usage](https://github.com/jpooleycodes/Mundus/wiki/Runtime-usage)
+The only runtime being developed is for libGDX, which is included in this repository. See [runtime usage](https://github.com/JamesTKhan/Mundus/wiki/Runtime-usage)
 for an example.
 Runtimes for other engines/frameworks are not planned in the near futures.
 
 ## Contributing
-Contributions are greatly appreciated. To make the process as easy as possible please follow the [Contribution Guide](https://github.com/jpooleycodes/Mundus/wiki/Contributing).
-To get an overview over the project you might also want to check out the [Project overview & architecture](https://github.com/jpooleycodes/Mundus/wiki/Project-overview-&-architecture) article.
+Contributions are greatly appreciated. To make the process as easy as possible please follow the [Contribution Guide](https://github.com/JamesTKhan/Mundus/wiki/Contributing).
+To get an overview over the project you might also want to check out the [Project overview & architecture](https://github.com/JamesTKhan/Mundus/wiki/Project-overview-&-architecture) article.
 I label issues that are good for first time contributes as "good first issue."
 
 ## Working from source
-See this [wiki article](https://github.com/jpooleycodes/Mundus/wiki/Working-from-source).
+See this [wiki article](https://github.com/JamesTKhan/Mundus/wiki/Working-from-source).
 
 ## Mundus origin
 This started as a fork of [Mundus](https://github.com/mbrlabs/Mundus). Mundus is no longer developed so this standalone repository was created. Special thanks to mbrlabs

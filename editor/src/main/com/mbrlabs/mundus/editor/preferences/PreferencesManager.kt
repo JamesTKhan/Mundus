@@ -1,7 +1,7 @@
 package com.mbrlabs.mundus.editor.preferences
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version July 15, 2022
  */
 interface PreferencesManager {

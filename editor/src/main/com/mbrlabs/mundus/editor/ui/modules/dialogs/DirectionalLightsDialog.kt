@@ -24,7 +24,7 @@ import com.mbrlabs.mundus.editor.ui.widgets.ImprovedSlider
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * *
  * @version 25-05-2022
  */

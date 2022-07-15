@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.FloatCounter;
 /**
  * Extends libGDX GLProfiler to add support for using the MundusGLInterceptor instead.
  *
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 30, 2022
  */
 public class MundusGLProfiler extends GLProfiler {

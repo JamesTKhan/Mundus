@@ -9,7 +9,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableLightComponent;
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 07, 2022
  */
 public class PickableLightComponentConverter {

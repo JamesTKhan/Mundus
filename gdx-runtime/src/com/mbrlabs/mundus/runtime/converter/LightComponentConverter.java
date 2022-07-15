@@ -8,7 +8,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 07, 2022
  */
 public class LightComponentConverter {

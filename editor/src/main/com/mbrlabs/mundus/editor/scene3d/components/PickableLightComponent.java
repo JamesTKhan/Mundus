@@ -24,7 +24,7 @@ import com.mbrlabs.mundus.editor.tools.picker.PickerIDAttribute;
  * The workaround is to create a 3D cube renderable about same size as the 2D decal, and we only render this cube
  * to the picker shader and encode its material with an id. After that, picking works as expected.
  *
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 01, 2022
  */
 public class PickableLightComponent extends LightComponent implements PickableComponent {

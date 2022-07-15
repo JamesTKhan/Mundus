@@ -6,7 +6,7 @@ import com.badlogic.gdx.Preferences
 /**
  * Manages global preferences for Mundus regardless of current project
  *
- * @author James Pooley
+ * @author JamesTKhan
  * @version July 14, 2022
  */
 class GlobalPreferencesManager : PreferencesManager {

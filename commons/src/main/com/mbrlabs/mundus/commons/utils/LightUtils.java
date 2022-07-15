@@ -8,7 +8,7 @@ import com.mbrlabs.mundus.commons.env.lights.*;
 /**
  * Utilities class for lighting.
  *
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 06, 2022
  */
 public class LightUtils {

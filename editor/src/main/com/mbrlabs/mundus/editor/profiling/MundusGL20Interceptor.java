@@ -8,7 +8,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 30, 2022
  */
 public class MundusGL20Interceptor extends MundusGLInterceptor {

@@ -10,7 +10,7 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 30, 2022
  */
 class ProfilingBar : Tab(false, false) {
