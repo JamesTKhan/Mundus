@@ -23,6 +23,8 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.utils.GdxRuntimeException
+import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
+import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
@@ -39,6 +41,7 @@ import com.mbrlabs.mundus.editor.ui.gizmos.GizmoManager
 import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
+import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 
@@ -113,10 +116,12 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     private fun setupSceneWidget() {
-        val batch = Mundus.inject<ModelBatch>()
         val context = projectManager.current()
         val scene = context.currScene
         val sg = scene.sceneGraph
+
+        val config = ShaderUtils.buildPBRShaderConfig(projectManager.current().assetManager.maxNumBones)
+        projectManager.modelBatch = ModelBatch(MundusPBRShaderProvider(config), SceneRenderableSorter())
 
         UI.sceneWidget.setCam(context.currScene.cam)
         UI.sceneWidget.setRenderer {
@@ -128,7 +133,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
             toolManager.render()
             gizmoManager.render()
-            compass.render(batch)
+            compass.render(projectManager.modelBatch, scene.environment)
         }
 
         gizmoManager.setCamera(context.currScene.cam)

@@ -20,6 +20,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
@@ -27,10 +28,9 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.mbrlabs.mundus.commons.env.Fog;
-import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
+import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 
 /**
  * @author Marcus Brummer
@@ -38,8 +38,8 @@ import com.mbrlabs.mundus.commons.utils.ShaderUtils;
  */
 public class SkyboxShader extends BaseShader {
 
-    private final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/skybox.vert.glsl";
-    private final String FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/skybox.frag.glsl";
+    private final static String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/skybox.vert.glsl";
+    private final static String FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/skybox.frag.glsl";
 
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
@@ -52,9 +52,9 @@ public class SkyboxShader extends BaseShader {
     private float rotateSpeed = Skybox.DEFAULT_ROTATE_SPEED;
     private float rotation = 0f;
 
-    private ShaderProgram program;
+    private final ShaderProgram program;
 
-    private Matrix4 transform = new Matrix4();
+    private final Matrix4 transform = new Matrix4();
 
     public SkyboxShader() {
         super();
@@ -104,13 +104,13 @@ public class SkyboxShader extends BaseShader {
             set(UNIFORM_TEXTURE, cubemapAttribute.textureDescription);
         }
 
-        // Fog
-        Fog fog = ((MundusEnvironment) renderable.environment).getFog();
-        if (fog == null) {
-            set(UNIFORM_FOG, 0);
-        } else {
+        FogAttribute fogEquation = renderable.environment.get(FogAttribute.class, FogAttribute.FogEquation);
+        ColorAttribute colorAttribute = renderable.environment.get(ColorAttribute.class, ColorAttribute.Fog);
+        if (fogEquation != null && colorAttribute != null) {
             set(UNIFORM_FOG, 1);
-            set(UNIFORM_FOG_COLOR, fog.color);
+            set(UNIFORM_FOG_COLOR, colorAttribute.color);
+        } else {
+            set(UNIFORM_FOG, 0);
         }
 
         renderable.meshPart.render(program);

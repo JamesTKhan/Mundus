@@ -19,9 +19,14 @@ package com.mbrlabs.mundus.runtime;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.utils.RenderableSorter;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
+import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider;
+import com.mbrlabs.mundus.commons.utils.ShaderUtils;
+import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 
 /**
  * @author Marcus Brummer
@@ -55,10 +60,28 @@ public class Mundus implements Disposable {
         return shaders;
     }
 
-    public Scene loadScene(final String name, final ModelBatch batch) {
-        final Scene scene = sceneLoader.load(name);
-        scene.batch = batch;
+    /**
+     * Loads a Scene. This is the default way to load a scene. Use overloaded
+     * methods if more customization is needed.
+     */
+    public Scene loadScene(final String name) {
+        PBRShaderConfig config = ShaderUtils.buildPBRShaderConfig(assetManager.maxNumBones);
+        return loadScene(name, config);
+    }
 
+    /**
+     * Optionally pass in your own PBRShaderConfig.
+     */
+    public Scene loadScene(final String name, PBRShaderConfig config) {
+        return loadScene(name, config, new SceneRenderableSorter());
+    }
+
+    /**
+     * Provide your own PBRShaderConfig and RenderableSorter
+     */
+    public Scene loadScene(final String name, PBRShaderConfig config, RenderableSorter renderableSorter) {
+        final Scene scene = sceneLoader.load(name);
+        scene.batch = new ModelBatch(new MundusPBRShaderProvider(config), renderableSorter);
         return scene;
     }
 

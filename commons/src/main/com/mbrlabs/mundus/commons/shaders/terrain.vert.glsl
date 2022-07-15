@@ -25,7 +25,7 @@ attribute vec4 a_tangent;
 
 uniform mat4 u_transMatrix;
 uniform mat4 u_projViewMatrix;
-uniform vec3 u_camPos;
+uniform vec4 u_camPos;
 uniform mat3 u_normalMatrix;
 
 // Fog
@@ -36,7 +36,6 @@ uniform vec2 u_terrainSize;
 
 varying vec2 v_texCoord0;
 varying vec2 splatPosition;
-varying float v_fog;
 varying vec3 v_normal;
 varying vec3 v_worldPos;
 varying mat3 v_TBN;
@@ -79,15 +78,6 @@ void main(void) {
     splatPosition = vec2(a_position.x / u_terrainSize.x, a_position.z / u_terrainSize);
 
     v_worldPos = worldPos.xyz;
-
-    // fog
-    if(u_fogDensity > 0.0 && u_fogGradient > 0.0) {
-        v_fog = distance(worldPos, vec4(u_camPos, 1.0));
-        v_fog = exp(-pow(v_fog * u_fogDensity, u_fogGradient));
-        v_fog = 1.0 - clamp(v_fog, 0.0, 1.0);
-    } else {
-        v_fog = 0.0;
-    }
 
     #ifdef PICKER
     v_pos = worldPos.xyz;

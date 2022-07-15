@@ -51,22 +51,22 @@ public class ToolManager extends InputAdapter implements Disposable {
     private InputManager inputManager;
 
     public ToolManager(InputManager inputManager, ProjectManager projectManager, GameObjectPicker goPicker,
-            ToolHandlePicker toolHandlePicker, ModelBatch modelBatch, ShapeRenderer shapeRenderer,
+            ToolHandlePicker toolHandlePicker, ShapeRenderer shapeRenderer,
             CommandHistory history) {
         this.inputManager = inputManager;
         this.activeTool = null;
 
         terrainBrushes = new Array<>();
-        terrainBrushes.add(new SmoothCircleBrush(projectManager, modelBatch, history));
-        terrainBrushes.add(new CircleBrush(projectManager, modelBatch, history));
-        terrainBrushes.add(new StarBrush(projectManager, modelBatch, history));
-        terrainBrushes.add(new ConfettiBrush(projectManager, modelBatch, history));
+        terrainBrushes.add(new SmoothCircleBrush(projectManager, history));
+        terrainBrushes.add(new CircleBrush(projectManager, history));
+        terrainBrushes.add(new StarBrush(projectManager, history));
+        terrainBrushes.add(new ConfettiBrush(projectManager, history));
 
-        modelPlacementTool = new ModelPlacementTool(projectManager, modelBatch, history);
-        selectionTool = new SelectionTool(projectManager, goPicker, modelBatch, history);
-        translateTool = new TranslateTool(projectManager, goPicker, toolHandlePicker, modelBatch, history);
-        rotateTool = new RotateTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, modelBatch, history);
-        scaleTool = new ScaleTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, modelBatch, history);
+        modelPlacementTool = new ModelPlacementTool(projectManager, history);
+        selectionTool = new SelectionTool(projectManager, goPicker, history);
+        translateTool = new TranslateTool(projectManager, goPicker, toolHandlePicker, history);
+        rotateTool = new RotateTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, history);
+        scaleTool = new ScaleTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, history);
     }
 
     public void activateTool(Tool tool) {

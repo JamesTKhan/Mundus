@@ -17,12 +17,15 @@
 package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -43,6 +46,11 @@ import com.mbrlabs.mundus.commons.skybox.Skybox;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
+import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
+import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 
 /**
  * @author Marcus Brummer
@@ -100,10 +108,31 @@ public class Scene implements Disposable {
         dirLight.direction.nor();
         environment.add(dirLight);
         environment.getAmbientLight().intensity = 0.8f;
+        environment.set(ColorAttribute.createAmbientLight(Color.WHITE));
+
+        initPBR();
 
         setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
 
         sceneGraph = new SceneGraph(this);
+    }
+
+    private void initPBR() {
+        DirectionalLightEx directionalLightEx = new DirectionalLightEx();
+        directionalLightEx.intensity = DirectionalLight.DEFAULT_INTENSITY;
+        directionalLightEx.setColor(DirectionalLight.DEFAULT_COLOR);
+        directionalLightEx.direction.set(DirectionalLight.DEFAULT_DIRECTION);
+
+        IBLBuilder iblBuilder = IBLBuilder.createOutdoor(directionalLightEx);
+        Cubemap diffuseCubemap = iblBuilder.buildIrradianceMap(256);
+        Cubemap specularCubemap = iblBuilder.buildRadianceMap(10);
+        iblBuilder.dispose();
+
+        Texture brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, .3f, .3f, .3f, 1));
+        environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
+        environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
+        environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
     }
 
     public void render() {
@@ -124,8 +153,8 @@ public class Scene implements Disposable {
 
         renderSkybox();
         renderShadowMap(delta);
-        renderObjects(delta);
         renderWater(delta);
+        renderObjects(delta);
     }
 
     private void renderObjects(float delta) {

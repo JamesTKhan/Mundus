@@ -17,17 +17,18 @@
 package com.mbrlabs.mundus.editor.ui.widgets
 
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
-import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
+import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
-import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
@@ -38,8 +39,6 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetMaterialFilter
 import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.events.LogEvent
-import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 
@@ -59,9 +58,21 @@ class MaterialWidget : VisTable() {
 
     private val matNameLabel: VisLabel = VisLabel()
     private val diffuseColorField: ColorPickerField = ColorPickerField()
+    private val emissiveColorField: ColorPickerField = ColorPickerField()
     private val diffuseAssetField: AssetSelectionField = AssetSelectionField()
     private val normalMapField: AssetSelectionField = AssetSelectionField()
-    private val shininessField = VisTextField()
+    private val emissiveAssetField: AssetSelectionField = AssetSelectionField()
+    private val metallicRoughnessAssetField: AssetSelectionField = AssetSelectionField()
+    private val occlusionAssetField: AssetSelectionField = AssetSelectionField()
+
+    private val roughnessField = ImprovedSlider(0.0f, 1.0f, 0.05f)
+    private val metallicField = ImprovedSlider(0.0f, 1.0f, 0.05f)
+    private val opacityField = ImprovedSlider(0.0f, 1.0f, 0.05f)
+    private val alphaTestField = ImprovedSlider(0.0f, 1.0f, 0.05f)
+    private val normalScaleField = ImprovedSlider(0.5f, 5f, 0.5f)
+    private val shadowBiasField = ImprovedSlider(0.1f, 2f, 0.05f)
+
+    private lateinit var cullFaceSelectBox: VisSelectBox<CullFace>
 
     private val projectManager: ProjectManager = Mundus.inject()
 
@@ -73,10 +84,20 @@ class MaterialWidget : VisTable() {
             if (value != null) {
                 field = value
                 diffuseColorField.selectedColor = value.diffuseColor
+                emissiveColorField.selectedColor = value.emissiveColor
                 diffuseAssetField.setAsset(value.diffuseTexture)
                 normalMapField.setAsset(value.normalMap)
+                emissiveAssetField.setAsset(value.emissiveTexture)
+                metallicRoughnessAssetField.setAsset(value.metallicRoughnessTexture)
+                occlusionAssetField.setAsset(value.occlusionTexture)
                 matNameLabel.setText(value.name)
-                shininessField.text = value.shininess.toString()
+                roughnessField.value = value.roughness
+                metallicField.value = value.metallic
+                opacityField.value = value.opacity
+                alphaTestField.value = value.alphaTest
+                normalScaleField.value = value.normalScale
+                shadowBiasField.value = value.shadowBias
+                cullFaceSelectBox.selected = CullFace.getFromValue(value.cullFace)
             }
         }
 
@@ -84,7 +105,7 @@ class MaterialWidget : VisTable() {
      * An optional listener for changing the material. If the property is null
      * the user will not be able to change the material.
      */
-    var matChangedListener: MaterialWidget.MaterialChangedListener? = null
+    var matChangedListener: MaterialChangedListener? = null
         set(value) {
             field = value
             matChangedBtn.touchable = if(value == null) Touchable.disabled else Touchable.enabled
@@ -105,21 +126,79 @@ class MaterialWidget : VisTable() {
     }
 
     private fun setupWidgets() {
+        defaults().padBottom(4f)
         val table = VisTable()
         table.add(matNameLabel).grow()
         table.add<VisTextButton>(matChangedBtn).padLeft(4f).right().row()
         add(table).grow().row()
 
-        addSeparator().growX().row()
+        addSeparator().padTop(15f).padBottom(15f).growX().row()
+
+        add(VisLabel("Diffuse color")).grow().row()
+        add(diffuseColorField).growX().row()
+        add(VisLabel("Emissive color")).grow().row()
+        add(emissiveColorField).growX().row()
 
         add(VisLabel("Diffuse texture")).grow().row()
         add(diffuseAssetField).growX().row()
+
         add(VisLabel("Normal map")).grow().row()
         add(normalMapField).growX().row()
-        add(VisLabel("Diffuse color")).grow().row()
-        add(diffuseColorField).growX().row()
-        add(VisLabel("Shininess")).growX().row()
-        add(shininessField).growX().row()
+
+        add(ToolTipLabel("Emissive texture", "The emissive texture. It controls the color and intensity " +
+                "of the light being emitted by the material.\n This texture contains RGB components encoded with the sRGB transfer function.")).left().row()
+        add(emissiveAssetField).growX().row()
+
+        add(ToolTipLabel("Metallic/Roughness Texture", "The textures for metalness and roughness properties are packed together in a single texture called\n"+
+                "metallicRoughnessTexture. Its green channel contains roughness values and its blue channel contains metalness values")).left().row()
+        add(metallicRoughnessAssetField).growX().row()
+
+        add(ToolTipLabel("Occlusion Texture", "The occlusion texture. The occlusion values are linearly sampled from the R channel.")).left().row()
+        add(occlusionAssetField).growX().row()
+
+        addSeparator().padTop(15f).padBottom(15f).growX().row()
+
+        val sliderTable = VisTable()
+        sliderTable.defaults().padBottom(10f)
+        sliderTable.add(VisLabel("Roughness")).growX()
+        sliderTable.add(roughnessField).growX().row()
+
+        sliderTable.add(VisLabel("Metallic")).growX()
+        sliderTable.add(metallicField).growX().row()
+
+        sliderTable.add(VisLabel("Opacity")).growX()
+        sliderTable.add(opacityField).growX().row()
+
+        sliderTable.add(ToolTipLabel("Alpha Test", "If the alpha value is greater than or equal to " +
+                "this value then it is rendered as fully opaque, otherwise, it is rendered as fully transparent.\n" +
+                "Useful for models like trees that have leaf textures with alpha values")).left()
+        sliderTable.add(alphaTestField).growX().row()
+
+        sliderTable.add(VisLabel("Normal Scale")).growX()
+        sliderTable.add(normalScaleField).growX().row()
+
+        sliderTable.add(ToolTipLabel("Shadow Bias", "Increase to reduce shadow acne. Increase wisely as " +
+                "higher bias results in peter-panning effect.")).left()
+        sliderTable.add(shadowBiasField).growX().row()
+
+        val values = Array<CullFace>()
+        for (value in CullFace.values())
+            values.add(value)
+
+        cullFaceSelectBox = VisSelectBox()
+        cullFaceSelectBox.items = values
+
+        val cullTip = buildString {
+            append("NONE: No culling\n")
+            append("DEFAULT: Use Mundus Default (GL_BACK)\n")
+            append("GL_BACK: Back face culling, recommended for performance.\n")
+            append("GL_FRONT: Front face culling.\n")
+            append("GL_FRONT_AND_BACK: Entire model culled (front and back).")
+        }
+        sliderTable.add(ToolTipLabel("Cull Face", cullTip)).left()
+        sliderTable.add(cullFaceSelectBox).left()
+
+        add(sliderTable).growX().row()
 
         matChangedBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -149,6 +228,39 @@ class MaterialWidget : VisTable() {
             }
         }
 
+        // emissive texture
+        emissiveAssetField.assetFilter = AssetTextureFilter()
+        emissiveAssetField.pickerListener = object: AssetPickerDialog.AssetPickerListener {
+            override fun onSelected(asset: Asset?) {
+                material?.emissiveTexture = asset as? TextureAsset
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        }
+
+        // metallic/roughness texture
+        metallicRoughnessAssetField.assetFilter = AssetTextureFilter()
+        metallicRoughnessAssetField.pickerListener = object: AssetPickerDialog.AssetPickerListener {
+            override fun onSelected(asset: Asset?) {
+                material?.metallicRoughnessTexture = asset as? TextureAsset
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        }
+
+        // occlusion texture
+        occlusionAssetField.assetFilter = AssetTextureFilter()
+        occlusionAssetField.pickerListener = object: AssetPickerDialog.AssetPickerListener {
+            override fun onSelected(asset: Asset?) {
+                material?.occlusionTexture = asset as? TextureAsset
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        }
+
         // diffuse color
         diffuseColorField.colorAdapter = object: ColorPickerAdapter() {
             override fun finished(newColor: Color) {
@@ -159,20 +271,89 @@ class MaterialWidget : VisTable() {
             }
         }
 
-        // shininess
-        shininessField.textFieldFilter = FloatDigitsOnlyFilter(false)
-        shininessField.addListener(object: ChangeListener() {
+        // emissive color
+        emissiveColorField.colorAdapter = object: ColorPickerAdapter() {
+            override fun finished(newColor: Color) {
+                material?.emissiveColor?.set(newColor)
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        }
+
+        // roughness
+        roughnessField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.roughness == roughnessField.value) return
+                material?.roughness = roughnessField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        })
+
+        // metallic
+        metallicField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.metallic == metallicField.value) return
+                material?.metallic = metallicField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        })
+
+        // opacity
+        opacityField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.opacity == opacityField.value) return
+                material?.opacity = opacityField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        })
+
+        // alpha test
+        alphaTestField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.alphaTest == alphaTestField.value) return
+                material?.alphaTest = alphaTestField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        })
+
+
+        // normal scale
+        normalScaleField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.normalScale == normalScaleField.value) return
+                material?.normalScale = normalScaleField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        })
+
+        shadowBiasField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (material?.shadowBias == shadowBiasField.value) return
+                material?.shadowBias = shadowBiasField.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        })
+
+        cullFaceSelectBox.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                if(shininessField.isInputValid && !shininessField.isEmpty) {
-                    try {
-                        material?.shininess = shininessField.text.toFloat()
-                        applyMaterialToModelAssets()
-                        applyMaterialToModelComponents()
-                        projectManager.current().assetManager.addModifiedAsset(material!!)
-                    } catch (ex : NumberFormatException) {
-                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + shininessField.name))
-                    }
-                }
+                if (material?.cullFace == cullFaceSelectBox.selected.value) return
+                material?.cullFace = cullFaceSelectBox.selected.value
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
             }
         })
 
@@ -204,5 +385,28 @@ class MaterialWidget : VisTable() {
         fun materialChanged(materialAsset: MaterialAsset)
     }
 
+    /**
+     * Simple enum for GL Cull Face int values,
+     * used for select box in UI
+     */
+    enum class CullFace(val value: Int) {
+        NONE(0),
+        DEFAULT(-1),
+        GL_BACK(GL20.GL_BACK),
+        GL_FRONT(GL20.GL_FRONT),
+        GL_FRONT_AND_BACK(GL20.GL_FRONT_AND_BACK);
 
+        companion object {
+            fun getFromValue(value: Int): CullFace {
+                when (value) {
+                    NONE.value -> return NONE
+                    DEFAULT.value -> return DEFAULT
+                    GL_BACK.value -> return GL_BACK
+                    GL_FRONT.value -> return GL_FRONT
+                    GL_FRONT_AND_BACK.value -> return GL_FRONT_AND_BACK
+                }
+                return DEFAULT
+            }
+        }
+    }
 }

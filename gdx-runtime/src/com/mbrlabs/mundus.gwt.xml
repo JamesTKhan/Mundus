@@ -4,8 +4,6 @@
     <source path="mundus" />
 
     <!-- glsl shaders -->
-    <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/model.frag.glsl" />
-    <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/model.vert.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/skybox.frag.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/skybox.vert.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/terrain.frag.glsl" />
@@ -17,5 +15,7 @@
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/shadowmap.frag.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/shadowmap.vert.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/light.glsl" />
+    <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.fs.glsl" />
+    <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.vs.glsl" />
 
 </module>

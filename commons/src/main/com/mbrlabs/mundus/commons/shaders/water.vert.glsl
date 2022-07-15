@@ -8,7 +8,7 @@ attribute vec2 a_texCoord0;
 
 uniform mat4 u_transMatrix;
 uniform mat4 u_projViewMatrix;
-uniform vec3 u_cameraPosition;
+uniform vec4 u_cameraPosition;
 uniform float u_tiling;
 uniform vec4 u_diffuseUVTransform;
 varying vec2 v_diffuseUV;
@@ -35,5 +35,5 @@ void main() {
 
     v_waterTexCoords = vec2(a_position.x/2.0 + 0.5, a_position.z/2.0 + 0.5) * u_tiling;
 
-    v_toCameraVector = u_cameraPosition - worldPos.xyz;
+    v_toCameraVector = u_cameraPosition.xyz - worldPos.xyz;
 }

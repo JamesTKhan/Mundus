@@ -62,6 +62,7 @@ object Mundus {
     val eventBus: EventBus
 
     lateinit var fa: BitmapFont
+    lateinit var faSmall: BitmapFont
 
     private val modelBatch: ModelBatch
     private val toolManager: ToolManager
@@ -104,7 +105,7 @@ object Mundus {
         commandHistory = CommandHistory(CommandHistory.DEFAULT_LIMIT)
         modelImporter = ModelImporter(registry)
         projectManager = ProjectManager(kryoManager, registry, modelBatch)
-        toolManager = ToolManager(input, projectManager, goPicker, handlePicker, modelBatch, shapeRenderer,
+        toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
                 commandHistory)
         gizmoManager = GizmoManager()
         shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager)
@@ -114,7 +115,6 @@ object Mundus {
         // add to DI container
         context.register {
             bindSingleton(shapeRenderer)
-            bindSingleton(modelBatch)
             bindSingleton(input)
             bindSingleton(goPicker)
             bindSingleton(handlePicker)
@@ -172,7 +172,8 @@ object Mundus {
     }
 
     private fun initFontAwesome() {
-        val faBuilder = Fa(Gdx.files.internal("fonts/fa45.ttf"))
+        // Build regular Font Awesome font
+        var faBuilder = Fa(Gdx.files.internal("fonts/fa45.ttf"))
         faBuilder.generatorParameter.size = (Gdx.graphics.height * 0.02f).toInt()
         faBuilder.generatorParameter.kerning = true
         faBuilder.generatorParameter.borderStraight = false
@@ -181,7 +182,14 @@ object Mundus {
                 addIcon(Fa.CIRCLE_O).addIcon(Fa.CIRCLE).addIcon(Fa.MINUS).addIcon(Fa.CARET_DOWN).
                 addIcon(Fa.CARET_UP).addIcon(Fa.TIMES).addIcon(Fa.SORT).addIcon(Fa.HASHTAG).
                 addIcon(Fa.PAINT_BRUSH).addIcon(Fa.STAR).addIcon(Fa.REFRESH).addIcon(Fa.EXPAND).
-                addIcon(Fa.ARROWS_ALT).addIcon(Fa.EYE).addIcon(Fa.EYE_SLASH).addIcon(Fa.INFO_CIRCLE).build()
+                addIcon(Fa.ARROWS_ALT).addIcon(Fa.EYE).addIcon(Fa.EYE_SLASH).build()
+
+        // Build smaller Font Awesome font
+        faBuilder = Fa(Gdx.files.internal("fonts/fa45.ttf"))
+        faBuilder.generatorParameter.size = (Gdx.graphics.height * 0.015f).toInt()
+        faBuilder.generatorParameter.kerning = true
+        faBuilder.generatorParameter.borderStraight = false
+        faSmall = faBuilder.addIcon(Fa.INFO_CIRCLE).build()
     }
 
     /**

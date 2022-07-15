@@ -40,9 +40,9 @@ public class SelectionTool extends Tool {
 
     private GameObjectPicker goPicker;
 
-    public SelectionTool(ProjectManager projectManager, GameObjectPicker goPicker, ModelBatch batch,
+    public SelectionTool(ProjectManager projectManager, GameObjectPicker goPicker,
             CommandHistory history) {
-        super(projectManager, batch, history);
+        super(projectManager, history);
         this.goPicker = goPicker;
     }
 
@@ -68,27 +68,27 @@ public class SelectionTool extends Tool {
     @Override
     public void render() {
         if (getProjectManager().current().currScene.currentSelection != null) {
-            getBatch().begin(getProjectManager().current().currScene.cam);
+            getProjectManager().getModelBatch().begin(getProjectManager().current().currScene.cam);
             for (GameObject go : getProjectManager().current().currScene.currentSelection) {
                 // model component
                 ModelComponent mc = (ModelComponent) go.findComponentByType(Component.Type.MODEL);
                 if (mc != null) {
-                    getBatch().render(mc.getModelInstance(), getShader());
+                    getProjectManager().getModelBatch().render(mc.getModelInstance(), getShader());
                 }
 
                 // terrainAsset component
                 TerrainComponent tc = (TerrainComponent) go.findComponentByType(Component.Type.TERRAIN);
                 if (tc != null) {
-                    getBatch().render(tc.getTerrain().getTerrain(), getShader());
+                    getProjectManager().getModelBatch().render(tc.getTerrain().getTerrain(), getShader());
                 }
 
                 // terrainAsset component
                 WaterComponent wc = (WaterComponent) go.findComponentByType(Component.Type.WATER);
                 if (wc != null) {
-                    getBatch().render(wc.getWaterAsset().water, getShader());
+                    getProjectManager().getModelBatch().render(wc.getWaterAsset().water, getShader());
                 }
             }
-            getBatch().end();
+            getProjectManager().getModelBatch().end();
         }
     }
 

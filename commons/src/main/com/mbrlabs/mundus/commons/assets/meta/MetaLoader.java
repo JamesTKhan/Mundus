@@ -79,6 +79,10 @@ public class MetaLoader {
         if(jsonModel == null) return;
 
         final MetaModel model = new MetaModel();
+
+        int numBones = readWithDefault(jsonModel, MetaModel.JSON_NUM_BONES, 0);
+        model.setNumBones(numBones);
+
         final JsonValue materials = jsonModel.get(MetaModel.JSON_DEFAULT_MATERIALS);
 
         for(final JsonValue mat : materials) {
@@ -107,6 +111,14 @@ public class MetaLoader {
     private float readWithDefault(JsonValue jsonValue, String jsonKey, float defaultValue) {
         try {
             return jsonValue.getFloat(jsonKey);
+        } catch (IllegalArgumentException ex) {
+            return defaultValue;
+        }
+    }
+
+    private int readWithDefault(JsonValue jsonValue, String jsonKey, int defaultValue) {
+        try {
+            return jsonValue.getInt(jsonKey);
         } catch (IllegalArgumentException ex) {
             return defaultValue;
         }

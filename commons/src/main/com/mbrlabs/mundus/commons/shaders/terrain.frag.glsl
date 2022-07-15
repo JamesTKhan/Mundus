@@ -56,6 +56,8 @@ uniform sampler2D u_texture_g_normal;
 uniform sampler2D u_texture_b_normal;
 uniform sampler2D u_texture_a_normal;
 
+uniform vec3 u_fogEquation;
+
 // mouse picking
 #ifdef PICKER
 uniform vec3 u_pickerPos;
@@ -71,7 +73,6 @@ varying vec3 v_normal;
 varying mat3 v_TBN;
 
 varying MED vec2 v_texCoord0;
-varying float v_fog;
 
 varying vec2 splatPosition;
 varying float v_clipDistance;
@@ -142,9 +143,17 @@ void main(void) {
     //                          /Lighting
     // =================================================================
 
-
     // fog
-    gl_FragColor = mix(gl_FragColor, u_fogColor, v_fog);
+    if (u_fogEquation.z > 0.0) {
+        vec3 surfaceToCamera = u_camPos.xyz - v_worldPos;
+        float eyeDistance = length(surfaceToCamera);
+
+        float fog = (eyeDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
+        fog = clamp(fog, 0.0, 1.0);
+        fog = pow(fog, u_fogEquation.z);
+
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, u_fogColor.rgb, fog * u_fogColor.a);
+    }
 
     #ifdef PICKER
     if(u_pickerActive == 1) {

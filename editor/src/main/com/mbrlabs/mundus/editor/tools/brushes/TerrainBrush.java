@@ -72,12 +72,12 @@ public abstract class TerrainBrush extends Tool {
      * 'lower' as secondary. Pressing the keycode of the secondary & the primary
      * key enables the secondary action.
      **/
-    public static enum BrushAction {
+    public enum BrushAction {
         PRIMARY(Input.Buttons.LEFT), SECONDARY(Input.Keys.SHIFT_LEFT);
 
         public final int code;
 
-        private BrushAction(int levelCode) {
+        BrushAction(int levelCode) {
             this.code = levelCode;
         }
 
@@ -102,7 +102,7 @@ public abstract class TerrainBrush extends Tool {
     protected static final Vector3 tVec1 = new Vector3();
 
     // all brushes share the some common settings
-    private static GlobalBrushSettingsChangedEvent brushSettingsChangedEvent = new GlobalBrushSettingsChangedEvent();
+    private static final GlobalBrushSettingsChangedEvent brushSettingsChangedEvent = new GlobalBrushSettingsChangedEvent();
     private static float strength = 0.5f;
     private static float heightSample = 0f;
     private static SplatTexture.Channel paintChannel;
@@ -117,8 +117,8 @@ public abstract class TerrainBrush extends Tool {
     private boolean mouseMoved = false;
 
     // the pixmap brush
-    private Pixmap brushPixmap;
-    private int pixmapCenter;
+    private final Pixmap brushPixmap;
+    private final int pixmapCenter;
 
     // undo/redo system
     private TerrainHeightCommand heightCommand = null;
@@ -126,9 +126,9 @@ public abstract class TerrainBrush extends Tool {
     private boolean terrainHeightModified = false;
     private boolean splatmapModified = false;
 
-    public TerrainBrush(ProjectManager projectManager, ModelBatch batch, CommandHistory history,
+    public TerrainBrush(ProjectManager projectManager, CommandHistory history,
             FileHandle pixmapBrush) {
-        super(projectManager, batch, history);
+        super(projectManager, history);
 
         brushPixmap = new Pixmap(pixmapBrush);
         pixmapCenter = brushPixmap.getWidth() / 2;
@@ -254,12 +254,6 @@ public abstract class TerrainBrush extends Tool {
      * Interpolation is necessary, since the brush pixmap is fixed sized,
      * whereas the input values can scale. (Input points can be vertices or
      * splatmap texture coordinates)
-     *
-     * @param centerX
-     * @param centerZ
-     * @param pointX
-     * @param pointZ
-     * @param radius
      *
      * @return the interpolated r-channel value of brush pixmap at pointX,
      *         pointZ, which can be interpreted as terrainAsset height
