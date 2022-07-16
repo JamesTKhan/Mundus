@@ -54,6 +54,7 @@ public class Terrain implements RenderableProvider, Disposable {
     private static final Vector3 c01 = new Vector3();
     private static final Vector3 c10 = new Vector3();
     private static final Vector3 c11 = new Vector3();
+    private static final Vector3 tmp = new Vector3();
 
     public Matrix4 transform;
     public float[] heightData;
@@ -328,7 +329,8 @@ public class Terrain implements RenderableProvider, Disposable {
     }
 
     public boolean isUnderTerrain(Vector3 worldCoords) {
-        float terrainHeight = getHeightAtWorldCoord(worldCoords.x, worldCoords.z);
+        // Factor in world position as well get getPosition.
+        float terrainHeight = getHeightAtWorldCoord(worldCoords.x, worldCoords.z) + getPosition(tmp).y;
         return terrainHeight > worldCoords.y;
     }
 

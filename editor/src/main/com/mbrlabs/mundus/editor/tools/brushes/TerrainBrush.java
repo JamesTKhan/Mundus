@@ -21,7 +21,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
@@ -29,7 +28,6 @@ import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
-import com.mbrlabs.mundus.commons.utils.MathUtils;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GlobalBrushSettingsChangedEvent;
@@ -38,6 +36,7 @@ import com.mbrlabs.mundus.editor.history.commands.TerrainHeightCommand;
 import com.mbrlabs.mundus.editor.history.commands.TerrainPaintCommand;
 import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.tools.Tool;
+import com.mbrlabs.mundus.editor.ui.UI;
 
 /**
  * A Terrain Brush can modify the terrainAsset in various ways (BrushMode).
@@ -142,12 +141,19 @@ public abstract class TerrainBrush extends Tool {
         // sample height
         if (action == BrushAction.SECONDARY && mode == BrushMode.FLATTEN) {
             heightSample = brushPos.y;
+            UI.INSTANCE.getToaster().success("Height Sampled: " + heightSample);
+            action = null;
             return;
         }
 
         // only act if mouse has been moved
         if (!mouseMoved) return;
         mouseMoved = false;
+
+        // For paint brushes, temporarily transform terrain to 0 height, to resolve issues with
+        // vertex height vs world height issues.
+        Vector3 originalTerrainPos = terrainAsset.getTerrain().getPosition(new Vector3());
+        terrainAsset.getTerrain().transform.setTranslation(originalTerrainPos.x, 0, originalTerrainPos.z);
 
         if (mode == BrushMode.PAINT) {
             paint();
@@ -156,6 +162,8 @@ public abstract class TerrainBrush extends Tool {
         } else if (mode == BrushMode.FLATTEN) {
             flatten();
         }
+
+        terrainAsset.getTerrain().transform.setTranslation(originalTerrainPos.x, originalTerrainPos.y, originalTerrainPos.z);
     }
 
     private void paint() {
@@ -193,7 +201,12 @@ public abstract class TerrainBrush extends Tool {
                 final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
                 vertexPos.x += terPos.x;
                 vertexPos.z += terPos.z;
-                float distance = vertexPos.dst(brushPos);
+                vertexPos.y += terPos.y;
+
+                Vector3 tmp = new Vector3();
+                tmp.set(brushPos);
+                tmp.y = vertexPos.y;
+                float distance = vertexPos.dst(tmp);
 
                 if (distance <= radius) {
                     final int index = z * terrain.vertexResolution + x;
@@ -232,7 +245,9 @@ public abstract class TerrainBrush extends Tool {
                 final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
                 vertexPos.x += terPos.x;
                 vertexPos.z += terPos.z;
-                float distance = vertexPos.dst(brushPos);
+                Vector3 test = brushPos.cpy();
+                test.y = vertexPos.y;
+                float distance = vertexPos.dst(test);
 
                 if (distance <= radius) {
                     float elevation = getValueOfBrushPixmap(brushPos.x, brushPos.z, vertexPos.x, vertexPos.z, radius);
