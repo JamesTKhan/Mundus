@@ -99,6 +99,7 @@ public abstract class TerrainBrush extends Tool {
     protected static final Color c0 = new Color();
     protected static final Vector3 tVec0 = new Vector3();
     protected static final Vector3 tVec1 = new Vector3();
+    protected static final Vector3 tVec2 = new Vector3();
 
     // all brushes share the some common settings
     private static final GlobalBrushSettingsChangedEvent brushSettingsChangedEvent = new GlobalBrushSettingsChangedEvent();
@@ -151,13 +152,6 @@ public abstract class TerrainBrush extends Tool {
         if (!mouseMoved) return;
         mouseMoved = false;
 
-        Vector3 originalTerrainPos = terrainAsset.getTerrain().getPosition(tVec0);
-        if (originalTerrainPos.y != 0) {
-            // For paint brushes, this workaround temporarily transform terrain to 0 height, to avoid issues with
-            // vertex height vs world height issues.
-            terrainAsset.getTerrain().transform.setTranslation(originalTerrainPos.x, 0, originalTerrainPos.z);
-        }
-
         if (mode == BrushMode.PAINT) {
             paint();
         } else if (mode == BrushMode.RAISE_LOWER) {
@@ -166,10 +160,6 @@ public abstract class TerrainBrush extends Tool {
             flatten();
         }
 
-        if (originalTerrainPos.y != 0) {
-            // Set the terrains' height back
-            terrainAsset.getTerrain().transform.setTranslation(originalTerrainPos.x, originalTerrainPos.y, originalTerrainPos.z);
-        }
     }
 
     private void paint() {
@@ -209,10 +199,9 @@ public abstract class TerrainBrush extends Tool {
                 vertexPos.z += terPos.z;
                 vertexPos.y += terPos.y;
 
-                Vector3 tmp = new Vector3();
-                tmp.set(brushPos);
-                tmp.y = vertexPos.y;
-                float distance = vertexPos.dst(tmp);
+                tVec2.set(brushPos);
+                tVec2.y = vertexPos.y;
+                float distance = vertexPos.dst(tVec2);
 
                 if (distance <= radius) {
                     final int index = z * terrain.vertexResolution + x;
@@ -251,9 +240,12 @@ public abstract class TerrainBrush extends Tool {
                 final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
                 vertexPos.x += terPos.x;
                 vertexPos.z += terPos.z;
-                Vector3 test = brushPos.cpy();
-                test.y = vertexPos.y;
-                float distance = vertexPos.dst(test);
+
+                // for the dist calc, we do not want to factor in global Y height
+                tVec2.set(brushPos);
+                tVec2.y = vertexPos.y;
+
+                float distance = vertexPos.dst(tVec2);
 
                 if (distance <= radius) {
                     float elevation = getValueOfBrushPixmap(brushPos.x, brushPos.z, vertexPos.x, vertexPos.z, radius);
