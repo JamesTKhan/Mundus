@@ -140,7 +140,8 @@ public abstract class TerrainBrush extends Tool {
 
         // sample height
         if (action == BrushAction.SECONDARY && mode == BrushMode.FLATTEN) {
-            heightSample = brushPos.y;
+            // brushPos is in world coords, convert to terrains local height by negating world height
+            heightSample = brushPos.y - terrainAsset.getTerrain().getPosition(tVec0).y;
             UI.INSTANCE.getToaster().success("Height Sampled: " + heightSample);
             action = null;
             return;
@@ -150,10 +151,12 @@ public abstract class TerrainBrush extends Tool {
         if (!mouseMoved) return;
         mouseMoved = false;
 
-        // For paint brushes, temporarily transform terrain to 0 height, to resolve issues with
-        // vertex height vs world height issues.
-        Vector3 originalTerrainPos = terrainAsset.getTerrain().getPosition(new Vector3());
-        terrainAsset.getTerrain().transform.setTranslation(originalTerrainPos.x, 0, originalTerrainPos.z);
+        Vector3 originalTerrainPos = terrainAsset.getTerrain().getPosition(tVec0);
+        if (originalTerrainPos.y != 0) {
+            // For paint brushes, this workaround temporarily transform terrain to 0 height, to avoid issues with
+            // vertex height vs world height issues.
+            terrainAsset.getTerrain().transform.setTranslation(originalTerrainPos.x, 0, originalTerrainPos.z);
+        }
 
         if (mode == BrushMode.PAINT) {
             paint();
@@ -163,7 +166,10 @@ public abstract class TerrainBrush extends Tool {
             flatten();
         }
 
-        terrainAsset.getTerrain().transform.setTranslation(originalTerrainPos.x, originalTerrainPos.y, originalTerrainPos.z);
+        if (originalTerrainPos.y != 0) {
+            // Set the terrains' height back
+            terrainAsset.getTerrain().transform.setTranslation(originalTerrainPos.x, originalTerrainPos.y, originalTerrainPos.z);
+        }
     }
 
     private void paint() {
@@ -438,7 +444,7 @@ public abstract class TerrainBrush extends Tool {
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
-        if (amountX < 0) {
+        if (amountY < 0) {
             scale(0.9f);
         } else {
             scale(1.1f);

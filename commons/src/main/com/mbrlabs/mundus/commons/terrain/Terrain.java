@@ -185,7 +185,7 @@ public class Terrain implements RenderableProvider, Disposable {
             ray.getEndPoint(out, curDistance);
 
             boolean u = isUnderTerrain(out);
-            if (u != isUnder || rounds == 10000) {
+            if (u != isUnder || rounds == 20000) {
                 return out;
             }
             curDistance += u ? -0.1f : 0.1f;
@@ -329,7 +329,7 @@ public class Terrain implements RenderableProvider, Disposable {
     }
 
     public boolean isUnderTerrain(Vector3 worldCoords) {
-        // Factor in world position as well get getPosition.
+        // Factor in world height position as well via getPosition.
         float terrainHeight = getHeightAtWorldCoord(worldCoords.x, worldCoords.z) + getPosition(tmp).y;
         return terrainHeight > worldCoords.y;
     }
