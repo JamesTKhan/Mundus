@@ -108,6 +108,7 @@ class FreeCamController : InputAdapter() {
     }
 
     override fun scrolled(amountX: Float, amountY: Float): Boolean {
+        // If using combo key, do not consume event
         if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) return false
 
         tmp.set(camera!!.direction).nor().scl(-amountY * zoomAmount)

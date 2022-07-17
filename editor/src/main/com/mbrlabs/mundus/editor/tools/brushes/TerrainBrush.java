@@ -21,6 +21,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
@@ -104,6 +106,7 @@ public abstract class TerrainBrush extends Tool {
     // all brushes share the some common settings
     private static final GlobalBrushSettingsChangedEvent brushSettingsChangedEvent = new GlobalBrushSettingsChangedEvent();
     private static float strength = 0.5f;
+    private static float smoothingFactor = 0.005f;
     private static float heightSample = 0f;
     private static SplatTexture.Channel paintChannel;
 
@@ -158,6 +161,8 @@ public abstract class TerrainBrush extends Tool {
             raiseLower(action);
         } else if (mode == BrushMode.FLATTEN) {
             flatten();
+        } else if (mode == BrushMode.SMOOTH) {
+            smooth();
         }
 
     }
@@ -186,6 +191,65 @@ public abstract class TerrainBrush extends Tool {
 
         sm.updateTexture();
         splatmapModified = true;
+        getProjectManager().current().assetManager.addModifiedAsset(terrainAsset);
+    }
+
+    /**
+     * Get average height of all vertices in radius, interpolate heights to average height
+     * will a falloff effect based on distance from radius.
+     */
+    private void smooth() {
+        Terrain terrain = terrainAsset.getTerrain();
+        final Vector3 terPos = terrain.getPosition(tVec1);
+
+        int weights = 0;
+        float totalHeights = 0;
+
+        // Get total height of all vertices within radius
+        for (int x = 0; x < terrain.vertexResolution; x++) {
+            for (int z = 0; z < terrain.vertexResolution; z++) {
+                final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
+                vertexPos.x += terPos.x;
+                vertexPos.z += terPos.z;
+
+                tVec2.set(brushPos);
+                tVec2.y = vertexPos.y;
+                float distance = vertexPos.dst(tVec2);
+
+                if (distance <= radius) {
+                    totalHeights += vertexPos.y;
+                    weights++;
+                }
+            }
+        }
+
+        float averageHeight = totalHeights / weights;
+
+        // Interpolate height with averageHeight
+        for (int x = 0; x < terrain.vertexResolution; x++) {
+            for (int z = 0; z < terrain.vertexResolution; z++) {
+                final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
+                vertexPos.x += terPos.x;
+                vertexPos.z += terPos.z;
+                vertexPos.y += terPos.y;
+
+                tVec2.set(brushPos);
+                tVec2.y = vertexPos.y;
+                float distance = vertexPos.dst(tVec2);
+
+                if (distance <= radius) {
+                    final int index = z * terrain.vertexResolution + x;
+                    float heightAtIndex = terrain.heightData[index];
+                    // Take radius - distance to get a falloff effect
+                    float lerpProgress = MathUtils.clamp((radius - distance) * (strength * smoothingFactor), 0.0f, 1.0f);
+                    float smoothedHeight = Interpolation.smooth2.apply(heightAtIndex, averageHeight, lerpProgress);
+                    terrain.heightData[index] = smoothedHeight;
+                }
+            }
+        }
+
+        terrain.update();
+        terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainAsset);
     }
 
@@ -339,10 +403,11 @@ public abstract class TerrainBrush extends Tool {
 
     public boolean supportsMode(BrushMode mode) {
         switch (mode) {
-        case RAISE_LOWER:
-        case FLATTEN:
-        case PAINT:
-            return true;
+            case RAISE_LOWER:
+            case FLATTEN:
+            case PAINT:
+            case SMOOTH:
+                return true;
         }
 
         return false;
