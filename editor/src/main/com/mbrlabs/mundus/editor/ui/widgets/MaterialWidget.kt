@@ -33,8 +33,7 @@ import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
 import com.mbrlabs.mundus.commons.assets.TextureAsset
-import com.mbrlabs.mundus.commons.scene3d.components.Component
-import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
+import com.mbrlabs.mundus.commons.utils.ModelUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetMaterialFilter
 import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
@@ -361,13 +360,7 @@ class MaterialWidget : VisTable() {
 
     // TODO find better solution than iterating through all components
     private fun applyMaterialToModelComponents() {
-        val sceneGraph = projectManager.current().currScene.sceneGraph
-        for (go in sceneGraph.gameObjects) {
-            val mc = go.findComponentByType(Component.Type.MODEL)
-            if (mc != null && mc is ModelComponent) {
-                mc.applyMaterials()
-            }
-        }
+        ModelUtils.applyGameObjectMaterials(projectManager.current().currScene.sceneGraph.root)
     }
 
     // TODO find better solution than iterating through all assets

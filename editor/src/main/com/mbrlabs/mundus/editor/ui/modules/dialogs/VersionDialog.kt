@@ -7,8 +7,7 @@ import com.kotcrab.vis.ui.widget.LinkLabel
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
-import com.mbrlabs.mundus.commons.scene3d.components.Component
-import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
+import com.mbrlabs.mundus.commons.utils.ModelUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.VERSION
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -83,13 +82,7 @@ class VersionDialog : BaseDialog("Version Info") {
                     asset.applyDependencies()
                 }
 
-                val sceneGraph = projectManager.current().currScene.sceneGraph
-                for (go in sceneGraph.gameObjects) {
-                    val mc = go.findComponentByType(Component.Type.MODEL)
-                    if (mc != null && mc is ModelComponent) {
-                        mc.applyMaterials()
-                    }
-                }
+                ModelUtils.applyGameObjectMaterials(projectManager.current().currScene.sceneGraph.root)
 
                 resetOpacityBtn.setText("Done")
                 resetOpacityBtn.focusLost()
