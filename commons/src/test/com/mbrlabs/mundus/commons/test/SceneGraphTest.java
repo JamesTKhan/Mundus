@@ -30,19 +30,19 @@ public class SceneGraphTest {
 
     @Test
     public void basicParenting() {
-        Node root = new SimpleNode<SimpleNode>(0);
+        Node<SimpleNode> root = new SimpleNode<>(0);
         Assert.assertNull(root.getChildren());
 
-        Node c0 = new SimpleNode<SimpleNode>(1);
+        SimpleNode<SimpleNode> c0 = new SimpleNode<>(1);
         root.addChild(c0);
         Assert.assertEquals(1, root.getChildren().size);
-        Assert.assertTrue(root.getChildren().first() == c0);
-        Assert.assertTrue(root == c0.getParent());
+        Assert.assertSame(root.getChildren().first(), c0);
+        Assert.assertSame(root, c0.getParent());
 
-        Node c1 = new SimpleNode<SimpleNode>(2);
+        SimpleNode<SimpleNode> c1 = new SimpleNode<>(2);
         root.addChild(c1);
         Assert.assertEquals(2, root.getChildren().size);
-        Assert.assertTrue(root == c0.getParent());
+        Assert.assertSame(root, c0.getParent());
 
         c0.remove();
         Assert.assertEquals(1, root.getChildren().size);

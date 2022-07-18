@@ -149,6 +149,7 @@ class Outline : VisTable(),
                 val context = projectManager.current()
                 val newParent = tree.getNodeAt(y)
 
+                @Suppress("UNCHECKED_CAST")
                 val node: Tree.Node<OutlineNode, GameObject, VisTable> = (payload.`object` as? Tree.Node<OutlineNode, GameObject, VisTable>) ?: return
                 val draggedGo: GameObject = node.value
 
@@ -316,7 +317,8 @@ class Outline : VisTable(),
         if (projectManager.current().currScene.currentSelection != null) {
             val node = tree.findNode(projectManager.current().currScene.currentSelection)
             tree.selection.clear()
-            tree.selection.add(node)
+            if (node != null)
+                tree.selection.add(node)
         }
     }
 

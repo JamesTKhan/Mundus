@@ -125,7 +125,7 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
         intensity.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 if (intensity.isInputValid && !intensity.isEmpty) {
-                    val d = convert(intensity.text)
+                    val d = convert(intensity.text) ?: return
                     try {
                         val light = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
                         light?.intensity = d
