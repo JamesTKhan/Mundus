@@ -54,6 +54,8 @@ public class Terrain implements RenderableProvider, Disposable {
     private static final Vector3 c01 = new Vector3();
     private static final Vector3 c10 = new Vector3();
     private static final Vector3 c11 = new Vector3();
+    private static final Vector3 tmp = new Vector3();
+    private static final Vector2 tmpV2 = new Vector2();
 
     public Matrix4 transform;
     public float[] heightData;
@@ -164,11 +166,11 @@ public class Terrain implements RenderableProvider, Disposable {
         // we are in upper left triangle of the square
         if (xCoord <= (1 - zCoord)) {
             c00.set(0, heightData[gridZ * vertexResolution + gridX], 0);
-            return MathUtils.barryCentric(c00, c10, c01, new Vector2(zCoord, xCoord));
+            return MathUtils.barryCentric(c00, c10, c01, tmpV2.set(zCoord, xCoord));
         }
         // bottom right triangle
         c11.set(1, heightData[(gridZ + 1) * vertexResolution + gridX + 1], 1);
-        return MathUtils.barryCentric(c10, c11, c01, new Vector2(zCoord, xCoord));
+        return MathUtils.barryCentric(c10, c11, c01, tmpV2.set(zCoord, xCoord));
     }
 
     public Vector3 getRayIntersection(Vector3 out, Ray ray) {
@@ -184,7 +186,7 @@ public class Terrain implements RenderableProvider, Disposable {
             ray.getEndPoint(out, curDistance);
 
             boolean u = isUnderTerrain(out);
-            if (u != isUnder || rounds == 10000) {
+            if (u != isUnder || rounds == 20000) {
                 return out;
             }
             curDistance += u ? -0.1f : 0.1f;
@@ -266,7 +268,7 @@ public class Terrain implements RenderableProvider, Disposable {
      * surrounding vertices
      */
     private MeshPartBuilder.VertexInfo calculateNormalAt(MeshPartBuilder.VertexInfo out, int x, int y) {
-        out.normal.set(getNormalAt(x, y));
+        getNormalAt(out.normal, x, y);
         return out;
     }
 
@@ -275,7 +277,7 @@ public class Terrain implements RenderableProvider, Disposable {
      * position in terrain coordinates and returns normal at that point. If
      * point doesn't belong to terrain -- it returns default
      * <code>Vector.Y<code> normal.
-     * 
+     *
      * @param worldX
      *            the x coord in world
      * @param worldZ
@@ -283,7 +285,7 @@ public class Terrain implements RenderableProvider, Disposable {
      * @return normal at that point. If point doesn't belong to terrain -- it
      *         returns default <code>Vector.Y<code> normal.
      */
-    public Vector3 getNormalAtWordCoordinate(float worldX, float worldZ) {
+    public Vector3 getNormalAtWordCoordinate(Vector3 out, float worldX, float worldZ) {
         transform.getTranslation(c00);
         float terrainX = worldX - c00.x;
         float terrainZ = worldZ - c00.z;
@@ -296,20 +298,21 @@ public class Terrain implements RenderableProvider, Disposable {
             return Vector3.Y.cpy();
         }
 
-        return getNormalAt(gridX, gridZ);
+        return getNormalAt(out, gridX, gridZ);
     }
 
     /**
      * Get Normal at x,y point of terrain
-     * 
+     *
+     * @param out
+     *            Output vector
      * @param x
      *            the x coord on terrain
      * @param y
      *            the y coord on terrain( actual z)
      * @return the normal at the point of terrain
      */
-    public Vector3 getNormalAt(int x, int y) {
-        Vector3 out = new Vector3();
+    public Vector3 getNormalAt(Vector3 out, int x, int y) {
         // handle edges of terrain
         int xP1 = (x + 1 >= vertexResolution) ? vertexResolution - 1 : x + 1;
         int yP1 = (y + 1 >= vertexResolution) ? vertexResolution - 1 : y + 1;
@@ -328,7 +331,8 @@ public class Terrain implements RenderableProvider, Disposable {
     }
 
     public boolean isUnderTerrain(Vector3 worldCoords) {
-        float terrainHeight = getHeightAtWorldCoord(worldCoords.x, worldCoords.z);
+        // Factor in world height position as well via getPosition.
+        float terrainHeight = getHeightAtWorldCoord(worldCoords.x, worldCoords.z) + getPosition(tmp).y;
         return terrainHeight > worldCoords.y;
     }
 

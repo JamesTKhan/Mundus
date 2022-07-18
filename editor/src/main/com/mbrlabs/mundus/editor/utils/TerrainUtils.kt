@@ -62,7 +62,7 @@ fun getRayIntersectionAndUp(terrains: Array<TerrainAsset>, ray: Ray): VertexInfo
         val terr = terrain.terrain
         terr.getRayIntersection(tempVI.position, ray)
         if (terr.isOnTerrain(tempVI.position.x, tempVI.position.z)) {
-            tempVI.normal.set(terr.getNormalAtWordCoordinate(tempVI.position.x, tempVI.position.z))
+            terr.getNormalAtWordCoordinate(tempVI.normal, tempVI.position.x, tempVI.position.z)
             return tempVI
         }
     }
