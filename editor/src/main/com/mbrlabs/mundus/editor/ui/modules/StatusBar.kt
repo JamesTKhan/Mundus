@@ -43,9 +43,9 @@ class StatusBar : VisTable() {
     private val fpsLabel = VisLabel()
     private val camPos = VisLabel()
 
-    private val speed01 = VisTextButton(".1")
-    private val speed1 = VisTextButton("1")
-    private val speed10 = VisTextButton("10")
+    private val speed01 = VisTextButton("0.1x")
+    private val speed1 = VisTextButton("1.0x")
+    private val speed10 = VisTextButton("10x")
 
     private val freeCamController: FreeCamController = Mundus.inject()
     private val projectManager: ProjectManager = Mundus.inject()
@@ -63,7 +63,7 @@ class StatusBar : VisTable() {
         root.add(right).right().expand().fill()
 
         // left
-        left.add(VisLabel("camSpeed: ")).left()
+        left.add(VisLabel("Editor Cam Speed: ")).left()
         left.add(speed01)
         left.add(speed1)
         left.add(speed10)
