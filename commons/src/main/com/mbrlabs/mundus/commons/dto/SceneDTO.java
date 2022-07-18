@@ -46,7 +46,6 @@ public class SceneDTO implements Json.Serializable {
     private float camFieldOfView;
     private float waterHeight;
     private WaterResolution waterResolution;
-    private ShadowResolution shadowResolution;
 
     public SceneDTO() {
         gameObjects = new Array<>();
@@ -194,14 +193,6 @@ public class SceneDTO implements Json.Serializable {
 
     public String getSkyboxAssetId() {
         return skyboxAssetId;
-    }
-
-    public ShadowResolution getShadowResolution() {
-        return shadowResolution;
-    }
-
-    public void setShadowResolution(ShadowResolution shadowResolution) {
-        this.shadowResolution = shadowResolution;
     }
 
     @Override

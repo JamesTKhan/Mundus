@@ -54,7 +54,7 @@ public class SceneConverter {
             scene.environment.setAmbientLight(ambientLight);
         }
 
-        DirectionalLight light = DirectionalLightConverter.convert(dto.getDirectionalLight());
+        DirectionalLight light = DirectionalLightConverter.convert(scene, dto.getDirectionalLight());
         if (light != null) {
             DirectionalLightsAttribute directionalLight = scene.environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
             directionalLight.lights.clear();
@@ -67,8 +67,6 @@ public class SceneConverter {
             scene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
 
         scene.waterHeight = dto.getWaterHeight();
-
-        scene.setShadowQuality(dto.getShadowResolution());
 
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);

@@ -24,7 +24,6 @@ public class BaseLightDTO {
 
     private float intensity;
     private int color;
-    private boolean castsShadows;
 
     public float getIntensity() {
         return intensity;
@@ -40,13 +39,5 @@ public class BaseLightDTO {
 
     public void setColor(int color) {
         this.color = color;
-    }
-
-    public boolean isCastsShadows() {
-        return castsShadows;
-    }
-
-    public void setCastsShadows(boolean castsShadows) {
-        this.castsShadows = castsShadows;
     }
 }

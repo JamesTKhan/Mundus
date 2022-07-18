@@ -431,8 +431,6 @@ public class ProjectManager implements Disposable {
         scene.setShadowMapShader(Shaders.INSTANCE.getShadowMapShader());
         scene.setDepthShader(Shaders.INSTANCE.getDepthShader());
 
-        scene.setShadowQuality(sceneDTO.getShadowResolution());
-
         SceneGraph sceneGraph = scene.sceneGraph;
         for (GameObject go : sceneGraph.getGameObjects()) {
             initGameObject(context, go);

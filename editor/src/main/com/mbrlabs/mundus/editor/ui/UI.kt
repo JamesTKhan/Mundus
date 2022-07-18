@@ -40,6 +40,7 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExportDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.FogDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.LoadingProjectDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.NewProjectDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.ShadowSettingsDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.SkyboxDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportModelDialog
@@ -95,6 +96,7 @@ object UI : Stage(ScreenViewport()) {
     val skyboxDialog: SkyboxDialog = SkyboxDialog()
     val ambientLightDialog: AmbientLightDialog = AmbientLightDialog()
     var directionalLightDialog: DirectionalLightsDialog = DirectionalLightsDialog()
+    var shadowSettingsDialog: ShadowSettingsDialog = ShadowSettingsDialog()
     var addComponentDialog: AddComponentDialog = AddComponentDialog()
     val versionDialog: VersionDialog = VersionDialog()
     val exitDialog: ExitDialog = ExitDialog()

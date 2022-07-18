@@ -49,7 +49,6 @@ import com.mbrlabs.mundus.commons.water.WaterResolution;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
-import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 
 /**
@@ -281,6 +280,15 @@ public class Scene implements Disposable {
         return shadowMapper;
     }
 
+    public void setShadowMapper(ShadowMapper shadowMapperToSet) {
+        if (shadowMapper != null) {
+            shadowMapper.dispose();
+        }
+
+        this.shadowMapper = shadowMapperToSet;
+        environment.shadowMap = shadowMapperToSet;
+    }
+
     public void setDepthShader(DepthShader depthShader) {
         this.depthShader = depthShader;
     }
@@ -310,7 +318,7 @@ public class Scene implements Disposable {
         if (light == null || shadowResolution == null) return;
 
         if (shadowMapper == null) {
-            shadowMapper = new ShadowMapper(shadowResolution, 512, 512, cam.near, 800);
+            shadowMapper = new ShadowMapper(shadowResolution);
         } else {
             shadowMapper.setShadowResolution(shadowResolution);
         }
