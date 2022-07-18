@@ -16,8 +16,11 @@
 
 package com.mbrlabs.mundus.editor.core;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mbrlabs.mundus.commons.Scene;
+import com.mbrlabs.mundus.commons.assets.TerrainAsset;
+import com.mbrlabs.mundus.commons.scene3d.GameObject;
 
 /**
  * @author Marcus Brummer
@@ -26,9 +29,13 @@ import com.mbrlabs.mundus.commons.Scene;
 public class EditorScene extends Scene {
 
     public Viewport viewport;
+    public Array<TerrainAsset> terrains;
+    public GameObject currentSelection;
 
     public EditorScene() {
         super();
+        currentSelection = null;
+        terrains = new Array<>();
     }
 
 }

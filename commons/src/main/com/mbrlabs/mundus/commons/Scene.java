@@ -67,11 +67,6 @@ public class Scene implements Disposable {
     public float waterHeight = 0f;
     public WaterResolution waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
 
-    @Deprecated // TODO not here
-    public Array<TerrainAsset> terrains;
-    @Deprecated // TODO not here
-    public GameObject currentSelection;
-
     public PerspectiveCamera cam;
     public ModelBatch batch;
 
@@ -91,8 +86,6 @@ public class Scene implements Disposable {
 
     public Scene() {
         environment = new MundusEnvironment();
-        currentSelection = null;
-        terrains = new Array<>();
 
         cam = new PerspectiveCamera(CameraSettings.DEFAULT_FOV, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 1, -3);
