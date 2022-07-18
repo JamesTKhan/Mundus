@@ -28,6 +28,7 @@ import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
+import com.mbrlabs.mundus.editor.events.FilesDroppedEvent
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
@@ -191,6 +192,10 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
     override fun pause() {}
     override fun resume() {}
+
+    override fun filesDropped(files: Array<out String>?) {
+        Mundus.postEvent(FilesDroppedEvent(files))
+    }
 
     override fun dispose() {
         Mundus.dispose()
