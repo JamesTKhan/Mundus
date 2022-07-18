@@ -58,8 +58,7 @@ class AssetsDock : Tab(false, false),
     private val filesViewContextContainer = VisTable(false)
     private val filesView = GridGroup(80f, 4f)
 
-    private val filterAssets = VisSelectBox<AssetType>()
-    private val enableFilters = VisCheckBox("Use Filters")
+    private val filterAssets = VisSelectBox<String>()
     private var currentFilter: AssetType? = null
 
     private val assetItems = Array<AssetItem>()
@@ -86,13 +85,13 @@ class AssetsDock : Tab(false, false),
 
         selectedOverlay = Image(VisUI.getSkin().getDrawable("default-select-selection"))
         selectedOverlay.color.a = 0.6f
-        filterAssets.isDisabled = true
     }
 
     fun initUi() {
-        val values = Array<AssetType>()
+        val values = Array<String>()
+        values.add("All")
         for (value in AssetType.values())
-            values.add(value)
+            values.add(value.value)
 
         filterAssets.items = values
         filesView.touchable = Touchable.enabled
@@ -102,7 +101,6 @@ class AssetsDock : Tab(false, false),
         bar.defaults().pad(2f)
         bar.add(VisLabel("Assets "))
         bar.addSeparator(true)
-        bar.add(enableFilters)
         bar.add(filterAssets)
         contentTable.add(bar).left().pad(2f).row()
         contentTable.add(Separator()).expandX().fillX()
@@ -134,17 +132,9 @@ class AssetsDock : Tab(false, false),
             }
         })
 
-        enableFilters.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent, actor: Actor) {
-                currentFilter = if (enableFilters.isChecked) filterAssets.selected else null
-                filterAssets.isDisabled = !enableFilters.isChecked
-                reloadAssets()
-            }
-        })
-
         filterAssets.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
-                currentFilter = if (enableFilters.isChecked) filterAssets.selected else null
+                currentFilter = AssetType.valueFromString(filterAssets.selected)
                 reloadAssets()
             }
         })
