@@ -95,8 +95,8 @@ public class ShaderUtils {
         config.numSpotLights = LightUtils.MAX_SPOT_LIGHTS;
         config.numBones = numBones;
         config.defaultCullFace = GL20.GL_BACK;
-        config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.vs.glsl").readString();
-        config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.fs.glsl").readString();
+        config.vertexShader = Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.vs.glsl").readString();
+        config.fragmentShader = Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.fs.glsl").readString();
         return config;
     }
 
