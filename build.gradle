@@ -59,7 +59,6 @@ project(":commons") {
 
         // Include HTML sources in commons as well for GWT support
         api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
-        api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion:sources"
 
         testImplementation "junit:junit:$junitVersion"
 
