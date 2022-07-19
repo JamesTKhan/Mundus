@@ -98,6 +98,10 @@ public class SceneGraph {
         }
     }
 
+    public GameObject getRoot() {
+        return root;
+    }
+
     public GameObject getSelected() {
         return selected;
     }

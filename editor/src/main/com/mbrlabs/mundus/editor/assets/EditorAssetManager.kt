@@ -604,14 +604,31 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         if (mat.diffuseColor != null) {
             props.setProperty(MaterialAsset.PROP_DIFFUSE_COLOR, mat.diffuseColor.toString())
         }
+        if (mat.emissiveColor != null) {
+            props.setProperty(MaterialAsset.PROP_MAP_EMISSIVE_COLOR, mat.emissiveColor.toString())
+        }
         if (mat.diffuseTexture != null) {
             props.setProperty(MaterialAsset.PROP_DIFFUSE_TEXTURE, mat.diffuseTexture.id)
         }
         if (mat.normalMap != null) {
             props.setProperty(MaterialAsset.PROP_MAP_NORMAL, mat.normalMap.id)
         }
+        if (mat.emissiveTexture != null) {
+            props.setProperty(MaterialAsset.PROP_MAP_EMISSIVE_TEXTURE, mat.emissiveTexture.id)
+        }
+        if (mat.metallicRoughnessTexture != null) {
+            props.setProperty(MaterialAsset.PROP_METAL_ROUGH_TEXTURE, mat.metallicRoughnessTexture.id)
+        }
+        if (mat.occlusionTexture != null) {
+            props.setProperty(MaterialAsset.PROP_OCCLUSION_TEXTURE, mat.occlusionTexture.id)
+        }
         props.setProperty(MaterialAsset.PROP_OPACITY, mat.opacity.toString())
-        props.setProperty(MaterialAsset.PROP_SHININESS, mat.shininess.toString())
+        props.setProperty(MaterialAsset.PROP_ROUGHNESS, mat.roughness.toString())
+        props.setProperty(MaterialAsset.PROP_METALLIC, mat.metallic.toString())
+        props.setProperty(MaterialAsset.PROP_ALPHA_TEST, mat.alphaTest.toString())
+        props.setProperty(MaterialAsset.PROP_NORMAL_SCALE, mat.normalScale.toString())
+        props.setProperty(MaterialAsset.PROP_SHADOW_BIAS, mat.shadowBias.toString())
+        props.setProperty(MaterialAsset.PROP_CULL_FACE, mat.cullFace.toString())
 
         val fileOutputStream = FileOutputStream(mat.file.file())
         props.store(fileOutputStream, null)

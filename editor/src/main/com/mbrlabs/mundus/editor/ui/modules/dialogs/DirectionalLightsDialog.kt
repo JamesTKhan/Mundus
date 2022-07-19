@@ -5,26 +5,28 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.kotcrab.vis.ui.widget.Tooltip
+import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight
-import com.mbrlabs.mundus.commons.shadows.ShadowResolution
 import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
+import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.ColorPickerField
 import com.mbrlabs.mundus.editor.ui.widgets.ImprovedSlider
+import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * *
  * @version 25-05-2022
  */
@@ -34,9 +36,9 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
     private val root = VisTable()
 
     private val intensity = VisTextField("0")
+    private val shadowSettings = VisTextButton("Shadow Settings")
     private val colorPickerField = ColorPickerField()
     private val castShadows = VisCheckBox(null)
-    private lateinit var shadowResSelectBox: VisSelectBox<String>
 
     private val dirXSlider = ImprovedSlider(-1.0f, 1.0f, .1f)
     private val dirYSlider = ImprovedSlider(-1.0f, 1.0f, .1f)
@@ -64,7 +66,7 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
         // Settings
         val settingsTable = VisTable()
         settingsTable.defaults().padBottom(5f).padLeft(6f).padRight(6f)
-        settingsTable.add(VisLabel("Intensity: ")).left().padBottom(10f)
+        settingsTable.add(VisLabel("Intensity")).left().padBottom(10f)
         settingsTable.add(intensity).left().padBottom(10f).row()
         settingsTable.add(VisLabel("Color")).growX()
         settingsTable.add(colorPickerField).left().fillX().expandX().colspan(2).row()
@@ -99,37 +101,19 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
     }
 
     private fun addShadowSection() {
-        root.add(VisLabel("Shadow Settings")).colspan(2).left().row()
+        val shadowLabel = ToolTipLabel("Shadows", "Experimental for now." +
+                " Only a single pass shadow map with limited range.")
+        root.add(shadowLabel).colspan(2).left().row()
         root.addSeparator().colspan(2).row()
 
         // Settings
         val shadowSettingsTable = VisTable()
-        val enableLabel = VisLabel("Cast Dynamic Shadows: ")
+        val enableLabel = ToolTipLabel("Cast Dynamic Shadows: ", "Enables shadow mapping.")
         shadowSettingsTable.defaults().padBottom(5f).padLeft(6f).padRight(6f)
         shadowSettingsTable.add(enableLabel).left().padBottom(10f)
         shadowSettingsTable.add(castShadows).left().padBottom(10f).left().row()
 
-        val resolutionLabel = VisLabel("Shadow Resolution: ")
-        val selectorsTable = VisTable(true)
-        shadowResSelectBox = VisSelectBox<String>()
-        shadowResSelectBox.setItems(
-                ShadowResolution._512.value,
-                ShadowResolution._1024.value,
-                ShadowResolution._2048.value,
-                ShadowResolution._4096.value
-        )
-        selectorsTable.add(shadowResSelectBox)
-
-        shadowSettingsTable.add(resolutionLabel).left().padBottom(10f)
-        shadowSettingsTable.add(selectorsTable).padBottom(10f)
-
-        var tip = "Enables shadow mapping."
-        Tooltip.Builder(tip).target(enableLabel).build()
-        Tooltip.Builder(tip).target(castShadows).build()
-
-        tip = "Sets shadow texture resolution. Higher resolutions look better but uses more resources."
-        Tooltip.Builder(tip).target(resolutionLabel).build()
-        Tooltip.Builder(tip).target(shadowResSelectBox).build()
+        shadowSettingsTable.add(shadowSettings).left().padBottom(10f).row()
 
         root.add(shadowSettingsTable).left().row()
     }
@@ -137,12 +121,17 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
     private fun setupListeners() {
 
         // intensity
+        intensity.textFieldFilter = FloatDigitsOnlyFilter(false)
         intensity.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
-                val d = convert(intensity.text)
-                if (d != null) {
-                    val light = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
-                    light?.intensity = d
+                if (intensity.isInputValid && !intensity.isEmpty) {
+                    val d = convert(intensity.text) ?: return
+                    try {
+                        val light = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
+                        light?.intensity = d
+                    } catch (ex : NumberFormatException) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + intensity.name))
+                    }
                 }
             }
         })
@@ -184,19 +173,18 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
         })
 
         // Shadows
-
         castShadows.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 val light = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
                 light?.castsShadows = castShadows.isChecked
+                shadowSettings.isDisabled = !castShadows.isChecked
             }
         })
 
-        // resolution
-        shadowResSelectBox.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent?, actor: Actor?) {
-                val res = ShadowResolution.valueFromString(shadowResSelectBox.selected)
-                projectManager.current().currScene.setShadowQuality(res)
+        shadowSettings.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                if (shadowSettings.isDisabled) return
+                UI.showDialog(UI.shadowSettingsDialog)
             }
         })
 
@@ -207,6 +195,7 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
                 light?.intensity = DirectionalLight.DEFAULT_INTENSITY
                 light?.direction?.set(DirectionalLight.DEFAULT_DIRECTION)
 
+                light?.castsShadows = false
                 resetValues()
             }
         })
@@ -218,7 +207,7 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
         intensity.text = light!!.intensity.toString()
         colorPickerField.selectedColor = light.color
         castShadows.isChecked = light.castsShadows
-        shadowResSelectBox.selected = projectManager.current().currScene.shadowMapper.shadowResolution.value
+        shadowSettings.isDisabled = !light.castsShadows
 
         dirXSlider.value = light.direction!!.x
         dirYSlider.value = light.direction!!.y

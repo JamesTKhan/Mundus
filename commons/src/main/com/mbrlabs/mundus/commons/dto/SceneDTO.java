@@ -41,9 +41,11 @@ public class SceneDTO implements Json.Serializable {
     private float camDirX = 0;
     private float camDirY = 0;
     private float camDirZ = 0;
+    private float camNearPlane;
+    private float camFarPlane;
+    private float camFieldOfView;
     private float waterHeight;
     private WaterResolution waterResolution;
-    private ShadowResolution shadowResolution;
 
     public SceneDTO() {
         gameObjects = new Array<>();
@@ -113,6 +115,30 @@ public class SceneDTO implements Json.Serializable {
         this.camDirZ = camDirZ;
     }
 
+    public float getCamNearPlane() {
+        return camNearPlane;
+    }
+
+    public void setCamNearPlane(float camNearPlane) {
+        this.camNearPlane = camNearPlane;
+    }
+
+    public float getCamFarPlane() {
+        return camFarPlane;
+    }
+
+    public void setCamFarPlane(float camFarPlane) {
+        this.camFarPlane = camFarPlane;
+    }
+
+    public float getCamFieldOfView() {
+        return camFieldOfView;
+    }
+
+    public void setCamFieldOfView(float camFieldOfView) {
+        this.camFieldOfView = camFieldOfView;
+    }
+
     public FogDTO getFog() {
         return fog;
     }
@@ -167,14 +193,6 @@ public class SceneDTO implements Json.Serializable {
 
     public String getSkyboxAssetId() {
         return skyboxAssetId;
-    }
-
-    public ShadowResolution getShadowResolution() {
-        return shadowResolution;
-    }
-
-    public void setShadowResolution(ShadowResolution shadowResolution) {
-        this.shadowResolution = shadowResolution;
     }
 
     @Override

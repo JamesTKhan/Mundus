@@ -71,7 +71,7 @@ public class UsefulMeshs {
         // stub
         Node node = modelBuilder.node();
         node.translation.set(to.x, to.y, to.z);
-        meshBuilder = modelBuilder.part("stub", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, mat);
+        meshBuilder = modelBuilder.part("stub", GL20.GL_TRIANGLES, Usage.Position, mat);
         BoxShapeBuilder.build(meshBuilder, 2, 2, 2);
         return modelBuilder.end();
     }

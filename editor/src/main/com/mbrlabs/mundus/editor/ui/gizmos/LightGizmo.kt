@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 01, 2022
  */
 class LightGizmo(private var lightComponent: LightComponent) : Gizmo() {

@@ -4,11 +4,11 @@ import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.utils.Array;
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 02, 2022
  */
 public class SpotLightsAttribute extends Attribute {
-    public final static String Alias = "spotLights";
+    public final static String Alias = "spotLightsMundus";
     public final static long Type = register(Alias);
 
     public final static boolean is (final long mask) {

@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
-import com.badlogic.gdx.graphics.g3d.Shader;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 
 /**

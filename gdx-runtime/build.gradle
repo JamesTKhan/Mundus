@@ -1,8 +1,8 @@
 apply plugin: "java"
 apply plugin: "maven-publish"
 
-group = 'com.github.jpooleycodes.mundus'
-version = '0.4.0'
+group = 'com.github.jamestkhan.mundus'
+version = '0.3.1'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7

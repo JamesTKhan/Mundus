@@ -20,7 +20,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.environment.ShadowMap;
@@ -29,16 +28,19 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
+import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 
 /**
  * Wrapper around an FBO for shadow mapping, based on DirectionalShadowLight from libGDX and gdx-gltf
  *
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 10, 2022
  */
-public class ShadowMapper implements ShadowMap {
+public class ShadowMapper implements ShadowMap, Disposable {
+    public static final int DEFAULT_VIEWPORT_SIZE = 250;
+    public static final float DEFAULT_CAM_NEAR = 0.2f;
+    public static final float DEFAULT_CAM_FAR = 100f;
 
     protected final TextureDescriptor textureDesc;
     protected final Vector3 center = new Vector3();
@@ -47,27 +49,19 @@ public class ShadowMapper implements ShadowMap {
     protected FrameBuffer fbo;
     protected Camera cam;
 
-    int textureWidth;
-    int textureHeight;
-    int viewportWidth;
-    int viewportHeight;
-    float near;
-    float far;
+    protected int textureWidth;
+    protected int textureHeight;
+    protected int viewportWidth;
+    protected int viewportHeight;
+    protected float near;
+    protected float far;
+
+    public ShadowMapper(ShadowResolution resolution) {
+        this(resolution, DEFAULT_VIEWPORT_SIZE, DEFAULT_VIEWPORT_SIZE, DEFAULT_CAM_NEAR, DEFAULT_CAM_FAR);
+    }
 
     public ShadowMapper(ShadowResolution resolution, int viewportWidth, int viewportHeight, float near, float far) {
-        Vector2 res = resolution.getResolutionValues();
-        this.shadowResolution = resolution;
-        this.textureWidth = (int) res.x;
-        this.textureHeight = (int) res.y;
-        this.viewportWidth = viewportWidth;
-        this.viewportHeight = viewportHeight;
-        this.near = near;
-        this.far = far * .2f;
-
-        fbo = new NestableFrameBuffer(Pixmap.Format.RGB888, textureWidth, textureHeight, true);
-        cam = new OrthographicCamera(viewportWidth, viewportHeight);
-        cam.near = near;
-        cam.far = this.far;
+        set(resolution, viewportWidth, viewportHeight, near, far);
 
         textureDesc = new TextureDescriptor();
         textureDesc.minFilter = textureDesc.magFilter = Texture.TextureFilter.Nearest;
@@ -119,7 +113,54 @@ public class ShadowMapper implements ShadowMap {
         this.textureWidth = (int) res.x;
         this.textureHeight = (int) res.y;
         fbo.dispose();
-        fbo = new NestableFrameBuffer(Pixmap.Format.RGB888, textureWidth, textureHeight, true);
+        fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
+    }
+
+    /**
+     * Sets all values needed for FBO and Camera, then builds/updates the FBO and Camera with them.
+     */
+    public void set(ShadowResolution resolution, int viewportWidth, int viewportHeight, float nearPlane, float farPlane) {
+        Vector2 res = resolution.getResolutionValues();
+        this.shadowResolution = resolution;
+        this.textureWidth = (int) res.x;
+        this.textureHeight = (int) res.y;
+        this.viewportWidth = viewportWidth;
+        this.viewportHeight = viewportHeight;
+        this.near = nearPlane;
+        this.far = farPlane;
+
+        if (fbo != null) {
+            fbo.dispose();
+        }
+
+        fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
+
+        if (cam == null) {
+            cam = new OrthographicCamera(this.viewportWidth, this.viewportHeight);
+        } else {
+            cam.viewportWidth = this.viewportWidth;
+            cam.viewportHeight = this.viewportHeight;
+        }
+
+        cam.near = this.near;
+        cam.far = this.far;
+        cam.update();
+    }
+
+    public int getViewportWidth() {
+        return viewportWidth;
+    }
+
+    public int getViewportHeight() {
+        return viewportHeight;
+    }
+
+    public float getNearPlane() {
+        return near;
+    }
+
+    public float getFarPlane() {
+        return far;
     }
 
     @Override
@@ -131,5 +172,10 @@ public class ShadowMapper implements ShadowMap {
     public TextureDescriptor getDepthMap() {
         textureDesc.texture = fbo.getColorBufferTexture();
         return textureDesc;
+    }
+
+    @Override
+    public void dispose() {
+        fbo.dispose();
     }
 }

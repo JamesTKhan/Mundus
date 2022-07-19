@@ -24,6 +24,7 @@ import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel;
 import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader;
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils;
+import com.mbrlabs.mundus.commons.utils.ModelUtils;
 import net.mgsx.gltf.loaders.glb.GLBLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFLoader;
 
@@ -68,7 +69,15 @@ public class ModelAsset extends Asset {
         } else {
             throw new GdxRuntimeException("Unsupported 3D model");
         }
-    }
+
+        // Update bone count for model
+        if (meta != null && meta.getModel() != null) {
+            //This is to support models armatures being update after initial import
+            // as well as backwards compatability for projects existing prior to getting bone counts on import.
+            meta.getModel().setNumBones(ModelUtils.getBoneCount(model));
+        }
+
+     }
 
     @Override
     public void resolveDependencies(Map<String, Asset> assets) {

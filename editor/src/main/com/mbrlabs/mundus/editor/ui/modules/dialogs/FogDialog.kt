@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editor.ui.modules.dialogs
 
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
@@ -24,12 +25,12 @@ import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
-import com.mbrlabs.mundus.commons.env.Fog
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.ui.widgets.ColorPickerField
+import net.mgsx.gltf.scene3d.attributes.FogAttribute
 
 /**
  * @author Marcus Brummer
@@ -38,7 +39,8 @@ import com.mbrlabs.mundus.editor.ui.widgets.ColorPickerField
 class FogDialog : BaseDialog("Fog"), ProjectChangedEvent.ProjectChangedListener, SceneChangedEvent.SceneChangedListener {
 
     private val useFog = VisCheckBox("Use fog")
-    private val density = VisTextField("0")
+    private val nearPlane = VisTextField("0")
+    private val farPlane = VisTextField("0")
     private val gradient = VisTextField("0")
     private val colorPickerField = ColorPickerField()
 
@@ -56,8 +58,10 @@ class FogDialog : BaseDialog("Fog"), ProjectChangedEvent.ProjectChangedListener,
         add(root)
 
         root.add(useFog).left().padBottom(10f).colspan(2).row()
-        root.add(VisLabel("Density: ")).left().padBottom(10f)
-        root.add(density).growX().padBottom(10f).row()
+        root.add(VisLabel("Near Plane: ")).left().padBottom(10f)
+        root.add(nearPlane).growX().padBottom(10f).row()
+        root.add(VisLabel("Far Plane: ")).left().padBottom(10f)
+        root.add(farPlane).growX().padBottom(10f).row()
         root.add(VisLabel("Gradient: ")).left().padBottom(10f)
         root.add(gradient).growX().padBottom(10f).row()
         root.add(VisLabel("Color")).growX().row()
@@ -69,69 +73,83 @@ class FogDialog : BaseDialog("Fog"), ProjectChangedEvent.ProjectChangedListener,
 
         // use fog checkbox
         useFog.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
+            override fun changed(event: ChangeEvent, actor: Actor) {
                 val projectContext = projectManager.current()
                 if (useFog.isChecked) {
-                    if (projectContext.currScene.environment.fog == null) {
-                        val fog = Fog()
-                        projectContext.currScene.environment.fog = fog
-                        density.text = fog.density.toString()
-                        gradient.text = fog.gradient.toString()
+                    val fogEquation: FogAttribute? = getFogEquationAttribute()
+
+                    if (fogEquation == null) {
+                        nearPlane.text = projectContext.currScene.cam.near.toString()
+                        farPlane.text = (projectContext.currScene.cam.far / 4f).toString()
+                        gradient.text = 1.5f.toString()
+                        setFogAttributes()
                     }
-                    density.isDisabled = false
+
+                    nearPlane.isDisabled = false
+                    farPlane.isDisabled = false
                     gradient.isDisabled = false
                     colorPickerField.disable(false)
                 } else {
-                    projectContext.currScene.environment.fog = null
-                    density.isDisabled = true
+                    nearPlane.isDisabled = true
+                    farPlane.isDisabled = true
                     gradient.isDisabled = true
                     colorPickerField.disable(true)
+                    projectContext.currScene.environment.remove(FogAttribute.FogEquation)
+                    projectContext.currScene.environment.remove(ColorAttribute.Fog)
                 }
             }
         })
 
         // gradient
         gradient.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
-                val projectContext = projectManager.current()
-                val g = convert(gradient.text)
-                if (g != null) {
-                    projectContext.currScene.environment.fog.gradient = g
-                }
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                setFogAttributes()
             }
         })
 
-        // density
-        density.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
-                val projectContext = projectManager.current()
-                val value = convert(density.text)
-                if (value != null) {
-                    projectContext.currScene.environment.fog.density = value
-                }
+        nearPlane.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                setFogAttributes()
+            }
+        })
+
+        farPlane.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                setFogAttributes()
             }
         })
 
         // color
         colorPickerField.colorAdapter = object: ColorPickerAdapter() {
             override fun finished(newColor: Color) {
-                val projectContext = projectManager.current()
-                projectContext.currScene.environment.fog.color.set(newColor)
+                setFogAttributes()
             }
         }
 
     }
 
+    private fun setFogAttributes() {
+        val n = convert(nearPlane.text)
+        val f = convert(farPlane.text)
+        val g = convert(gradient.text)
+        if (g == null || f == null || n == null) return
+        projectManager.current().currScene.environment.set(FogAttribute(FogAttribute.FogEquation).set(n, f, g))
+        projectManager.current().currScene.environment.set(ColorAttribute(ColorAttribute.Fog, colorPickerField.selectedColor))
+    }
+
     private fun resetValues() {
-        val fog = projectManager.current().currScene.environment.fog
-        if (fog == null) {
-            density.isDisabled = true
+        val fogEquation = getFogEquationAttribute()
+        if (fogEquation == null) {
+            nearPlane.isDisabled = true
+            farPlane.isDisabled = true
             gradient.isDisabled = true
         } else {
+            val fogColorAttrib = getFogColorAttribute()
             useFog.isChecked = true
-            density.text = fog.density.toString()
-            gradient.text = fog.gradient.toString()
-            colorPickerField.selectedColor = fog.color
+            nearPlane.text = fogEquation.value.x.toString()
+            farPlane.text = fogEquation.value.y.toString()
+            gradient.text = fogEquation.value.z.toString()
+            colorPickerField.selectedColor = if (fogColorAttrib == null) Color.WHITE else fogColorAttrib.color
         }
     }
 
@@ -143,6 +161,14 @@ class FogDialog : BaseDialog("Fog"), ProjectChangedEvent.ProjectChangedListener,
             return null
         }
 
+    }
+
+    private fun getFogColorAttribute(): ColorAttribute? {
+        return projectManager.current().currScene.environment.get(ColorAttribute::class.java, ColorAttribute.Fog)
+    }
+
+    private fun getFogEquationAttribute(): FogAttribute? {
+        return projectManager.current().currScene.environment.get(FogAttribute::class.java, FogAttribute.FogEquation)
     }
 
     override fun onProjectChanged(event: ProjectChangedEvent) {

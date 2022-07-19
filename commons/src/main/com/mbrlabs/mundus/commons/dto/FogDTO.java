@@ -22,17 +22,10 @@ package com.mbrlabs.mundus.commons.dto;
  */
 public class FogDTO {
 
-    private float density;
+    private float nearPlane;
+    private float farPlane;
     private float gradient;
     private int color;
-
-    public float getDensity() {
-        return density;
-    }
-
-    public void setDensity(float density) {
-        this.density = density;
-    }
 
     public float getGradient() {
         return gradient;
@@ -50,4 +43,19 @@ public class FogDTO {
         this.color = color;
     }
 
+    public float getNearPlane() {
+        return nearPlane;
+    }
+
+    public void setNearPlane(float nearPlane) {
+        this.nearPlane = nearPlane;
+    }
+
+    public float getFarPlane() {
+        return farPlane;
+    }
+
+    public void setFarPlane(float farPlane) {
+        this.farPlane = farPlane;
+    }
 }

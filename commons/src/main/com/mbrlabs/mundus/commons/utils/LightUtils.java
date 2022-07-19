@@ -8,7 +8,7 @@ import com.mbrlabs.mundus.commons.env.lights.*;
 /**
  * Utilities class for lighting.
  *
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 06, 2022
  */
 public class LightUtils {
@@ -99,7 +99,7 @@ public class LightUtils {
         if (from instanceof SpotLight && to instanceof SpotLight) {
             SpotLight currentLight = (SpotLight) from;
             ((SpotLight) to).direction.set(currentLight.direction);
-            ((SpotLight) to).cutoff = currentLight.cutoff;
+            ((SpotLight) to).setCutoff(currentLight.getCutoff());
         }
     }
 

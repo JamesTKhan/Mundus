@@ -46,7 +46,7 @@ public class ModelComponentConverter {
             return null;
         }
 
-        PickableModelComponent component = new PickableModelComponent(go, Shaders.INSTANCE.getModelShader());
+        PickableModelComponent component = new PickableModelComponent(go);
         component.setModel(model, false);
 
         for (String g3dbMatID : dto.getMaterials().keySet()) {

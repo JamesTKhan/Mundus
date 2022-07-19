@@ -28,6 +28,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Stack
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
@@ -57,6 +58,9 @@ class AssetsDock : Tab(false, false),
     private val filesViewContextContainer = VisTable(false)
     private val filesView = GridGroup(80f, 4f)
 
+    private val filterAssets = VisSelectBox<String>()
+    private var currentFilter: AssetType? = null
+
     private val assetItems = Array<AssetItem>()
 
     private val assetOpsMenu = PopupMenu()
@@ -84,11 +88,22 @@ class AssetsDock : Tab(false, false),
     }
 
     fun initUi() {
+        val values = Array<String>()
+        values.add("All")
+        for (value in AssetType.values())
+            values.add(value.value)
+
+        filterAssets.items = values
         filesView.touchable = Touchable.enabled
 
         val contentTable = VisTable(false)
-        contentTable.add(VisLabel("Assets")).left().padLeft(3f).row()
-        contentTable.add(Separator()).padTop(3f).expandX().fillX()
+        val bar = VisTable()
+        bar.defaults().pad(2f)
+        bar.add(VisLabel("Assets "))
+        bar.addSeparator(true)
+        bar.add(filterAssets)
+        contentTable.add(bar).left().pad(2f).row()
+        contentTable.add(Separator()).expandX().fillX()
         contentTable.row()
         contentTable.add<VisTable>(filesViewContextContainer).expandX().fillX()
         contentTable.row()
@@ -116,6 +131,14 @@ class AssetsDock : Tab(false, false),
                 }
             }
         })
+
+        filterAssets.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                currentFilter = AssetType.valueFromString(filterAssets.selected)
+                reloadAssets()
+            }
+        })
+
     }
 
     private fun setSelected(assetItem: AssetItem?) {
@@ -133,9 +156,11 @@ class AssetsDock : Tab(false, false),
         filesView.clearChildren()
         val projectContext = projectManager.current()
         for (asset in projectContext.assetManager.assets) {
+            if (currentFilter != null && asset.meta.type != currentFilter) continue
             val assetItem = AssetItem(asset)
             filesView.addActor(assetItem)
             assetItems.add(assetItem)
+            assetItem.layout()
         }
     }
 

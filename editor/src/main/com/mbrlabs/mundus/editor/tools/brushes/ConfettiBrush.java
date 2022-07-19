@@ -17,11 +17,11 @@
 package com.mbrlabs.mundus.editor.tools.brushes;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.utils.Fa;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Marcus Brummer
@@ -29,8 +29,8 @@ import com.mbrlabs.mundus.editor.utils.Fa;
  */
 public class ConfettiBrush extends TerrainBrush {
 
-    public ConfettiBrush(ProjectManager projectManager, ModelBatch batch, CommandHistory history) {
-        super(projectManager, batch, history, Gdx.files.internal("brushes/confetti.png"));
+    public ConfettiBrush(ProjectManager projectManager, CommandHistory history) {
+        super(projectManager, history, Gdx.files.internal("brushes/confetti.png"));
     }
 
     @Override

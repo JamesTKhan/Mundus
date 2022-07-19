@@ -20,6 +20,7 @@ import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
+import com.mbrlabs.mundus.commons.env.CameraSettings;
 import com.mbrlabs.mundus.commons.env.lights.BaseLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
@@ -47,13 +48,13 @@ public class SceneConverter {
         scene.skyboxAssetId = dto.getSkyboxAssetId();
 
         // environment stuff
-        scene.environment.setFog(FogConverter.convert(dto.getFog()));
+        FogConverter.convert(dto.getFog(), scene.environment);
         BaseLight ambientLight = BaseLightConverter.convert(dto.getAmbientLight());
         if (ambientLight != null) {
             scene.environment.setAmbientLight(ambientLight);
         }
 
-        DirectionalLight light = DirectionalLightConverter.convert(dto.getDirectionalLight());
+        DirectionalLight light = DirectionalLightConverter.convert(scene, dto.getDirectionalLight());
         if (light != null) {
             DirectionalLightsAttribute directionalLight = scene.environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
             directionalLight.lights.clear();
@@ -67,13 +68,17 @@ public class SceneConverter {
 
         scene.waterHeight = dto.getWaterHeight();
 
-        scene.setShadowQuality(dto.getShadowResolution());
-
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);
         for (GameObjectDTO descriptor : dto.getGameObjects()) {
             scene.sceneGraph.addGameObject(GameObjectConverter.convert(descriptor, scene.sceneGraph, shaders, assetManager));
         }
+
+        // Set cam settings
+        scene.cam.near = dto.getCamNearPlane() > 0 ? dto.getCamNearPlane() : CameraSettings.DEFAULT_NEAR_PLANE;
+        scene.cam.far = dto.getCamFarPlane() > 0 ? dto.getCamFarPlane() : CameraSettings.DEFAULT_FAR_PLANE;
+        scene.cam.fieldOfView = dto.getCamFieldOfView() > 0 ? dto.getCamFieldOfView() : CameraSettings.DEFAULT_FOV;
+        scene.cam.update();
 
         return scene;
     }

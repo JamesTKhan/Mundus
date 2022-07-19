@@ -45,6 +45,9 @@ public class AssetManager implements Disposable {
     protected Array<Asset> assets;
     protected Map<String, Asset> assetIndex;
 
+    // Tracks the highest bone count out of all loaded model assets
+    public int maxNumBones = 0;
+
     /**
      * Asset manager constructor.
      *
@@ -53,8 +56,8 @@ public class AssetManager implements Disposable {
      */
     public AssetManager(FileHandle assetsFolder) {
         this.rootFolder = assetsFolder;
-        this.assets = new Array<Asset>();
-        this.assetIndex = new HashMap<String, Asset>();
+        this.assets = new Array<>();
+        this.assetIndex = new HashMap<>();
     }
 
     /**
@@ -109,7 +112,7 @@ public class AssetManager implements Disposable {
      * @return all model assets
      */
     public Array<ModelAsset> getModelAssets() {
-        Array<ModelAsset> models = new Array<ModelAsset>();
+        Array<ModelAsset> models = new Array<>();
         for (Asset asset : assets) {
             if (asset instanceof ModelAsset) {
                 models.add((ModelAsset) asset);
@@ -125,7 +128,7 @@ public class AssetManager implements Disposable {
      * @return all model assets
      */
     public Array<TerrainAsset> getTerrainAssets() {
-        Array<TerrainAsset> terrains = new Array<TerrainAsset>();
+        Array<TerrainAsset> terrains = new Array<>();
         for (Asset asset : assets) {
             if (asset instanceof TerrainAsset) {
                 terrains.add((TerrainAsset) asset);
@@ -141,7 +144,7 @@ public class AssetManager implements Disposable {
      * @return all model assets
      */
     public Array<MaterialAsset> getMaterialAssets() {
-        Array<MaterialAsset> materials = new Array<MaterialAsset>();
+        Array<MaterialAsset> materials = new Array<>();
         for (Asset asset : assets) {
             if (asset instanceof MaterialAsset) {
                 materials.add((MaterialAsset) asset);
@@ -213,6 +216,10 @@ public class AssetManager implements Disposable {
         // resolve other assets
         for (Asset asset : assets) {
             if (asset instanceof MaterialAsset) continue;
+            if (asset instanceof ModelAsset) {
+                int modelBones = asset.getMeta().getModel().getNumBones();
+                maxNumBones = Math.max(modelBones, maxNumBones);
+            }
             asset.resolveDependencies(assetIndex);
             asset.applyDependencies();
         }
@@ -253,10 +260,8 @@ public class AssetManager implements Disposable {
      * @return asset or null
      * @throws AssetNotFoundException
      *             if a meta file points to a non existing asset
-     * @throws MetaFileParseException
-     *             if a meta file can't be parsed
      */
-    public Asset loadAsset(Meta meta) throws MetaFileParseException, AssetNotFoundException {
+    public Asset loadAsset(Meta meta) throws AssetNotFoundException {
         // get handle to asset
      //   String assetPath = meta.getFile().pathWithoutExtension();
         FileHandle assetFile = meta.getFile().sibling(meta.getFile().nameWithoutExtension());
@@ -267,7 +272,7 @@ public class AssetManager implements Disposable {
         }
 
         // load actual asset
-        Asset asset = null;
+        Asset asset;
         switch (meta.getType()) {
             case TEXTURE:
                 asset = loadTextureAsset(meta, assetFile);
@@ -347,7 +352,7 @@ public class AssetManager implements Disposable {
     public void dispose() {
         for (Asset asset : assets) {
             asset.dispose();
-            Gdx.app.log(TAG, "Disposing asset: " + asset.toString());
+            Gdx.app.log(TAG, "Disposing asset: " + asset);
         }
         assets.clear();
         assetIndex.clear();

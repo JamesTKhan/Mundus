@@ -15,7 +15,7 @@ import com.mbrlabs.mundus.commons.utils.LightUtils;
  * have associated assets, instead their data is saved within the GameObjects json inside
  * the scene file.
  *
- * @author James Pooley
+ * @author JamesTKhan
  * @version May 30, 2022
  */
 public class LightComponent extends AbstractComponent {

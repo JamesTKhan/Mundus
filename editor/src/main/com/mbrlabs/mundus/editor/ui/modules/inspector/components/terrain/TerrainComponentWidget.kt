@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain
 
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane
@@ -37,6 +38,7 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
 
     private val raiseLowerTab = TerrainUpDownTab(this)
     private val flattenTab = TerrainFlattenTab(this)
+    private val smoothTab = TerrainSmoothTab(this)
     private val paintTab = TerrainPaintTab(this)
     private val genTab = TerrainGenTab(this)
     private val settingsTab = TerrainSettingsTab(this)
@@ -46,11 +48,13 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
 
         tabbedPane.add(raiseLowerTab)
         tabbedPane.add(flattenTab)
+        tabbedPane.add(smoothTab)
         tabbedPane.add(paintTab)
         tabbedPane.add(genTab)
         tabbedPane.add(settingsTab)
 
         collapsibleContent.add(tabbedPane.table).growX().row()
+        collapsibleContent.add(VisLabel("Use CTRL+Scroll Wheel to adjust brush size")).center().padBottom(4f).row()
         collapsibleContent.add(tabContainer).expand().fill().row()
         tabbedPane.switchTab(0)
     }

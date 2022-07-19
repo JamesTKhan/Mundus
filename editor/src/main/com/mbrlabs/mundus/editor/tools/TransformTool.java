@@ -49,9 +49,8 @@ public abstract class TransformTool extends SelectionTool {
     protected ToolHandlePicker handlePicker;
     protected GameObjectModifiedEvent gameObjectModifiedEvent;
 
-    public TransformTool(ProjectManager projectManager, GameObjectPicker goPicker, ToolHandlePicker handlePicker,
-            ModelBatch batch, CommandHistory history) {
-        super(projectManager, goPicker, batch, history);
+    public TransformTool(ProjectManager projectManager, GameObjectPicker goPicker, ToolHandlePicker handlePicker, CommandHistory history) {
+        super(projectManager, goPicker, history);
         this.handlePicker = handlePicker;
 
         gameObjectModifiedEvent = new GameObjectModifiedEvent(null);

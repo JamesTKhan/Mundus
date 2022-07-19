@@ -46,6 +46,7 @@ import com.mbrlabs.mundus.editor.scene3d.components.PickableLightComponent
 import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.utils.Colors
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.createTerrainGO
 import com.mbrlabs.mundus.editor.utils.createWaterGO
@@ -148,6 +149,7 @@ class Outline : VisTable(),
                 val context = projectManager.current()
                 val newParent = tree.getNodeAt(y)
 
+                @Suppress("UNCHECKED_CAST")
                 val node: Tree.Node<OutlineNode, GameObject, VisTable> = (payload.`object` as? Tree.Node<OutlineNode, GameObject, VisTable>) ?: return
                 val draggedGo: GameObject = node.value
 
@@ -310,6 +312,14 @@ class Outline : VisTable(),
         }
 
         sceneGraph.isContainsWater = containsWater
+
+        // After tree is rebuilt, we must set the selected GO again if there is one
+        if (projectManager.current().currScene.currentSelection != null) {
+            val node = tree.findNode(projectManager.current().currScene.currentSelection)
+            tree.selection.clear()
+            if (node != null)
+                tree.selection.add(node)
+        }
     }
 
     /**
@@ -411,6 +421,7 @@ class Outline : VisTable(),
         init {
             add(nameLabel).expand().fill()
             nameLabel.setText(go.name)
+            if (!go.active) nameLabel.color = Colors.GRAY_888
         }
     }
 

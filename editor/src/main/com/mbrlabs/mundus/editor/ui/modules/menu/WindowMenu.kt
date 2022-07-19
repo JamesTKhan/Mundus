@@ -30,14 +30,22 @@ import com.mbrlabs.mundus.editor.ui.UI
 class WindowMenu : Menu("Window") {
 
     val settings = MenuItem("Settings")
+    private val versionInfo = MenuItem("Version Info")
 
     init {
         settings.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.ALT_LEFT, Input.Keys.S)
         addItem(settings)
+        addItem(versionInfo)
 
         settings.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 UI.showDialog(UI.settingsDialog)
+            }
+        })
+
+        versionInfo.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                UI.showDialog(UI.versionDialog)
             }
         })
     }

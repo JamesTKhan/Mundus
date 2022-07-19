@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.utils.Array;
 
 public class PointLightsAttribute extends Attribute {
-    public final static String Alias = "pointLights";
+    public final static String Alias = "pointLightsMundus";
     public final static long Type = register(Alias);
 
     public final static boolean is(final long mask) {

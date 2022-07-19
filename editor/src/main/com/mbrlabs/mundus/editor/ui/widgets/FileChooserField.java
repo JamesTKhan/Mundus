@@ -40,8 +40,8 @@ public class FileChooserField extends VisTable {
 
     private FileChooser.SelectionMode mode = FileChooser.SelectionMode.FILES;
     private FileSelected fileSelected;
-    private VisTextField textField;
-    private VisTextButton fcBtn;
+    private final VisTextField textField;
+    private final VisTextButton fcBtn;
 
     private String path;
     private FileHandle fileHandle;
@@ -107,6 +107,7 @@ public class FileChooserField extends VisTable {
                 super.clicked(event, x, y);
                 FileChooser fileChooser = UI.INSTANCE.getFileChooser();
                 fileChooser.setSelectionMode(mode);
+                fileChooser.setMultiSelectionEnabled(false);
                 fileChooser.setListener(new SingleFileChooserListener() {
                     @Override
                     protected void selected(FileHandle file) {

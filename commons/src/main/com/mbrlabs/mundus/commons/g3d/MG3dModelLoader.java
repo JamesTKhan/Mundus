@@ -87,6 +87,33 @@ public class MG3dModelLoader extends ModelLoader<ModelLoader.ModelParameters> {
         return model;
     }
 
+    public int getMaxBones(FileHandle handle) {
+        int totalBones = 0;
+        JsonValue json = reader.parse(handle);
+        ModelData model = new ModelData();
+
+        JsonValue nodes = json.get("nodes");
+        if (nodes != null) {
+            model.nodes.ensureCapacity(nodes.size);
+            for (JsonValue node = nodes.child; node != null; node = node.next) {
+                totalBones += getBoneCount(node);
+            }
+        }
+
+        return totalBones;
+    }
+
+    private int getBoneCount(JsonValue json) {
+        int boneCount = 0;
+        JsonValue materials = json.get("parts");
+        if (materials != null && !materials.isEmpty()) {
+            JsonValue bones = materials.get(0).get("bones");
+            boneCount = bones.size;
+        }
+
+        return boneCount;
+    }
+
     private void parseMeshes(ModelData model, JsonValue json) {
         JsonValue meshes = json.get("meshes");
         if (meshes != null) {
@@ -103,7 +130,7 @@ public class MG3dModelLoader extends ModelLoader<ModelLoader.ModelParameters> {
                 jsonMesh.vertices = mesh.require("vertices").asFloatArray();
 
                 JsonValue meshParts = mesh.require("parts");
-                Array<ModelMeshPart> parts = new Array<ModelMeshPart>();
+                Array<ModelMeshPart> parts = new Array<>();
                 for (JsonValue meshPart = meshParts.child; meshPart != null; meshPart = meshPart.next) {
                     ModelMeshPart jsonPart = new ModelMeshPart();
                     String partId = meshPart.getString("id", null);
@@ -150,12 +177,12 @@ public class MG3dModelLoader extends ModelLoader<ModelLoader.ModelParameters> {
     }
 
     private VertexAttribute[] parseAttributes(JsonValue attributes) {
-        Array<VertexAttribute> vertexAttributes = new Array<VertexAttribute>();
+        Array<VertexAttribute> vertexAttributes = new Array<>();
         int unit = 0;
         int blendWeightCount = 0;
         for (JsonValue value = attributes.child; value != null; value = value.next) {
             String attribute = value.asString();
-            String attr = (String) attribute;
+            String attr = attribute;
             if (attr.equals("POSITION")) {
                 vertexAttributes.add(VertexAttribute.Position());
             } else if (attr.equals("NORMAL")) {
@@ -303,7 +330,6 @@ public class MG3dModelLoader extends ModelLoader<ModelLoader.ModelParameters> {
     }
 
     private final Quaternion tempQ = new Quaternion();
-
     private ModelNode parseNodesRecursively(JsonValue json) {
         ModelNode jsonNode = new ModelNode();
 
@@ -346,7 +372,7 @@ public class MG3dModelLoader extends ModelLoader<ModelLoader.ModelParameters> {
 
                 JsonValue bones = material.get("bones");
                 if (bones != null) {
-                    nodePart.bones = new ArrayMap<String, Matrix4>(true, bones.size, String.class, Matrix4.class);
+                    nodePart.bones = new ArrayMap<>(true, bones.size, String.class, Matrix4.class);
                     int j = 0;
                     for (JsonValue bone = bones.child; bone != null; bone = bone.next, j++) {
                         String nodeId = bone.getString("node", null);
@@ -413,8 +439,8 @@ public class MG3dModelLoader extends ModelLoader<ModelLoader.ModelParameters> {
                         JsonValue translation = keyframe.get("translation");
                         if (translation != null && translation.size == 3) {
                             if (nodeAnim.translation == null)
-                                nodeAnim.translation = new Array<ModelNodeKeyframe<Vector3>>();
-                            ModelNodeKeyframe<Vector3> tkf = new ModelNodeKeyframe<Vector3>();
+                                nodeAnim.translation = new Array<>();
+                            ModelNodeKeyframe<Vector3> tkf = new ModelNodeKeyframe<>();
                             tkf.keytime = keytime;
                             tkf.value = new Vector3(translation.getFloat(0), translation.getFloat(1),
                                     translation.getFloat(2));
@@ -423,8 +449,8 @@ public class MG3dModelLoader extends ModelLoader<ModelLoader.ModelParameters> {
                         JsonValue rotation = keyframe.get("rotation");
                         if (rotation != null && rotation.size == 4) {
                             if (nodeAnim.rotation == null)
-                                nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
-                            ModelNodeKeyframe<Quaternion> rkf = new ModelNodeKeyframe<Quaternion>();
+                                nodeAnim.rotation = new Array<>();
+                            ModelNodeKeyframe<Quaternion> rkf = new ModelNodeKeyframe<>();
                             rkf.keytime = keytime;
                             rkf.value = new Quaternion(rotation.getFloat(0), rotation.getFloat(1), rotation.getFloat(2),
                                     rotation.getFloat(3));
@@ -432,7 +458,7 @@ public class MG3dModelLoader extends ModelLoader<ModelLoader.ModelParameters> {
                         }
                         JsonValue scale = keyframe.get("scale");
                         if (scale != null && scale.size == 3) {
-                            if (nodeAnim.scaling == null) nodeAnim.scaling = new Array<ModelNodeKeyframe<Vector3>>();
+                            if (nodeAnim.scaling == null) nodeAnim.scaling = new Array<>();
                             ModelNodeKeyframe<Vector3> skf = new ModelNodeKeyframe();
                             skf.keytime = keytime;
                             skf.value = new Vector3(scale.getFloat(0), scale.getFloat(1), scale.getFloat(2));
@@ -442,10 +468,10 @@ public class MG3dModelLoader extends ModelLoader<ModelLoader.ModelParameters> {
                 } else { // Version 0.2:
                     JsonValue translationKF = node.get("translation");
                     if (translationKF != null && translationKF.isArray()) {
-                        nodeAnim.translation = new Array<ModelNodeKeyframe<Vector3>>();
+                        nodeAnim.translation = new Array<>();
                         nodeAnim.translation.ensureCapacity(translationKF.size);
                         for (JsonValue keyframe = translationKF.child; keyframe != null; keyframe = keyframe.next) {
-                            ModelNodeKeyframe<Vector3> kf = new ModelNodeKeyframe<Vector3>();
+                            ModelNodeKeyframe<Vector3> kf = new ModelNodeKeyframe<>();
                             nodeAnim.translation.add(kf);
                             kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.f;
                             JsonValue translation = keyframe.get("value");
@@ -457,10 +483,10 @@ public class MG3dModelLoader extends ModelLoader<ModelLoader.ModelParameters> {
 
                     JsonValue rotationKF = node.get("rotation");
                     if (rotationKF != null && rotationKF.isArray()) {
-                        nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
+                        nodeAnim.rotation = new Array<>();
                         nodeAnim.rotation.ensureCapacity(rotationKF.size);
                         for (JsonValue keyframe = rotationKF.child; keyframe != null; keyframe = keyframe.next) {
-                            ModelNodeKeyframe<Quaternion> kf = new ModelNodeKeyframe<Quaternion>();
+                            ModelNodeKeyframe<Quaternion> kf = new ModelNodeKeyframe<>();
                             nodeAnim.rotation.add(kf);
                             kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.f;
                             JsonValue rotation = keyframe.get("value");
@@ -471,10 +497,10 @@ public class MG3dModelLoader extends ModelLoader<ModelLoader.ModelParameters> {
 
                     JsonValue scalingKF = node.get("scaling");
                     if (scalingKF != null && scalingKF.isArray()) {
-                        nodeAnim.scaling = new Array<ModelNodeKeyframe<Vector3>>();
+                        nodeAnim.scaling = new Array<>();
                         nodeAnim.scaling.ensureCapacity(scalingKF.size);
                         for (JsonValue keyframe = scalingKF.child; keyframe != null; keyframe = keyframe.next) {
-                            ModelNodeKeyframe<Vector3> kf = new ModelNodeKeyframe<Vector3>();
+                            ModelNodeKeyframe<Vector3> kf = new ModelNodeKeyframe<>();
                             nodeAnim.scaling.add(kf);
                             kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.f;
                             JsonValue scaling = keyframe.get("value");
