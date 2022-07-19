@@ -368,6 +368,7 @@ public class ProjectManager implements Disposable {
         }
 
         currentProject = context;
+        currentProject.initPreferences();
         // currentProject.copyFrom(context);
         registry.setLastProject(new ProjectRef());
         registry.getLastOpenedProject().setName(context.name);
