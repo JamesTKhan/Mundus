@@ -160,7 +160,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     override fun render() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_9)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F9)) {
             openPreviewWindow()
         }
 

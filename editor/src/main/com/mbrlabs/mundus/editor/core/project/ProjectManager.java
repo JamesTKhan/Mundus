@@ -428,6 +428,7 @@ public class ProjectManager implements Disposable {
         }
 
         scene.batch = modelBatch;
+        scene.depthBatch = depthBatch;
 
         scene.setShadowMapShader(Shaders.INSTANCE.getShadowMapShader());
         scene.setDepthShader(Shaders.INSTANCE.getDepthShader());
