@@ -121,7 +121,7 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
             ((ClippableShader) shader).setClippingHeight(clipHeight);
         }
 
-        gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
+        gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment);
     }
 
     @Override

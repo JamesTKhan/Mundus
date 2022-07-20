@@ -84,7 +84,7 @@ public class TerrainComponent extends AbstractComponent implements AssetUsage, C
             ((ClippableShader) shader).setClippingHeight(clipHeight);
         }
 
-        gameObject.sceneGraph.scene.batch.render(terrain.getTerrain(), gameObject.sceneGraph.scene.environment, shader);
+        gameObject.sceneGraph.scene.depthBatch.render(terrain.getTerrain(), gameObject.sceneGraph.scene.environment, shader);
     }
 
     @Override

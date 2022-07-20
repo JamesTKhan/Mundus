@@ -20,10 +20,12 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.shaders.LightShader;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 
 /**
  * @author Marcus Brummer
@@ -98,6 +100,19 @@ public class ShaderUtils {
         config.vertexShader = Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.vs.glsl").readString();
         config.fragmentShader = Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.fs.glsl").readString();
         return config;
+    }
+
+    /**
+     * Builds and returns a DepthShader.Config.
+     *
+     * @param numBones the numBones to use for the config
+     */
+    public static DepthShader.Config buildPBRShaderDepthConfig(int numBones) {
+        // Create and initialize PBR config
+        DepthShader.Config depthConfig = PBRShaderProvider.createDefaultDepthConfig();
+        depthConfig.numBones = numBones;
+        depthConfig.defaultCullFace = GL20.GL_BACK;
+        return depthConfig;
     }
 
 }

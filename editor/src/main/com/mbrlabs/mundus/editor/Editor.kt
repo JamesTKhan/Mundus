@@ -48,6 +48,7 @@ import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
+import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 
@@ -132,6 +133,9 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
         val config = ShaderUtils.buildPBRShaderConfig(projectManager.current().assetManager.maxNumBones)
         projectManager.modelBatch = ModelBatch(MundusPBRShaderProvider(config), SceneRenderableSorter())
+
+        val depthConfig = ShaderUtils.buildPBRShaderDepthConfig(projectManager.current().assetManager.maxNumBones)
+        projectManager.setDepthBatch((ModelBatch(PBRDepthShaderProvider(depthConfig))))
 
         UI.sceneWidget.setCam(context.currScene.cam)
         UI.sceneWidget.setRenderer {

@@ -80,6 +80,7 @@ public class ProjectManager implements Disposable {
     private Registry registry;
     private KryoManager kryoManager;
     private ModelBatch modelBatch;
+    private ModelBatch depthBatch;
 
     public ProjectManager(KryoManager kryoManager, Registry registry, ModelBatch modelBatch) {
         this.registry = registry;
@@ -550,6 +551,24 @@ public class ProjectManager implements Disposable {
 
         if (currentProject != null && currentProject.currScene != null) {
             currentProject.currScene.batch = this.modelBatch;
+        }
+    }
+
+    /**
+     * Disposes current depth model batch, assigns the new batch and updates the depth batch
+     * on the current scene.
+     *
+     * @param modelBatch new ModelBatch instance to use
+     */
+    public void setDepthBatch(ModelBatch depthBatch) {
+        if (this.depthBatch != null) {
+            this.depthBatch.dispose();
+        }
+
+        this.depthBatch = depthBatch;
+
+        if (currentProject != null && currentProject.currScene != null) {
+            currentProject.currScene.depthBatch = this.depthBatch;
         }
     }
 

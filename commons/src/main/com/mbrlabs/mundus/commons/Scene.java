@@ -73,6 +73,7 @@ public class Scene implements Disposable {
 
     public PerspectiveCamera cam;
     public ModelBatch batch;
+    public ModelBatch depthBatch;
 
     private FrameBuffer fboWaterReflection;
     private FrameBuffer fboWaterRefraction;
@@ -231,9 +232,9 @@ public class Scene implements Disposable {
 
         shadowMapper.setCenter(cam.position);
         shadowMapper.begin(light.direction);
-        batch.begin(shadowMapper.getCam());
+        depthBatch.begin(shadowMapper.getCam());
         sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
-        batch.end();
+        depthBatch.end();
         shadowMapper.end();
     }
 
