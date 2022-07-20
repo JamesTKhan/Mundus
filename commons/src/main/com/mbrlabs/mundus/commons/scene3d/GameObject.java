@@ -124,7 +124,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
         if (getChildren() != null) {
             for (GameObject node : getChildren()) {
-                node.render(delta, clippingPlane, delta);
+                node.render(delta, clippingPlane, clipHeight);
             }
         }
     }

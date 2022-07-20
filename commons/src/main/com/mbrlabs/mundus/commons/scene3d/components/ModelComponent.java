@@ -115,10 +115,10 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
     }
 
     @Override
-    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader) {
-        if (shader instanceof ClippableShader) {
-            ((ClippableShader) shader).setClippingPlane(clippingPlane);
-            ((ClippableShader) shader).setClippingHeight(clipHeight);
+    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader depthShader) {
+        if (depthShader instanceof ClippableShader) {
+            ((ClippableShader) depthShader).setClippingPlane(clippingPlane);
+            ((ClippableShader) depthShader).setClippingHeight(clipHeight);
         }
 
         gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment);
