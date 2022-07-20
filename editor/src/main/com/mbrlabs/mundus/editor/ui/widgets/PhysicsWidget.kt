@@ -120,8 +120,8 @@ class PhysicsWidget(val physicsComponent: RigidBodyPhysicsComponent) : BaseWidge
         add(restitutionLabel)
         add(restitutionField).row()
 
-        if (physicsComponent.physicsBodyType == PhysicsBody.DYNAMIC) {
-            addDynamicFields()
+        if (physicsComponent.physicsBodyType == PhysicsBody.DYNAMIC || physicsComponent.physicsBodyType == PhysicsBody.KINEMATIC) {
+            addDynamicKinematicFields()
         } else {
             removeDynamicFields()
         }
@@ -138,12 +138,14 @@ class PhysicsWidget(val physicsComponent: RigidBodyPhysicsComponent) : BaseWidge
         disableDeactivationLabel.remove()
     }
 
-    private fun addDynamicFields() {
+    private fun addDynamicKinematicFields() {
         add(shapeSelectorLabel)
         add(shapeTable).left().row()
 
-        add(massFieldLabel)
-        add(massField).row()
+        if (physicsComponent.physicsBodyType == PhysicsBody.DYNAMIC) {
+            add(massFieldLabel)
+            add(massField).row()
+        }
 
         add(disableDeactivationLabel)
         add(disableDeactivationCheckbox).row()
