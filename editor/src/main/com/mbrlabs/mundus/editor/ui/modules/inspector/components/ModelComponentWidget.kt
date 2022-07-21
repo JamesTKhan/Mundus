@@ -72,6 +72,10 @@ class ModelComponentWidget(modelComponent: ModelComponent) : ComponentWidget<Mod
 
             mw.material = component.materials[g3dbMatID]
             materialContainer.add(mw).grow().padBottom(20f).row()
+
+            // Calling this here to setup listeners
+            // prevents iteration within iteration issues
+            mw.setupWidgets()
         }
     }
 
