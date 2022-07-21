@@ -32,6 +32,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
+import com.mbrlabs.mundus.commons.assets.TexCoordInfo
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.utils.ModelUtils
 import com.mbrlabs.mundus.editor.Mundus
@@ -64,14 +65,21 @@ class MaterialWidget : VisTable() {
     private val metallicRoughnessAssetField: AssetSelectionField = AssetSelectionField()
     private val occlusionAssetField: AssetSelectionField = AssetSelectionField()
 
-    private val roughnessField = ImprovedSlider(0.0f, 1.0f, 0.05f)
-    private val metallicField = ImprovedSlider(0.0f, 1.0f, 0.05f)
-    private val opacityField = ImprovedSlider(0.0f, 1.0f, 0.05f)
-    private val alphaTestField = ImprovedSlider(0.0f, 1.0f, 0.05f)
-    private val normalScaleField = ImprovedSlider(0.5f, 5f, 0.5f)
-    private val shadowBiasField = ImprovedSlider(0.1f, 2f, 0.05f)
+    private val roughnessField = ImprovedSlider(0.0f, 1.0f, 0.01f)
+    private val metallicField = ImprovedSlider(0.0f, 1.0f, 0.01f)
+    private val opacityField = ImprovedSlider(0.0f, 1.0f, 0.01f)
+    private val alphaTestField = ImprovedSlider(0.0f, 1.0f, 0.01f)
+    private val normalScaleField = ImprovedSlider(0.5f, 5f, 0.01f)
+    private val shadowBiasField = ImprovedSlider(0.1f, 2f, 0.01f)
 
-    private lateinit var cullFaceSelectBox: VisSelectBox<CullFace>
+    private val scaleUField = FloatFieldWithLabel("Scale U", -1, false)
+    private val scaleVField = FloatFieldWithLabel("Scale V", -1, false)
+
+    private val offsetUField = ImprovedSlider(0.0f, 1.0f, 0.01f)
+    private val offsetVField = ImprovedSlider(0.0f, 1.0f, 0.01f)
+    private val rotateUVField = ImprovedSlider(0.0f, 6.3f, 0.01f)
+
+    private val cullFaceSelectBox: VisSelectBox<CullFace> = VisSelectBox()
 
     private val projectManager: ProjectManager = Mundus.inject()
 
@@ -97,6 +105,12 @@ class MaterialWidget : VisTable() {
                 normalScaleField.value = value.normalScale
                 shadowBiasField.value = value.shadowBias
                 cullFaceSelectBox.selected = CullFace.getFromValue(value.cullFace)
+
+                scaleUField.textField.text = value.diffuseTexCoord.scaleU.toString()
+                scaleVField.textField.text = value.diffuseTexCoord.scaleV.toString()
+                offsetUField.value = value.diffuseTexCoord.offsetU
+                offsetVField.value = value.diffuseTexCoord.offsetV
+                rotateUVField.value = value.diffuseTexCoord.rotationUV
             }
         }
 
@@ -121,10 +135,9 @@ class MaterialWidget : VisTable() {
             }
         }
 
-        setupWidgets()
     }
 
-    private fun setupWidgets() {
+    fun setupWidgets() {
         defaults().padBottom(4f)
         val table = VisTable()
         table.add(matNameLabel).grow()
@@ -184,7 +197,6 @@ class MaterialWidget : VisTable() {
         for (value in CullFace.values())
             values.add(value)
 
-        cullFaceSelectBox = VisSelectBox()
         cullFaceSelectBox.items = values
 
         val cullTip = buildString {
@@ -198,6 +210,24 @@ class MaterialWidget : VisTable() {
         sliderTable.add(cullFaceSelectBox).left()
 
         add(sliderTable).growX().row()
+
+        addSeparator().padTop(15f).padBottom(15f).growX().row()
+
+        val texTable = VisTable()
+        texTable.defaults().padBottom(10f)
+
+        texTable.add(VisLabel("Offset U")).growX()
+        texTable.add(offsetUField).growX().row()
+        texTable.add(VisLabel("Offset V")).growX()
+        texTable.add(offsetVField).growX().row()
+        texTable.add(VisLabel("Rotate UV")).growX()
+        texTable.add(rotateUVField).growX().row()
+
+        add(texTable).growX().row()
+
+        add(scaleUField).growX().row()
+        add(scaleVField).growX().row()
+
 
         matChangedBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -356,6 +386,36 @@ class MaterialWidget : VisTable() {
             }
         })
 
+        val texCoordListener = object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                applyAllTexCoords()
+                applyMaterialToModelAssets()
+                applyMaterialToModelComponents()
+                projectManager.current().assetManager.addModifiedAsset(material!!)
+            }
+        }
+
+        scaleUField.addListener(texCoordListener)
+        scaleVField.addListener(texCoordListener)
+        offsetUField.addListener(texCoordListener)
+        offsetVField.addListener(texCoordListener)
+        rotateUVField.addListener(texCoordListener)
+    }
+
+    private fun applyAllTexCoords() {
+        applyTexCoord(material?.diffuseTexCoord)
+        applyTexCoord(material?.normalTexCoord)
+        applyTexCoord(material?.emissiveTexCoord)
+        applyTexCoord(material?.metallicRoughnessTexCoord)
+        applyTexCoord(material?.occlusionTexCoord)
+    }
+
+    private fun applyTexCoord(diffuseTexCoord: TexCoordInfo?) {
+        diffuseTexCoord?.scaleU = scaleUField.float
+        diffuseTexCoord?.scaleV = scaleVField.float
+        diffuseTexCoord?.offsetU = offsetUField.value
+        diffuseTexCoord?.offsetV = offsetVField.value
+        diffuseTexCoord?.rotationUV = rotateUVField.value
     }
 
     // TODO find better solution than iterating through all components

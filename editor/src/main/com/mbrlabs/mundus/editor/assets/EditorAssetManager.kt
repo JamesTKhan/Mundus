@@ -630,6 +630,12 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         props.setProperty(MaterialAsset.PROP_SHADOW_BIAS, mat.shadowBias.toString())
         props.setProperty(MaterialAsset.PROP_CULL_FACE, mat.cullFace.toString())
 
+        setTexCoordInfo(props, mat.diffuseTexCoord)
+        setTexCoordInfo(props, mat.normalTexCoord)
+        setTexCoordInfo(props, mat.emissiveTexCoord)
+        setTexCoordInfo(props, mat.metallicRoughnessTexCoord)
+        setTexCoordInfo(props, mat.occlusionTexCoord)
+
         val fileOutputStream = FileOutputStream(mat.file.file())
         props.store(fileOutputStream, null)
         fileOutputStream.flush()
@@ -637,6 +643,15 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         // save meta file
         metaSaver.save(mat.meta)
+    }
+
+    private fun setTexCoordInfo(props: Properties, texCoordInfo: TexCoordInfo) {
+        props.setProperty(texCoordInfo.PROP_UV, texCoordInfo.uvIndex.toString())
+        props.setProperty(texCoordInfo.PROP_OFFSET_U, texCoordInfo.offsetU.toString())
+        props.setProperty(texCoordInfo.PROP_OFFSET_V, texCoordInfo.offsetV.toString())
+        props.setProperty(texCoordInfo.PROP_SCALE_U, texCoordInfo.scaleU.toString())
+        props.setProperty(texCoordInfo.PROP_SCALE_V, texCoordInfo.scaleV.toString())
+        props.setProperty(texCoordInfo.PROP_ROTATION_UV, texCoordInfo.rotationUV.toString())
     }
 
     private fun saveWaterAsset(asset: WaterAsset) {

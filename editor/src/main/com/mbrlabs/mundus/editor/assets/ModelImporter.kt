@@ -24,6 +24,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
 import com.mbrlabs.mundus.commons.assets.TextureAsset
+import com.mbrlabs.mundus.commons.assets.TexCoordInfo
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.SettingsChangedEvent
@@ -129,6 +130,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
                 assetManager,
                 materialToUse.id,
                 PBRTextureAttribute.BaseColorTexture)
+            populateTextureCoordInfo(PBRTextureAttribute.BaseColorTexture, materialToUse, materialAssetToPopulate.diffuseTexCoord)
         }
 
         if (materialToUse.has(PBRTextureAttribute.NormalTexture)) {
@@ -138,6 +140,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
                 materialToUse.id,
                 PBRTextureAttribute.NormalTexture
             )
+            populateTextureCoordInfo(PBRTextureAttribute.NormalTexture, materialToUse, materialAssetToPopulate.normalTexCoord)
         }
 
         if (materialToUse.has(PBRTextureAttribute.EmissiveTexture)) {
@@ -147,6 +150,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
                 materialToUse.id,
                 PBRTextureAttribute.EmissiveTexture
             )
+            populateTextureCoordInfo(PBRTextureAttribute.EmissiveTexture, materialToUse, materialAssetToPopulate.emissiveTexCoord)
         }
 
         if (materialToUse.has(PBRTextureAttribute.MetallicRoughnessTexture)) {
@@ -156,6 +160,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
                 materialToUse.id,
                 PBRTextureAttribute.MetallicRoughnessTexture
             )
+            populateTextureCoordInfo(PBRTextureAttribute.MetallicRoughnessTexture, materialToUse, materialAssetToPopulate.metallicRoughnessTexCoord)
         }
 
         if (materialToUse.has(PBRTextureAttribute.OcclusionTexture)) {
@@ -165,6 +170,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
                 materialToUse.id,
                 PBRTextureAttribute.OcclusionTexture
             )
+            populateTextureCoordInfo(PBRTextureAttribute.OcclusionTexture, materialToUse, materialAssetToPopulate.occlusionTexCoord)
         }
 
         // Float attributes
@@ -187,6 +193,19 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
             val attr = materialToUse.get(PBRFloatAttribute.NormalScale) as PBRFloatAttribute
             materialAssetToPopulate.normalScale = attr.value
         }
+    }
+
+    /**
+     * Populates the TexCoordInfo POJO with UV data from the attribute
+     */
+    private fun populateTextureCoordInfo(type: Long, materialToUse: Material, texCoordInfo: TexCoordInfo) {
+        val attr = materialToUse.get(type) as PBRTextureAttribute
+        texCoordInfo.uvIndex = attr.uvIndex
+        texCoordInfo.offsetU = attr.offsetU
+        texCoordInfo.offsetV = attr.offsetV
+        texCoordInfo.scaleU = attr.scaleU
+        texCoordInfo.scaleV = attr.scaleV
+        texCoordInfo.rotationUV = attr.rotationUV
     }
 
     /**
