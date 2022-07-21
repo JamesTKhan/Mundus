@@ -41,6 +41,7 @@ import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
+import com.mbrlabs.mundus.editor.utils.Colors
 
 /**
  * Displays all properties of a material.
@@ -141,6 +142,7 @@ class MaterialWidget : VisTable() {
         defaults().padBottom(4f)
         val table = VisTable()
         table.add(matNameLabel).grow()
+        matNameLabel.color = Colors.TEAL
         table.add<VisTextButton>(matChangedBtn).padLeft(4f).right().row()
         add(table).grow().row()
 
