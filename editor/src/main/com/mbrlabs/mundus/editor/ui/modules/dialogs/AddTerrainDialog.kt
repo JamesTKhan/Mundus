@@ -19,15 +19,17 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.util.dialog.Dialogs
-import com.kotcrab.vis.ui.widget.VisTextField
-import com.kotcrab.vis.ui.widget.VisTextButton
-import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisSelectBox
+import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.VisTextButton
+import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.assets.TerrainAsset
+import com.mbrlabs.mundus.commons.terrain.SplatMapResolution
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.shader.Shaders
@@ -50,10 +52,11 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
     private val name = VisTextField("Terrain")
     private val vertexResolution = IntegerFieldWithLabel("", -1, false)
     private val terrainWidth = IntegerFieldWithLabel("", -1, false)
-    private val terrainDepth = IntegerFieldWithLabel("", -1, false)
     private val positionX = FloatFieldWithLabel("", -1, true)
     private val positionY = FloatFieldWithLabel("", -1, true)
     private val positionZ = FloatFieldWithLabel("", -1, true)
+    private val splatMapSelectBox: VisSelectBox<String> = VisSelectBox()
+
     private val generateBtn = VisTextButton("Generate Terrain")
 
     private var projectManager : ProjectManager
@@ -63,8 +66,8 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         isResizable = true
         projectManager = Mundus.inject()
         kryoManager = Mundus.inject()
-        setDefaults()
         setupUI()
+        setDefaults()
         setupListeners()
     }
 
@@ -98,8 +101,20 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         content.add(positionY).fillX().expandX().row()
         content.add(VisLabel("Position on z-axis: ")).left().padBottom(10f)
         content.add(positionZ).fillX().expandX().row()
-//        content.add(VisLabel("Terrain depth")).left().padBottom(10f)
-//        content.add(terrainDepth).fillX().expandX().row()
+
+        val selectorsTable = VisTable(true)
+        splatMapSelectBox.setItems(
+            SplatMapResolution._512.value,
+            SplatMapResolution._1024.value,
+            SplatMapResolution._2048.value,
+        )
+        selectorsTable.add(splatMapSelectBox)
+
+        content.add(ToolTipLabel("SplatMap Resolution: ", "The resolution of the splatmap for texture painting on the terrain.\n" +
+                "Higher resolution results in smoother texture painting at the cost of more memory usage and performance slowdowns when painting.\n" +
+                "If you are targeting HTML, 512 is recommended")).left().padBottom(10f)
+        content.add(selectorsTable).left().padBottom(10f).row()
+
         content.add(generateBtn).fillX().expand().colspan(2).bottom()
         root.add(content)
     }
@@ -124,6 +139,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
             val posX: Float = positionX.float
             val posY: Float = positionY.float
             val posZ: Float = positionZ.float
+            val splatMapResolution = SplatMapResolution.valueFromString(splatMapSelectBox.selected).resolutionValues
 
             if (res == 0 || width == 0) return
 
@@ -142,7 +158,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                     // create asset
                     asset = context.assetManager.createTerraAsset(
                         terrainName,
-                        res, width
+                        res, width, splatMapResolution
                     )
                 } catch (ex: AssetAlreadyExistsException) {
                     Dialogs.showErrorDialog(stage, "An asset with that name already exists.")
