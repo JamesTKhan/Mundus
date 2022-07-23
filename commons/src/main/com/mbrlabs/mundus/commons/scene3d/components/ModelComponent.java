@@ -27,6 +27,7 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.shaders.ClippableShader;
+import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
 
 import java.util.Objects;
 
@@ -115,7 +116,13 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
             ((ClippableShader) depthShader).setClippingHeight(clipHeight);
         }
 
-        gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment);
+        if (depthShader instanceof ShadowMapShader)
+            // Shadow Mapper will use default (PBR's depth shader) for animation support
+            gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment);
+        else {
+            // Otherwise, use the mundus depth shader (using PBR Depth shader causes odd foam artifacts and issues).
+            gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment, depthShader);
+        }
     }
 
     @Override
