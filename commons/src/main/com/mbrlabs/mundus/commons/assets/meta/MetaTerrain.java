@@ -25,6 +25,7 @@ public class MetaTerrain {
 
     public static final String JSON_SIZE = "size";
     public static final String JSON_SPLATMAP = "map";
+    public static final String JSON_SPLATMAP_RESOLUTION = "mapRes";
     public static final String JSON_SPLAT_BASE = "base";
     public static final String JSON_SPLAT_BASE64 = "base64";
     public static final String JSON_SPLAT_R = "r";
@@ -39,6 +40,7 @@ public class MetaTerrain {
     public static final String JSON_UV_SCALE= "uv";
 
     private int size;
+    private int splatMapResolution;
     private float uv;
     private String splatmap;
     private String splatBase;
@@ -115,6 +117,14 @@ public class MetaTerrain {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public int getSplatMapResolution() {
+        return splatMapResolution;
+    }
+
+    public void setSplatMapResolution(int splatMapResolution) {
+        this.splatMapResolution = splatMapResolution;
     }
 
     public float getUv() {

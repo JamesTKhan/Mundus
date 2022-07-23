@@ -29,8 +29,6 @@ import com.mbrlabs.mundus.commons.assets.PixmapTextureAsset;
  */
 public class SplatMap {
 
-    public static final int DEFAULT_SIZE = 512;
-
     private int width;
     private int height;
 

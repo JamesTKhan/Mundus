@@ -16,7 +16,7 @@
 
 package com.mbrlabs.mundus.editor.ui.widgets
 
-import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
+import com.kotcrab.vis.ui.util.IntDigitsOnlyFilter
 
 /**
  * @author Marcus Brummer
@@ -25,20 +25,31 @@ import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 class IntegerFieldWithLabel : TextFieldWithLabel {
 
     constructor(labelText: String, width: Int, allowNegative: Boolean) : super(labelText, width) {
-        textField.textFieldFilter = FloatDigitsOnlyFilter(allowNegative)
+        textField.textFieldFilter = IntDigitsOnlyFilter(allowNegative)
     }
 
     constructor(labelText: String, width: Int) : super(labelText, width) {
-        textField.textFieldFilter = FloatDigitsOnlyFilter(true)
+        textField.textFieldFilter = IntDigitsOnlyFilter(true)
+    }
+
+    fun isValid(): Boolean {
+        // A failsafe catchall to see if its valid
+        try {
+            Integer.parseInt(textField.text)
+            textField.isInputValid = true
+            return true
+        } catch (ex: NumberFormatException) {
+            textField.isInputValid = false
+            return false
+        }
     }
 
     val int: Int
         get() {
-            if (textField.text.isEmpty() || textField.text.length == 1 &&
-                    textField.text.startsWith("-") || textField.text.contains(".")) {
-                return 0
+            if (isValid()) {
+                return Integer.parseInt(textField.text)
             }
-            return Integer.parseInt(textField.text)
+            return 0
         }
 
 }

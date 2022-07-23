@@ -24,6 +24,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
 import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.scene3d.GameObject
+import com.mbrlabs.mundus.commons.utils.ModelUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.tools.ToolManager
@@ -93,19 +94,13 @@ class ModelAssetInspectorWidget : BaseInspectorWidget(TITLE) {
     }
 
     private fun updateUI() {
-        var verts = 0
-        var indices = 0
         val model = modelAsset!!.model
-        for (mesh in model.meshes) {
-            verts += mesh.numVertices
-            indices += mesh.numIndices
-        }
         // set info
         name.setText("Name: " + modelAsset!!.name)
         nodeCount.setText("Nodes: " + model.nodes.size)
         materialCount.setText("Materials: " + model.materials.size)
-        vertexCount.setText("Vertices: " + verts)
-        indexCount.setText("Indices: " + indices)
+        vertexCount.setText("Vertices: " + ModelUtils.getVerticesCount(model))
+        indexCount.setText("Indices: " + ModelUtils.getIndicesCount(model))
         boneCount.setText("Bones: " + modelAsset!!.meta.model.numBones)
 
         materialContainer.clear()

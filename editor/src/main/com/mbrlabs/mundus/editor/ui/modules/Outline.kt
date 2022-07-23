@@ -29,17 +29,26 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
-import com.kotcrab.vis.ui.widget.*
+import com.kotcrab.vis.ui.widget.MenuItem
+import com.kotcrab.vis.ui.widget.PopupMenu
+import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisScrollPane
+import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.VisTree
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
-import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.events.*
+import com.mbrlabs.mundus.editor.events.AssetImportEvent
+import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
+import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent
+import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
+import com.mbrlabs.mundus.editor.events.SceneChangedEvent
+import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.history.CommandHistory
 import com.mbrlabs.mundus.editor.history.commands.DeleteCommand
 import com.mbrlabs.mundus.editor.scene3d.components.PickableLightComponent
@@ -48,7 +57,6 @@ import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Colors
 import com.mbrlabs.mundus.editor.utils.Log
-import com.mbrlabs.mundus.editor.utils.createTerrainGO
 import com.mbrlabs.mundus.editor.utils.createWaterGO
 
 /**
@@ -476,37 +484,7 @@ class Outline : VisTable(),
             // add terrainAsset
             addTerrain.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                    try {
-                        Log.trace(TAG, "Add terrain game object in root node.")
-                        val context = projectManager.current()
-                        val sceneGraph = context.currScene.sceneGraph
-                        val goID = projectManager.current().obtainID()
-
-                        // Save context here so that the ID above is persisted in .pro file
-                        kryoManager.saveProjectContext(projectManager.current())
-
-                        val name = "Terrain " + goID
-                        // create asset
-                        val asset = context.assetManager.createTerraAsset(name,
-                                Terrain.DEFAULT_VERTEX_RESOLUTION, Terrain.DEFAULT_SIZE)
-                        asset.load()
-                        asset.applyDependencies()
-
-                        val terrainGO = createTerrainGO(sceneGraph,
-                                Shaders.terrainShader, goID, name, asset)
-                        // update sceneGraph
-                        sceneGraph.addGameObject(terrainGO)
-                        // update outline
-                        addGoToTree(null, terrainGO)
-
-                        context.currScene.terrains.add(asset)
-                        projectManager.current().assetManager.addNewAsset(asset)
-                        Mundus.postEvent(AssetImportEvent(asset))
-                        Mundus.postEvent(SceneGraphChangedEvent())
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-
+                    UI.showDialog(UI.addTerrainDialog)
                 }
             })
 
