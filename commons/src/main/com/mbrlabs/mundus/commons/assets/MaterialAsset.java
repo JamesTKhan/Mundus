@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
@@ -76,6 +77,12 @@ public class MaterialAsset extends Asset {
     private TextureAsset metallicRoughnessTexture;
     private TextureAsset occlusionTexture;
 
+    public TexCoordInfo diffuseTexCoord = new TexCoordInfo("diffuse");
+    public TexCoordInfo normalTexCoord = new TexCoordInfo("map");
+    public TexCoordInfo emissiveTexCoord = new TexCoordInfo("emissive");
+    public TexCoordInfo metallicRoughnessTexCoord = new TexCoordInfo("metallicRoughTexture");
+    public TexCoordInfo occlusionTexCoord = new TexCoordInfo("occlusionTexture");
+
     private float roughness = 1f;
     private float metallic = 0f;
     private float opacity = 1f;
@@ -124,6 +131,13 @@ public class MaterialAsset extends Asset {
                 if (value != null) {
                     cullFace = Integer.parseInt(value);
                 }
+
+                populateTexCoordInfo(diffuseTexCoord);
+                populateTexCoordInfo(normalTexCoord);
+                populateTexCoordInfo(emissiveTexCoord);
+                populateTexCoordInfo(metallicRoughnessTexCoord);
+                populateTexCoordInfo(occlusionTexCoord);
+
             } catch (NumberFormatException nfe) {
                 nfe.printStackTrace();
             }
@@ -151,6 +165,33 @@ public class MaterialAsset extends Asset {
         }
     }
 
+    private void populateTexCoordInfo(TexCoordInfo texCoordInfo) {
+        String value = MAP.get(texCoordInfo.PROP_UV, null);
+        if (value != null) {
+            texCoordInfo.uvIndex = Integer.parseInt(value);
+        }
+        value = MAP.get(texCoordInfo.PROP_OFFSET_U, null);
+        if (value != null) {
+            texCoordInfo.offsetU = Float.parseFloat(value);
+        }
+        value = MAP.get(texCoordInfo.PROP_OFFSET_V, null);
+        if (value != null) {
+            texCoordInfo.offsetV = Float.parseFloat(value);
+        }
+        value = MAP.get(texCoordInfo.PROP_SCALE_U, null);
+        if (value != null) {
+            texCoordInfo.scaleU = Float.parseFloat(value);
+        }
+        value = MAP.get(texCoordInfo.PROP_SCALE_V, null);
+        if (value != null) {
+            texCoordInfo.scaleV = Float.parseFloat(value);
+        }
+        value = MAP.get(texCoordInfo.PROP_ROTATION_UV, null);
+        if (value != null) {
+            texCoordInfo.rotationUV = Float.parseFloat(value);
+        }
+    }
+
     /**
      * Applies this material asset to the libGDX material.
      *
@@ -165,27 +206,27 @@ public class MaterialAsset extends Asset {
             material.set(PBRColorAttribute.createEmissive(emissiveColor));
         }
         if (diffuseTexture != null) {
-            material.set(new PBRTextureAttribute(PBRTextureAttribute.BaseColorTexture, diffuseTexture.getTexture()));
+            material.set(getTextureAttribute(PBRTextureAttribute.BaseColorTexture, diffuseTexture.getTexture(), diffuseTexCoord));
         } else {
-            material.remove(PBRTextureAttribute.Diffuse);
+            material.remove(PBRTextureAttribute.BaseColorTexture);
         }
         if (normalMap != null) {
-            material.set(new PBRTextureAttribute(PBRTextureAttribute.NormalTexture, normalMap.getTexture()));
+            material.set(getTextureAttribute(PBRTextureAttribute.NormalTexture, normalMap.getTexture(), normalTexCoord));
         } else {
             material.remove(PBRTextureAttribute.NormalTexture);
         }
         if (emissiveTexture != null) {
-            material.set(new PBRTextureAttribute(PBRTextureAttribute.EmissiveTexture, emissiveTexture.getTexture()));
+            material.set(getTextureAttribute(PBRTextureAttribute.EmissiveTexture, emissiveTexture.getTexture(), emissiveTexCoord));
         } else {
             material.remove(PBRTextureAttribute.EmissiveTexture);
         }
         if (metallicRoughnessTexture != null) {
-            material.set(new PBRTextureAttribute(PBRTextureAttribute.MetallicRoughnessTexture, metallicRoughnessTexture.getTexture()));
+            material.set(getTextureAttribute(PBRTextureAttribute.MetallicRoughnessTexture, metallicRoughnessTexture.getTexture(), metallicRoughnessTexCoord));
         } else {
             material.remove(PBRTextureAttribute.MetallicRoughnessTexture);
         }
         if (occlusionTexture != null) {
-            material.set(new PBRTextureAttribute(PBRTextureAttribute.OcclusionTexture, occlusionTexture.getTexture()));
+            material.set(getTextureAttribute(PBRTextureAttribute.OcclusionTexture, occlusionTexture.getTexture(), occlusionTexCoord));
         } else {
             material.remove(PBRTextureAttribute.OcclusionTexture);
         }
@@ -221,6 +262,21 @@ public class MaterialAsset extends Asset {
         }
 
         return material;
+    }
+
+    /**
+     * Create a PBRTextureAttribute for the given type and populate it with
+     * the texture and TexCoordInfo
+     */
+    private PBRTextureAttribute getTextureAttribute(long type, Texture texture, TexCoordInfo texCoord) {
+        PBRTextureAttribute attr = new PBRTextureAttribute(type, texture);
+        attr.uvIndex = texCoord.uvIndex;
+        attr.offsetU = texCoord.offsetU;
+        attr.offsetV = texCoord.offsetV;
+        attr.scaleU = texCoord.scaleU;
+        attr.scaleV = texCoord.scaleV;
+        attr.rotationUV = texCoord.rotationUV;
+        return attr;
     }
 
     public float getRoughness() {
