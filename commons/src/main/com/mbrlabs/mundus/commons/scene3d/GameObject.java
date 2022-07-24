@@ -322,6 +322,18 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
     }
 
     @Override
+    public void scale(Vector3 v) {
+        super.scale(v);
+        scaleChanged = true;
+    }
+
+    @Override
+    public void scale(float x, float y, float z) {
+        super.scale(x,y,z);
+        scaleChanged = true;
+    }
+
+    @Override
     public Iterator<GameObject> iterator() {
         return new DepthFirstIterator(this);
     }
