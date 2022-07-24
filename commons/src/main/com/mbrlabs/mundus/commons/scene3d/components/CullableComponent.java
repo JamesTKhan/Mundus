@@ -16,11 +16,14 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
+import com.mbrlabs.mundus.commons.utils.LightUtils;
 
 import static com.mbrlabs.mundus.commons.utils.ModelUtils.isVisible;
 
@@ -37,8 +40,8 @@ import static com.mbrlabs.mundus.commons.utils.ModelUtils.isVisible;
  */
 public abstract class CullableComponent extends AbstractComponent {
     private final static BoundingBox tmpBounds = new BoundingBox();
-    private final static Quaternion quaternion = new Quaternion();
     private final static Vector3 tmpScale = new Vector3();
+    private static DirectionalLight directionalLight;
 
     public final Vector3 center = new Vector3();
     public final Vector3 dimensions = new Vector3();
@@ -50,21 +53,36 @@ public abstract class CullableComponent extends AbstractComponent {
 
     public CullableComponent(GameObject go) {
         super(go);
+
+        // Update out reference on creation of new component
+        directionalLight = LightUtils.getDirectionalLight(go.sceneGraph.scene.environment);
     }
 
     @Override
     public void render(float delta) {
         if (modelInstance == null) return;
-        gameObject.getLocalRotation(quaternion);
 
-        if (quaternion.isIdentity()) {
-            // If it's not rotated, we use boundsInFrustum which seems to kick in quicker on terrains and water
-            // since it's not taking all possible rotations of the object into account
-            isCulled = !isVisible(gameObject.sceneGraph.scene.cam, modelInstance, center, dimensions);
-        } else {
-            isCulled = !isVisible(gameObject.sceneGraph.scene.cam, modelInstance, center, radius);
+        if (!gameObject.sceneGraph.scene.settings.useFrustumCulling) {
+            isCulled = false;
+            return;
         }
 
+        boolean visibleToPerspective;
+        boolean visibleToShadowMap = false;
+
+        Camera sceneCam = gameObject.sceneGraph.scene.cam;
+
+        visibleToPerspective = isVisible(sceneCam, modelInstance, center, radius);
+
+        // If not visible to main cam, check if it's visible to shadow map (to prevent shadows popping out)
+        if (!visibleToPerspective) {
+            if (directionalLight.castsShadows && gameObject.sceneGraph.scene.environment.shadowMap instanceof ShadowMapper) {
+                ShadowMapper shadowMapper = (ShadowMapper) gameObject.sceneGraph.scene.environment.shadowMap;
+                visibleToShadowMap = isVisible(shadowMapper.getCam(), modelInstance, center, radius);
+            }
+        }
+
+        isCulled = !visibleToPerspective && !visibleToShadowMap;
     }
 
     @Override
@@ -79,7 +97,9 @@ public abstract class CullableComponent extends AbstractComponent {
         modelInstance.calculateBoundingBox(tmpBounds);
         tmpBounds.getCenter(center);
         tmpBounds.getDimensions(dimensions);
-        dimensions.scl(gameObject.getLocalScale(tmpScale));
+        gameObject.getScale(tmpScale);
+        center.scl(tmpScale);
+        dimensions.scl(tmpScale);
         radius = dimensions.len() / 2f;
     }
 

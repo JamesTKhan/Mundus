@@ -63,8 +63,10 @@ public class SceneConverter {
         dto.setDirectionalLight(DirectionalLightConverter.convert(scene, directionalLight.lights.first()));
 
         // Water
-        dto.setWaterResolution(scene.waterResolution);
-        dto.setWaterHeight(scene.waterHeight);
+        dto.setWaterResolution(scene.settings.waterResolution);
+        dto.setWaterHeight(scene.settings.waterHeight);
+
+        dto.setUseFrustumCulling(scene.settings.useFrustumCulling);
 
         // camera
         dto.setCamPosX(scene.cam.position.x);
@@ -105,11 +107,12 @@ public class SceneConverter {
         }
 
         // Water stuff
-        scene.waterResolution = dto.getWaterResolution();
-        if (scene.waterResolution == null)
-            scene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
+        scene.settings.waterResolution = dto.getWaterResolution();
+        if (scene.settings.waterResolution == null)
+            scene.settings.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
 
-        scene.waterHeight = dto.getWaterHeight();
+        scene.settings.waterHeight = dto.getWaterHeight();
+        scene.settings.useFrustumCulling = dto.isUseFrustumCulling();
 
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);

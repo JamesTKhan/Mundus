@@ -166,7 +166,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     override fun onFullScreenEvent(event: FullScreenEvent) {
         if (event.isFullScreen) return
         // looks redundant but the purpose is to reset the FBO's to clear a render glitch on full screen exit
-        projectManager.current().currScene.setWaterResolution(projectManager.current().currScene.waterResolution)
+        projectManager.current().currScene.setWaterResolution(projectManager.current().currScene.settings.waterResolution)
     }
 
     private fun createDefaultProject(): ProjectContext? {
