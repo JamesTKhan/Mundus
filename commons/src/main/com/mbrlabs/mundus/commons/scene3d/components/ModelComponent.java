@@ -35,7 +35,7 @@ import java.util.Objects;
  * @author Marcus Brummer
  * @version 17-01-2016
  */
-public class ModelComponent extends AbstractComponent implements AssetUsage, ClippableComponent {
+public class ModelComponent extends CullableComponent implements AssetUsage, ClippableComponent {
 
     protected ModelAsset modelAsset;
     protected ModelInstance modelInstance;
@@ -76,6 +76,8 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
             }
         }
         applyMaterials();
+
+        setDimensions(modelInstance);
     }
 
     public ObjectMap<String, MaterialAsset> getMaterials() {
@@ -101,6 +103,9 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
 
     @Override
     public void render(float delta) {
+        super.render(delta);
+        if (isCulled) return;
+
         modelInstance.transform.set(gameObject.getTransform());
         if (shader != null) {
             gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
@@ -111,6 +116,8 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
 
     @Override
     public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader depthShader) {
+        if (isCulled) return;
+
         if (depthShader instanceof ClippableShader) {
             ((ClippableShader) depthShader).setClippingPlane(clippingPlane);
             ((ClippableShader) depthShader).setClippingHeight(clipHeight);
@@ -137,11 +144,6 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
         }
 
         render(delta);
-    }
-
-    @Override
-    public void update(float delta) {
-
     }
 
     @Override

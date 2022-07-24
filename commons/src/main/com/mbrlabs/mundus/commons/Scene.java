@@ -58,11 +58,10 @@ public class Scene implements Disposable {
     private long id;
 
     public SceneGraph sceneGraph;
+    public SceneSettings settings;
     public MundusEnvironment environment;
     public Skybox skybox;
     public String skyboxAssetId;
-    public float waterHeight = 0f;
-    public WaterResolution waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
 
     public PerspectiveCamera cam;
     public ModelBatch batch;
@@ -80,10 +79,9 @@ public class Scene implements Disposable {
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
 
-    private final float distortionEdgeCorrection = 1f;
-
     public Scene() {
         environment = new MundusEnvironment();
+        settings = new SceneSettings();
 
         cam = new PerspectiveCamera(CameraSettings.DEFAULT_FOV, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 1, -3);
@@ -131,7 +129,7 @@ public class Scene implements Disposable {
 
     public void render(float delta) {
         if (fboWaterReflection == null) {
-            Vector2 res = waterResolution.getResolutionValues();
+            Vector2 res = settings.waterResolution.getResolutionValues();
             initFrameBuffers((int) res.x, (int) res.y);
         }
 
@@ -196,7 +194,7 @@ public class Scene implements Disposable {
 
     private void captureReflectionFBO(float delta) {
         // Calc vertical distance for camera for reflection FBO
-        float camReflectionDistance = 2 * (cam.position.y - waterHeight);
+        float camReflectionDistance = 2 * (cam.position.y - settings.waterHeight);
 
         // Save current cam positions
         Vector3 camPos = cam.position.cpy();
@@ -212,7 +210,7 @@ public class Scene implements Disposable {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         renderSkybox();
         batch.begin(cam);
-        sceneGraph.render(delta, clippingPlaneReflection, -waterHeight + distortionEdgeCorrection);
+        sceneGraph.render(delta, clippingPlaneReflection, -settings.waterHeight + settings.distortionEdgeCorrection);
         batch.end();
         fboWaterReflection.end();
 
@@ -227,7 +225,7 @@ public class Scene implements Disposable {
         fboDepthRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         depthBatch.begin(cam);
-        sceneGraph.renderDepth(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection, depthShader);
+        sceneGraph.renderDepth(delta, clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection, depthShader);
         depthBatch.end();
         fboDepthRefraction.end();
     }
@@ -246,7 +244,7 @@ public class Scene implements Disposable {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         renderSkybox();
         batch.begin(cam);
-        sceneGraph.render(delta, clippingPlaneRefraction, waterHeight + distortionEdgeCorrection);
+        sceneGraph.render(delta, clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection);
         batch.end();
         fboWaterRefraction.end();
     }
@@ -294,8 +292,8 @@ public class Scene implements Disposable {
      * @param resolution the resolution to use
      */
     public void setWaterResolution(WaterResolution resolution) {
-        this.waterResolution = resolution;
-        Vector2 res = waterResolution.getResolutionValues();
+        settings.waterResolution = resolution;
+        Vector2 res = settings.waterResolution.getResolutionValues();
         initFrameBuffers((int) res.x, (int) res.y);
     }
 

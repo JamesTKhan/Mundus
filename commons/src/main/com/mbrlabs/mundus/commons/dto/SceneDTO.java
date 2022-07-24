@@ -45,6 +45,7 @@ public class SceneDTO implements Json.Serializable {
     private float camFarPlane;
     private float camFieldOfView;
     private float waterHeight;
+    private boolean useFrustumCulling;
     private WaterResolution waterResolution;
 
     public SceneDTO() {
@@ -185,6 +186,14 @@ public class SceneDTO implements Json.Serializable {
 
     public float getWaterHeight() {
         return waterHeight;
+    }
+
+    public boolean isUseFrustumCulling() {
+        return useFrustumCulling;
+    }
+
+    public void setUseFrustumCulling(boolean useFrustumCulling) {
+        this.useFrustumCulling = useFrustumCulling;
     }
 
     public void setSkyboxAssetId(String skyboxAssetId) {

@@ -68,6 +68,7 @@ public class TranslateTool extends TransformTool {
     private boolean globalSpace = true;
 
     private final Vector3 temp0 = new Vector3();
+    private final Vector3 temp1 = new Vector3();
 
     private TranslateCommand command;
 
@@ -193,7 +194,7 @@ public class TranslateTool extends TransformTool {
 
             // If a water component height is changed, global water height needs to update
             if (go.findComponentByType(Component.Type.WATER) != null)
-                getProjectManager().current().currScene.waterHeight = go.getPosition(new Vector3()).y;
+                getProjectManager().current().currScene.settings.waterHeight = go.getPosition(temp1).y;
 
             if (modified) {
                 gameObjectModifiedEvent.setGameObject(getProjectManager().current().currScene.currentSelection);

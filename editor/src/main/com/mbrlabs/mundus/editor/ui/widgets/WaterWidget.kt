@@ -157,7 +157,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamEdgeDistance, Water.DEFAULT_FOAM_EDGE_DISTANCE)
                 waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamEdgeBias, Water.DEFAULT_FOAM_EDGE_BIAS)
                 waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE)
-                projectManager.current().currScene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION
+                projectManager.current().currScene.settings.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION
                 projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
 
                 setFieldsToCurrentValues()
@@ -195,7 +195,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         foamScrollSpeedFactor.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamScrollSpeed).toString()
         foamFallOffDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamFallOffDistance).toString()
         foamEdgeDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeDistance).toString()
-        selectBox.selected = projectManager.current().currScene.waterResolution.value
+        selectBox.selected = projectManager.current().currScene.settings.waterResolution.value
     }
 
     private fun getSectionTable(): VisTable {
