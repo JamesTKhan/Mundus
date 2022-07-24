@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
@@ -93,6 +94,10 @@ public abstract class CullableComponent extends AbstractComponent {
     }
 
     protected void setDimensions(ModelInstance modelInstance) {
+        if (modelInstance == null) {
+            Gdx.app.error("CullableComponent", "setDimensions called with null modelInstance");
+            return;
+        }
         this.modelInstance = modelInstance;
         modelInstance.calculateBoundingBox(tmpBounds);
         tmpBounds.getCenter(center);
