@@ -43,6 +43,7 @@ import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
+import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 
@@ -126,6 +127,9 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         val config = ShaderUtils.buildPBRShaderConfig(projectManager.current().assetManager.maxNumBones)
         projectManager.modelBatch = ModelBatch(MundusPBRShaderProvider(config), SceneRenderableSorter())
 
+        val depthConfig = ShaderUtils.buildPBRShaderDepthConfig(projectManager.current().assetManager.maxNumBones)
+        projectManager.setDepthBatch((ModelBatch(PBRDepthShaderProvider(depthConfig))))
+
         UI.sceneWidget.setCam(context.currScene.cam)
         UI.sceneWidget.setRenderer {
 
@@ -166,7 +170,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     override fun onFullScreenEvent(event: FullScreenEvent) {
         if (event.isFullScreen) return
         // looks redundant but the purpose is to reset the FBO's to clear a render glitch on full screen exit
-        projectManager.current().currScene.setWaterResolution(projectManager.current().currScene.waterResolution)
+        projectManager.current().currScene.setWaterResolution(projectManager.current().currScene.settings.waterResolution)
     }
 
     private fun createDefaultProject(): ProjectContext? {

@@ -112,7 +112,7 @@ class TransformWidget : BaseInspectorWidget("Transformation") {
 
                 // If a water component height is changed, global water height needs to update
                 if (go.findComponentByType(Component.Type.WATER) != null)
-                    projectManager.current().currScene.waterHeight = go.getPosition(Vector3()).y
+                    projectManager.current().currScene.settings.waterHeight = go.getPosition(Vector3()).y
             }
         })
         posZ.addListener(object : ChangeListener() {

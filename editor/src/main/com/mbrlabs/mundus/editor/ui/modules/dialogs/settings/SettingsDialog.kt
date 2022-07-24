@@ -45,6 +45,7 @@ class SettingsDialog : BaseDialog("Settings") {
     private val exportSettings = ExportSettingsTable()
     private val appearenceSettings = AppearanceSettingsTable()
     private val cameraSettings = CameraSettingsTable()
+    private val performanceSettings = PerformanceSettingsTable()
 
     init {
         val root = VisTable()
@@ -73,6 +74,10 @@ class SettingsDialog : BaseDialog("Settings") {
         val cameraNode = SettingsNode(VisLabel("Camera"))
         cameraNode.value = cameraSettings
         settingsTree.add(cameraNode)
+
+        val perfNode = SettingsNode(VisLabel("Performance"))
+        perfNode.value = performanceSettings
+        settingsTree.add(perfNode)
 
         // listener
         settingsTree.addListener(object : ClickListener() {

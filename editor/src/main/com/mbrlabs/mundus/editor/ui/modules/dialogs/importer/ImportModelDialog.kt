@@ -72,6 +72,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
+import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider
 import net.mgsx.gltf.scene3d.utils.IBLBuilder
@@ -229,6 +230,10 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
                             if (modelBoneCount > projectManager.current().assetManager.maxNumBones) {
                                 val config = ShaderUtils.buildPBRShaderConfig(modelBoneCount)
                                 projectManager.modelBatch = ModelBatch(MundusPBRShaderProvider(config), SceneRenderableSorter())
+
+                                val depthConfig = ShaderUtils.buildPBRShaderDepthConfig(modelBoneCount)
+                                projectManager.setDepthBatch((ModelBatch(PBRDepthShaderProvider(depthConfig))))
+
                                 projectManager.current().assetManager.maxNumBones = modelBoneCount
                                 Mundus.postEvent(LogEvent(LogType.INFO, "Max Bone count increased to $modelBoneCount"))
                             }
