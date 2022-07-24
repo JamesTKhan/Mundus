@@ -28,7 +28,7 @@ class PerformanceSettingsTable : BaseSettingsTable(), ProjectChangedEvent.Projec
         top().left()
         defaults().left().pad(4f)
 
-        add(VisLabel("Camera Settings")).row()
+        add(VisLabel("Performance Settings")).row()
         addSeparator().padBottom(10f).row()
 
         val settingsTable = VisTable()
