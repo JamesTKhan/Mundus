@@ -27,6 +27,7 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.shaders.ClippableShader;
+import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
 
 import java.util.Objects;
 
@@ -114,15 +115,21 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
     }
 
     @Override
-    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader) {
+    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader depthShader) {
         if (isCulled) return;
 
-        if (shader instanceof ClippableShader) {
-            ((ClippableShader) shader).setClippingPlane(clippingPlane);
-            ((ClippableShader) shader).setClippingHeight(clipHeight);
+        if (depthShader instanceof ClippableShader) {
+            ((ClippableShader) depthShader).setClippingPlane(clippingPlane);
+            ((ClippableShader) depthShader).setClippingHeight(clipHeight);
         }
 
-        gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
+        if (depthShader instanceof ShadowMapShader)
+            // Shadow Mapper will use default (PBR's depth shader) for animation support
+            gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment);
+        else {
+            // Otherwise, use the mundus depth shader (using PBR Depth shader causes odd foam artifacts and issues).
+            gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment, depthShader);
+        }
     }
 
     @Override

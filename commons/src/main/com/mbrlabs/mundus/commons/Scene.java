@@ -65,6 +65,7 @@ public class Scene implements Disposable {
 
     public PerspectiveCamera cam;
     public ModelBatch batch;
+    public ModelBatch depthBatch;
 
     private FrameBuffer fboWaterReflection;
     private FrameBuffer fboWaterRefraction;
@@ -179,9 +180,9 @@ public class Scene implements Disposable {
 
         shadowMapper.setCenter(cam.position);
         shadowMapper.begin(light.direction);
-        batch.begin(shadowMapper.getCam());
+        depthBatch.begin(shadowMapper.getCam());
         sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
-        batch.end();
+        depthBatch.end();
         shadowMapper.end();
     }
 
@@ -223,9 +224,9 @@ public class Scene implements Disposable {
         // Render depth refractions to FBO
         fboDepthRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        batch.begin(cam);
+        depthBatch.begin(cam);
         sceneGraph.renderDepth(delta, clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection, depthShader);
-        batch.end();
+        depthBatch.end();
         fboDepthRefraction.end();
     }
 
