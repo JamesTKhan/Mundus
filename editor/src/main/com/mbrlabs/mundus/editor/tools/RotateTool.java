@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.editor.tools;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -41,7 +42,6 @@ import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
 import com.mbrlabs.mundus.editor.utils.Fa;
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
-import org.lwjgl.opengl.GL11;
 
 /**
  * Rotate tool for game objects
@@ -83,7 +83,7 @@ public class RotateTool extends TransformTool {
     @Override
     public void render() {
         super.render();
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 
         ProjectContext projectContext = getProjectManager().current();
         if (state == TransformState.IDLE && projectContext.currScene.currentSelection != null) {

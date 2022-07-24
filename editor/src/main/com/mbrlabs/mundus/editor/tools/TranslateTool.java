@@ -138,7 +138,7 @@ public class TranslateTool extends TransformTool {
         super.render();
         if (getProjectManager().current().currScene.currentSelection != null) {
             getProjectManager().getModelBatch().begin(getProjectManager().current().currScene.cam);
-            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+            Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
             xHandle.render(getProjectManager().getModelBatch());
             yHandle.render(getProjectManager().getModelBatch());
             zHandle.render(getProjectManager().getModelBatch());
