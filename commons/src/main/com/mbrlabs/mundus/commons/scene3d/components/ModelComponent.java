@@ -153,6 +153,7 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
         mc.modelInstance = new ModelInstance(modelAsset.getModel());
         mc.shader = this.shader;
         mc.materials = this.materials;
+        mc.setDimensions(mc.modelInstance);
         return mc;
     }
 
