@@ -57,7 +57,7 @@ public class PickableModelComponent extends ModelComponent implements PickableCo
         mc.modelInstance = new ModelInstance(modelAsset.getModel());
         mc.shader = this.shader;
         mc.materials = this.materials;
-        mc.setDimensions(modelInstance);
+        mc.setDimensions(mc.modelInstance);
         mc.encodeRaypickColorId();
         return mc;
     }
