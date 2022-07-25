@@ -26,6 +26,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -41,7 +42,6 @@ import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
 import com.mbrlabs.mundus.editor.utils.Fa;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
-import org.lwjgl.opengl.GL11;
 
 /**
  * @author Marcus Brummer
@@ -69,6 +69,7 @@ public class TranslateTool extends TransformTool {
 
     private final Vector3 temp0 = new Vector3();
     private final Vector3 temp1 = new Vector3();
+    private final Matrix4 tempMat0 = new Matrix4();
 
     private TranslateCommand command;
 
@@ -157,7 +158,7 @@ public class TranslateTool extends TransformTool {
             if (state == TransformState.IDLE) return;
 
             Ray ray = getProjectManager().current().currScene.viewport.getPickRay(Gdx.input.getX(), Gdx.input.getY());
-            Vector3 rayEnd = getProjectManager().current().currScene.currentSelection.getLocalPosition(temp0);
+            Vector3 rayEnd = getProjectManager().current().currScene.currentSelection.getPosition(temp0);
             float dst = getProjectManager().current().currScene.cam.position.dst(rayEnd);
             rayEnd = ray.getEndPoint(rayEnd, dst);
 
@@ -184,13 +185,20 @@ public class TranslateTool extends TransformTool {
                 modified = true;
             }
 
-            // TODO translation in global sapce
-            // if(globalSpace) {
-            // System.out.println("Before: " + vec);
-            // System.out.println("After: " + vec);
-            // }
+            if (go.getParent() != null) {
+                // First, get the world transform from parent and apply translation
+                Matrix4 worldTrans = tempMat0.set(go.getParent().getTransform());
+                worldTrans.trn(vec.scl(-1)); // I believe we have to scale this by -1 due to inv()
 
-            go.translate(vec);
+                // Convert that new translation from world to local space for child
+                Matrix4 localTrans = go.getTransform().mulLeft(worldTrans.inv());
+                Vector3 localPos = localTrans.getTranslation(temp1);
+
+                // apply position
+                go.setLocalPosition(localPos.x, localPos.y, localPos.z);
+            } else {
+                go.translate(vec);
+            }
 
             // If a water component height is changed, global water height needs to update
             if (go.findComponentByType(Component.Type.WATER) != null)
