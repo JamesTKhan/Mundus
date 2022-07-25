@@ -103,10 +103,13 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
 
     @Override
     public void render(float delta) {
+        // Update transform before checking if culled
+        modelInstance.transform.set(gameObject.getTransform());
+
         super.render(delta);
+
         if (isCulled) return;
 
-        modelInstance.transform.set(gameObject.getTransform());
         if (shader != null) {
             gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
         } else {
