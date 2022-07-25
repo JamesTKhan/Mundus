@@ -37,7 +37,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
     public String name;
     public boolean active;
-    public boolean scaleChanged;
+    public boolean scaleChanged = true; // true by default to force initial calculations
     private Array<String> tags;
     private Array<Component> components;
 
