@@ -24,7 +24,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.Asset;
-import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.assets.AssetNotFoundException;
 import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
@@ -229,8 +228,7 @@ public class ProjectManager implements Disposable {
      * @throws ProjectOpenException
      *             project could not be opened
      */
-    public ProjectContext importProject(String absolutePath)
-            throws ProjectAlreadyImportedException, ProjectOpenException {
+    public ProjectContext importProject(String absolutePath) throws ProjectAlreadyImportedException, ProjectOpenException {
         // check if already imported
         for (ProjectRef ref : registry.getProjects()) {
             if (ref.getPath().equals(absolutePath)) {
@@ -242,20 +240,22 @@ public class ProjectManager implements Disposable {
         ref.setPath(absolutePath);
 
         try {
-            ProjectContext context = startAsyncProjectLoad(ref);
+            ProjectContext context = kryoManager.loadProjectContext(ref);
+            context.path = absolutePath;
             UI.INSTANCE.toggleLoadingScreen(true);
             ref.setName(context.name);
             registry.getProjects().add(ref);
             kryoManager.saveRegistry(registry);
+            startAsyncProjectLoad(absolutePath, context);
             return context;
         } catch (Exception e) {
             throw new ProjectOpenException(e.getMessage());
         }
     }
 
-    private void loadAssets(ProjectRef ref, ProjectContext context) throws MetaFileParseException {
+    private void loadAssets(String path, ProjectContext context) throws MetaFileParseException {
         context.assetManager = new EditorAssetManager(
-                new FileHandle(ref.getPath() + "/" + ProjectManager.PROJECT_ASSETS_DIR));
+                new FileHandle(path + "/" + ProjectManager.PROJECT_ASSETS_DIR));
 
         context.assetManager.loadAssets(false);
     }
@@ -318,7 +318,7 @@ public class ProjectManager implements Disposable {
             } catch (FileNotFoundException fnf) {
                 Log.error(TAG, fnf.getMessage());
                 fnf.printStackTrace();
-            } catch (AssetNotFoundException | MetaFileParseException anf) {
+            } catch (MetaFileParseException anf) {
                 Log.error(TAG, anf.getMessage());
             }
             return null;
@@ -338,13 +338,20 @@ public class ProjectManager implements Disposable {
      * @throws FileNotFoundException
      *             if project can't be found
      */
-    public ProjectContext startAsyncProjectLoad(ProjectRef ref) throws FileNotFoundException, MetaFileParseException, AssetNotFoundException {
+    public ProjectContext startAsyncProjectLoad(ProjectRef ref) throws FileNotFoundException, MetaFileParseException {
+        ProjectContext context = kryoManager.loadProjectContext(ref);
+        context.path = ref.getPath();
+        context.name = ref.getName();
+
+        return startAsyncProjectLoad(ref.getPath(), context);
+    }
+
+    public ProjectContext startAsyncProjectLoad(String path, ProjectContext context) throws MetaFileParseException {
         Log.debug(TAG, "Asynchronous project loading started...");
-        loadingProject = kryoManager.loadProjectContext(ref);
-        loadingProject.path = ref.getPath();
+        loadingProject = context;
 
         // Queues up assets for loading
-        loadAssets(ref, loadingProject);
+        loadAssets(path, loadingProject);
 
         return loadingProject;
     }

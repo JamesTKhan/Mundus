@@ -119,8 +119,7 @@ class FileMenu : Menu("File") {
 
     fun importNewProject(projectDir: FileHandle) {
         try {
-            val context = projectManager.importProject(projectDir.path())
-            projectManager.changeProject(context)
+            projectManager.importProject(projectDir.path())
         } catch (e: ProjectAlreadyImportedException) {
             e.printStackTrace()
             Dialogs.showErrorDialog(UI, "This Project is already imported.")
