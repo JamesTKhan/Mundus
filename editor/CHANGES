@@ -14,6 +14,8 @@
 - Added tracking per project for Last Open Directory on File Choosers
 - Added terrain smoothing brush
 - Added configurable camera settings Window -> Settings -> Camera
+- Added Keyboard Shortcuts dialog
+- Added Basic debug and wireframe render modes
 - Update water shader to fade out water foam over distance, to minimize ugly 1 pixel white lines from a distance.
 - Fix broken checkbox to set game objects to active or inactive
 - Fix File Choosers stored favorites under the wrong key name

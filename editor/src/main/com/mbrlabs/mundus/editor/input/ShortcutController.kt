@@ -33,6 +33,9 @@ class ShortcutController(registry: Registry, private val projectManager: Project
 
     private var isCtrlPressed = false
 
+    /**
+     * Updates here should also be reflected in the KeyboardShortcutsDialog
+     */
     override fun keyDown(code: Int): Boolean {
         val keycode = convertKeycode(code)
 
