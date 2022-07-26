@@ -31,10 +31,12 @@ class WindowMenu : Menu("Window") {
 
     val settings = MenuItem("Settings")
     private val versionInfo = MenuItem("Version Info")
+    private val keyboardShortcuts = MenuItem("Keyboard Shortcuts")
 
     init {
         settings.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.ALT_LEFT, Input.Keys.S)
         addItem(settings)
+        addItem(keyboardShortcuts)
         addItem(versionInfo)
 
         settings.addListener(object : ClickListener() {
@@ -46,6 +48,12 @@ class WindowMenu : Menu("Window") {
         versionInfo.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 UI.showDialog(UI.versionDialog)
+            }
+        })
+
+        keyboardShortcuts.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                UI.showDialog(UI.keyboardShortcuts)
             }
         })
     }

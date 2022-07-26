@@ -27,6 +27,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
+import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -50,6 +51,7 @@ import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
+import org.lwjgl.opengl.GL11
 
 /**
  * @author Marcus Brummer
@@ -73,6 +75,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var gizmoManager: GizmoManager
     private lateinit var glProfiler: MundusGLProfiler
     private lateinit var shapeRenderer: ShapeRenderer
+    private lateinit var debugRenderer: DebugRenderer
 
     override fun create() {
         Mundus.registerEventListener(this)
@@ -86,6 +89,8 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         glProfiler = Mundus.inject()
         shapeRenderer = Mundus.inject()
         setupInput()
+
+        debugRenderer = DebugRenderer(shapeRenderer)
 
         // TODO dispose this
         val axesModel = UsefulMeshs.createAxes()
@@ -141,11 +146,21 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
         UI.sceneWidget.setCam(context.currScene.cam)
         UI.sceneWidget.setRenderer {
+            val renderWireframe = projectManager.current().renderWireframe
+            val renderDebug = projectManager.current().renderDebug
 
             glProfiler.resume()
             sg.update()
+            if (renderWireframe) GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE)
             scene.render()
+            if (renderWireframe) GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL)
             glProfiler.pause()
+
+            if (renderDebug) {
+                debugRenderer.begin(scene.cam)
+                debugRenderer.render(sg.gameObjects)
+                debugRenderer.end()
+            }
 
             toolManager.render()
             gizmoManager.render()
@@ -241,6 +256,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     override fun dispose() {
+        debugRenderer.dispose()
         Mundus.dispose()
     }
 
