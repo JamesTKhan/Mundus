@@ -42,6 +42,9 @@ public class ProjectContext implements Disposable {
     public String path;
     public String name;
 
+    // Has the project completed loading?
+    public boolean loaded = false;
+
     public Array<String> scenes;
     public EditorScene currScene;
 

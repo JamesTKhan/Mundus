@@ -16,7 +16,11 @@
 
 package com.mbrlabs.mundus.editor.ui
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.Separator
@@ -31,7 +35,6 @@ import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.ui.modules.MundusToolbar
 import com.mbrlabs.mundus.editor.ui.modules.Outline
 import com.mbrlabs.mundus.editor.ui.modules.StatusBar
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.VersionDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.AddComponentDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.AmbientLightDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.DirectionalLightsDialog
@@ -42,6 +45,7 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.LoadingProjectDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.NewProjectDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.ShadowSettingsDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.SkyboxDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.VersionDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportModelDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportTextureDialog
@@ -76,6 +80,7 @@ object UI : Stage(ScreenViewport()) {
 
     // base elements
     private val root: VisTable
+    private val loadingRoot: VisTable
     private var mainContainer: VisTable
     private lateinit var splitPane: MundusSplitPane
     var menuBar: MundusMenuBar
@@ -116,6 +121,13 @@ object UI : Stage(ScreenViewport()) {
         addActor(root)
         root.setFillParent(true)
 
+        loadingRoot = VisTable()
+        val logo = Image(Texture(Gdx.files.internal("icon/logo.png")))
+        loadingRoot.addActor(logo)
+        addActor(loadingRoot)
+
+        logo.addAction(Actions.sequence(Actions.alpha(0.2f)))
+
         mainContainer = VisTable()
         menuBar = MundusMenuBar()
         toolbar = MundusToolbar()
@@ -124,6 +136,17 @@ object UI : Stage(ScreenViewport()) {
         sceneWidget = RenderWidget()
 
         addUIActors()
+    }
+
+    fun toggleLoadingScreen(value: Boolean) {
+        if (value) {
+            root.isVisible = false
+            loadingRoot.isVisible = true
+            loadingRoot.setPosition(Gdx.graphics.width / 2f - (loadingRoot.children.get(0).width / 2f), Gdx.graphics.height / 2f)
+        } else {
+            root.isVisible = true
+            loadingRoot.isVisible = false
+        }
     }
 
     private fun addUIActors() {

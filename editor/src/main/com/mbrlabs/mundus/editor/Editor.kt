@@ -17,11 +17,14 @@
 package com.mbrlabs.mundus.editor
 
 import com.badlogic.gdx.ApplicationListener
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
@@ -39,6 +42,7 @@ import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.gizmos.GizmoManager
+import com.mbrlabs.mundus.editor.utils.Colors
 import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
@@ -60,6 +64,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var compass: Compass
 
     private lateinit var camController: FreeCamController
+    private lateinit var guiCamera: OrthographicCamera
     private lateinit var shortcutController: ShortcutController
     private lateinit var inputManager: InputManager
     private lateinit var projectManager: ProjectManager
@@ -67,6 +72,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var toolManager: ToolManager
     private lateinit var gizmoManager: GizmoManager
     private lateinit var glProfiler: MundusGLProfiler
+    private lateinit var shapeRenderer: ShapeRenderer
 
     override fun create() {
         Mundus.registerEventListener(this)
@@ -78,6 +84,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         toolManager = Mundus.inject()
         gizmoManager = Mundus.inject()
         glProfiler = Mundus.inject()
+        shapeRenderer = Mundus.inject()
         setupInput()
 
         // TODO dispose this
@@ -85,7 +92,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         axesInstance = ModelInstance(axesModel)
 
         // open last edited project or create default project
-        var context: ProjectContext? = projectManager.loadLastProject()
+        var context: ProjectContext? = projectManager.loadLastProjectAsync()
         if (context == null) {
             context = createDefaultProject()
         }
@@ -94,12 +101,14 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             throw GdxRuntimeException("Couldn't open a project")
         }
 
-        compass = Compass(context.currScene.cam)
+        guiCamera = OrthographicCamera()
+        guiCamera.setToOrtho(
+            false,
+            UI.viewport.screenWidth.toFloat(),
+            UI.viewport.screenHeight.toFloat()
+        )
 
-        // change project; this will fire a ProjectChangedEvent
-        projectManager.changeProject(context)
-
-        UI.processVersionDialog()
+        UI.toggleLoadingScreen(true)
     }
 
     private fun setupInput() {
@@ -151,11 +160,41 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     override fun render() {
-        GlUtils.clearScreen(Color.WHITE)
+        GlUtils.clearScreen(Color.BLACK)
+        if (projectManager.isLoading) {
+            processLoading()
+            return
+        }
+
         UI.act()
         glProfiler.reset()
         camController.update()
         toolManager.act()
+        UI.draw()
+    }
+
+    private fun processLoading() {
+        projectManager.continueLoading()
+
+        // Render a basic loading bar
+        val progress = projectManager.loadingProject().assetManager.progress
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+        shapeRenderer.projectionMatrix = guiCamera.combined
+        shapeRenderer.color = Colors.GRAY_888
+        shapeRenderer.rect(0f, guiCamera.viewportHeight * .1f, Gdx.graphics.width.toFloat(), guiCamera.viewportHeight * .02f)
+        shapeRenderer.color = Colors.TEAL
+        shapeRenderer.rect(0f, guiCamera.viewportHeight * .1f, progress * Gdx.graphics.width, guiCamera.viewportHeight * .02f)
+        shapeRenderer.end()
+
+        if (projectManager.isLoaded) {
+            compass = Compass(projectManager.loadingProject().currScene.cam)
+            // change project; this will fire a ProjectChangedEvent
+            projectManager.changeProject(projectManager.loadingProject())
+            UI.toggleLoadingScreen(false)
+            UI.processVersionDialog()
+        }
+
+        UI.act()
         UI.draw()
     }
 

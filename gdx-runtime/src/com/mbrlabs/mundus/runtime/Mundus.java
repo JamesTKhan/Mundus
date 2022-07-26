@@ -22,8 +22,11 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderableSorter;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
+import com.mbrlabs.mundus.commons.assets.AssetNotFoundException;
+import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter;
@@ -46,12 +49,19 @@ public class Mundus implements Disposable {
 
     private Shaders shaders;
 
-    public Mundus(final FileHandle mundusRoot) {
+    /**
+     * Initializes Mundus and begins loading assets. If async is true,
+     * {@link #continueLoading()} should be called every frame until it returns true before loading any scenes.
+     *
+     * @param mundusRoot FileHandle to the root directory of the Mundus project to load
+     * @param async load the project asynchronously (true) or synchronously (false)
+     */
+    public Mundus(final FileHandle mundusRoot, boolean async) {
         this.root = mundusRoot;
         this.assetManager = new AssetManager(root.child(PROJECT_ASSETS_DIR));
         this.sceneLoader = new SceneLoader(this, root.child(PROJECT_SCENES_DIR));
 
-        init();
+        init(async);
     }
 
     public AssetManager getAssetManager() {
@@ -96,14 +106,39 @@ public class Mundus implements Disposable {
         assetManager.dispose();
     }
 
-    private void init() {
+    private void init(boolean async) {
         try {
-            assetManager.loadAssets(null, true);
+            assetManager.loadAssets(true);
+            if (!async) {
+                assetManager.finalizeLoad();
+            }
         } catch (Exception e) {
             Gdx.app.log(TAG, e.getMessage());
         }
 
         shaders = new Shaders();
+    }
+
+    /**
+     * Should be called each frame until it returns true
+     * which indicates that Mundus is loaded.
+     *
+     * @return boolean indicating if asynchronous loading is complete
+     */
+    public boolean continueLoading() {
+        try {
+            return assetManager.continueLoading();
+        } catch (MetaFileParseException | AssetNotFoundException e) {
+            throw new GdxRuntimeException("Error while loading assets: " + e);
+        }
+    }
+
+    /**
+     * Returns a progress value between 0.0 and 1.0 representing the percentage loaded.
+     * @return progress percentage
+     */
+    public float getProgress() {
+        return assetManager.getProgress();
     }
 
 }

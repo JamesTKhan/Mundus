@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.commons.assets;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -76,6 +77,12 @@ public class WaterAsset extends Asset {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void load(AssetManager assetManager) {
+        // No async loading for water right now
+        load();
     }
 
     @Override

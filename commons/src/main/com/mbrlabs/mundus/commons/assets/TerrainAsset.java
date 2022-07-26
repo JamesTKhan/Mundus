@@ -17,18 +17,17 @@ package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.FloatArray;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
+import com.mbrlabs.mundus.commons.terrain.TerrainLoader;
 import com.mbrlabs.mundus.commons.terrain.TerrainTexture;
 
-import java.io.DataInputStream;
-import java.io.EOFException;
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -213,28 +212,18 @@ public class TerrainAsset extends Asset {
 
     @Override
     public void load() {
-        // load height data from terra file
-        final FloatArray floatArray = new FloatArray();
+        // Load a terrain synchronously
+        FileHandle terraFile = Gdx.files.absolute(meta.getFile().pathWithoutExtension());
+        TerrainLoader.TerrainParameter param = new TerrainLoader.TerrainParameter(meta.getTerrain());
+        TerrainLoader terrainLoader = new TerrainLoader(new AbsoluteFileHandleResolver());
+        terrainLoader.loadAsync(null, null, terraFile, param);
+        terrain = terrainLoader.loadSync(null, null, terraFile, param);
+    }
 
-        DataInputStream is;
-        try {
-            is = new DataInputStream(file.read());
-            while (is.available() > 0) {
-                floatArray.add(is.readFloat());
-            }
-            is.close();
-        } catch (EOFException e) {
-            // e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        data = floatArray.toArray();
-
-        terrain = new Terrain(meta.getTerrain().getSize(), data);
-        terrain.init();
-        terrain.updateUvScale(new Vector2(meta.getTerrain().getUv(), meta.getTerrain().getUv()));
-        terrain.update();
+    @Override
+    public void load(AssetManager assetManager) {
+        terrain = assetManager.get(meta.getFile().pathWithoutExtension());
+        data = terrain.heightData;
     }
 
     @Override

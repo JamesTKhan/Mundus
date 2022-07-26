@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.assets;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
@@ -60,6 +61,15 @@ public class TextureAsset extends Asset implements TextureProvider {
         } else {
             texture = new Texture(file);
         }
+
+        if (tileable) {
+            texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        }
+    }
+
+    @Override
+    public void load(AssetManager assetManager) {
+        texture = assetManager.get(meta.getFile().pathWithoutExtension());
 
         if (tileable) {
             texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);

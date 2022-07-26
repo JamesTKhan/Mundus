@@ -61,8 +61,8 @@ class FileMenu : Menu("File") {
             pro.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     try {
-                        val projectContext = projectManager.loadProject(ref)
-                        projectManager.changeProject(projectContext)
+                        projectManager.startAsyncProjectLoad(ref)
+                        UI.toggleLoadingScreen(true)
                     } catch (e: Exception) {
                         e.printStackTrace()
                         Dialogs.showErrorDialog(UI, "Could not open project")

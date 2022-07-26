@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.commons.assets;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.PropertiesUtils;
@@ -70,6 +71,12 @@ public class SkyboxAsset extends Asset {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void load(AssetManager assetManager) {
+        // No async loading for skybox right now
+        load();
     }
 
     @Override
