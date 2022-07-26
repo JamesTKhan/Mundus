@@ -38,6 +38,7 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.DirectionalLightsDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExitDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExportDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.FogDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.KeyboardShortcutsDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.LoadingProjectDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.NewProjectDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.ShadowSettingsDialog
@@ -100,6 +101,7 @@ object UI : Stage(ScreenViewport()) {
     var shadowSettingsDialog: ShadowSettingsDialog = ShadowSettingsDialog()
     var addComponentDialog: AddComponentDialog = AddComponentDialog()
     val versionDialog: VersionDialog = VersionDialog()
+    val keyboardShortcuts: KeyboardShortcutsDialog = KeyboardShortcutsDialog()
     val exitDialog: ExitDialog = ExitDialog()
 
     // styles
