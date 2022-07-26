@@ -44,9 +44,9 @@ public abstract class CullableComponent extends AbstractComponent {
     private final static Vector3 tmpScale = new Vector3();
     private static DirectionalLight directionalLight;
 
-    public final Vector3 center = new Vector3();
-    public final Vector3 dimensions = new Vector3();
-    public float radius;
+    protected final Vector3 center = new Vector3();
+    protected final Vector3 dimensions = new Vector3();
+    protected float radius;
 
     // Is it offscreen?
     protected boolean isCulled = false;
@@ -106,6 +106,18 @@ public abstract class CullableComponent extends AbstractComponent {
         center.scl(tmpScale);
         dimensions.scl(tmpScale);
         radius = dimensions.len() / 2f;
+    }
+
+    public Vector3 getCenter() {
+        return center;
+    }
+
+    public Vector3 getDimensions() {
+        return dimensions;
+    }
+
+    public float getRadius() {
+        return radius;
     }
 
     public boolean isCulled() {
