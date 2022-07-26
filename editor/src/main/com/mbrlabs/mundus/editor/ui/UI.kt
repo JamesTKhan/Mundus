@@ -42,7 +42,6 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExitDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExportDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.FogDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.KeyboardShortcutsDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.LoadingProjectDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.NewProjectDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.ShadowSettingsDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.SkyboxDialog
@@ -95,7 +94,6 @@ object UI : Stage(ScreenViewport()) {
     // dialogs
     val settingsDialog: SettingsDialog = SettingsDialog()
     val newProjectDialog: NewProjectDialog = NewProjectDialog()
-    val loadingProjectDialog: LoadingProjectDialog = LoadingProjectDialog()
     val exportDialog: ExportDialog = ExportDialog()
     val importModelDialog: ImportModelDialog = ImportModelDialog()
     val importTextureDialog: ImportTextureDialog = ImportTextureDialog()
