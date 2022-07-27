@@ -50,6 +50,14 @@ public class Mundus implements Disposable {
     private Shaders shaders;
 
     /**
+     * Initializes Mundus, defaulting to synchronous loading of assets
+     * @param mundusRoot FileHandle to the root directory of the Mundus project to load
+     */
+    public Mundus(final FileHandle mundusRoot) {
+        this(mundusRoot, false);
+    }
+
+    /**
      * Initializes Mundus and begins loading assets. If async is true,
      * {@link #continueLoading()} should be called every frame until it returns true before loading any scenes.
      *
