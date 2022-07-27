@@ -62,7 +62,7 @@ class FileMenu : Menu("File") {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     try {
                         projectManager.startAsyncProjectLoad(ref)
-                        UI.toggleLoadingScreen(true)
+                        UI.toggleLoadingScreen(true, ref.name)
                     } catch (e: Exception) {
                         e.printStackTrace()
                         Dialogs.showErrorDialog(UI, "Could not open project")

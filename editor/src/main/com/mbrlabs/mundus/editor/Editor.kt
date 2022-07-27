@@ -113,7 +113,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             UI.viewport.screenHeight.toFloat()
         )
 
-        UI.toggleLoadingScreen(true)
+        UI.toggleLoadingScreen(true, context.name)
     }
 
     private fun setupInput() {

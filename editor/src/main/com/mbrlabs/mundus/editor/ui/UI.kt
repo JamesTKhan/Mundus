@@ -19,12 +19,12 @@ package com.mbrlabs.mundus.editor.ui
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.Separator
 import com.kotcrab.vis.ui.widget.VisDialog
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.file.FileChooser
 import com.mbrlabs.mundus.editor.Mundus
@@ -81,6 +81,7 @@ object UI : Stage(ScreenViewport()) {
     // base elements
     private val root: VisTable
     private val loadingRoot: VisTable
+    private val loadingLabel: VisLabel
     private var mainContainer: VisTable
     private lateinit var splitPane: MundusSplitPane
     var menuBar: MundusMenuBar
@@ -122,11 +123,14 @@ object UI : Stage(ScreenViewport()) {
         root.setFillParent(true)
 
         loadingRoot = VisTable()
+        loadingLabel = VisLabel()
         val logo = Image(Texture(Gdx.files.internal("icon/logo.png")))
         loadingRoot.addActor(logo)
+        loadingRoot.addActor(loadingLabel)
         addActor(loadingRoot)
 
-        logo.addAction(Actions.sequence(Actions.alpha(0.2f)))
+        logo.color.a = 0.4f
+        loadingLabel.color.a = 0.6f
 
         mainContainer = VisTable()
         menuBar = MundusMenuBar()
@@ -138,11 +142,14 @@ object UI : Stage(ScreenViewport()) {
         addUIActors()
     }
 
-    fun toggleLoadingScreen(value: Boolean) {
+    fun toggleLoadingScreen(value: Boolean, projectName: String = "") {
         if (value) {
             root.isVisible = false
             loadingRoot.isVisible = true
-            loadingRoot.setPosition(Gdx.graphics.width / 2f - (loadingRoot.children.get(0).width / 2f), Gdx.graphics.height / 2f)
+            loadingLabel.setText("Loading " + projectName.replaceFirstChar { it.uppercase() })
+            loadingLabel.pack()
+            loadingRoot.setPosition(viewport.screenWidth / 2f - (loadingRoot.children.get(0).width / 2f), viewport.screenHeight / 2f)
+            loadingLabel.setPosition((loadingRoot.children.get(0).width / 2f) - (loadingLabel.width / 2f), loadingRoot.originY - loadingLabel.height)
         } else {
             root.isVisible = true
             loadingRoot.isVisible = false

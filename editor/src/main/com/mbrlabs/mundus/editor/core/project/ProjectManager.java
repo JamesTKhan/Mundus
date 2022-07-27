@@ -242,7 +242,7 @@ public class ProjectManager implements Disposable {
         try {
             ProjectContext context = kryoManager.loadProjectContext(ref);
             context.path = absolutePath;
-            UI.INSTANCE.toggleLoadingScreen(true);
+            UI.INSTANCE.toggleLoadingScreen(true, context.name);
             ref.setName(context.name);
             registry.getProjects().add(ref);
             kryoManager.saveRegistry(registry);
