@@ -209,12 +209,14 @@ public class AssetManager implements Disposable {
             // in the Mundus root directory.
             // https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
             fileList = rootFolder.child("assets.txt");
-            files = fileList.readString().split("\\n");
+
+            // Normalize line endings before reading
+            files = fileList.readString().replaceAll("\\r\\n?", "\n").split("\\n");
             metaFiles = getMetaFiles(files);
         } else if (isRuntime && Gdx.app.getType() == Application.ApplicationType.WebGL) {
             // For WebGL we use a native split method for string split
             fileList = rootFolder.child("assets.txt");
-            files = split(fileList.readString(), "\n");
+            files = split(fileList.readString().replaceAll("\\r\\n?", "\n"), "\n");
             metaFiles = getMetaFiles(files);
         } else {
             // Editor uses this block to load meta files
