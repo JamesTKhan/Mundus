@@ -257,7 +257,7 @@ public class ProjectManager implements Disposable {
         context.assetManager = new EditorAssetManager(
                 new FileHandle(path + "/" + ProjectManager.PROJECT_ASSETS_DIR));
 
-        context.assetManager.loadAssets(false);
+        context.assetManager.queueAssetsForLoading(false);
     }
 
     /**

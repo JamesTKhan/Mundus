@@ -41,7 +41,6 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.nio.file.FileSystemLoopException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -182,14 +181,16 @@ public class AssetManager implements Disposable {
     }
 
     /**
-     * Loads all assets in the project's asset folder.
+     * Queues all assets in the project's asset folder for loading later.
+     *
+     * Should be called before {@link #continueLoading()} and {@link #finalizeLoad()}
      *
      * @param isRuntime
      *            is this called by the runtime or editor (runtime requires different file logic)
      * @throws MetaFileParseException
      *             if a meta file can't be parsed
      */
-    public void loadAssets(boolean isRuntime) throws MetaFileParseException {
+    public void queueAssetsForLoading(boolean isRuntime) throws MetaFileParseException {
 
         String[] files;
         FileHandle fileList;
@@ -238,11 +239,11 @@ public class AssetManager implements Disposable {
         // Queue files for async loading into LibGDX's assetManager
         for (FileHandle meta : metaFiles) {
             Meta m = metaLoader.load(meta);
-            queueAssetForLoad(m);
+            queueAssetForLoading(m);
         }
     }
 
-    protected void queueAssetForLoad(Meta m) {
+    protected void queueAssetForLoading(Meta m) {
         String filePath = m.getFile().pathWithoutExtension();
         switch (m.getType()) {
             case TEXTURE:

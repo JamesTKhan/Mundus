@@ -41,7 +41,6 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
-import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.Mundus.postEvent
 import com.mbrlabs.mundus.editor.core.EditorScene
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -157,7 +156,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
                 )
             )
             for (asset in reloadedAssets) {
-                queueAssetForLoad(asset.meta)
+                queueAssetForLoading(asset.meta)
             }
 
             gdxAssetManager.finishLoading()
@@ -806,7 +805,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      *
      * Desktop applications cannot use .list() for internal jar files.
      * Desktop apps need to provide an assets.txt file listing all Mundus assets
-     * in the Mundus assets directory. See [AssetManager.loadAssets] for how the file is used on load.
+     * in the Mundus assets directory. See [AssetManager.queueAssetsForLoading] for how the file is used on load.
      */
     fun createAssetsTextFile() {
         // get path for assets file
