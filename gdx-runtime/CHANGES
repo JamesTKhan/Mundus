@@ -1,5 +1,6 @@
 [0.4.0] ~ 07/10/2022
 - [BREAKING CHANGE] The loadScene method for the runtime has changed. A ModelBatch is no longer required to be passed in.
+- [BREAKING CHANGE] Mundus constructor now accepts boolean parameter to enable asynchronous project loading
 - Add converter for Light Components
 
 [0.3.1] ~ 07/06/2022

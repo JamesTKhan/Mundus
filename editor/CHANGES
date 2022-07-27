@@ -3,6 +3,7 @@
 - [BREAKING CHANGE] Models from older versions may be invisible as first and will need their opacity updated on materials.
 - [BREAKING CHANGE] Fog now has new parameters and more closely aligns with libGDX and PBR shaders. You may need to adjust fog.
 - Lighting overhaul for Directional and Ambient lighting.
+- Added asynchronous loading of projects with loading screen
 - Added new Light Component and accompanying Light Shader which prefixes shaders with additional shader lighting code.
 - Added new Add Component Dialog which only supports Light Components for now.
 - Added new Gizmo feature for displaying decal Icons over objects like Light sources.
