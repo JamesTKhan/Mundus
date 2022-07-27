@@ -18,9 +18,12 @@ package com.mbrlabs.mundus.editor.core.project;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
 import com.mbrlabs.mundus.editor.core.EditorScene;
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager;
 import com.mbrlabs.mundus.editor.utils.Log;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A project context represents an loaded and opened project.
@@ -43,6 +46,10 @@ public class ProjectContext implements Disposable {
     public EditorScene currScene;
 
     public EditorAssetManager assetManager;
+    public MundusPreferencesManager projectPref;
+
+    public boolean renderDebug = false;
+    public boolean renderWireframe = false;
 
     private int idProvider;
 
@@ -73,4 +80,14 @@ public class ProjectContext implements Disposable {
         }
     }
 
+    /**
+     * Initializes this projects Preferences manager
+     * The project name must be set before calling this method.
+     */
+    public void initPreferences() {
+        if (StringUtils.isEmpty(name)) {
+            throw new GdxRuntimeException("Cannot initialize preferences if project name is null or blank.");
+        }
+        projectPref = new MundusPreferencesManager(name);
+    }
 }

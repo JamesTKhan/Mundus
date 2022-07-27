@@ -27,6 +27,7 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.shaders.ClippableShader;
+import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
 
 import java.util.Objects;
 
@@ -34,7 +35,7 @@ import java.util.Objects;
  * @author Marcus Brummer
  * @version 17-01-2016
  */
-public class ModelComponent extends AbstractComponent implements AssetUsage, ClippableComponent {
+public class ModelComponent extends CullableComponent implements AssetUsage, ClippableComponent {
 
     protected ModelAsset modelAsset;
     protected ModelInstance modelInstance;
@@ -75,6 +76,8 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
             }
         }
         applyMaterials();
+
+        setDimensions(modelInstance);
     }
 
     public ObjectMap<String, MaterialAsset> getMaterials() {
@@ -100,7 +103,13 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
 
     @Override
     public void render(float delta) {
+        // Update transform before checking if culled
         modelInstance.transform.set(gameObject.getTransform());
+
+        super.render(delta);
+
+        if (isCulled) return;
+
         if (shader != null) {
             gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
         } else {
@@ -110,12 +119,20 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
 
     @Override
     public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader depthShader) {
+        if (isCulled) return;
+
         if (depthShader instanceof ClippableShader) {
             ((ClippableShader) depthShader).setClippingPlane(clippingPlane);
             ((ClippableShader) depthShader).setClippingHeight(clipHeight);
         }
 
-        gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment);
+        if (depthShader instanceof ShadowMapShader)
+            // Shadow Mapper will use default (PBR's depth shader) for animation support
+            gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment);
+        else {
+            // Otherwise, use the mundus depth shader (using PBR Depth shader causes odd foam artifacts and issues).
+            gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment, depthShader);
+        }
     }
 
     @Override
@@ -133,17 +150,13 @@ public class ModelComponent extends AbstractComponent implements AssetUsage, Cli
     }
 
     @Override
-    public void update(float delta) {
-
-    }
-
-    @Override
     public Component clone(GameObject go) {
         ModelComponent mc = new ModelComponent(go, shader);
         mc.modelAsset = this.modelAsset;
         mc.modelInstance = new ModelInstance(modelAsset.getModel());
         mc.shader = this.shader;
         mc.materials = this.materials;
+        mc.setDimensions(mc.modelInstance);
         return mc;
     }
 

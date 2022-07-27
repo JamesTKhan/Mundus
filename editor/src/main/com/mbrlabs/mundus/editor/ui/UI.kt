@@ -27,7 +27,7 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.Mundus.postEvent
 import com.mbrlabs.mundus.editor.VERSION
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
-import com.mbrlabs.mundus.editor.preferences.GlobalPreferencesManager
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.ui.modules.MundusToolbar
 import com.mbrlabs.mundus.editor.ui.modules.Outline
 import com.mbrlabs.mundus.editor.ui.modules.StatusBar
@@ -39,6 +39,7 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.DirectionalLightsDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExitDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExportDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.FogDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.KeyboardShortcutsDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.LoadingProjectDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.NewProjectDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.ShadowSettingsDialog
@@ -52,6 +53,7 @@ import com.mbrlabs.mundus.editor.ui.modules.inspector.Inspector
 import com.mbrlabs.mundus.editor.ui.modules.menu.MundusMenuBar
 import com.mbrlabs.mundus.editor.ui.widgets.MundusMultiSplitPane
 import com.mbrlabs.mundus.editor.ui.widgets.MundusSplitPane
+import com.mbrlabs.mundus.editor.ui.widgets.PersistingFileChooser
 import com.mbrlabs.mundus.editor.ui.widgets.RenderWidget
 import com.mbrlabs.mundus.editor.utils.Toaster
 
@@ -71,7 +73,7 @@ object UI : Stage(ScreenViewport()) {
 
     // reusable ui elements
     val toaster: Toaster = Toaster(this)
-    val fileChooser: FileChooser = FileChooser(FileChooser.Mode.OPEN)
+    val fileChooser: FileChooser = PersistingFileChooser(FileChooser.Mode.OPEN)
     val assetSelectionDialog: AssetPickerDialog = AssetPickerDialog()
 
     // base elements
@@ -101,15 +103,15 @@ object UI : Stage(ScreenViewport()) {
     var addComponentDialog: AddComponentDialog = AddComponentDialog()
     var addTerrainDialog: AddTerrainDialog = AddTerrainDialog()
     val versionDialog: VersionDialog = VersionDialog()
+    val keyboardShortcuts: KeyboardShortcutsDialog = KeyboardShortcutsDialog()
     val exitDialog: ExitDialog = ExitDialog()
 
     // styles
     val greenSeperatorStyle: Separator.SeparatorStyle
 
-    private var globalPrefManager: GlobalPreferencesManager
+    private var globalPrefManager: MundusPreferencesManager
 
     init {
-        FileChooser.setDefaultPrefsName("com.mbrlabs.mundus.editor")
         greenSeperatorStyle = Separator.SeparatorStyle(VisUI.getSkin().getDrawable("mundus-separator-green"), 1)
 
         globalPrefManager = Mundus.inject()
@@ -197,10 +199,10 @@ object UI : Stage(ScreenViewport()) {
      * Conditionally displays the versioning dialog based on stored preferences
      */
     fun processVersionDialog() {
-        val previousVersion = globalPrefManager.getString(GlobalPreferencesManager.MUNDUS_VERSION, "null")
+        val previousVersion = globalPrefManager.getString(MundusPreferencesManager.GLOB_MUNDUS_VERSION, "null")
         if (previousVersion != VERSION) {
             // If version changed, display dialog
-            globalPrefManager.set(GlobalPreferencesManager.MUNDUS_VERSION, VERSION)
+            globalPrefManager.set(MundusPreferencesManager.GLOB_MUNDUS_VERSION, VERSION)
             showDialog(versionDialog)
         }
     }

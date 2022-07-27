@@ -17,6 +17,7 @@ package com.mbrlabs.mundus.editor.ui.modules
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -176,44 +177,41 @@ class Outline : VisTable(),
 
                 // add to new parent
                 if (newParent == null) {
-                    // recalculate position for root layer
-                    val newPos: Vector3
-                    val draggedPos = Vector3()
-                    draggedGo.getPosition(draggedPos)
+
                     // if moved from old parent
                     if (oldParent != null) {
-                        // new position = oldParentPos + draggedPos
-                        val parentPos = Vector3()
-                        oldParent.getPosition(parentPos)
-                        newPos = parentPos.add(draggedPos)
+                        // Convert draggedGo from old parents local space to world space
+                        val world = draggedGo.transform.mulLeft(oldParent.transform)
+                        world.getTranslation(tmpPos)
+                        world.getRotation(tmpQuat, true)
+                        world.getScale(tmpScale)
+
+                        // add
+                        context.currScene.sceneGraph.root.addChild(draggedGo)
+                        draggedGo.setLocalPosition(tmpPos.x, tmpPos.y, tmpPos.z)
+                        draggedGo.setLocalRotation(tmpQuat.x, tmpQuat.y, tmpQuat.z, tmpQuat.w)
+                        draggedGo.setLocalScale(tmpScale.x, tmpScale.y, tmpScale.z)
                     } else {
+                        // Is this scenario even possible right now? Null new and old parent.
+                        val newPos = draggedGo.getPosition(tmpPos)
                         // new local position = World position
-                        newPos = draggedPos
+                        draggedGo.setLocalPosition(newPos.x, newPos.y, newPos.z)
                     }
-                    context.currScene.sceneGraph.addGameObject(draggedGo)
-                    draggedGo.setLocalPosition(newPos.x, newPos.y, newPos.z)
+
                 } else {
                     val parentGo = newParent.value
-                    // recalculate position
-                    val parentPos = Vector3()
-                    var draggedPos = Vector3()
-                    // World coorinates
-                    draggedGo.getPosition(draggedPos)
-                    parentGo.getPosition(parentPos)
 
-                    // if gameObject came from old parent
-                    if (oldParent != null) {
-                        // calculate oldParentPos + draggedPos
-                        val oldParentPos = Vector3()
-                        oldParent.getPosition(oldParentPos)
-                        draggedPos = oldParentPos.add(draggedPos)
-                    }
+                    // Convert draggedGo to new parents local space
+                    val local = draggedGo.transform.mulLeft(parentGo.transform.inv())
+                    local.getTranslation(tmpPos)
+                    local.getRotation(tmpQuat, true)
+                    local.getScale(tmpScale)
 
-                    // Local in releation to new parent
-                    val newPos = draggedPos.sub(parentPos)
                     // add
                     parentGo.addChild(draggedGo)
-                    draggedGo.setLocalPosition(newPos.x, newPos.y, newPos.z)
+                    draggedGo.setLocalPosition(tmpPos.x, tmpPos.y, tmpPos.z)
+                    draggedGo.setLocalRotation(tmpQuat.x, tmpQuat.y,tmpQuat.z, tmpQuat.w)
+                    draggedGo.setLocalScale(tmpScale.x, tmpScale.y, tmpScale.z)
                 }
 
                 // update tree
@@ -613,5 +611,9 @@ class Outline : VisTable(),
 
         private val TITLE = "Outline"
         private val TAG = Outline::class.java.simpleName
+
+        val tmpPos = Vector3()
+        val tmpScale = Vector3()
+        val tmpQuat = Quaternion()
     }
 }
