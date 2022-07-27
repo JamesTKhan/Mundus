@@ -16,6 +16,7 @@
 package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
@@ -213,9 +214,14 @@ public class TerrainAsset extends Asset {
     @Override
     public void load() {
         // Load a terrain synchronously
-        FileHandle terraFile = Gdx.files.absolute(meta.getFile().pathWithoutExtension());
+        FileHandle terraFile;
+        if (meta.getFile().type() == Files.FileType.Absolute) {
+            terraFile = Gdx.files.absolute(meta.getFile().pathWithoutExtension());
+        } else {
+            terraFile = Gdx.files.internal(meta.getFile().pathWithoutExtension());
+        }
         TerrainLoader.TerrainParameter param = new TerrainLoader.TerrainParameter(meta.getTerrain());
-        TerrainLoader terrainLoader = new TerrainLoader(new AbsoluteFileHandleResolver());
+        TerrainLoader terrainLoader = new TerrainLoader(null);
         terrainLoader.loadAsync(null, null, terraFile, param);
         terrain = terrainLoader.loadSync(null, null, terraFile, param);
     }
