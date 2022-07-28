@@ -55,6 +55,9 @@ public class WaterComponent extends CullableComponent implements AssetUsage {
 
     @Override
     public boolean usesAsset(Asset assetToCheck) {
+        if (assetToCheck == waterAsset)
+            return true;
+
         return false;
     }
 
