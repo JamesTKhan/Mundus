@@ -139,7 +139,7 @@ public class WaterAsset extends Asset {
 
     @Override
     public boolean usesAsset(Asset assetToCheck) {
-        return false;
+        return assetToCheck == dudvTexture || assetToCheck == normalMapTexture || assetToCheck == waterFoamTexture;
     }
 
 }
