@@ -234,7 +234,7 @@ public class AssetManager implements Disposable {
         gdxAssetManager.setLoader(Terrain.class, ".terra", new TerrainLoader());
         gdxAssetManager.setLoader(SceneAsset.class, ".gltf", new GLTFAssetLoader());
         gdxAssetManager.setLoader(SceneAsset.class, ".glb", new GLBAssetLoader());
-        gdxAssetManager.setLoader(Model.class, ".g3db", new MG3dModelLoader(new UBJsonReader()));
+        gdxAssetManager.setLoader(Model.class, ".g3db", new MG3dModelLoader(new UBJsonReader(), gdxAssetManager.getFileHandleResolver()));
 
         // Queue files for async loading into LibGDX's assetManager
         for (FileHandle meta : metaFiles) {
