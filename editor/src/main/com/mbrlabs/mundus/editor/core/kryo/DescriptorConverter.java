@@ -16,8 +16,11 @@
 
 package com.mbrlabs.mundus.editor.core.kryo;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Locale;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.mbrlabs.mundus.editor.core.kryo.descriptors.*;
@@ -56,13 +59,31 @@ public class DescriptorConverter {
     }
 
     public static Registry convert(RegistryDescriptor descriptor) {
+        boolean lastOpenedProjectDeleted = false;
         Registry registry = new Registry();
 
         registry.setLastProject(convert(descriptor.getLastProject()));
         for (ProjectRefDescriptor projectRef : descriptor.getProjects()) {
-            registry.getProjects().add(convert(projectRef));
+
+            // If the project files were deleted, do not convert
+            boolean directoryExists =  Files.isDirectory(Paths.get(projectRef.getPath()));
+
+            if (directoryExists) {
+                registry.getProjects().add(convert(projectRef));
+            } else if (projectRef.getPath().equals(descriptor.getLastProject().getPath())) {
+                // Uh oh, the last project opened no longer exists, lets set a different one as last opened
+                lastOpenedProjectDeleted = true;
+            }
+
         }
         registry.setSettings(convert(descriptor.getSettingsDescriptor()));
+
+        if (lastOpenedProjectDeleted) {
+            if (!registry.getProjects().isEmpty()) {
+                // Open the last project in the list
+                registry.setLastProject(registry.getProjects().get(registry.getProjects().size()-1));
+            }
+        }
 
         return registry;
     }

@@ -15,6 +15,7 @@
  */
 package com.mbrlabs.mundus.commons.assets;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -27,6 +28,7 @@ import com.mbrlabs.mundus.commons.utils.FileFormatUtils;
 import com.mbrlabs.mundus.commons.utils.ModelUtils;
 import net.mgsx.gltf.loaders.glb.GLBLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFLoader;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,15 +71,21 @@ public class ModelAsset extends Asset {
         } else {
             throw new GdxRuntimeException("Unsupported 3D model");
         }
-
-        // Update bone count for model
-        if (meta != null && meta.getModel() != null) {
-            //This is to support models armatures being update after initial import
-            // as well as backwards compatability for projects existing prior to getting bone counts on import.
-            meta.getModel().setNumBones(ModelUtils.getBoneCount(model));
-        }
-
+        updateBoneCount();
      }
+
+    @Override
+    public void load(AssetManager assetManager) {
+        Object modelObj = assetManager.get(meta.getFile().pathWithoutExtension());
+        if (modelObj instanceof SceneAsset) {
+            model = ((SceneAsset) modelObj).scene.model;
+        } else if (modelObj instanceof Model) {
+            model = (Model) modelObj;
+        } else {
+            throw new GdxRuntimeException("Unsupported 3D model");
+        }
+        updateBoneCount();
+    }
 
     @Override
     public void resolveDependencies(Map<String, Asset> assets) {
@@ -122,5 +130,14 @@ public class ModelAsset extends Asset {
             }
         }
         return false;
+    }
+
+    private void updateBoneCount() {
+        // Update bone count for model
+        if (meta != null && meta.getModel() != null) {
+            //This is to support models armatures being updated after initial import
+            // as well as backwards compatability for projects existing prior to getting bone counts on import.
+            meta.getModel().setNumBones(ModelUtils.getBoneCount(model));
+        }
     }
 }

@@ -24,14 +24,24 @@ import com.badlogic.gdx.graphics.PixmapIO
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ObjectSet
 import com.kotcrab.vis.ui.util.dialog.Dialogs
-import com.mbrlabs.mundus.commons.assets.*
+import com.mbrlabs.mundus.commons.assets.Asset
+import com.mbrlabs.mundus.commons.assets.AssetManager
+import com.mbrlabs.mundus.commons.assets.AssetType
+import com.mbrlabs.mundus.commons.assets.MaterialAsset
+import com.mbrlabs.mundus.commons.assets.ModelAsset
+import com.mbrlabs.mundus.commons.assets.PixmapTextureAsset
+import com.mbrlabs.mundus.commons.assets.SkyboxAsset
+import com.mbrlabs.mundus.commons.assets.TerrainAsset
+import com.mbrlabs.mundus.commons.assets.TexCoordInfo
+import com.mbrlabs.mundus.commons.assets.TextureAsset
+import com.mbrlabs.mundus.commons.assets.WaterAsset
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
-import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.Mundus.postEvent
 import com.mbrlabs.mundus.editor.core.EditorScene
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
@@ -40,7 +50,11 @@ import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
-import java.io.*
+import java.io.BufferedOutputStream
+import java.io.DataOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.*
 
 /**
@@ -105,7 +119,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createNewMetaFile(file: FileHandle, type: AssetType): Meta {
         if (file.exists()) {
-            Mundus.postEvent(LogEvent(LogType.ERROR, "Tried to create new Meta File that already exists: " + file.name()))
+            postEvent(LogEvent(LogType.ERROR, "Tried to create new Meta File that already exists: " + file.name()))
             throw AssetAlreadyExistsException()
         }
 
@@ -124,6 +138,39 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     /**
+     * Override this to check if any standard assets are missing
+     * after project load. If so, it recreates the missing standard assets
+     */
+    override fun finalizeLoad() {
+        super.finalizeLoad()
+
+        // create standard assets if any are missing, to support backwards compatibility when new standard assets are added
+        val reloadedAssets: Array<Asset> = createStandardAssets()
+
+        // If a standard asset was missing we reload assets, now that the standard asset is recreated.
+        if (!reloadedAssets.isEmpty) {
+            postEvent(
+                LogEvent(
+                    LogType.WARN, "A standard asset was missing. Reloading assets: " + reloadedAssets.toString() +
+                            " This only occurs if a standard asset was deleted."
+                )
+            )
+            for (asset in reloadedAssets) {
+                queueAssetForLoading(asset.meta)
+            }
+
+            gdxAssetManager.finishLoading()
+
+            for (asset in reloadedAssets) {
+                asset.load(gdxAssetManager)
+                addAsset(asset)
+                asset.resolveDependencies(assetIndex)
+                asset.applyDependencies()
+            }
+        }
+    }
+
+    /**
      * Creates a couple of standard assets if they are not present.
      *
      * Creates a couple of standard assets in the current project, that should
@@ -131,46 +178,38 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      *
      * Returns true if an asset was loaded.
      */
-    fun createStandardAssets(): Boolean {
+    fun createStandardAssets(): Array<Asset> {
+        val createdAssets = Array<Asset>()
         try {
 
-            var assetLoaded = false
-
             if (findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD) == null) {
-                createStandardAsset(STANDARD_ASSET_TEXTURE_CHESSBOARD, "standardAssets/chessboard.png")
-                assetLoaded = true
+                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_CHESSBOARD, "standardAssets/chessboard.png"))
             }
-
             if (findAssetByID(STANDARD_ASSET_TEXTURE_DUDV) == null) {
-                createStandardAsset(STANDARD_ASSET_TEXTURE_DUDV, "standardAssets/dudv.png")
-                assetLoaded = true
+                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_DUDV, "standardAssets/dudv.png"))
             }
-
             if (findAssetByID(STANDARD_ASSET_TEXTURE_WATER_NORMAL) == null) {
-                createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_NORMAL, "standardAssets/waterNormal.png")
-                assetLoaded = true
+                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_NORMAL, "standardAssets/waterNormal.png"))
             }
-
             if (findAssetByID(STANDARD_ASSET_TEXTURE_WATER_FOAM) == null) {
-                createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_FOAM, "standardAssets/waterFoam.png")
-                assetLoaded = true
+                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_FOAM, "standardAssets/waterFoam.png"))
             }
-
-            return assetLoaded
+            return createdAssets
 
         } catch (e: Exception) {
             e.printStackTrace()
-            return false
+            return createdAssets
         }
 
     }
 
-    private fun createStandardAsset(id: String, path: String) {
+    private fun createStandardAsset(id: String, path: String): TextureAsset {
         val textureAsset = getOrCreateTextureAsset(Gdx.files.internal(path))
         assetIndex.remove(textureAsset.id)
         textureAsset.meta.uuid = id
         assetIndex[textureAsset.id] = textureAsset
         metaSaver.save(textureAsset.meta)
+        return textureAsset
     }
 
     /**
@@ -766,7 +805,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      *
      * Desktop applications cannot use .list() for internal jar files.
      * Desktop apps need to provide an assets.txt file listing all Mundus assets
-     * in the Mundus assets directory. See [AssetManager.loadAssets] for how the file is used on load.
+     * in the Mundus assets directory. See [AssetManager.queueAssetsForLoading] for how the file is used on load.
      */
     fun createAssetsTextFile() {
         // get path for assets file

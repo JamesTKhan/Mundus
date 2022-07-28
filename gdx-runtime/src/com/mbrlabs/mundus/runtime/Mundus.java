@@ -22,8 +22,11 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderableSorter;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
+import com.mbrlabs.mundus.commons.assets.AssetNotFoundException;
+import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter;
@@ -46,12 +49,53 @@ public class Mundus implements Disposable {
 
     private Shaders shaders;
 
+    /**
+     * Initializes Mundus, defaulting to synchronous loading of assets
+     * @param mundusRoot FileHandle to the root directory of the Mundus project to load
+     */
     public Mundus(final FileHandle mundusRoot) {
+        this(mundusRoot, new Config());
+    }
+
+    /**
+     * Initializes Mundus and begins loading assets.
+     *
+     * If async is true,
+     * {@link #continueLoading()} should be called every frame until it returns true before loading any scenes.
+     *
+     * If you want to control when loading is started you can set autoLoad to false.
+     * A possible use case is if you want to add non-mundus assets (like music files)
+     * to the assetManager for inclusion in asynchronous loading.
+     *
+     * Ex.
+     * <pre>
+     * {@code
+     *
+     * 	   Mundus.Config config = new Mundus.Config();
+     *     config.autoLoad = true;
+     *
+     *     mundus = new Mundus(Gdx.files.internal("MundusExampleProject"), config);
+     *     mundus.getAssetManager().queueAssetsForLoading(true);
+     *
+     *     // Queuing up your own assets to include in asynchronous loading
+     *     mundus.getAssetManager().getGdxAssetManager().load("Instrumental.mp3", Music.class);
+     *
+     *     // Retrieving your custom asset later on after loading is completed
+     *     Music music = mundus.getAssetManager().getGdxAssetManager().get("Instrumental.mp3");
+     * }
+     * </pre>
+     *
+     * @param mundusRoot FileHandle to the root directory of the Mundus project to load
+     * @param config the configuration to use
+     */
+    public Mundus(final FileHandle mundusRoot, Config config) {
         this.root = mundusRoot;
         this.assetManager = new AssetManager(root.child(PROJECT_ASSETS_DIR));
         this.sceneLoader = new SceneLoader(this, root.child(PROJECT_SCENES_DIR));
 
-        init();
+        if (config.autoLoad) {
+            init(config.asyncLoad);
+        }
     }
 
     public AssetManager getAssetManager() {
@@ -59,6 +103,9 @@ public class Mundus implements Disposable {
     }
 
     public Shaders getShaders() {
+        if (shaders == null) {
+            initShaders();
+        }
         return shaders;
     }
 
@@ -96,14 +143,50 @@ public class Mundus implements Disposable {
         assetManager.dispose();
     }
 
-    private void init() {
+    public void init(boolean async) {
         try {
-            assetManager.loadAssets(null, true);
+            assetManager.queueAssetsForLoading(true);
+            if (!async) {
+                assetManager.finalizeLoad();
+            }
         } catch (Exception e) {
             Gdx.app.log(TAG, e.getMessage());
         }
+        initShaders();
+    }
 
+    public void initShaders() {
         shaders = new Shaders();
+    }
+
+    /**
+     * Should be called each frame until it returns true
+     * which indicates that Mundus is loaded.
+     *
+     * @return boolean indicating if asynchronous loading is complete
+     */
+    public boolean continueLoading() {
+        try {
+            return assetManager.continueLoading();
+        } catch (MetaFileParseException | AssetNotFoundException e) {
+            throw new GdxRuntimeException("Error while loading assets: " + e);
+        }
+    }
+
+    /**
+     * Returns a progress value between 0.0 and 1.0 representing the percentage loaded.
+     * @return progress percentage
+     */
+    public float getProgress() {
+        return assetManager.getProgress();
+    }
+
+    public static class Config {
+        /** Start loading assets immediately */
+        public boolean autoLoad = true;
+        /** Load the project asynchronously (true) or synchronously (false)*/
+        public boolean asyncLoad = false;
+
     }
 
 }

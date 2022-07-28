@@ -17,12 +17,27 @@ package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.loaders.TextureLoader;
+import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.UBJsonReader;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
 import com.mbrlabs.mundus.commons.assets.meta.MetaLoader;
+import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader;
+import com.mbrlabs.mundus.commons.terrain.Terrain;
+import com.mbrlabs.mundus.commons.terrain.TerrainLoader;
+import com.mbrlabs.mundus.commons.utils.FileFormatUtils;
+import net.mgsx.gltf.loaders.glb.GLBAssetLoader;
+import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -41,9 +56,12 @@ public class AssetManager implements Disposable {
     private static final String TAG = AssetManager.class.getSimpleName();
 
     protected FileHandle rootFolder;
+    protected FileHandle[] metaFiles;
+    protected final MetaLoader metaLoader = new MetaLoader();
 
     protected Array<Asset> assets;
     protected Map<String, Asset> assetIndex;
+    protected com.badlogic.gdx.assets.AssetManager gdxAssetManager;
 
     // Tracks the highest bone count out of all loaded model assets
     public int maxNumBones = 0;
@@ -58,6 +76,14 @@ public class AssetManager implements Disposable {
         this.rootFolder = assetsFolder;
         this.assets = new Array<>();
         this.assetIndex = new HashMap<>();
+    }
+
+    /**
+     * The Mundus AssetManager class encapsulates the libGDX AssetManager, mostly
+     * for async loading
+     */
+    public com.badlogic.gdx.assets.AssetManager getGdxAssetManager() {
+        return gdxAssetManager;
     }
 
     /**
@@ -155,23 +181,28 @@ public class AssetManager implements Disposable {
     }
 
     /**
-     * Loads all assets in the project's asset folder.
+     * Queues all assets in the project's asset folder for loading later.
      *
-     * @param listener
-     *            informs about current loading progress
+     * Should be called before {@link #continueLoading()} and {@link #finalizeLoad()}
+     *
      * @param isRuntime
      *            is this called by the runtime or editor (runtime requires different file logic)
-     * @throws AssetNotFoundException
-     *             if a meta file points to a non existing asset
      * @throws MetaFileParseException
      *             if a meta file can't be parsed
      */
-    public void loadAssets(AssetLoadingListener listener, boolean isRuntime) throws AssetNotFoundException, MetaFileParseException {
-        final MetaLoader metaLoader = new MetaLoader();
+    public void queueAssetsForLoading(boolean isRuntime) throws MetaFileParseException {
 
         String[] files;
         FileHandle fileList;
-        FileHandle[] metaFiles;
+
+        if (isRuntime) {
+            // assets.txt has relative/internal paths
+            gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(new InternalFileHandleResolver());
+        } else {
+            // For the editor, we get all files in the assets directory and absolute paths via rootFolder.list()
+            // which has the added benefit of detecting assets not in the assets.txt file
+            gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(new AbsoluteFileHandleResolver());
+        }
 
         if (isRuntime && Gdx.app.getType() == Application.ApplicationType.Desktop) {
             // Desktop applications cannot use .list() for internal jar files.
@@ -179,12 +210,14 @@ public class AssetManager implements Disposable {
             // in the Mundus root directory.
             // https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
             fileList = rootFolder.child("assets.txt");
-            files = fileList.readString().split("\\n");
+
+            // Normalize line endings before reading
+            files = fileList.readString().replaceAll("\\r\\n?", "\n").split("\\n");
             metaFiles = getMetaFiles(files);
         } else if (isRuntime && Gdx.app.getType() == Application.ApplicationType.WebGL) {
             // For WebGL we use a native split method for string split
             fileList = rootFolder.child("assets.txt");
-            files = split(fileList.readString(), "\n");
+            files = split(fileList.readString().replaceAll("\\r\\n?", "\n"), "\n");
             metaFiles = getMetaFiles(files);
         } else {
             // Editor uses this block to load meta files
@@ -197,12 +230,92 @@ public class AssetManager implements Disposable {
             metaFiles = rootFolder.list(metaFileFilter);
         }
 
-        // load assets
+        // Set loaders
+        gdxAssetManager.setLoader(Terrain.class, ".terra", new TerrainLoader());
+        gdxAssetManager.setLoader(SceneAsset.class, ".gltf", new GLTFAssetLoader());
+        gdxAssetManager.setLoader(SceneAsset.class, ".glb", new GLBAssetLoader());
+        gdxAssetManager.setLoader(Model.class, ".g3db", new MG3dModelLoader(new UBJsonReader()));
+
+        // Queue files for async loading into LibGDX's assetManager
         for (FileHandle meta : metaFiles) {
-            Asset asset = loadAsset(metaLoader.load(meta));
-            if (listener != null) {
-                listener.onLoad(asset, assets.size, metaFiles.length);
-            }
+            Meta m = metaLoader.load(meta);
+            queueAssetForLoading(m);
+        }
+    }
+
+    protected void queueAssetForLoading(Meta m) {
+        String filePath = m.getFile().pathWithoutExtension();
+        switch (m.getType()) {
+            case TEXTURE:
+                // These are hard coded for now
+                TextureLoader.TextureParameter param = new TextureLoader.TextureParameter();
+                param.genMipMaps = true;
+                param.minFilter = Texture.TextureFilter.MipMapLinearNearest;
+                param.magFilter = Texture.TextureFilter.Linear;
+
+                gdxAssetManager.load(filePath, Texture.class, param);
+                break;
+            case PIXMAP_TEXTURE:
+                gdxAssetManager.load(filePath, Pixmap.class);
+                break;
+            case MODEL:
+                if (FileFormatUtils.isG3DB(filePath)) {
+                    gdxAssetManager.load(filePath, Model.class);
+                } else if (FileFormatUtils.isGLTF(filePath)) {
+                    gdxAssetManager.load(filePath, SceneAsset.class);
+                } else if (FileFormatUtils.isGLB(filePath)) {
+                    gdxAssetManager.load(filePath, SceneAsset.class);
+                } else {
+                    throw new GdxRuntimeException("Unsupported 3D model");
+                }
+                break;
+            case TERRAIN:
+                TerrainLoader.TerrainParameter terrainParameter = new TerrainLoader.TerrainParameter(m.getTerrain());
+                gdxAssetManager.load(filePath, Terrain.class, terrainParameter);
+            case MATERIAL:
+                // loads synchronously
+                break;
+            case WATER:
+                // loads synchronously
+                break;
+            case SKYBOX:
+                // loads synchronously
+                break;
+        }
+    }
+
+    /**
+     * Should be called each frame until it returns true
+     * which indicates that assets are loaded.
+     *
+     * @return boolean indicating if asynchronous loading is complete
+     */
+    public boolean continueLoading() throws MetaFileParseException, AssetNotFoundException {
+        boolean complete = gdxAssetManager.update(17);
+        if (complete) {
+            finalizeLoad();
+        }
+        return complete;
+    }
+
+    /**
+     * Returns a progress value between 0.0 and 1.0 representing the percentage loaded.
+     * @return progress percentage
+     */
+    public float getProgress() {
+        return gdxAssetManager.getProgress();
+    }
+
+    /**
+     * Call to finalize the loading process.
+     */
+    public void finalizeLoad() throws AssetNotFoundException, MetaFileParseException {
+        // Ensure loading is complete before continuing
+        gdxAssetManager.finishLoading();
+
+        // finalize loading of Mundus assets
+        for (FileHandle meta : metaFiles) {
+            loadAsset(metaLoader.load(meta));
         }
 
         // resolve material assets
@@ -222,10 +335,6 @@ public class AssetManager implements Disposable {
             }
             asset.resolveDependencies(assetIndex);
             asset.applyDependencies();
-        }
-
-        if(listener != null) {
-            listener.onFinish(assets.size);
         }
     }
 
@@ -262,8 +371,6 @@ public class AssetManager implements Disposable {
      *             if a meta file points to a non existing asset
      */
     public Asset loadAsset(Meta meta) throws AssetNotFoundException {
-        // get handle to asset
-     //   String assetPath = meta.getFile().pathWithoutExtension();
         FileHandle assetFile = meta.getFile().sibling(meta.getFile().nameWithoutExtension());
 
         // check if asset exists
@@ -305,13 +412,13 @@ public class AssetManager implements Disposable {
 
     private Asset loadSkyboxAsset(Meta meta, FileHandle assetFile) {
         SkyboxAsset asset = new SkyboxAsset(meta, assetFile);
-        asset.load();
+        asset.load(gdxAssetManager);
         return asset;
     }
 
     private MaterialAsset loadMaterialAsset(Meta meta, FileHandle assetFile) {
         MaterialAsset asset = new MaterialAsset(meta, assetFile);
-        asset.load();
+        asset.load(gdxAssetManager);
         return asset;
     }
 
@@ -320,40 +427,41 @@ public class AssetManager implements Disposable {
         // TODO parse special texture instead of always setting them
         asset.setTileable(true);
         asset.generateMipmaps(true);
-        asset.load();
+        asset.load(gdxAssetManager);
         return asset;
     }
 
     private TerrainAsset loadTerrainAsset(Meta meta, FileHandle assetFile) {
         TerrainAsset asset = new TerrainAsset(meta, assetFile);
-        asset.load();
+        asset.load(gdxAssetManager);
         return asset;
     }
 
     private PixmapTextureAsset loadPixmapTextureAsset(Meta meta, FileHandle assetFile) {
         PixmapTextureAsset asset = new PixmapTextureAsset(meta, assetFile);
-        asset.load();
+        asset.load(gdxAssetManager);
         return asset;
     }
 
     private ModelAsset loadModelAsset(Meta meta, FileHandle assetFile) {
         ModelAsset asset = new ModelAsset(meta, assetFile);
-        asset.load();
+        asset.load(gdxAssetManager);
         return asset;
     }
 
     private WaterAsset loadWaterAsset(Meta meta, FileHandle assetFile) {
         WaterAsset asset = new WaterAsset(meta, assetFile);
-        asset.load();
+        asset.load(gdxAssetManager);
         return asset;
     }
 
     @Override
     public void dispose() {
+        Gdx.app.log(TAG, "Disposing assets...");
         for (Asset asset : assets) {
             asset.dispose();
-            Gdx.app.log(TAG, "Disposing asset: " + asset);
         }
+        Gdx.app.log(TAG, "Assets disposed");
         assets.clear();
         assetIndex.clear();
     }
