@@ -41,7 +41,7 @@ class UsedByAssetInspectorWidget  : BaseInspectorWidget(TITLE) {
         root.defaults().align(Align.left)
 
         if (usagesInAssets.isNotEmpty()) {
-            root.add(VisLabel("Used By Assets")).row()
+            root.add(VisLabel("Used by Assets")).row()
             root.addSeparator()
             for (assetUsage in usagesInAssets) {
                 root.add(assetUsage.name).row()
