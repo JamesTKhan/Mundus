@@ -47,6 +47,7 @@ class AssetCleanUpDialog : BaseDialog(TITLE) {
     private val root = VisTable()
     private val loadingRoot = VisTable()
     private val pane = AutoFocusScrollPane(assetTable)
+    private val selectAll = VisCheckBox("Select All")
     private val yes = VisTextButton("Yes")
     private val cancel = VisTextButton("Cancel")
 
@@ -85,6 +86,7 @@ class AssetCleanUpDialog : BaseDialog(TITLE) {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 for (actor in assetTable.children) {
                     if (actor is VisCheckBox && actor.isChecked) {
+                        if (actor.userObject == null) continue
                         val asset = actor.userObject as Asset
                         projectManager.current().assetManager.deleteAsset(asset)
                     }
@@ -101,11 +103,34 @@ class AssetCleanUpDialog : BaseDialog(TITLE) {
             }
         })
 
+        selectAll.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                super.clicked(event, x, y)
+                val checkAll = selectAll.isChecked
+                for (ckBox in assetTable.children) {
+                    if (ckBox is VisCheckBox) {
+                        ckBox.isChecked = checkAll
+                    }
+                }
+            }
+        })
+
     }
 
     fun setAssetsToDelete(assets: Array<Asset>) {
         loadingRoot.remove()
         add(root).top().left()
+
+        if (assets.isEmpty) {
+            assetTable.add("No unused assets found.")
+            pack()
+            centerWindow()
+            return
+        }
+
+        assetTable.add(selectAll).left().row()
+        selectAll.isChecked = true
+        assetTable.addSeparator()
         for (asset in assets) {
             val ckBox = VisCheckBox(asset.name)
             ckBox.userObject = asset
