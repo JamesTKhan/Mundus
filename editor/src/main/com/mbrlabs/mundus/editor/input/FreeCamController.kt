@@ -111,6 +111,8 @@ class FreeCamController : InputAdapter() {
         // If using combo key, do not consume event
         if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) return false
 
+        if (camera == null) return false
+
         tmp.set(camera!!.direction).nor().scl(-amountY * zoomAmount)
         camera!!.position.add(tmp)
         return true
