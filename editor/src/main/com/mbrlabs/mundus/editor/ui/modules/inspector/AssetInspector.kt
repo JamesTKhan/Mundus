@@ -19,10 +19,13 @@ package com.mbrlabs.mundus.editor.ui.modules.inspector
 import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.commons.assets.*
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.modules.inspector.assets.MaterialAssetInspectorWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.assets.ModelAssetInspectorWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.assets.TerrainAssetInspectorWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.assets.TextureAssetInspectorWidget
+import com.mbrlabs.mundus.editor.ui.modules.inspector.assets.UsedByAssetInspectorWidget
 
 /**
  * @author Marcus Brummer
@@ -34,11 +37,14 @@ class AssetInspector : VisTable() {
     private val modelWidget = ModelAssetInspectorWidget()
     private val textureWidget = TextureAssetInspectorWidget()
     private val terrainWidget = TerrainAssetInspectorWidget()
+    private val usedByWidget = UsedByAssetInspectorWidget()
+    private var projectManager: ProjectManager
 
     var asset: Asset? = null
         set(value) {
             field = value
             clear()
+
             if (value is MaterialAsset) {
                 add(materialWidget).growX().row()
                 materialWidget.setMaterial(value)
@@ -52,11 +58,15 @@ class AssetInspector : VisTable() {
                 add(terrainWidget).growX().row()
                 terrainWidget.setTerrainAsset(value)
             }
+
+            add(usedByWidget).padTop(10f).growX().row()
+            usedByWidget.setAsset(asset, projectManager)
         }
 
     init {
         align(Align.top)
         pad(7f)
+        projectManager = Mundus.inject()
     }
 
 }

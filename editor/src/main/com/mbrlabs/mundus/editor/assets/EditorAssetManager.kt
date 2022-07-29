@@ -493,6 +493,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         return unusedAssets
     }
 
+
+
     /**
      * Delete the asset from the project if no usages are found
      */
@@ -595,7 +597,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     /**
      * Searches all assets in the current context for any usages of the given asset
      */
-    private fun findAssetUsagesInAssets(asset: Asset): ArrayList<Asset> {
+    fun findAssetUsagesInAssets(asset: Asset): ArrayList<Asset> {
         val assetsUsingAsset = ArrayList<Asset>()
 
         // Check for dependent assets that are not in scenes
@@ -611,7 +613,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     /**
      * Searches all scenes in the current context for any usages of the given asset
      */
-    private fun findAssetUsagesInScenes(projectManager: ProjectManager, asset: Asset): HashMap<GameObject, String> {
+    fun findAssetUsagesInScenes(projectManager: ProjectManager, asset: Asset): HashMap<GameObject, String> {
         val objectsWithAssets = HashMap<GameObject, String>()
 
         // we check for usages in all scenes
