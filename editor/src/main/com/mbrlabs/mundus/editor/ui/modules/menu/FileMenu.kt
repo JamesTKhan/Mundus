@@ -61,8 +61,8 @@ class FileMenu : Menu("File") {
             pro.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     try {
-                        val projectContext = projectManager.loadProject(ref)
-                        projectManager.changeProject(projectContext)
+                        projectManager.startAsyncProjectLoad(ref)
+                        UI.toggleLoadingScreen(true, ref.name)
                     } catch (e: Exception) {
                         e.printStackTrace()
                         Dialogs.showErrorDialog(UI, "Could not open project")
@@ -119,8 +119,7 @@ class FileMenu : Menu("File") {
 
     fun importNewProject(projectDir: FileHandle) {
         try {
-            val context = projectManager.importProject(projectDir.path())
-            projectManager.changeProject(context)
+            projectManager.importProject(projectDir.path())
         } catch (e: ProjectAlreadyImportedException) {
             e.printStackTrace()
             Dialogs.showErrorDialog(UI, "This Project is already imported.")

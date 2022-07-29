@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.assets;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -163,6 +164,12 @@ public class MaterialAsset extends Asset {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void load(AssetManager assetManager) {
+        // No async loading for materials right now
+        load();
     }
 
     private void populateTexCoordInfo(TexCoordInfo texCoordInfo) {

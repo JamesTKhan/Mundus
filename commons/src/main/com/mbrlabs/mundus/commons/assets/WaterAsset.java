@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.commons.assets;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -79,6 +80,12 @@ public class WaterAsset extends Asset {
     }
 
     @Override
+    public void load(AssetManager assetManager) {
+        // No async loading for water right now
+        load();
+    }
+
+    @Override
     public void resolveDependencies(Map<String, Asset> assets) {
         if (assets.containsKey(dudvID)) {
             dudvTexture = (TextureAsset) assets.get(dudvID);
@@ -132,7 +139,7 @@ public class WaterAsset extends Asset {
 
     @Override
     public boolean usesAsset(Asset assetToCheck) {
-        return false;
+        return assetToCheck == dudvTexture || assetToCheck == normalMapTexture || assetToCheck == waterFoamTexture;
     }
 
 }

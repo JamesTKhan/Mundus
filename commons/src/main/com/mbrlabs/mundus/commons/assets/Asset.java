@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.assets;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
@@ -73,9 +74,14 @@ public abstract class Asset implements Disposable, AssetUsage {
     /**
      * Loads the asset.
      *
-     * Loads the asset from disk and creates it.
+     * Loads the asset from disk synchronously and creates it.
      */
     public abstract void load();
+
+    /**
+     * Loads the asset using the given asset manager, usually after asynchronous project load.
+     */
+    public abstract void load(AssetManager assetManager);
 
     /**
      * Resolves all dependencies of this asset.

@@ -88,7 +88,6 @@ public class MetaLoader {
         final JsonValue materials = jsonModel.get(MetaModel.JSON_DEFAULT_MATERIALS);
 
         for(final JsonValue mat : materials) {
-            System.out.println(mat.name);
             final String g3dbID = mat.name;
             final String assetUUID = materials.getString(g3dbID);
             model.getDefaultMaterials().put(g3dbID, assetUUID);

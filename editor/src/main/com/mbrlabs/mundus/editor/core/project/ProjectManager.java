@@ -24,7 +24,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.Asset;
-import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.assets.AssetNotFoundException;
 import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
@@ -53,6 +52,7 @@ import com.mbrlabs.mundus.editor.events.ProjectChangedEvent;
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableComponent;
 import com.mbrlabs.mundus.editor.shader.Shaders;
+import com.mbrlabs.mundus.editor.ui.UI;
 import com.mbrlabs.mundus.editor.utils.Log;
 import com.mbrlabs.mundus.editor.utils.SkyboxBuilder;
 
@@ -77,6 +77,7 @@ public class ProjectManager implements Disposable {
     public static final String PROJECT_EXTENSION = "pro";
 
     private ProjectContext currentProject;
+    private ProjectContext loadingProject;
     private Registry registry;
     private KryoManager kryoManager;
     private ModelBatch modelBatch;
@@ -96,6 +97,26 @@ public class ProjectManager implements Disposable {
      */
     public ProjectContext current() {
         return currentProject;
+    }
+
+    public ProjectContext loadingProject() {
+        return loadingProject;
+    }
+
+    public boolean isLoading() {
+        if (loadingProject == null) {
+            return false;
+        }
+
+        return !loadingProject.loaded;
+    }
+
+    public boolean isLoaded() {
+        if (loadingProject == null) {
+            return false;
+        }
+
+        return loadingProject.loaded;
     }
 
     /**
@@ -207,8 +228,7 @@ public class ProjectManager implements Disposable {
      * @throws ProjectOpenException
      *             project could not be opened
      */
-    public ProjectContext importProject(String absolutePath)
-            throws ProjectAlreadyImportedException, ProjectOpenException {
+    public ProjectContext importProject(String absolutePath) throws ProjectAlreadyImportedException, ProjectOpenException {
         // check if already imported
         for (ProjectRef ref : registry.getProjects()) {
             if (ref.getPath().equals(absolutePath)) {
@@ -220,67 +240,24 @@ public class ProjectManager implements Disposable {
         ref.setPath(absolutePath);
 
         try {
-            ProjectContext context = loadProject(ref);
+            ProjectContext context = kryoManager.loadProjectContext(ref);
+            context.path = absolutePath;
+            UI.INSTANCE.toggleLoadingScreen(true, context.name);
             ref.setName(context.name);
             registry.getProjects().add(ref);
             kryoManager.saveRegistry(registry);
+            startAsyncProjectLoad(absolutePath, context);
             return context;
         } catch (Exception e) {
             throw new ProjectOpenException(e.getMessage());
         }
     }
 
-    /**
-     * Loads the project context for a project.
-     *
-     * This does not open to that project, it only loads it.
-     *
-     * @param ref
-     *            project reference to the project
-     * @return loaded project context
-     * @throws FileNotFoundException
-     *             if project can't be found
-     */
-    public ProjectContext loadProject(ProjectRef ref)
-            throws FileNotFoundException, MetaFileParseException, AssetNotFoundException {
-        ProjectContext context = kryoManager.loadProjectContext(ref);
-        context.path = ref.getPath();
-
-        // load assets
-        loadAssets(ref, context);
-
-        // create standard assets if any are missing, to support backwards compatibility when new standard assets are added
-        boolean standardAssetReloaded = context.assetManager.createStandardAssets();
-
-        // If a standard asset was missing we reload assets, now that the standard asset is recreated.
-        if (standardAssetReloaded) {
-            Mundus.INSTANCE.postEvent(new LogEvent(LogType.WARN, "A standard asset was missing. Reloading assets." +
-                    " This only occurs if a standard asset was deleted."));
-            loadAssets(ref, context);
-        }
-
-        context.currScene = loadScene(context, context.activeSceneName);
-
-        return context;
-    }
-
-    private void loadAssets(ProjectRef ref, ProjectContext context) throws MetaFileParseException, AssetNotFoundException {
+    private void loadAssets(String path, ProjectContext context) throws MetaFileParseException {
         context.assetManager = new EditorAssetManager(
-                new FileHandle(ref.getPath() + "/" + ProjectManager.PROJECT_ASSETS_DIR));
+                new FileHandle(path + "/" + ProjectManager.PROJECT_ASSETS_DIR));
 
-        context.assetManager.loadAssets(new AssetManager.AssetLoadingListener() {
-            @Override
-            public void onLoad(Asset asset, int progress, int assetCount) {
-                Log.debug(TAG, "Loaded {} asset ({}/{})", asset.getMeta().getType(), progress, assetCount);
-                Mundus.INSTANCE.postEvent(new LogEvent("Loaded " + asset.getMeta().getType() + " asset ("+progress+"/"+assetCount+")"));
-            }
-
-            @Override
-            public void onFinish(int assetCount) {
-                Log.debug(TAG, "Finished loading {} assets", assetCount);
-                Mundus.INSTANCE.postEvent(new LogEvent("Finished loading " + assetCount + " assets"));
-            }
-        }, false);
+        context.assetManager.queueAssetsForLoading(false);
     }
 
     /**
@@ -333,23 +310,68 @@ public class ProjectManager implements Disposable {
      *
      * @return project context of last project
      */
-    public ProjectContext loadLastProject() {
+    public ProjectContext loadLastProjectAsync() {
         ProjectRef lastOpenedProject = registry.getLastOpenedProject();
         if (lastOpenedProject != null) {
             try {
-                return loadProject(lastOpenedProject);
+                return startAsyncProjectLoad(lastOpenedProject);
             } catch (FileNotFoundException fnf) {
                 Log.error(TAG, fnf.getMessage());
                 fnf.printStackTrace();
-            } catch (AssetNotFoundException anf) {
+            } catch (MetaFileParseException anf) {
                 Log.error(TAG, anf.getMessage());
-            } catch (MetaFileParseException mfp) {
-                Log.error(TAG, mfp.getMessage());
             }
             return null;
         }
-
         return null;
+    }
+
+    /**
+     * Starts loading the project context for a project.
+     *
+     * This does not open to that project, it only starts the async load process.
+     * {@link #continueLoading()} must be called each frame while loading to continue the loading process.
+     *
+     * @param ref
+     *            project reference to the project
+     * @return initialized but unloaded project context
+     * @throws FileNotFoundException
+     *             if project can't be found
+     */
+    public ProjectContext startAsyncProjectLoad(ProjectRef ref) throws FileNotFoundException, MetaFileParseException {
+        ProjectContext context = kryoManager.loadProjectContext(ref);
+        context.path = ref.getPath();
+        context.name = ref.getName();
+
+        return startAsyncProjectLoad(ref.getPath(), context);
+    }
+
+    public ProjectContext startAsyncProjectLoad(String path, ProjectContext context) throws MetaFileParseException {
+        Log.debug(TAG, "Asynchronous project loading started...");
+        loadingProject = context;
+
+        // Queues up assets for loading
+        loadAssets(path, loadingProject);
+
+        return loadingProject;
+    }
+
+    public ProjectContext continueLoading() throws FileNotFoundException, MetaFileParseException, AssetNotFoundException {
+        boolean complete = loadingProject.assetManager.continueLoading();
+
+        if (!complete) {
+            return loadingProject;
+        }
+
+        return finalizeLoading();
+    }
+
+    private ProjectContext finalizeLoading() throws FileNotFoundException {
+        Log.debug(TAG, "Asynchronous project loading complete");
+
+        loadingProject.currScene = loadScene(loadingProject, loadingProject.activeSceneName);
+        loadingProject.loaded = true;
+        return loadingProject;
     }
 
     /**
@@ -366,6 +388,11 @@ public class ProjectManager implements Disposable {
                 currentProject.assetManager.deleteNewUnsavedAssets();
             }
             currentProject.dispose();
+        }
+
+        // Null it out now that loading is complete
+        if (context == loadingProject) {
+            loadingProject = null;
         }
 
         currentProject = context;
@@ -559,7 +586,7 @@ public class ProjectManager implements Disposable {
      * Disposes current depth model batch, assigns the new batch and updates the depth batch
      * on the current scene.
      *
-     * @param modelBatch new ModelBatch instance to use
+     * @param depthBatch new ModelBatch instance to use
      */
     public void setDepthBatch(ModelBatch depthBatch) {
         if (this.depthBatch != null) {
