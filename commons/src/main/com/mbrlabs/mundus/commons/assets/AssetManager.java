@@ -250,8 +250,13 @@ public class AssetManager implements Disposable {
                 // These are hard coded for now
                 TextureLoader.TextureParameter param = new TextureLoader.TextureParameter();
                 param.genMipMaps = true;
-                param.minFilter = Texture.TextureFilter.MipMapLinearNearest;
-                param.magFilter = Texture.TextureFilter.Linear;
+                param.minFilter = Texture.TextureFilter.MipMapLinearLinear;
+
+                if (Gdx.app.getType() == Application.ApplicationType.WebGL)
+                    // WebGL does not support mip map on Mag filter
+                    param.magFilter = Texture.TextureFilter.Linear;
+                else
+                    param.magFilter = Texture.TextureFilter.MipMapLinearLinear;
 
                 gdxAssetManager.load(filePath, Texture.class, param);
                 break;
