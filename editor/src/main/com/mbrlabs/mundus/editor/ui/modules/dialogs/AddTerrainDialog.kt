@@ -92,7 +92,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         content.add(VisLabel("Name: ")).left().padBottom(10f)
         content.add(name).fillX().expandX().row()
         content.add(ToolTipLabel("Vertex resolution: ", "This will determine the vertices count when squared. 180 = 32,400 vertices. \n" +
-                "The default value (or lower) is recommended for performance.")).left().padBottom(10f)
+                "The default value (or lower) is recommended for performance. \nSettings this over 180 may cause issues on some devices.")).left().padBottom(10f)
         content.add(vertexResolution).fillX().expandX().row()
         content.add(ToolTipLabel("Terrain width: ", "Size of the terrain, in meters.")).left().padBottom(10f)
         content.add(terrainWidth).fillX().expandX().row()
