@@ -394,6 +394,13 @@ public class TerrainAsset extends Asset {
                     return true;
                 }
             }
+
+            // Check normal maps
+            if (assetToCheck == splatBaseNormal || assetToCheck == splatRNormal ||
+                assetToCheck == splatBNormal || assetToCheck == splatGNormal || assetToCheck == splatANormal) {
+                return true;
+            }
+
         }
 
         return false;
