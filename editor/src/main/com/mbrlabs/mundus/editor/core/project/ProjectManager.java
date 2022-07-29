@@ -29,6 +29,7 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
+import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
@@ -41,6 +42,7 @@ import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException;
 import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
 import com.mbrlabs.mundus.editor.core.EditorScene;
+import com.mbrlabs.mundus.editor.core.converter.GameObjectConverter;
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter;
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager;
 import com.mbrlabs.mundus.editor.core.registry.ProjectRef;
@@ -478,6 +480,26 @@ public class ProjectManager implements Disposable {
 
         return scene;
     }
+
+    /**
+     * Get all GameObjects from a scene. Partially loads the scene fast without using GL context
+     * so this can be called on a separate thread.
+     */
+    public Array<GameObject> getSceneGameObjects(ProjectContext context, String sceneName) throws FileNotFoundException {
+        SceneDTO sceneDTO = SceneManager.loadScene(context, sceneName);
+
+        Scene scene = new Scene(false);
+        for (GameObjectDTO descriptor : sceneDTO.getGameObjects()) {
+            scene.sceneGraph.addGameObject(GameObjectConverter.convert(descriptor, scene.sceneGraph, context.assetManager.getAssetMap()));
+        }
+        for (GameObject go : scene.sceneGraph.getGameObjects()) {
+            initGameObject(context, go);
+        }
+
+        scene.dispose();
+        return scene.sceneGraph.getGameObjects();
+    }
+
 
     /**
      * Loads and opens scene

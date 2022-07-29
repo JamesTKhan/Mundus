@@ -42,6 +42,7 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.*
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.ui.widgets.AutoFocusScrollPane
 
 
 /**
@@ -51,6 +52,7 @@ import com.mbrlabs.mundus.editor.ui.UI
 class AssetsDock : Tab(false, false),
         ProjectChangedEvent.ProjectChangedListener,
         AssetImportEvent.AssetImportListener,
+        AssetDeletedEvent.AssetDeletedListener,
         GameObjectSelectedEvent.GameObjectSelectedListener,
         FullScreenEvent.FullScreenEventListener {
 
@@ -126,7 +128,7 @@ class AssetsDock : Tab(false, false),
         deleteAsset.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
                 currentSelection?.asset?.let {
-                    projectManager.current().assetManager.deleteAsset(it, projectManager)
+                    projectManager.current().assetManager.deleteAssetSafe(it, projectManager)
                     reloadAssets()
                 }
             }
@@ -152,7 +154,7 @@ class AssetsDock : Tab(false, false),
         }
     }
 
-    private fun reloadAssets() {
+    fun reloadAssets() {
         filesView.clearChildren()
         val projectContext = projectManager.current()
         for (asset in projectContext.assetManager.assets) {
@@ -165,7 +167,7 @@ class AssetsDock : Tab(false, false),
     }
 
     private fun createScrollPane(actor: Actor, disableX: Boolean): VisScrollPane {
-        val scrollPane = VisScrollPane(actor)
+        val scrollPane = AutoFocusScrollPane(actor)
         scrollPane.setFadeScrollBars(false)
         scrollPane.setScrollingDisabled(disableX, false)
         return scrollPane
@@ -184,6 +186,10 @@ class AssetsDock : Tab(false, false),
     }
 
     override fun onAssetImported(event: AssetImportEvent) {
+        reloadAssets()
+    }
+
+    override fun onAssetDeleted(event: AssetDeletedEvent) {
         reloadAssets()
     }
 

@@ -16,20 +16,16 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.inspector
 
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
 import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
 import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
 import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent
-import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.ui.widgets.AutoFocusScrollPane
 import com.mbrlabs.mundus.editor.utils.Log
 
 /**
@@ -52,7 +48,7 @@ class Inspector : VisTable(),
 
     private var mode = InspectorMode.EMPTY
     private val root = VisTable()
-    private val scrollPane = VisScrollPane(root)
+    private val scrollPane = AutoFocusScrollPane(root)
 
     private val goInspector: GameObjectInspector
     private val assetInspector: AssetInspector
@@ -74,15 +70,6 @@ class Inspector : VisTable(),
         scrollPane.setScrollingDisabled(true, false)
         scrollPane.setFlickScroll(false)
         scrollPane.setFadeScrollBars(false)
-        scrollPane.addListener(object : InputListener() {
-            override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
-                UI.scrollFocus = scrollPane
-            }
-
-            override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
-                UI.scrollFocus = null
-            }
-        })
 
         add<ScrollPane>(scrollPane).expand().fill().top()
     }
