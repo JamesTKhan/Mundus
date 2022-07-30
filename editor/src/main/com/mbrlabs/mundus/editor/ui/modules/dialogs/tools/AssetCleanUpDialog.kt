@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.ui.modules.dialogs
+package com.mbrlabs.mundus.editor.ui.modules.dialogs.tools
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -29,6 +29,7 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetDeletedEvent
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.editor.ui.widgets.AutoFocusScrollPane
 
 /**
