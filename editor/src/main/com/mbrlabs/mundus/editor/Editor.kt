@@ -25,7 +25,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.utils.GdxRuntimeException
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
@@ -100,10 +99,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         var context: ProjectContext? = projectManager.loadLastProjectAsync()
         if (context == null) {
             context = createDefaultProject()
-        }
-
-        if(context == null) {
-            throw GdxRuntimeException("Couldn't open a project")
+            projectManager.startAsyncProjectLoad(context!!.path, context)
         }
 
         guiCamera = OrthographicCamera()
