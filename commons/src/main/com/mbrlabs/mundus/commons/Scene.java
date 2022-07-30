@@ -79,7 +79,20 @@ public class Scene implements Disposable {
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
 
+    /**
+     * The default way to instantiate a scene. Use this constructor if you
+     * are using the runtime.
+     */
     public Scene() {
+        this(true);
+    }
+
+    /**
+     * Optionally allow instantiation of a scene without using any OpenGL context
+     * useful for when you need a scene object loaded on a different thread.
+     * @param hasGLContext normally this should be true, false if you are not on main thread
+     */
+    public Scene(boolean hasGLContext) {
         environment = new MundusEnvironment();
         settings = new SceneSettings();
 
@@ -98,9 +111,10 @@ public class Scene implements Disposable {
         environment.getAmbientLight().intensity = 0.8f;
         environment.set(ColorAttribute.createAmbientLight(Color.WHITE));
 
-        initPBR();
-
-        setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
+        if (hasGLContext) {
+            initPBR();
+            setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
+        }
 
         sceneGraph = new SceneGraph(this);
     }

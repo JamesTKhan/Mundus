@@ -17,8 +17,11 @@ package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
@@ -29,23 +32,30 @@ import com.mbrlabs.mundus.commons.utils.ModelUtils;
 import net.mgsx.gltf.loaders.glb.GLBLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFLoader;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
+import org.w3c.dom.Attr;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute.*;
 
 /**
  * @author Marcus Brummer
  * @version 01-10-2016
  */
 public class ModelAsset extends Asset {
+    protected static long TextureAttributeMask = Diffuse | Specular | Bump | Normal | Ambient | Emissive | Reflection | MetallicRoughnessTexture
+            | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture;
 
     private Model model;
 
-    private Map<String, MaterialAsset> defaultMaterials;
+    private final Map<String, MaterialAsset> defaultMaterials;
+    private final Array<Material> initialModelMaterials; // The initial materials for the model, before mundus modifies them
 
     public ModelAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
         defaultMaterials = new HashMap<>();
+        initialModelMaterials = new Array<>();
     }
 
     public Model getModel() {
@@ -71,6 +81,8 @@ public class ModelAsset extends Asset {
         } else {
             throw new GdxRuntimeException("Unsupported 3D model");
         }
+
+        copyMaterials();
         updateBoneCount();
      }
 
@@ -84,6 +96,8 @@ public class ModelAsset extends Asset {
         } else {
             throw new GdxRuntimeException("Unsupported 3D model");
         }
+
+        copyMaterials();
         updateBoneCount();
     }
 
@@ -129,7 +143,36 @@ public class ModelAsset extends Asset {
                 return true;
             }
         }
+
+        // This looks painful but all we are doing is checking if the texture asset being deleted is used
+        // by the original model file. Why? because even if it's not in use by the active mundus material(s)
+        // we still need it to load the model file properly since it's a dependency. This may also be used as
+        // a way to "rollback" the mundus material to the models defaults
+        if (assetToCheck instanceof TextureAsset) {
+            for (Material material : initialModelMaterials) {
+                Array<Attribute> attrs = material.get(new Array<Attribute>(), TextureAttributeMask);
+                for (Attribute attr : attrs) {
+                    if (attr instanceof TextureAttribute) {
+                        TextureAttribute textureAttribute = (TextureAttribute) attr;
+                        if (textureAttribute.textureDescription.texture == ((TextureAsset) assetToCheck).getTexture()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
         return false;
+    }
+
+    /**
+     * Copy materials of the model before mundus has modified them
+     */
+    private void copyMaterials() {
+        // Store a copy of the original unmodified model materials
+        for (Material material : model.materials) {
+            initialModelMaterials.add(new Material(material));
+        }
     }
 
     private void updateBoneCount() {
