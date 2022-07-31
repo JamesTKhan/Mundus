@@ -23,6 +23,22 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         setupUI()
     }
 
+    override fun act(delta: Float) {
+        super.act(delta)
+
+        if (projectManager.current().renderWireframe != wireFrameMode.isChecked) {
+            wireFrameMode.setProgrammaticChangeEvents(false)
+            wireFrameMode.toggle()
+            wireFrameMode.setProgrammaticChangeEvents(true)
+        }
+
+        if (projectManager.current().renderDebug != showBoundingBoxes.isChecked) {
+            showBoundingBoxes.setProgrammaticChangeEvents(false)
+            showBoundingBoxes.toggle()
+            showBoundingBoxes.setProgrammaticChangeEvents(true)
+        }
+    }
+
     private fun setupUI() {
         val table = VisTable()
         table.add(ToolTipLabel("Show Bounding Boxes", "Renders boxes around model objects. Useful for debugging frustum culling as" +
