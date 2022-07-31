@@ -50,6 +50,7 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportModelDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportTextureDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.settings.SettingsDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.tools.DebugRenderDialog
 import com.mbrlabs.mundus.editor.ui.modules.dock.DockBar
 import com.mbrlabs.mundus.editor.ui.modules.inspector.Inspector
 import com.mbrlabs.mundus.editor.ui.modules.menu.MundusMenuBar
@@ -106,6 +107,7 @@ object UI : Stage(ScreenViewport()) {
     var addComponentDialog: AddComponentDialog = AddComponentDialog()
     val versionDialog: VersionDialog = VersionDialog()
     val keyboardShortcuts: KeyboardShortcutsDialog = KeyboardShortcutsDialog()
+    val debugRenderDialog: DebugRenderDialog = DebugRenderDialog()
     val exitDialog: ExitDialog = ExitDialog()
 
     // styles

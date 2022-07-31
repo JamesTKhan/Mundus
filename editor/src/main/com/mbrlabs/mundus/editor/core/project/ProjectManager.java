@@ -154,6 +154,7 @@ public class ProjectManager implements Disposable {
         ProjectContext newProjectContext = new ProjectContext(-1);
         newProjectContext.path = path;
         newProjectContext.name = ref.getName();
+        newProjectContext.activeSceneName = DEFAULT_SCENE_NAME;
         newProjectContext.assetManager = new EditorAssetManager(
                 new FileHandle(path + "/" + ProjectManager.PROJECT_ASSETS_DIR));
 

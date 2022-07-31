@@ -24,7 +24,7 @@ import com.kotcrab.vis.ui.widget.MenuItem
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.UI
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.AssetCleanUpDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.tools.AssetCleanUpDialog
 
 /**
  * @author JamesTKhan
@@ -33,11 +33,13 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.AssetCleanUpDialog
 class ToolsMenu : Menu("Tools") {
 
     private val findUnusedAssets = MenuItem("Asset Clean Up")
+    private val debugRendering = MenuItem("Debug Render Options")
 
     val projectManager: ProjectManager = Mundus.inject()
 
     init {
         addItem(findUnusedAssets)
+        addItem(debugRendering)
 
         findUnusedAssets.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -49,6 +51,12 @@ class ToolsMenu : Menu("Tools") {
                         dialog.setAssetsToDelete(unusedAssets)
                     }
                 }.start()
+            }
+        })
+
+        debugRendering.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                UI.showDialog(UI.debugRenderDialog)
             }
         })
     }
