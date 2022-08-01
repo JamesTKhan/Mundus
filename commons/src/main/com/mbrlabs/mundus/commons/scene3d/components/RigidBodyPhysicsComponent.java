@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
-import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
@@ -24,6 +23,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
+import com.badlogic.gdx.physics.bullet.collision.btBvhTriangleMeshShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
@@ -113,11 +113,12 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
         // Build the collision shape
         if (physicsBodyType == PhysicsBody.STATIC && modelComponent != null) {
             //TODO Many small btBvhTriangleMeshShape pollute the broadphase. Better combine them.
-            collisionShape = Bullet.obtainStaticNodeShape(modelComponent.modelInstance.nodes);
-            collisionShape.setLocalScaling(gameObject.getLocalScale(scale));
+            //collisionShape = Bullet.obtainStaticNodeShape(modelComponent.modelInstance.nodes);
+            collisionShape = new btBvhTriangleMeshShape(model.meshParts);
+            collisionShape.setLocalScaling(gameObject.getScale(scale));
         } else {
             shapeBuilderResult = new ShapeBuilder(physicsShape)
-                    .scale(gameObject.getLocalScale(scale))
+                    .scale(gameObject.getScale(scale))
                     .boundingBox(boundingBox)
                     .model(model)
                     .terrainAsset(terrainComponent != null && physicsShape == PhysicsShape.TERRAIN ? terrainComponent.getTerrain() : null)
@@ -150,7 +151,7 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
             goTrans.getTranslation(translation);
             goTrans.getRotation(rotation);
 
-            bodyTransform.set(goTrans.getTranslation(translation), goTrans.getRotation(rotation));
+            bodyTransform.set(goTrans.getTranslation(translation), goTrans.getRotation(rotation, true));
 
             result.rigidBody.setWorldTransform(bodyTransform);
         } else if (physicsShape == PhysicsShape.TERRAIN && terrainComponent != null) {

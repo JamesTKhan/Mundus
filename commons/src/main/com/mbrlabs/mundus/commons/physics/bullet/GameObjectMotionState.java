@@ -27,8 +27,8 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
  */
 public class GameObjectMotionState extends btMotionState {
     private static final Vector3 tmp = new Vector3();
-    private static final Vector3 tmp2 = new Vector3();
     private static final Quaternion tmpQuat = new Quaternion();
+    private static final Matrix4 tmpMat = new Matrix4();
 
     GameObject gameObject;
 
@@ -44,8 +44,10 @@ public class GameObjectMotionState extends btMotionState {
     @Override
     public void setWorldTransform (Matrix4 worldTrans) {
         // GameObjects rely on vectors, so we update their vectors and not a matrix.
-        worldTrans.getTranslation(tmp);
-        worldTrans.getRotation(tmpQuat);
+        Matrix4 worldToLocal = tmpMat.set(worldTrans).mulLeft(gameObject.getParent().getTransform().inv());
+        worldToLocal.getTranslation(tmp);
+        worldToLocal.getRotation(tmpQuat, true);
+
         gameObject.setLocalPosition(tmp.x, tmp.y, tmp.z);
         gameObject.setLocalRotation(tmpQuat.x, tmpQuat.y, tmpQuat.z, tmpQuat.w);
     }

@@ -85,7 +85,7 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
 
     @Override
     public Quaternion getRotation(Quaternion out) {
-        return getTransform().getRotation(out);
+        return getTransform().getRotation(out, true);
     }
 
     @Override
