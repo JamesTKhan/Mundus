@@ -28,6 +28,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
 import com.kotcrab.vis.ui.widget.*
@@ -267,7 +268,7 @@ class Outline : VisTable(),
                 if (node != null) {
                     go = node.value
                 }
-                rightClickMenu.show(go, Gdx.input.x.toFloat(), (Gdx.graphics.height - Gdx.input.y).toFloat())
+                rightClickMenu.show(node, go, Gdx.input.x.toFloat(), (Gdx.graphics.height - Gdx.input.y).toFloat())
             }
 
         })
@@ -435,16 +436,122 @@ class Outline : VisTable(),
      */
     private inner class RightClickMenu : PopupMenu() {
 
+        /**
+         * A submenu to allow moving nodes up and down within the outline tree
+         */
+        private inner class MoveSubMenu : PopupMenu() {
+            private val moveUp: MenuItem = MenuItem("Move Up")
+            private val moveDown: MenuItem = MenuItem("Move Down")
+            private val moveToTop: MenuItem = MenuItem("Move To Top")
+            private val moveToBottom: MenuItem = MenuItem("Move To Bottom")
+            init {
+                addItem(moveUp)
+                addItem(moveDown)
+                addItem(moveToTop)
+                addItem(moveToBottom)
+
+                moveUp.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                        val parentChildArray = getParentChildArray()
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+                        // If the current Node is NOT the first one...
+                        if (currentNodeIndex > 0) {
+                            parentChildArray.swap(currentNodeIndex, currentNodeIndex-1)
+                            updateChildren()
+                        }
+                    }
+                })
+
+                moveDown.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                        val parentChildArray = getParentChildArray()
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+                        // If the current Node is NOT the last one...
+                        if (currentNodeIndex < parentChildArray.size - 1) {
+                            parentChildArray.swap(currentNodeIndex, currentNodeIndex+1)
+                            updateChildren()
+                        }
+                    }
+                })
+
+                moveToTop.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                        val parentChildArray = getParentChildArray()
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+
+                        // If already at top, return
+                        if (currentNodeIndex == 0) return
+
+                        parentChildArray.removeValue(currentNode, true)
+                        parentChildArray.insert(0, currentNode)
+                        updateChildren()
+                    }
+                })
+
+                moveToBottom.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                        val parentChildArray = getParentChildArray()
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+
+                        // If already at bottom, return
+                        if (currentNodeIndex == parentChildArray.size - 1) return
+
+                        parentChildArray.removeValue(currentNode, true)
+                        parentChildArray.insert(parentChildArray.size, currentNode)
+                        updateChildren()
+                    }
+                })
+            }
+
+            fun show() {
+                moveMenuItem.isDisabled = currentNode == null
+                if (currentNode == null) return
+
+                val parentChildArray: Array<OutlineNode> = getParentChildArray()
+
+                // Disable move menu items depending on nodes current index
+                val nodeIndex = parentChildArray.indexOf(currentNode, true)
+                moveUp.isDisabled = nodeIndex == 0
+                moveToTop.isDisabled = nodeIndex == 0
+                moveDown.isDisabled = nodeIndex == parentChildArray.size - 1
+                moveToBottom.isDisabled = nodeIndex == parentChildArray.size - 1
+            }
+
+            /**
+             * Get the parents child array of current node, for root nodes .parent is null
+             */
+            fun getParentChildArray(): Array<OutlineNode> {
+                return if (currentNode!!.parent == null) {
+                    tree.rootNodes
+                } else {
+                    currentNode!!.parent.children
+                }
+            }
+
+            private fun updateChildren() {
+                if (currentNode!!.parent == null) {
+                    tree.updateRootNodes()
+                } else {
+                    currentNode!!.parent.updateChildren()
+                }
+            }
+        }
+
         private val addEmpty: MenuItem = MenuItem("Add Empty")
         private val addTerrain: MenuItem = MenuItem("Add terrain")
         private val addWater: MenuItem = MenuItem("Add water")
         private val duplicate: MenuItem = MenuItem("Duplicate")
         private val rename: MenuItem = MenuItem("Rename")
         private val delete: MenuItem = MenuItem("Delete")
+        private val moveMenuItem: MenuItem = MenuItem("Move")
+        private val moveMenu: MoveSubMenu = MoveSubMenu()
 
         private var selectedGO: GameObject? = null
+        private var currentNode: OutlineNode? = null
 
         init {
+            moveMenuItem.subMenu = moveMenu
+            moveMenu.show()
             // add empty
             addEmpty.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -570,6 +677,8 @@ class Outline : VisTable(),
                 }
             })
 
+
+            addItem(moveMenuItem)
             addItem(addEmpty)
             addItem(addTerrain)
             addItem(addWater)
@@ -586,9 +695,11 @@ class Outline : VisTable(),
          * @param x
          * @param y
          */
-        fun show(go: GameObject?, x: Float, y: Float) {
+        fun show(node: OutlineNode?, go: GameObject?, x: Float, y: Float) {
             selectedGO = go
+            currentNode = node
             showMenu(UI, x, y)
+            moveMenu.show()
 
             // check if game object is selected
             if (selectedGO != null) {
