@@ -117,6 +117,9 @@ public class BulletPhysicsSystem implements PhysicsSystem {
                 physicsComponent.initializeBody();
                 dynamicsWorld.addRigidBody((btRigidBody) physicsComponent.getCollisionObject());
             }
+
+            if (gameObject.getChildren() == null) continue;
+            initializePhysicsComponents(gameObject.getChildren());
         }
 
         bodiesInitialized = true;
