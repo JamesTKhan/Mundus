@@ -25,10 +25,12 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowConfiguration
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
-import com.badlogic.gdx.utils.GdxRuntimeException
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
+import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -44,6 +46,7 @@ import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.gizmos.GizmoManager
+import com.mbrlabs.mundus.editor.utils.Colors
 import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
@@ -51,6 +54,7 @@ import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
+import org.lwjgl.opengl.GL11
 
 /**
  * @author Marcus Brummer
@@ -66,6 +70,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private var previewOpen = false
 
     private lateinit var camController: FreeCamController
+    private lateinit var guiCamera: OrthographicCamera
     private lateinit var shortcutController: ShortcutController
     private lateinit var inputManager: InputManager
     private lateinit var projectManager: ProjectManager
@@ -73,6 +78,8 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var toolManager: ToolManager
     private lateinit var gizmoManager: GizmoManager
     private lateinit var glProfiler: MundusGLProfiler
+    private lateinit var shapeRenderer: ShapeRenderer
+    private lateinit var debugRenderer: DebugRenderer
     private lateinit var previewWindow: Lwjgl3Window
 
     override fun create() {
@@ -85,28 +92,30 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         toolManager = Mundus.inject()
         gizmoManager = Mundus.inject()
         glProfiler = Mundus.inject()
+        shapeRenderer = Mundus.inject()
         setupInput()
+
+        debugRenderer = DebugRenderer(shapeRenderer)
 
         // TODO dispose this
         val axesModel = UsefulMeshs.createAxes()
         axesInstance = ModelInstance(axesModel)
 
         // open last edited project or create default project
-        var context: ProjectContext? = projectManager.loadLastProject()
+        var context: ProjectContext? = projectManager.loadLastProjectAsync()
         if (context == null) {
             context = createDefaultProject()
+            projectManager.startAsyncProjectLoad(context!!.path, context)
         }
 
-        if(context == null) {
-            throw GdxRuntimeException("Couldn't open a project")
-        }
+        guiCamera = OrthographicCamera()
+        guiCamera.setToOrtho(
+            false,
+            UI.viewport.screenWidth.toFloat(),
+            UI.viewport.screenHeight.toFloat()
+        )
 
-        compass = Compass(context.currScene.cam)
-
-        // change project; this will fire a ProjectChangedEvent
-        projectManager.changeProject(context)
-
-        UI.processVersionDialog()
+        UI.toggleLoadingScreen(true, context.name)
     }
 
     private fun setupInput() {
@@ -139,12 +148,22 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
         UI.sceneWidget.setCam(context.currScene.cam)
         UI.sceneWidget.setRenderer {
+            val renderWireframe = projectManager.current().renderWireframe
+            val renderDebug = projectManager.current().renderDebug
 
             if (!previewOpen) {
                 glProfiler.resume()
                 sg.update()
+                if (renderWireframe) GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE)
                 scene.render()
+                if (renderWireframe) GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL)
                 glProfiler.pause()
+
+                if (renderDebug) {
+                    debugRenderer.begin(scene.cam)
+                    debugRenderer.render(sg.gameObjects)
+                    debugRenderer.end()
+                }
 
                 toolManager.render()
                 gizmoManager.render()
@@ -160,6 +179,12 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     override fun render() {
+        GlUtils.clearScreen(Color.BLACK)
+        if (projectManager.isLoading) {
+            processLoading()
+            return
+        }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.F9)) {
             openPreviewWindow()
         }
@@ -204,6 +229,31 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         app.newWindow(listener, config)
     }
 
+    private fun processLoading() {
+        projectManager.continueLoading()
+
+        // Render a basic loading bar
+        val progress = projectManager.loadingProject().assetManager.progress
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+        shapeRenderer.projectionMatrix = guiCamera.combined
+        shapeRenderer.color = Colors.GRAY_888
+        shapeRenderer.rect(0f, guiCamera.viewportHeight * .1f, Gdx.graphics.width.toFloat(), guiCamera.viewportHeight * .02f)
+        shapeRenderer.color = Colors.TEAL
+        shapeRenderer.rect(0f, guiCamera.viewportHeight * .1f, progress * Gdx.graphics.width, guiCamera.viewportHeight * .02f)
+        shapeRenderer.end()
+
+        if (projectManager.isLoaded) {
+            compass = Compass(projectManager.loadingProject().currScene.cam)
+            // change project; this will fire a ProjectChangedEvent
+            projectManager.changeProject(projectManager.loadingProject())
+            UI.toggleLoadingScreen(false)
+            UI.processVersionDialog()
+        }
+
+        UI.act()
+        UI.draw()
+    }
+
     override fun onProjectChanged(event: ProjectChangedEvent) {
         setupSceneWidget()
     }
@@ -215,7 +265,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     override fun onFullScreenEvent(event: FullScreenEvent) {
         if (event.isFullScreen) return
         // looks redundant but the purpose is to reset the FBO's to clear a render glitch on full screen exit
-        projectManager.current().currScene.setWaterResolution(projectManager.current().currScene.waterResolution)
+        projectManager.current().currScene.setWaterResolution(projectManager.current().currScene.settings.waterResolution)
     }
 
     private fun createDefaultProject(): ProjectContext? {
@@ -247,6 +297,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     override fun dispose() {
+        debugRenderer.dispose()
         Mundus.dispose()
     }
 

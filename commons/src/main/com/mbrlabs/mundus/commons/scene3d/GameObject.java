@@ -38,6 +38,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
     public String name;
     public boolean active;
+    public boolean scaleChanged = true; // true by default to force initial calculations
     public boolean hasWaterComponent = false;
     private Array<String> tags;
     private Array<Component> components;
@@ -171,6 +172,9 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
                 }
             }
         }
+
+        // Reset after each update, after components have updated that might need to know about it
+        scaleChanged = false;
     }
 
     /**
@@ -317,6 +321,25 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         if (component != null) {
             sceneGraph.scene.environment.remove(component.getLight());
         }
+    }
+
+    @Override
+    public void setLocalScale(float x, float y, float z) {
+        super.setLocalScale(x, y, z);
+        // We track when the scale has changed, for recalculating bounds for things like frustum culling
+        scaleChanged = true;
+    }
+
+    @Override
+    public void scale(Vector3 v) {
+        super.scale(v);
+        scaleChanged = true;
+    }
+
+    @Override
+    public void scale(float x, float y, float z) {
+        super.scale(x,y,z);
+        scaleChanged = true;
     }
 
     @Override

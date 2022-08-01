@@ -66,7 +66,7 @@ class NewProjectDialog : BaseDialog("Create New Project") {
                     }
                     val projectContext = projectManager.createProject(name, path)
                     close()
-                    UI.loadingProjectDialog.loadProjectAsync(projectContext)
+                    projectManager.changeProject(projectContext)
                 }
 
             }

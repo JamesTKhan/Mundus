@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -49,6 +50,12 @@ public class PixmapTextureAsset extends Asset {
     @Override
     public void load() {
         pixmap = new Pixmap(file);
+        texture = new Texture(pixmap);
+    }
+
+    @Override
+    public void load(AssetManager assetManager) {
+        pixmap = assetManager.get(meta.getFile().pathWithoutExtension());
         texture = new Texture(pixmap);
     }
 

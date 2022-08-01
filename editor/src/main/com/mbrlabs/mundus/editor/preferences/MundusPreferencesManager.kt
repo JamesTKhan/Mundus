@@ -4,19 +4,27 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Preferences
 
 /**
- * Manages global preferences for Mundus regardless of current project
+ * Manages preferences using the given key value
  *
  * @author JamesTKhan
  * @version July 14, 2022
  */
-class GlobalPreferencesManager : PreferencesManager {
+class MundusPreferencesManager(preferencesKey: String) : PreferencesManager {
     companion object {
-        private val TAG = GlobalPreferencesManager::class.java.simpleName
+        private val TAG = MundusPreferencesManager::class.java.simpleName
 
-        var MUNDUS_VERSION = "version"
+        // Keys for global prefs
+        var GLOB_MUNDUS_VERSION = "version"
+
+        // Keys for project specific prefs
+        var PROJ_LAST_DIR = "lastDirectoryOpened"
     }
 
-    private var globalPrefs: Preferences = Gdx.app.getPreferences("mundus.global")
+    private var preferences: Preferences
+
+    init {
+        preferences = Gdx.app.getPreferences("mundus.$preferencesKey")
+    }
 
     /**
      * Set a value in preferences
@@ -24,82 +32,82 @@ class GlobalPreferencesManager : PreferencesManager {
      */
     override fun set(key: String, value: Any) {
         when(value) {
-            is Boolean -> globalPrefs.putBoolean(key, value)
-            is String -> globalPrefs.putString(key, value)
-            is Int -> globalPrefs.putInteger(key, value)
-            is Long -> globalPrefs.putLong(key, value)
-            is Float -> globalPrefs.putFloat(key, value)
+            is Boolean -> preferences.putBoolean(key, value)
+            is String -> preferences.putString(key, value)
+            is Int -> preferences.putInteger(key, value)
+            is Long -> preferences.putLong(key, value)
+            is Float -> preferences.putFloat(key, value)
             else -> {
                 Gdx.app.error(TAG, "Invalid object type given for preferences.")
                 return
             }
         }
 
-        globalPrefs.flush()
+        preferences.flush()
     }
 
     fun set(value: MutableMap<String, *>) {
-        globalPrefs.put(value)
+        preferences.put(value)
     }
 
     override fun get(key: String, type: Class<*>): Any? {
         if (type == Boolean::class.java) {
-            return globalPrefs.getBoolean(key, false)
+            return preferences.getBoolean(key, false)
         }
         return null
     }
 
     override fun getBoolean(key: String): Boolean {
-        return globalPrefs.getBoolean(key)
+        return preferences.getBoolean(key)
     }
 
     override fun getBoolean(key: String, defValue: Boolean): Boolean {
-        return globalPrefs.getBoolean(key, defValue)
+        return preferences.getBoolean(key, defValue)
     }
 
     override fun getInteger(key: String): Int {
-        return globalPrefs.getInteger(key)
+        return preferences.getInteger(key)
     }
 
     override fun getInteger(key: String, defValue: Int): Int {
-        return globalPrefs.getInteger(key, defValue)
+        return preferences.getInteger(key, defValue)
     }
 
     override fun getLong(key: String): Long {
-        return globalPrefs.getLong(key)
+        return preferences.getLong(key)
     }
 
     override fun getLong(key: String, defValue: Long): Long {
-        return globalPrefs.getLong(key, defValue)
+        return preferences.getLong(key, defValue)
     }
 
     override fun getFloat(key: String): Float {
-        return globalPrefs.getFloat(key)
+        return preferences.getFloat(key)
     }
 
     override fun getFloat(key: String, defValue: Float): Float {
-        return globalPrefs.getFloat(key, defValue)
+        return preferences.getFloat(key, defValue)
     }
 
     override fun getString(key: String): String {
-        return globalPrefs.getString(key)
+        return preferences.getString(key)
     }
 
     override fun getString(key: String?, defValue: String?): String {
-        globalPrefs.get()
-        return globalPrefs.getString(key, defValue)
+        preferences.get()
+        return preferences.getString(key, defValue)
     }
 
     override fun contains(key: String): Boolean {
-        return globalPrefs.contains(key)
+        return preferences.contains(key)
     }
 
     override fun remove(key: String) {
-        globalPrefs.remove(key)
+        preferences.remove(key)
     }
 
     override fun clear() {
-        globalPrefs.clear()
+        preferences.clear()
     }
 
 }

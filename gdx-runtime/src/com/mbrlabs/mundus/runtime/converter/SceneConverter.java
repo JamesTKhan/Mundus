@@ -62,11 +62,12 @@ public class SceneConverter {
         }
 
         // Water stuff
-        scene.waterResolution = dto.getWaterResolution();
-        if (scene.waterResolution == null)
-            scene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
+        scene.settings.waterResolution = dto.getWaterResolution();
+        if (scene.settings.waterResolution == null)
+            scene.settings.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
 
-        scene.waterHeight = dto.getWaterHeight();
+        scene.settings.waterHeight = dto.getWaterHeight();
+        scene.settings.useFrustumCulling = dto.isUseFrustumCulling();
 
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);

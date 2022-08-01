@@ -3,14 +3,26 @@
 - [BREAKING CHANGE] Models from older versions may be invisible as first and will need their opacity updated on materials.
 - [BREAKING CHANGE] Fog now has new parameters and more closely aligns with libGDX and PBR shaders. You may need to adjust fog.
 - Lighting overhaul for Directional and Ambient lighting.
+- Added asynchronous loading of projects with loading screen
 - Added new Light Component and accompanying Light Shader which prefixes shaders with additional shader lighting code.
 - Added new Add Component Dialog which only supports Light Components for now.
 - Added new Gizmo feature for displaying decal Icons over objects like Light sources.
 - Added normal mapping for terrains and models
+- Added Frustum Culling which can be toggled in Window -> Settings -> Performance
+- Added multi-texture importing with drag and drop
 - Added new profiling bar with GL profiler statistics
 - Added experimental basic directional light shadows
+- Added tracking per project for Last Open Directory on File Choosers
+- Added terrain smoothing brush
+- Added configurable camera settings Window -> Settings -> Camera
+- Added Keyboard Shortcuts dialog
+- Added Basic debug and wireframe render modes
+- Added Utility to clean up unused assets under new Tools menu item
 - Update water shader to fade out water foam over distance, to minimize ugly 1 pixel white lines from a distance.
 - Fix broken checkbox to set game objects to active or inactive
+- Fix File Choosers stored favorites under the wrong key name
+- Fix bug with not being able to paint on terrains != 0 height.
+- Fix toast messages not displaying
 
 [0.3.1] ~ 07/06/2022
 - Added functionality to the editor to generate the assets.txt file, PR #45

@@ -31,11 +31,13 @@ class TerrainPaintCommand(private var terrain: Terrain?) : DisposableCommand {
 
     fun setAfter(data: Pixmap) {
         after = Pixmap(data.width, data.height, data.format)
+        after!!.blending = Pixmap.Blending.None
         after!!.drawPixmap(data, 0, 0)
     }
 
     fun setBefore(data: Pixmap) {
         before = Pixmap(data.width, data.height, data.format)
+        before!!.blending = Pixmap.Blending.None
         before!!.drawPixmap(data, 0, 0)
     }
 

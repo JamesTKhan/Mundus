@@ -16,44 +16,47 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.menu
 
-import com.badlogic.gdx.Input
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.widget.Menu
 import com.kotcrab.vis.ui.widget.MenuItem
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.tools.AssetCleanUpDialog
 
 /**
- * @author Marcus Brummer
- * @version 22-11-2015
+ * @author JamesTKhan
+ * @version July 28, 2022
  */
-class WindowMenu : Menu("Window") {
+class ToolsMenu : Menu("Tools") {
 
-    val settings = MenuItem("Settings")
-    private val versionInfo = MenuItem("Version Info")
-    private val keyboardShortcuts = MenuItem("Keyboard Shortcuts")
+    private val findUnusedAssets = MenuItem("Asset Clean Up")
+    private val debugRendering = MenuItem("Debug Render Options")
+
+    val projectManager: ProjectManager = Mundus.inject()
 
     init {
-        settings.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.ALT_LEFT, Input.Keys.S)
-        addItem(settings)
-        addItem(keyboardShortcuts)
-        addItem(versionInfo)
+        addItem(findUnusedAssets)
+        addItem(debugRendering)
 
-        settings.addListener(object : ClickListener() {
+        findUnusedAssets.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                UI.showDialog(UI.settingsDialog)
+                val dialog = AssetCleanUpDialog()
+                UI.showDialog(dialog)
+                Thread {
+                    val unusedAssets = projectManager.current().assetManager.findUnusedAssets(projectManager)
+                    Gdx.app.postRunnable {
+                        dialog.setAssetsToDelete(unusedAssets)
+                    }
+                }.start()
             }
         })
 
-        versionInfo.addListener(object : ClickListener() {
+        debugRendering.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                UI.showDialog(UI.versionDialog)
-            }
-        })
-
-        keyboardShortcuts.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                UI.showDialog(UI.keyboardShortcuts)
+                UI.showDialog(UI.debugRenderDialog)
             }
         })
     }
