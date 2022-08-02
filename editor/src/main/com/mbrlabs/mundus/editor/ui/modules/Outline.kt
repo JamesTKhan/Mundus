@@ -17,6 +17,7 @@ package com.mbrlabs.mundus.editor.ui.modules
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -27,6 +28,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
 import com.kotcrab.vis.ui.widget.*
@@ -46,6 +48,7 @@ import com.mbrlabs.mundus.editor.scene3d.components.PickableLightComponent
 import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.utils.Colors
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.createTerrainGO
 import com.mbrlabs.mundus.editor.utils.createWaterGO
@@ -148,6 +151,7 @@ class Outline : VisTable(),
                 val context = projectManager.current()
                 val newParent = tree.getNodeAt(y)
 
+                @Suppress("UNCHECKED_CAST")
                 val node: Tree.Node<OutlineNode, GameObject, VisTable> = (payload.`object` as? Tree.Node<OutlineNode, GameObject, VisTable>) ?: return
                 val draggedGo: GameObject = node.value
 
@@ -166,44 +170,41 @@ class Outline : VisTable(),
 
                 // add to new parent
                 if (newParent == null) {
-                    // recalculate position for root layer
-                    val newPos: Vector3
-                    val draggedPos = Vector3()
-                    draggedGo.getPosition(draggedPos)
+
                     // if moved from old parent
                     if (oldParent != null) {
-                        // new position = oldParentPos + draggedPos
-                        val parentPos = Vector3()
-                        oldParent.getPosition(parentPos)
-                        newPos = parentPos.add(draggedPos)
+                        // Convert draggedGo from old parents local space to world space
+                        val world = draggedGo.transform.mulLeft(oldParent.transform)
+                        world.getTranslation(tmpPos)
+                        world.getRotation(tmpQuat, true)
+                        world.getScale(tmpScale)
+
+                        // add
+                        context.currScene.sceneGraph.root.addChild(draggedGo)
+                        draggedGo.setLocalPosition(tmpPos.x, tmpPos.y, tmpPos.z)
+                        draggedGo.setLocalRotation(tmpQuat.x, tmpQuat.y, tmpQuat.z, tmpQuat.w)
+                        draggedGo.setLocalScale(tmpScale.x, tmpScale.y, tmpScale.z)
                     } else {
+                        // Is this scenario even possible right now? Null new and old parent.
+                        val newPos = draggedGo.getPosition(tmpPos)
                         // new local position = World position
-                        newPos = draggedPos
+                        draggedGo.setLocalPosition(newPos.x, newPos.y, newPos.z)
                     }
-                    context.currScene.sceneGraph.addGameObject(draggedGo)
-                    draggedGo.setLocalPosition(newPos.x, newPos.y, newPos.z)
+
                 } else {
                     val parentGo = newParent.value
-                    // recalculate position
-                    val parentPos = Vector3()
-                    var draggedPos = Vector3()
-                    // World coorinates
-                    draggedGo.getPosition(draggedPos)
-                    parentGo.getPosition(parentPos)
 
-                    // if gameObject came from old parent
-                    if (oldParent != null) {
-                        // calculate oldParentPos + draggedPos
-                        val oldParentPos = Vector3()
-                        oldParent.getPosition(oldParentPos)
-                        draggedPos = oldParentPos.add(draggedPos)
-                    }
+                    // Convert draggedGo to new parents local space
+                    val local = draggedGo.transform.mulLeft(parentGo.transform.inv())
+                    local.getTranslation(tmpPos)
+                    local.getRotation(tmpQuat, true)
+                    local.getScale(tmpScale)
 
-                    // Local in releation to new parent
-                    val newPos = draggedPos.sub(parentPos)
                     // add
                     parentGo.addChild(draggedGo)
-                    draggedGo.setLocalPosition(newPos.x, newPos.y, newPos.z)
+                    draggedGo.setLocalPosition(tmpPos.x, tmpPos.y, tmpPos.z)
+                    draggedGo.setLocalRotation(tmpQuat.x, tmpQuat.y,tmpQuat.z, tmpQuat.w)
+                    draggedGo.setLocalScale(tmpScale.x, tmpScale.y, tmpScale.z)
                 }
 
                 // update tree
@@ -267,7 +268,7 @@ class Outline : VisTable(),
                 if (node != null) {
                     go = node.value
                 }
-                rightClickMenu.show(go, Gdx.input.x.toFloat(), (Gdx.graphics.height - Gdx.input.y).toFloat())
+                rightClickMenu.show(node, go, Gdx.input.x.toFloat(), (Gdx.graphics.height - Gdx.input.y).toFloat())
             }
 
         })
@@ -310,6 +311,14 @@ class Outline : VisTable(),
         }
 
         sceneGraph.isContainsWater = containsWater
+
+        // After tree is rebuilt, we must set the selected GO again if there is one
+        if (projectManager.current().currScene.currentSelection != null) {
+            val node = tree.findNode(projectManager.current().currScene.currentSelection)
+            tree.selection.clear()
+            if (node != null)
+                tree.selection.add(node)
+        }
     }
 
     /**
@@ -411,6 +420,7 @@ class Outline : VisTable(),
         init {
             add(nameLabel).expand().fill()
             nameLabel.setText(go.name)
+            if (!go.active) nameLabel.color = Colors.GRAY_888
         }
     }
 
@@ -426,16 +436,122 @@ class Outline : VisTable(),
      */
     private inner class RightClickMenu : PopupMenu() {
 
+        /**
+         * A submenu to allow moving nodes up and down within the outline tree
+         */
+        private inner class MoveSubMenu : PopupMenu() {
+            private val moveUp: MenuItem = MenuItem("Move Up")
+            private val moveDown: MenuItem = MenuItem("Move Down")
+            private val moveToTop: MenuItem = MenuItem("Move To Top")
+            private val moveToBottom: MenuItem = MenuItem("Move To Bottom")
+            init {
+                addItem(moveUp)
+                addItem(moveDown)
+                addItem(moveToTop)
+                addItem(moveToBottom)
+
+                moveUp.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                        val parentChildArray = getParentChildArray()
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+                        // If the current Node is NOT the first one...
+                        if (currentNodeIndex > 0) {
+                            parentChildArray.swap(currentNodeIndex, currentNodeIndex-1)
+                            updateChildren()
+                        }
+                    }
+                })
+
+                moveDown.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                        val parentChildArray = getParentChildArray()
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+                        // If the current Node is NOT the last one...
+                        if (currentNodeIndex < parentChildArray.size - 1) {
+                            parentChildArray.swap(currentNodeIndex, currentNodeIndex+1)
+                            updateChildren()
+                        }
+                    }
+                })
+
+                moveToTop.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                        val parentChildArray = getParentChildArray()
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+
+                        // If already at top, return
+                        if (currentNodeIndex == 0) return
+
+                        parentChildArray.removeValue(currentNode, true)
+                        parentChildArray.insert(0, currentNode)
+                        updateChildren()
+                    }
+                })
+
+                moveToBottom.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                        val parentChildArray = getParentChildArray()
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+
+                        // If already at bottom, return
+                        if (currentNodeIndex == parentChildArray.size - 1) return
+
+                        parentChildArray.removeValue(currentNode, true)
+                        parentChildArray.insert(parentChildArray.size, currentNode)
+                        updateChildren()
+                    }
+                })
+            }
+
+            fun show() {
+                moveMenuItem.isDisabled = currentNode == null
+                if (currentNode == null) return
+
+                val parentChildArray: Array<OutlineNode> = getParentChildArray()
+
+                // Disable move menu items depending on nodes current index
+                val nodeIndex = parentChildArray.indexOf(currentNode, true)
+                moveUp.isDisabled = nodeIndex == 0
+                moveToTop.isDisabled = nodeIndex == 0
+                moveDown.isDisabled = nodeIndex == parentChildArray.size - 1
+                moveToBottom.isDisabled = nodeIndex == parentChildArray.size - 1
+            }
+
+            /**
+             * Get the parents child array of current node, for root nodes .parent is null
+             */
+            fun getParentChildArray(): Array<OutlineNode> {
+                return if (currentNode!!.parent == null) {
+                    tree.rootNodes
+                } else {
+                    currentNode!!.parent.children
+                }
+            }
+
+            private fun updateChildren() {
+                if (currentNode!!.parent == null) {
+                    tree.updateRootNodes()
+                } else {
+                    currentNode!!.parent.updateChildren()
+                }
+            }
+        }
+
         private val addEmpty: MenuItem = MenuItem("Add Empty")
         private val addTerrain: MenuItem = MenuItem("Add terrain")
         private val addWater: MenuItem = MenuItem("Add water")
         private val duplicate: MenuItem = MenuItem("Duplicate")
         private val rename: MenuItem = MenuItem("Rename")
         private val delete: MenuItem = MenuItem("Delete")
+        private val moveMenuItem: MenuItem = MenuItem("Move")
+        private val moveMenu: MoveSubMenu = MoveSubMenu()
 
         private var selectedGO: GameObject? = null
+        private var currentNode: OutlineNode? = null
 
         init {
+            moveMenuItem.subMenu = moveMenu
+            moveMenu.show()
             // add empty
             addEmpty.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -561,6 +677,8 @@ class Outline : VisTable(),
                 }
             })
 
+
+            addItem(moveMenuItem)
             addItem(addEmpty)
             addItem(addTerrain)
             addItem(addWater)
@@ -577,9 +695,11 @@ class Outline : VisTable(),
          * @param x
          * @param y
          */
-        fun show(go: GameObject?, x: Float, y: Float) {
+        fun show(node: OutlineNode?, go: GameObject?, x: Float, y: Float) {
             selectedGO = go
+            currentNode = node
             showMenu(UI, x, y)
+            moveMenu.show()
 
             // check if game object is selected
             if (selectedGO != null) {
@@ -624,5 +744,9 @@ class Outline : VisTable(),
 
         private val TITLE = "Outline"
         private val TAG = Outline::class.java.simpleName
+
+        val tmpPos = Vector3()
+        val tmpScale = Vector3()
+        val tmpQuat = Quaternion()
     }
 }

@@ -16,19 +16,19 @@
 package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.FloatArray;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
+import com.mbrlabs.mundus.commons.terrain.TerrainLoader;
 import com.mbrlabs.mundus.commons.terrain.TerrainTexture;
 
-import java.io.DataInputStream;
-import java.io.EOFException;
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -46,6 +46,11 @@ public class TerrainAsset extends Asset {
     private TextureAsset splatG;
     private TextureAsset splatB;
     private TextureAsset splatA;
+    private TextureAsset splatBaseNormal;
+    private TextureAsset splatRNormal;
+    private TextureAsset splatBNormal;
+    private TextureAsset splatGNormal;
+    private TextureAsset splatANormal;
 
     private Terrain terrain;
 
@@ -137,34 +142,94 @@ public class TerrainAsset extends Asset {
         }
     }
 
+    public TextureAsset getSplatBaseNormal() {
+        return splatBaseNormal;
+    }
+
+    public void setSplatBaseNormal(TextureAsset splatBaseNormal) {
+        this.splatBaseNormal = splatBaseNormal;
+        if (splatBaseNormal == null) {
+            meta.getTerrain().setSplatBaseNormal(null);
+        } else {
+            meta.getTerrain().setSplatBaseNormal(splatBaseNormal.getID());
+        }
+    }
+
+    public TextureAsset getSplatRNormal() {
+        return splatRNormal;
+    }
+
+    public void setSplatRNormal(TextureAsset splatRNormal) {
+        this.splatRNormal = splatRNormal;
+        if (splatRNormal == null) {
+            meta.getTerrain().setSplatRNormal(null);
+        } else {
+            meta.getTerrain().setSplatRNormal(splatRNormal.getID());
+        }
+    }
+
+    public TextureAsset getSplatBNormal() {
+        return splatBNormal;
+    }
+
+    public void setSplatBNormal(TextureAsset splatBNormal) {
+        this.splatBNormal = splatBNormal;
+        if (splatBNormal == null) {
+            meta.getTerrain().setSplatBNormal(null);
+        } else {
+            meta.getTerrain().setSplatBNormal(splatBNormal.getID());
+        }
+    }
+
+    public TextureAsset getSplatGNormal() {
+        return splatGNormal;
+    }
+
+    public void setSplatGNormal(TextureAsset splatGNormal) {
+        this.splatGNormal = splatGNormal;
+        if (splatGNormal == null) {
+            meta.getTerrain().setSplatGNormal(null);
+        } else {
+            meta.getTerrain().setSplatGNormal(splatGNormal.getID());
+        }
+    }
+
+    public TextureAsset getSplatANormal() {
+        return splatANormal;
+    }
+
+    public void setSplatANormal(TextureAsset splatANormal) {
+        this.splatANormal = splatANormal;
+        if (splatANormal == null) {
+            meta.getTerrain().setSplatANormal(null);
+        } else {
+            meta.getTerrain().setSplatANormal(splatANormal.getID());
+        }
+    }
+
     public Terrain getTerrain() {
         return terrain;
     }
 
     @Override
     public void load() {
-        // load height data from terra file
-        final FloatArray floatArray = new FloatArray();
-
-        DataInputStream is;
-        try {
-            is = new DataInputStream(file.read());
-            while (is.available() > 0) {
-                floatArray.add(is.readFloat());
-            }
-            is.close();
-        } catch (EOFException e) {
-            // e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
+        // Load a terrain synchronously
+        FileHandle terraFile;
+        if (meta.getFile().type() == Files.FileType.Absolute) {
+            terraFile = Gdx.files.absolute(meta.getFile().pathWithoutExtension());
+        } else {
+            terraFile = Gdx.files.internal(meta.getFile().pathWithoutExtension());
         }
-        data = floatArray.toArray();
+        TerrainLoader.TerrainParameter param = new TerrainLoader.TerrainParameter(meta.getTerrain());
+        TerrainLoader terrainLoader = new TerrainLoader(null);
+        terrainLoader.loadAsync(null, null, terraFile, param);
+        terrain = terrainLoader.loadSync(null, null, terraFile, param);
+    }
 
-        terrain = new Terrain(meta.getTerrain().getSize(), data);
-        terrain.init();
-        terrain.updateUvScale(new Vector2(meta.getTerrain().getUv(), meta.getTerrain().getUv()));
-        terrain.update();
+    @Override
+    public void load(AssetManager assetManager) {
+        terrain = assetManager.get(meta.getFile().pathWithoutExtension());
+        data = terrain.heightData;
     }
 
     @Override
@@ -210,6 +275,36 @@ public class TerrainAsset extends Asset {
         if (id != null && assets.containsKey(id)) {
             setSplatA((TextureAsset) assets.get(id));
         }
+
+        // splat normal channel base
+        id = meta.getTerrain().getSplatBaseNormal();
+        if (id != null && assets.containsKey(id)) {
+            setSplatBaseNormal((TextureAsset) assets.get(id));
+        }
+
+        // splat normal channel r
+        id = meta.getTerrain().getSplatRNormal();
+        if (id != null && assets.containsKey(id)) {
+            setSplatRNormal((TextureAsset) assets.get(id));
+        }
+
+        // splat normal channel g
+        id = meta.getTerrain().getSplatGNormal();
+        if (id != null && assets.containsKey(id)) {
+            setSplatGNormal((TextureAsset) assets.get(id));
+        }
+
+        // splat normal channel b
+        id = meta.getTerrain().getSplatBNormal();
+        if (id != null && assets.containsKey(id)) {
+            setSplatBNormal((TextureAsset) assets.get(id));
+        }
+
+        // splat normal channel a
+        id = meta.getTerrain().getSplatANormal();
+        if (id != null && assets.containsKey(id)) {
+            setSplatANormal((TextureAsset) assets.get(id));
+        }
     }
 
     @Override
@@ -247,6 +342,32 @@ public class TerrainAsset extends Asset {
             terrainTexture.setSplatTexture(new SplatTexture(SplatTexture.Channel.A, splatA));
         }
 
+        if (splatBaseNormal == null) {
+            terrainTexture.removeNormalTexture(SplatTexture.Channel.BASE);
+        } else {
+            terrainTexture.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.BASE, splatBaseNormal));
+        }
+        if (splatRNormal == null) {
+            terrainTexture.removeNormalTexture(SplatTexture.Channel.R);
+        } else {
+            terrainTexture.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.R, splatRNormal));
+        }
+        if (splatGNormal == null) {
+            terrainTexture.removeNormalTexture(SplatTexture.Channel.G);
+        } else {
+            terrainTexture.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.G, splatGNormal));
+        }
+        if (splatBNormal == null) {
+            terrainTexture.removeNormalTexture(SplatTexture.Channel.B);
+        } else {
+            terrainTexture.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.B, splatBNormal));
+        }
+        if (splatANormal == null) {
+            terrainTexture.removeNormalTexture(SplatTexture.Channel.A);
+        } else {
+            terrainTexture.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.A, splatANormal));
+        }
+
         terrain.update();
     }
 
@@ -273,6 +394,13 @@ public class TerrainAsset extends Asset {
                     return true;
                 }
             }
+
+            // Check normal maps
+            if (assetToCheck == splatBaseNormal || assetToCheck == splatRNormal ||
+                assetToCheck == splatBNormal || assetToCheck == splatGNormal || assetToCheck == splatANormal) {
+                return true;
+            }
+
         }
 
         return false;

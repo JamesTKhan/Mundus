@@ -24,15 +24,24 @@ import com.badlogic.gdx.graphics.PixmapIO
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ObjectSet
 import com.kotcrab.vis.ui.util.dialog.Dialogs
-import com.mbrlabs.mundus.commons.assets.*
+import com.mbrlabs.mundus.commons.assets.Asset
+import com.mbrlabs.mundus.commons.assets.AssetManager
+import com.mbrlabs.mundus.commons.assets.AssetType
+import com.mbrlabs.mundus.commons.assets.MaterialAsset
+import com.mbrlabs.mundus.commons.assets.ModelAsset
+import com.mbrlabs.mundus.commons.assets.PixmapTextureAsset
+import com.mbrlabs.mundus.commons.assets.SkyboxAsset
+import com.mbrlabs.mundus.commons.assets.TerrainAsset
+import com.mbrlabs.mundus.commons.assets.TexCoordInfo
+import com.mbrlabs.mundus.commons.assets.TextureAsset
+import com.mbrlabs.mundus.commons.assets.WaterAsset
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
-import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.core.EditorScene
+import com.mbrlabs.mundus.editor.Mundus.postEvent
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
@@ -40,7 +49,11 @@ import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
-import java.io.*
+import java.io.BufferedOutputStream
+import java.io.DataOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.*
 
 /**
@@ -105,7 +118,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createNewMetaFile(file: FileHandle, type: AssetType): Meta {
         if (file.exists()) {
-            Mundus.postEvent(LogEvent(LogType.ERROR, "Tried to create new Meta File that already exists: " + file.name()))
+            postEvent(LogEvent(LogType.ERROR, "Tried to create new Meta File that already exists: " + file.name()))
             throw AssetAlreadyExistsException()
         }
 
@@ -124,6 +137,39 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     /**
+     * Override this to check if any standard assets are missing
+     * after project load. If so, it recreates the missing standard assets
+     */
+    override fun finalizeLoad() {
+        super.finalizeLoad()
+
+        // create standard assets if any are missing, to support backwards compatibility when new standard assets are added
+        val reloadedAssets: Array<Asset> = createStandardAssets()
+
+        // If a standard asset was missing we reload assets, now that the standard asset is recreated.
+        if (!reloadedAssets.isEmpty) {
+            postEvent(
+                LogEvent(
+                    LogType.WARN, "A standard asset was missing. Reloading assets: " + reloadedAssets.toString() +
+                            " This only occurs if a standard asset was deleted."
+                )
+            )
+            for (asset in reloadedAssets) {
+                queueAssetForLoading(asset.meta)
+            }
+
+            gdxAssetManager.finishLoading()
+
+            for (asset in reloadedAssets) {
+                asset.load(gdxAssetManager)
+                addAsset(asset)
+                asset.resolveDependencies(assetIndex)
+                asset.applyDependencies()
+            }
+        }
+    }
+
+    /**
      * Creates a couple of standard assets if they are not present.
      *
      * Creates a couple of standard assets in the current project, that should
@@ -131,46 +177,47 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      *
      * Returns true if an asset was loaded.
      */
-    fun createStandardAssets(): Boolean {
+    fun createStandardAssets(): Array<Asset> {
+        val createdAssets = Array<Asset>()
         try {
 
-            var assetLoaded = false
-
             if (findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD) == null) {
-                createStandardAsset(STANDARD_ASSET_TEXTURE_CHESSBOARD, "standardAssets/chessboard.png")
-                assetLoaded = true
+                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_CHESSBOARD, "standardAssets/chessboard.png"))
             }
-
             if (findAssetByID(STANDARD_ASSET_TEXTURE_DUDV) == null) {
-                createStandardAsset(STANDARD_ASSET_TEXTURE_DUDV, "standardAssets/dudv.png")
-                assetLoaded = true
+                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_DUDV, "standardAssets/dudv.png"))
             }
-
             if (findAssetByID(STANDARD_ASSET_TEXTURE_WATER_NORMAL) == null) {
-                createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_NORMAL, "standardAssets/waterNormal.png")
-                assetLoaded = true
+                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_NORMAL, "standardAssets/waterNormal.png"))
             }
-
             if (findAssetByID(STANDARD_ASSET_TEXTURE_WATER_FOAM) == null) {
-                createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_FOAM, "standardAssets/waterFoam.png")
-                assetLoaded = true
+                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_FOAM, "standardAssets/waterFoam.png"))
             }
-
-            return assetLoaded
+            return createdAssets
 
         } catch (e: Exception) {
             e.printStackTrace()
-            return false
+            return createdAssets
         }
 
     }
 
-    private fun createStandardAsset(id: String, path: String) {
+    private fun createStandardAsset(id: String, path: String): TextureAsset {
         val textureAsset = getOrCreateTextureAsset(Gdx.files.internal(path))
         assetIndex.remove(textureAsset.id)
         textureAsset.meta.uuid = id
         assetIndex[textureAsset.id] = textureAsset
         metaSaver.save(textureAsset.meta)
+        return textureAsset
+    }
+
+    private fun getStandardAssets(): Array<Asset> {
+        val standardAssets = Array<Asset>()
+        standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD))
+        standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_DUDV))
+        standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_WATER_NORMAL))
+        standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_WATER_FOAM))
+        return standardAssets
     }
 
     /**
@@ -417,9 +464,41 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     /**
-     * Delete the asset from the project
+     * Searches all GameObjects and assets to find assets which are not used.
      */
-    fun deleteAsset(asset: Asset, projectManager: ProjectManager) {
+    fun findUnusedAssets(projectManager: ProjectManager): Array<Asset> {
+        val unusedAssets = Array<Asset>()
+        val standardAssets = getStandardAssets()
+
+        for (i in 0 until assets.size) {
+            val asset = assets[i]
+
+            // Do not consider standard assets as unused even if not currently used
+            if (standardAssets.contains(asset, true)) {
+                continue
+            }
+
+            if (asset is SkyboxAsset) {
+                continue // It is common to have these be unused
+            } else {
+                val objectsUsingAsset = findAssetUsagesInScenes(projectManager, asset)
+                val assetsUsingAsset = findAssetUsagesInAssets(asset)
+
+                if (objectsUsingAsset.isEmpty() && assetsUsingAsset.isEmpty()) {
+                    unusedAssets.add(asset)
+                }
+            }
+        }
+
+        return unusedAssets
+    }
+
+
+
+    /**
+     * Delete the asset from the project if no usages are found
+     */
+    fun deleteAssetSafe(asset: Asset, projectManager: ProjectManager) {
         if (asset is SkyboxAsset) {
             val skyboxUsages = findSkyboxUsagesInScenes(projectManager, asset)
             if (skyboxUsages.isNotEmpty()) {
@@ -436,6 +515,13 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             }
         }
 
+        deleteAsset(asset)
+    }
+
+    /**
+     * Delete asset, does not check if it is being used.
+     */
+    fun deleteAsset(asset: Asset) {
         // continue with deletion
         assets?.removeValue(asset, true)
 
@@ -511,7 +597,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     /**
      * Searches all assets in the current context for any usages of the given asset
      */
-    private fun findAssetUsagesInAssets(asset: Asset): ArrayList<Asset> {
+    fun findAssetUsagesInAssets(asset: Asset): ArrayList<Asset> {
         val assetsUsingAsset = ArrayList<Asset>()
 
         // Check for dependent assets that are not in scenes
@@ -527,25 +613,29 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     /**
      * Searches all scenes in the current context for any usages of the given asset
      */
-    private fun findAssetUsagesInScenes(projectManager: ProjectManager, asset: Asset): HashMap<GameObject, String> {
+    fun findAssetUsagesInScenes(projectManager: ProjectManager, asset: Asset): HashMap<GameObject, String> {
         val objectsWithAssets = HashMap<GameObject, String>()
 
         // we check for usages in all scenes
         for (sceneName in projectManager.current().scenes) {
-            val scene = projectManager.loadScene(projectManager.current(), sceneName)
-            checkSceneForAssetUsage(scene, asset, objectsWithAssets)
+            val gameObjects = projectManager.getSceneGameObjects(projectManager.current(), sceneName)
+            checkSceneForAssetUsage(sceneName, gameObjects, asset, objectsWithAssets)
         }
 
         return objectsWithAssets
     }
 
-    private fun checkSceneForAssetUsage(scene: EditorScene?, asset: Asset, objectsWithAssets: HashMap<GameObject, String>) {
-        for (gameObject in scene!!.sceneGraph.gameObjects) {
+    private fun checkSceneForAssetUsage(sceneName: String, gameObjects: Array<GameObject>, asset: Asset, objectsWithAssets: HashMap<GameObject, String>) {
+        for (gameObject in gameObjects) {
             for (component in gameObject.components) {
                 if (component is AssetUsage) {
                     if (component.usesAsset(asset))
-                        objectsWithAssets[gameObject] = scene.name
+                        objectsWithAssets[gameObject] = sceneName
                 }
+            }
+
+            if (gameObject.children != null) {
+                checkSceneForAssetUsage(sceneName, gameObject.children, asset, objectsWithAssets)
             }
         }
     }
@@ -604,14 +694,37 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         if (mat.diffuseColor != null) {
             props.setProperty(MaterialAsset.PROP_DIFFUSE_COLOR, mat.diffuseColor.toString())
         }
+        if (mat.emissiveColor != null) {
+            props.setProperty(MaterialAsset.PROP_MAP_EMISSIVE_COLOR, mat.emissiveColor.toString())
+        }
         if (mat.diffuseTexture != null) {
             props.setProperty(MaterialAsset.PROP_DIFFUSE_TEXTURE, mat.diffuseTexture.id)
         }
         if (mat.normalMap != null) {
             props.setProperty(MaterialAsset.PROP_MAP_NORMAL, mat.normalMap.id)
         }
+        if (mat.emissiveTexture != null) {
+            props.setProperty(MaterialAsset.PROP_MAP_EMISSIVE_TEXTURE, mat.emissiveTexture.id)
+        }
+        if (mat.metallicRoughnessTexture != null) {
+            props.setProperty(MaterialAsset.PROP_METAL_ROUGH_TEXTURE, mat.metallicRoughnessTexture.id)
+        }
+        if (mat.occlusionTexture != null) {
+            props.setProperty(MaterialAsset.PROP_OCCLUSION_TEXTURE, mat.occlusionTexture.id)
+        }
         props.setProperty(MaterialAsset.PROP_OPACITY, mat.opacity.toString())
-        props.setProperty(MaterialAsset.PROP_SHININESS, mat.shininess.toString())
+        props.setProperty(MaterialAsset.PROP_ROUGHNESS, mat.roughness.toString())
+        props.setProperty(MaterialAsset.PROP_METALLIC, mat.metallic.toString())
+        props.setProperty(MaterialAsset.PROP_ALPHA_TEST, mat.alphaTest.toString())
+        props.setProperty(MaterialAsset.PROP_NORMAL_SCALE, mat.normalScale.toString())
+        props.setProperty(MaterialAsset.PROP_SHADOW_BIAS, mat.shadowBias.toString())
+        props.setProperty(MaterialAsset.PROP_CULL_FACE, mat.cullFace.toString())
+
+        setTexCoordInfo(props, mat.diffuseTexCoord)
+        setTexCoordInfo(props, mat.normalTexCoord)
+        setTexCoordInfo(props, mat.emissiveTexCoord)
+        setTexCoordInfo(props, mat.metallicRoughnessTexCoord)
+        setTexCoordInfo(props, mat.occlusionTexCoord)
 
         val fileOutputStream = FileOutputStream(mat.file.file())
         props.store(fileOutputStream, null)
@@ -620,6 +733,15 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         // save meta file
         metaSaver.save(mat.meta)
+    }
+
+    private fun setTexCoordInfo(props: Properties, texCoordInfo: TexCoordInfo) {
+        props.setProperty(texCoordInfo.PROP_UV, texCoordInfo.uvIndex.toString())
+        props.setProperty(texCoordInfo.PROP_OFFSET_U, texCoordInfo.offsetU.toString())
+        props.setProperty(texCoordInfo.PROP_OFFSET_V, texCoordInfo.offsetV.toString())
+        props.setProperty(texCoordInfo.PROP_SCALE_U, texCoordInfo.scaleU.toString())
+        props.setProperty(texCoordInfo.PROP_SCALE_V, texCoordInfo.scaleV.toString())
+        props.setProperty(texCoordInfo.PROP_ROTATION_UV, texCoordInfo.rotationUV.toString())
     }
 
     private fun saveWaterAsset(asset: WaterAsset) {
@@ -734,7 +856,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      *
      * Desktop applications cannot use .list() for internal jar files.
      * Desktop apps need to provide an assets.txt file listing all Mundus assets
-     * in the Mundus assets directory. See [AssetManager.loadAssets] for how the file is used on load.
+     * in the Mundus assets directory. See [AssetManager.queueAssetsForLoading] for how the file is used on load.
      */
     fun createAssetsTextFile() {
         // get path for assets file

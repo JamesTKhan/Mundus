@@ -29,8 +29,8 @@ import com.mbrlabs.mundus.editor.utils.Fa;
  */
 public class StarBrush extends TerrainBrush {
 
-    public StarBrush(ProjectManager projectManager, ModelBatch batch, CommandHistory history) {
-        super(projectManager, batch, history, Gdx.files.internal("brushes/star.png"));
+    public StarBrush(ProjectManager projectManager, CommandHistory history) {
+        super(projectManager, history, Gdx.files.internal("brushes/star.png"));
     }
 
     @Override

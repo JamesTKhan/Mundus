@@ -17,19 +17,20 @@ import com.mbrlabs.mundus.commons.utils.LightUtils;
 /**
  * Extend this shader and call setLights method to apply lighting uniforms.
  *
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 02, 2022
  */
 public abstract class LightShader extends ClippableShader {
     // ============================ LIGHTS ============================
+    protected final int UNIFORM_SHADOW_BIAS = register(new Uniform("u_shadowBias"));
+    protected final int UNIFORM_USE_SHADOWS = register(new Uniform("u_useShadows"));
+    protected final int UNIFORM_SHADOW_TEXTURE = register(new Uniform("u_shadowTexture"));
+    protected final int UNIFORM_SHADOW_VIEW = register(new Uniform("u_shadowMapProjViewTrans"));
+    protected final int UNIFORM_SHADOW_PCF_OFFSET = register(new Uniform("u_shadowPCFOffset"));
 
     // Specular
     protected final int UNIFORM_USE_SPECULAR = register(new Uniform("u_useSpecular"));
     protected final int UNIFORM_MATERIAL_SHININESS = register(new Uniform("u_shininess"));
-
-    // Material properties
-    protected final int UNIFORM_USE_MATERIAL = register(new Uniform("u_useMaterial"));
-    protected final int UNIFORM_MATERIAL_DIFFUSE_COLOR = register(new Uniform("u_material.DiffuseColor"));
 
     // Directional Light
     protected final int UNIFORM_DIRECTIONAL_LIGHT_COLOR = register(new Uniform("u_directionalLight.Base.Color"));
@@ -63,6 +64,8 @@ public abstract class LightShader extends ClippableShader {
     protected int[] UNIFORM_SPOT_LIGHT_ATT_CONSTANT = new int[LightUtils.MAX_SPOT_LIGHTS];
     protected int[] UNIFORM_SPOT_LIGHT_ATT_LINEAR = new int[LightUtils.MAX_SPOT_LIGHTS];
     protected int[] UNIFORM_SPOT_LIGHT_ATT_EXP = new int[LightUtils.MAX_SPOT_LIGHTS];
+
+    private float shadowBias = 1f/255f;
 
     @Override
     public void init(ShaderProgram program, Renderable renderable) {
@@ -151,7 +154,7 @@ public abstract class LightShader extends ClippableShader {
                 set(UNIFORM_SPOT_LIGHT_COLOR[i], light.color.r, light.color.g, light.color.b);
                 set(UNIFORM_SPOT_LIGHT_POS[i], light.position);
                 set(UNIFORM_SPOT_LIGHT_DIRECTION[i], light.direction);
-                set(UNIFORM_SPOT_LIGHT_CUT_OFF[i], MathUtils.cosDeg(light.cutoff));
+                set(UNIFORM_SPOT_LIGHT_CUT_OFF[i], MathUtils.cosDeg(light.getCutoff()));
                 set(UNIFORM_SPOT_LIGHT_INTENSITY[i], light.intensity);
 
                 set(UNIFORM_SPOT_LIGHT_ATT_CONSTANT[i], light.attenuation.constant);
@@ -162,5 +165,21 @@ public abstract class LightShader extends ClippableShader {
             set(UNIFORM_SPOT_LIGHT_NUM_ACTIVE, 0);
         }
 
+    }
+
+    protected void setShadows(MundusEnvironment env) {
+        DirectionalLight dirLight = LightUtils.getDirectionalLight(env);
+        if (dirLight != null && env.shadowMap != null) {
+            if (!dirLight.castsShadows) {
+                set(UNIFORM_USE_SHADOWS, 0);
+                return;
+            }
+
+            set(UNIFORM_SHADOW_BIAS, shadowBias);
+            set(UNIFORM_USE_SHADOWS, 1);
+            set(UNIFORM_SHADOW_TEXTURE, env.shadowMap.getDepthMap());
+            set(UNIFORM_SHADOW_VIEW, env.shadowMap.getProjViewTrans());
+            set(UNIFORM_SHADOW_PCF_OFFSET,  1.f / (2f * env.shadowMap.getDepthMap().texture.getWidth()));
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.mbrlabs.mundus.commons.env.lights;
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 02, 2022
  */
 public enum LightType {

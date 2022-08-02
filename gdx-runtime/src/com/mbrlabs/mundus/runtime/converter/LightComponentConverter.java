@@ -8,7 +8,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version June 07, 2022
  */
 public class LightComponentConverter {
@@ -31,7 +31,7 @@ public class LightComponentConverter {
 
         if (dto.getLightType() == LightType.SPOT_LIGHT) {
             ((SpotLight) light).direction.set(dto.getDirection());
-            ((SpotLight) light).cutoff = dto.getCutoff();
+            ((SpotLight) light).setCutoff(dto.getCutoff());
         }
 
         return component;

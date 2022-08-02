@@ -40,5 +40,4 @@ public class BaseLightDTO {
     public void setColor(int color) {
         this.color = color;
     }
-
 }

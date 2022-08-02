@@ -16,23 +16,46 @@
 
 package com.mbrlabs.mundus.commons.assets;
 
+import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
+
 /**
  * @author Marcus Brummer
  * @version 01-10-2016
  */
 public enum AssetType {
     /** Texture type. Can be pretty much any type of image. */
-    TEXTURE,
+    TEXTURE("Texture"),
     /** A Texture, backed by a pixmap. Can be pretty much any type of image. */
-    PIXMAP_TEXTURE,
+    PIXMAP_TEXTURE("Pixmap Texture"),
     /** 3D file. Can be g3db, g3dbj, dae, obj, fbx. */
-    MODEL,
+    MODEL("Model"),
     /** Terra file. Contains height data for terrains. */
-    TERRAIN,
+    TERRAIN("Terrain"),
     /** Material file. Mundus material file contains material information. */
-    MATERIAL,
+    MATERIAL("Material"),
     /** Water file. Contains data for water. */
-    WATER,
+    WATER("Water"),
     /** Skybox file. Holds reference to skybox textures. **/
-    SKYBOX
+    SKYBOX("Skybox");
+
+    private final String value;
+
+    AssetType(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public static AssetType valueFromString(String string) {
+        for (AssetType res : values()) {
+            if (res.value.equals(string)) {
+                return res;
+            }
+        }
+
+        return null;
+    }
+
 }

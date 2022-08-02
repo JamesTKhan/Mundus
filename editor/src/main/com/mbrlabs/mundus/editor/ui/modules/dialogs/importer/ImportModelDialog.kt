@@ -18,16 +18,15 @@ package com.mbrlabs.mundus.editor.ui.modules.dialogs.importer
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
+import com.badlogic.gdx.graphics.Cubemap
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight
-import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader
-import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -42,7 +41,11 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel
+import com.mbrlabs.mundus.commons.env.lights.DirectionalLight
 import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader
+import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
+import com.mbrlabs.mundus.commons.utils.ModelUtils
+import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.assets.FileHandleWithDependencies
@@ -50,13 +53,29 @@ import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.editor.ui.widgets.FileChooserField
 import com.mbrlabs.mundus.editor.ui.widgets.RenderWidget
-import com.mbrlabs.mundus.editor.utils.*
+import com.mbrlabs.mundus.editor.utils.Log
+import com.mbrlabs.mundus.editor.utils.isCollada
+import com.mbrlabs.mundus.editor.utils.isFBX
+import com.mbrlabs.mundus.editor.utils.isG3DB
+import com.mbrlabs.mundus.editor.utils.isGLB
+import com.mbrlabs.mundus.editor.utils.isGLTF
+import com.mbrlabs.mundus.editor.utils.isWavefont
 import net.mgsx.gltf.loaders.glb.GLBLoader
 import net.mgsx.gltf.loaders.gltf.GLTFLoader
+import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute
+import net.mgsx.gltf.scene3d.lights.DirectionalLightEx
+import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
+import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig
+import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider
+import net.mgsx.gltf.scene3d.utils.IBLBuilder
 import java.io.IOException
 
 /**
@@ -102,10 +121,16 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
         private var previewInstance: ModelInstance? = null
 
         private var importedModel: FileHandleWithDependencies? = null
+        private var maxBones = 0
 
         private var modelBatch: ModelBatch? = null
         private val cam: PerspectiveCamera = PerspectiveCamera()
         private val env: Environment
+
+        private var brdfLUT: Texture? = null
+        private var diffuseCubemap: Cubemap? = null
+        private var environmentCubemap: Cubemap? = null
+        private var specularCubemap: Cubemap? = null
 
         init {
 
@@ -116,15 +141,30 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             cam.update()
 
             env = Environment()
-            env.set(ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f))
-            env.add(DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f))
+
+            val directionalLightEx = DirectionalLightEx()
+            directionalLightEx.intensity = DirectionalLight.DEFAULT_INTENSITY
+            directionalLightEx.setColor(DirectionalLight.DEFAULT_COLOR)
+            directionalLightEx.direction.set(-1f, -0.8f, -0.2f)
+
+            val iblBuilder = IBLBuilder.createOutdoor(directionalLightEx)
+            environmentCubemap = iblBuilder.buildEnvMap(1024)
+            diffuseCubemap = iblBuilder.buildIrradianceMap(256)
+            specularCubemap = iblBuilder.buildRadianceMap(10)
+            iblBuilder.dispose()
+
+            brdfLUT = Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"))
+            env.set(ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f))
+            env.set(PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT))
+            env.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap))
+            env.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap))
 
             this.setupUI()
             this.setupListener()
         }
 
         private fun setupUI() {
-            val root = Table()
+            val root = VisTable()
             // root.debugAll();
             root.padTop(6f).padRight(6f).padBottom(22f)
             add(root)
@@ -133,18 +173,34 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             renderWidget = RenderWidget(cam)
             renderWidget!!.setRenderer { camera ->
                 if (previewInstance != null) {
-                    Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT)
-                    previewInstance!!.transform.rotate(0f, 1f, 0f, -1f)
-                    modelBatch?.begin(camera)
-                    modelBatch?.render(previewInstance!!, env)
-                    modelBatch?.end()
+                    try {
+                        Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT)
+                        previewInstance!!.transform.rotate(0f, 1f, 0f, -1f)
+                        modelBatch?.begin(camera)
+                        modelBatch?.render(previewInstance!!, env)
+                        modelBatch?.end()
+                    } catch (ex: GdxRuntimeException) {
+                        Dialogs.showErrorDialog(stage, ex.message)
+                        Mundus.postEvent(LogEvent(LogType.ERROR, ex.toString()))
+                        previewInstance = null
+                    }
                 }
             }
 
             root.add(inputTable).width(300f).height(300f).padRight(10f)
+            root.addSeparator(true)
             root.add<RenderWidget>(renderWidget).width(300f).height(300f).expand().fill()
 
             inputTable.left().top()
+
+            val label = VisLabel()
+            label.setText("The recommended format is '.gltf'. Mundus relies on textures being external image files," +
+                    " so using binary files like .glb where the files are compressed and packed into the binary is " +
+                    "not recommended. Automatic importing of material attributes only works with .gltf files currently.")
+            label.wrap = true
+            label.width = 300f
+            inputTable.add(label).expandX().prefWidth(300f).padBottom(10f).row()
+
             inputTable.add(VisLabel("Model File")).left().padBottom(5f).row()
             inputTable.add(modelInput).fillX().expandX().padBottom(10f).row()
             inputTable.add(importBtn).fillX().expand().bottom()
@@ -167,6 +223,21 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
                     if (previewModel != null && previewInstance != null) {
                         try {
                             val modelAsset = importModel()
+                            val modelBoneCount = modelAsset.meta.model.numBones
+
+                            // If the imported model has more bones than current shaders numBones, create new
+                            // shader provider with new max bones.
+                            if (modelBoneCount > projectManager.current().assetManager.maxNumBones) {
+                                val config = ShaderUtils.buildPBRShaderConfig(modelBoneCount)
+                                projectManager.modelBatch = ModelBatch(MundusPBRShaderProvider(config), SceneRenderableSorter())
+
+                                val depthConfig = ShaderUtils.buildPBRShaderDepthConfig(modelBoneCount)
+                                projectManager.setDepthBatch((ModelBatch(PBRDepthShaderProvider(depthConfig))))
+
+                                projectManager.current().assetManager.maxNumBones = modelBoneCount
+                                Mundus.postEvent(LogEvent(LogType.INFO, "Max Bone count increased to $modelBoneCount"))
+                            }
+
                             Mundus.postEvent(AssetImportEvent(modelAsset))
                             UI.toaster.success("Mesh imported")
                         } catch (e: IOException) {
@@ -197,9 +268,15 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             modelAsset.meta.model = MetaModel()
             for (mat in modelAsset.model.materials) {
                 val materialAsset = assetManager.createMaterialAsset(modelAsset.id.substring(0, 4) + "_" + mat.id)
+
+                modelImporter.populateMaterialAsset(importedModel!!, projectManager.current().assetManager, mat, materialAsset)
+                projectManager.current().assetManager.saveMaterialAsset(materialAsset)
+
                 modelAsset.meta.model.defaultMaterials.put(mat.id, materialAsset.id)
                 modelAsset.defaultMaterials.put(mat.id, materialAsset)
             }
+
+            modelAsset.meta.model.numBones = maxBones
 
             // save meta file
             val saver = MetaSaver()
@@ -227,7 +304,8 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             if (importedModel != null) {
                 try {
                     if (isG3DB(importedModel!!.file)) {
-                        previewModel = MG3dModelLoader(UBJsonReader()).loadModel(importedModel!!.file)
+                        val modelData = MG3dModelLoader(UBJsonReader()).loadModelData(importedModel!!.file)
+                        previewModel = Model(modelData)
                     } else if (isGLTF(importedModel!!.file)) {
                         previewModel = GLTFLoader().load(importedModel!!.file).scene.model
                     } else if (isGLB(importedModel!!.file)) {
@@ -235,6 +313,8 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
                     } else {
                         throw GdxRuntimeException("Unsupported 3D format")
                     }
+
+                    maxBones = ModelUtils.getBoneCount(previewModel)
 
                     previewInstance = ModelInstance(previewModel!!)
                     showPreview()
@@ -248,9 +328,13 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
         private fun showPreview() {
             previewInstance = ModelInstance(previewModel!!)
 
-            val config = DefaultShader.Config()
-            config.numBones = 60 // TODO get max bones from model
-            modelBatch = ModelBatch(DefaultShaderProvider(config))
+            val config = PBRShaderConfig()
+            config.numDirectionalLights = 1
+            config.numBones = maxBones
+            config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.vs.glsl").readString()
+            config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.fs.glsl").readString()
+
+            modelBatch = ModelBatch(PBRShaderProvider(config))
 
             // scale to 2 open gl units
             val boundingBox = previewInstance!!.calculateBoundingBox(BoundingBox())

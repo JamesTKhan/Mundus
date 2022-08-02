@@ -66,6 +66,11 @@ public class MetaLoader {
         terrain.setSplatG(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_G, null));
         terrain.setSplatB(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_B, null));
         terrain.setSplatA(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_A, null));
+        terrain.setSplatBaseNormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_BASE_NORMAL, null));
+        terrain.setSplatRNormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_R_NORMAL, null));
+        terrain.setSplatGNormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_G_NORMAL, null));
+        terrain.setSplatBNormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_B_NORMAL, null));
+        terrain.setSplatANormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_A_NORMAL, null));
 
         meta.setTerrain(terrain);
     }
@@ -74,10 +79,13 @@ public class MetaLoader {
         if(jsonModel == null) return;
 
         final MetaModel model = new MetaModel();
+
+        int numBones = readWithDefault(jsonModel, MetaModel.JSON_NUM_BONES, 0);
+        model.setNumBones(numBones);
+
         final JsonValue materials = jsonModel.get(MetaModel.JSON_DEFAULT_MATERIALS);
 
         for(final JsonValue mat : materials) {
-            System.out.println(mat.name);
             final String g3dbID = mat.name;
             final String assetUUID = materials.getString(g3dbID);
             model.getDefaultMaterials().put(g3dbID, assetUUID);
@@ -102,6 +110,14 @@ public class MetaLoader {
     private float readWithDefault(JsonValue jsonValue, String jsonKey, float defaultValue) {
         try {
             return jsonValue.getFloat(jsonKey);
+        } catch (IllegalArgumentException ex) {
+            return defaultValue;
+        }
+    }
+
+    private int readWithDefault(JsonValue jsonValue, String jsonKey, int defaultValue) {
+        try {
+            return jsonValue.getInt(jsonKey);
         } catch (IllegalArgumentException ex) {
             return defaultValue;
         }

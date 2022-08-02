@@ -30,7 +30,7 @@ import java.util.Objects;
  * @author Marcus Brummer
  * @version 18-01-2016
  */
-public class TerrainComponent extends AbstractComponent implements AssetUsage, ClippableComponent {
+public class TerrainComponent extends CullableComponent implements AssetUsage, ClippableComponent {
 
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
@@ -49,6 +49,7 @@ public class TerrainComponent extends AbstractComponent implements AssetUsage, C
 
     public void setTerrain(TerrainAsset terrain) {
         this.terrain = terrain;
+        setDimensions(terrain.getTerrain().modelInstance);
     }
 
     public TerrainAsset getTerrain() {
@@ -65,6 +66,8 @@ public class TerrainComponent extends AbstractComponent implements AssetUsage, C
 
     @Override
     public void render(float delta) {
+        super.render(delta);
+        if (isCulled) return;
         gameObject.sceneGraph.scene.batch.render(terrain.getTerrain(), gameObject.sceneGraph.scene.environment, shader);
     }
 
@@ -78,15 +81,15 @@ public class TerrainComponent extends AbstractComponent implements AssetUsage, C
     }
 
     @Override
-    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight) {
-        depthShader.setClippingPlane(clippingPlane);
-        depthShader.setClippingHeight(clipHeight);
-        gameObject.sceneGraph.scene.batch.render(terrain.getTerrain(), gameObject.sceneGraph.scene.environment, depthShader);
-    }
+    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader) {
+        if (isCulled) return;
 
-    @Override
-    public void update(float delta) {
+        if (shader instanceof ClippableShader) {
+            ((ClippableShader) shader).setClippingPlane(clippingPlane);
+            ((ClippableShader) shader).setClippingHeight(clipHeight);
+        }
 
+        gameObject.sceneGraph.scene.depthBatch.render(terrain.getTerrain(), gameObject.sceneGraph.scene.environment, shader);
     }
 
     @Override

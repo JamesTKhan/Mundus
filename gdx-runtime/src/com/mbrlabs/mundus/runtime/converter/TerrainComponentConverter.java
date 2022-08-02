@@ -35,7 +35,6 @@ public class TerrainComponentConverter {
                                            Shaders shaders, AssetManager assetManager) {
         TerrainComponent tc = new TerrainComponent(gameObject, shaders.getTerrainShader());
         tc.setTerrain((TerrainAsset) assetManager.findAssetByID(terrainComponentDTO.getTerrainID()));
-        tc.setDepthShader(shaders.getDepthShader());
 
         return tc;
     }

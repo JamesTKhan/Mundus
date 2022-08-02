@@ -20,15 +20,18 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
-import com.mbrlabs.mundus.commons.env.Fog;
+import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.TerrainTexture;
 import com.mbrlabs.mundus.commons.terrain.TerrainTextureAttribute;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
+import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 
 /**
  * @author Marcus Brummer
@@ -42,6 +45,7 @@ public class TerrainShader extends LightShader {
     // ============================ MATRICES & CAM POSITION ============================
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
+    protected final int UNIFORM_NORMAL_MATRIX = register(new Uniform("u_normalMatrix"));
     protected final int UNIFORM_CAM_POS = register(new Uniform("u_camPos"));
 
     // ============================ TEXTURE SPLATTING ============================
@@ -55,11 +59,25 @@ public class TerrainShader extends LightShader {
     protected final int UNIFORM_TEXTURE_HAS_SPLATMAP = register(new Uniform("u_texture_has_splatmap"));
     protected final int UNIFORM_TEXTURE_HAS_DIFFUSE = register(new Uniform("u_texture_has_diffuse"));
 
-    // ============================ FOG ============================
-    protected final int UNIFORM_FOG_DENSITY = register(new Uniform("u_fogDensity"));
-    protected final int UNIFORM_FOG_GRADIENT = register(new Uniform("u_fogGradient"));
-    protected final int UNIFORM_FOG_COLOR = register(new Uniform("u_fogColor"));
+    // Splat normals
+    protected final int UNIFORM_TEXTURE_HAS_NORMALS = register(new Uniform("u_texture_has_normals"));
+    protected final int UNIFORM_TEXTURE_BASE_NORMAL = register(new Uniform("u_texture_base_normal"));
+    protected final int UNIFORM_TEXTURE_BASE_NORMAL_PRESENT = register(new Uniform("u_texture_has_normal_base"));
+    protected final int UNIFORM_TEXTURE_R_NORMAL = register(new Uniform("u_texture_r_normal"));
+    protected final int UNIFORM_TEXTURE_R_NORMAL_PRESENT = register(new Uniform("u_texture_has_normal_r"));
+    protected final int UNIFORM_TEXTURE_G_NORMAL = register(new Uniform("u_texture_g_normal"));
+    protected final int UNIFORM_TEXTURE_G_NORMAL_PRESENT = register(new Uniform("u_texture_has_normal_g"));
+    protected final int UNIFORM_TEXTURE_B_NORMAL = register(new Uniform("u_texture_b_normal"));
+    protected final int UNIFORM_TEXTURE_B_NORMAL_PRESENT = register(new Uniform("u_texture_has_normal_b"));
+    protected final int UNIFORM_TEXTURE_A_NORMAL = register(new Uniform("u_texture_a_normal"));
+    protected final int UNIFORM_TEXTURE_A_NORMAL_PRESENT = register(new Uniform("u_texture_has_normal_a"));
 
+    // ============================ FOG ============================
+    protected final int UNIFORM_FOG_COLOR = register(new Uniform("u_fogColor"));
+    protected final int UNIFORM_FOG_EQUATION = register(new Uniform("u_fogEquation"));
+
+
+    private final Matrix3 tmpM = new Matrix3();
     private final Vector2 terrainSize = new Vector2();
 
     protected ShaderProgram program;
@@ -90,13 +108,14 @@ public class TerrainShader extends LightShader {
         context.begin();
         context.setCullFace(GL20.GL_BACK);
 
-        this.context.setDepthTest(GL20.GL_LEQUAL, 0f, 1f);
+        this.context.setDepthTest(GL20.GL_LESS, 0f, 1f);
         this.context.setDepthMask(true);
 
         program.bind();
 
         set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined);
-        set(UNIFORM_CAM_POS, camera.position);
+        set(UNIFORM_CAM_POS, camera.position.x, camera.position.y, camera.position.z,
+                1.1881f / (camera.far * camera.far));
     }
 
     @Override
@@ -106,18 +125,18 @@ public class TerrainShader extends LightShader {
         final MundusEnvironment env = (MundusEnvironment) renderable.environment;
 
         setLights(env);
+        setShadows(env);
         setTerrainSplatTextures(renderable);
         set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
+        set(UNIFORM_NORMAL_MATRIX, tmpM.set(renderable.worldTransform).inv().transpose());
 
-        // Fog
-        final Fog fog = env.getFog();
-        if (fog == null) {
-            set(UNIFORM_FOG_DENSITY, 0f);
-            set(UNIFORM_FOG_GRADIENT, 0f);
+        FogAttribute fogEquation = renderable.environment.get(FogAttribute.class, FogAttribute.FogEquation);
+        ColorAttribute colorAttribute = renderable.environment.get(ColorAttribute.class, ColorAttribute.Fog);
+        if (fogEquation != null && colorAttribute != null) {
+            set(UNIFORM_FOG_EQUATION, fogEquation.value);
+            set(UNIFORM_FOG_COLOR, colorAttribute.color);
         } else {
-            set(UNIFORM_FOG_DENSITY, fog.density);
-            set(UNIFORM_FOG_GRADIENT, fog.gradient);
-            set(UNIFORM_FOG_COLOR, fog.color);
+            set(UNIFORM_FOG_EQUATION, Vector3.Zero);
         }
 
         // bind attributes, bind mesh & render; then unbinds everything
@@ -129,11 +148,20 @@ public class TerrainShader extends LightShader {
                 .get(TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
         final TerrainTexture terrainTexture = splatAttrib.terrainTexture;
 
+        // Does terrain have normal maps
+        boolean hasNormals = terrainTexture.hasNormalTextures();
+        if (hasNormals) {
+            set(UNIFORM_TEXTURE_HAS_NORMALS, 1);
+        } else {
+            set(UNIFORM_TEXTURE_HAS_NORMALS, 0);
+        }
+
         // base texture
         SplatTexture st = terrainTexture.getTexture(SplatTexture.Channel.BASE);
         if (st != null) {
             set(UNIFORM_TEXTURE_BASE, st.texture.getTexture());
             set(UNIFORM_TEXTURE_HAS_DIFFUSE, 1);
+            setNormalTexture(terrainTexture, SplatTexture.Channel.BASE, UNIFORM_TEXTURE_BASE_NORMAL, UNIFORM_TEXTURE_BASE_NORMAL_PRESENT);
         } else {
             set(UNIFORM_TEXTURE_HAS_DIFFUSE, 0);
         }
@@ -150,6 +178,15 @@ public class TerrainShader extends LightShader {
             if (st != null) set(UNIFORM_TEXTURE_B, st.texture.getTexture());
             st = terrainTexture.getTexture(SplatTexture.Channel.A);
             if (st != null) set(UNIFORM_TEXTURE_A, st.texture.getTexture());
+
+            // Normal maps
+            if (hasNormals) {
+                setNormalTexture(terrainTexture, SplatTexture.Channel.R, UNIFORM_TEXTURE_R_NORMAL, UNIFORM_TEXTURE_R_NORMAL_PRESENT);
+                setNormalTexture(terrainTexture, SplatTexture.Channel.G, UNIFORM_TEXTURE_G_NORMAL, UNIFORM_TEXTURE_G_NORMAL_PRESENT);
+                setNormalTexture(terrainTexture, SplatTexture.Channel.B, UNIFORM_TEXTURE_B_NORMAL, UNIFORM_TEXTURE_B_NORMAL_PRESENT);
+                setNormalTexture(terrainTexture, SplatTexture.Channel.A, UNIFORM_TEXTURE_A_NORMAL, UNIFORM_TEXTURE_A_NORMAL_PRESENT);
+            }
+
         } else {
             set(UNIFORM_TEXTURE_HAS_SPLATMAP, 0);
         }
@@ -158,6 +195,16 @@ public class TerrainShader extends LightShader {
         terrainSize.x = terrainTexture.getTerrain().terrainWidth;
         terrainSize.y = terrainTexture.getTerrain().terrainDepth;
         set(UNIFORM_TERRAIN_SIZE, terrainSize);
+    }
+
+    public void setNormalTexture(TerrainTexture terrainTexture, SplatTexture.Channel channel, int textureUniform, int uniformPresent) {
+        SplatTexture st = terrainTexture.getNormalTexture(channel);
+        if (st != null) {
+            set(uniformPresent, 1);
+            set(textureUniform, st.texture.getTexture());
+        } else {
+            set(uniformPresent, 0);
+        }
     }
 
     @Override

@@ -24,7 +24,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
 import com.mbrlabs.mundus.editor.ui.widgets.WaterWidget
 
 /**
- * @author James Pooley
+ * @author JamesTKhan
  * @version 04-05-2022
  */
 class WaterComponentWidget(waterComponent: WaterComponent) :

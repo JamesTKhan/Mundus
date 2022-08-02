@@ -47,7 +47,7 @@ class FreeCamController : InputAdapter() {
     private var zoomAmount = SPEED_01
     private var degreesPerPixel = 0.5f
     private val tmp = Vector3()
-    private var pan = true;
+    private var pan = true
 
     fun setCamera(camera: Camera) {
         this.camera = camera
@@ -108,6 +108,11 @@ class FreeCamController : InputAdapter() {
     }
 
     override fun scrolled(amountX: Float, amountY: Float): Boolean {
+        // If using combo key, do not consume event
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) return false
+
+        if (camera == null) return false
+
         tmp.set(camera!!.direction).nor().scl(-amountY * zoomAmount)
         camera!!.position.add(tmp)
         return true

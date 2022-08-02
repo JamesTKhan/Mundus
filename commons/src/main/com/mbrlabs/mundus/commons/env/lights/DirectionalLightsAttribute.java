@@ -25,7 +25,7 @@ import com.badlogic.gdx.utils.Array;
  */
 public class DirectionalLightsAttribute extends Attribute {
 
-    public final static String Alias = "directionalLights";
+    public final static String Alias = "directionalLightsMundus";
     public final Array<DirectionalLight> lights;
 
     public final static long Type = register(Alias);

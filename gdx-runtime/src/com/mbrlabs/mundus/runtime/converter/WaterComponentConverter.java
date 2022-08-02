@@ -37,6 +37,7 @@ public class WaterComponentConverter {
                                          WaterShader waterShader, AssetManager assetManager) {
         WaterComponent wc = new WaterComponent(gameObject, waterShader);
         wc.setWaterAsset((WaterAsset) assetManager.findAssetByID(waterComponentDTO.getWaterId()));
+        gameObject.hasWaterComponent = true;
 
         return wc;
     }

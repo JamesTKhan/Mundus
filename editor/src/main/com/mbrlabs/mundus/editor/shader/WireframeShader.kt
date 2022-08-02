@@ -35,8 +35,8 @@ private const val FRAGMENT_SHADER = "com/mbrlabs/mundus/editor/shader/wire.frag.
  */
 class WireframeShader : BaseShader() {
 
-    private val UNIFORM_PROJ_VIEW_MATRIX = register(BaseShader.Uniform("u_projViewMatrix"))
-    private val UNIFORM_TRANS_MATRIX = register(BaseShader.Uniform("u_transMatrix"))
+    private val UNIFORM_PROJ_VIEW_MATRIX = register(Uniform("u_projViewMatrix"))
+    private val UNIFORM_TRANS_MATRIX = register(Uniform("u_transMatrix"))
 
     init {
         program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER, this)
@@ -59,7 +59,7 @@ class WireframeShader : BaseShader() {
         this.context.setDepthTest(GL20.GL_LEQUAL, 0f, 1f)
         this.context.setDepthMask(true)
 
-        program.begin()
+        program.bind()
 
         set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined)
     }
@@ -73,7 +73,6 @@ class WireframeShader : BaseShader() {
 
     override fun end() {
         GlUtils.Unsafe.polygonModeFill()
-        program.end()
     }
 
     override fun dispose() {

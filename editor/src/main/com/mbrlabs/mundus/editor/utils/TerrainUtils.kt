@@ -41,7 +41,6 @@ fun createTerrainGO(sg: SceneGraph, shader: TerrainShader, goID: Int, goName: St
     terrainComponent.terrain = terrain
     terrainGO.components.add(terrainComponent)
     terrainComponent.shader = shader
-    terrainComponent.setDepthShader(Shaders.depthShader)
     terrainComponent.encodeRaypickColorId()
 
     return terrainGO
@@ -63,7 +62,7 @@ fun getRayIntersectionAndUp(terrains: Array<TerrainAsset>, ray: Ray): VertexInfo
         val terr = terrain.terrain
         terr.getRayIntersection(tempVI.position, ray)
         if (terr.isOnTerrain(tempVI.position.x, tempVI.position.z)) {
-            tempVI.normal.set(terr.getNormalAtWordCoordinate(tempVI.position.x, tempVI.position.z))
+            terr.getNormalAtWordCoordinate(tempVI.normal, tempVI.position.x, tempVI.position.z)
             return tempVI
         }
     }

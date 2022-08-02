@@ -55,9 +55,9 @@ class MetaSaver {
     private fun addModel(meta: Meta, json: Json) {
         val model = meta.model ?: return
         json.writeObjectStart(Meta.JSON_MODEL)
+        json.writeValue(MetaModel.JSON_NUM_BONES, meta.model.numBones)
 
         // default materials
-
         if(model.defaultMaterials != null) {
             json.writeObjectStart(MetaModel.JSON_DEFAULT_MATERIALS)
             for (mat in model.defaultMaterials) {
@@ -82,6 +82,11 @@ class MetaSaver {
         if (terrain.splatG != null) json.writeValue(MetaTerrain.JSON_SPLAT_G, terrain.splatG)
         if (terrain.splatB != null) json.writeValue(MetaTerrain.JSON_SPLAT_B, terrain.splatB)
         if (terrain.splatA != null) json.writeValue(MetaTerrain.JSON_SPLAT_A, terrain.splatA)
+        if (terrain.splatBaseNormal != null) json.writeValue(MetaTerrain.JSON_SPLAT_BASE_NORMAL, terrain.splatBaseNormal)
+        if (terrain.splatRNormal != null) json.writeValue(MetaTerrain.JSON_SPLAT_R_NORMAL, terrain.splatRNormal)
+        if (terrain.splatGNormal != null) json.writeValue(MetaTerrain.JSON_SPLAT_G_NORMAL, terrain.splatGNormal)
+        if (terrain.splatBNormal != null) json.writeValue(MetaTerrain.JSON_SPLAT_B_NORMAL, terrain.splatBNormal)
+        if (terrain.splatANormal != null) json.writeValue(MetaTerrain.JSON_SPLAT_A_NORMAL, terrain.splatANormal)
         json.writeObjectEnd()
     }
 

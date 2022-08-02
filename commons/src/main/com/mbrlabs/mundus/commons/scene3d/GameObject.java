@@ -16,11 +16,13 @@
 
 package com.mbrlabs.mundus.commons.scene3d;
 
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.scene3d.components.ClippableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.commons.scene3d.traversal.DepthFirstIterator;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
 
@@ -36,6 +38,8 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
     public String name;
     public boolean active;
+    public boolean scaleChanged = true; // true by default to force initial calculations
+    public boolean hasWaterComponent = false;
     private Array<String> tags;
     private Array<Component> components;
 
@@ -121,7 +125,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
         if (getChildren() != null) {
             for (GameObject node : getChildren()) {
-                node.render(delta, clippingPlane, delta);
+                node.render(delta, clippingPlane, clipHeight);
             }
         }
     }
@@ -132,17 +136,19 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
      * @param delta delta time
      * @param clippingPlane the clipping plane to use
      * @param clipHeight clipping height for the clipping plane
+     * @param shader
      */
-    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight) {
+    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader) {
         if (active) {
             for (Component component : this.components) {
-                if (component instanceof ClippableComponent)
-                    ((ClippableComponent)component).renderDepth(delta, clippingPlane, clipHeight);
+                if (component instanceof ClippableComponent) {
+                    ((ClippableComponent) component).renderDepth(delta, clippingPlane, clipHeight, shader);
+                }
             }
 
             if (getChildren() != null) {
                 for (GameObject node : getChildren()) {
-                    node.renderDepth(delta, clippingPlane, clipHeight);
+                    node.renderDepth(delta, clippingPlane, clipHeight, shader);
                 }
             }
         }
@@ -166,6 +172,9 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
                 }
             }
         }
+
+        // Reset after each update, after components have updated that might need to know about it
+        scaleChanged = false;
     }
 
     /**
@@ -254,6 +263,10 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         if (component instanceof LightComponent) {
             sceneGraph.scene.environment.remove(((LightComponent)component).getLight());
         }
+
+        if (component instanceof WaterComponent) {
+            hasWaterComponent = false;
+        }
     }
 
     /**
@@ -266,6 +279,10 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
     public void addComponent(Component component) throws InvalidComponentException {
         isComponentAddable(component);
         components.add(component);
+
+        if (component instanceof WaterComponent) {
+            hasWaterComponent = true;
+        }
     }
 
     /**
@@ -305,6 +322,25 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         if (component != null) {
             sceneGraph.scene.environment.remove(component.getLight());
         }
+    }
+
+    @Override
+    public void setLocalScale(float x, float y, float z) {
+        super.setLocalScale(x, y, z);
+        // We track when the scale has changed, for recalculating bounds for things like frustum culling
+        scaleChanged = true;
+    }
+
+    @Override
+    public void scale(Vector3 v) {
+        super.scale(v);
+        scaleChanged = true;
+    }
+
+    @Override
+    public void scale(float x, float y, float z) {
+        super.scale(x,y,z);
+        scaleChanged = true;
     }
 
     @Override

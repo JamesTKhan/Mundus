@@ -43,6 +43,21 @@ uniform sampler2D u_texture_splat;
 uniform int u_texture_has_splatmap;
 uniform int u_texture_has_diffuse;
 
+// splat normal texture
+uniform int u_texture_has_normals;
+uniform int u_texture_has_normal_base;
+uniform int u_texture_has_normal_r;
+uniform int u_texture_has_normal_g;
+uniform int u_texture_has_normal_b;
+uniform int u_texture_has_normal_a;
+uniform sampler2D u_texture_base_normal;
+uniform sampler2D u_texture_r_normal;
+uniform sampler2D u_texture_g_normal;
+uniform sampler2D u_texture_b_normal;
+uniform sampler2D u_texture_a_normal;
+
+uniform vec3 u_fogEquation;
+
 // mouse picking
 #ifdef PICKER
 uniform vec3 u_pickerPos;
@@ -55,22 +70,26 @@ uniform MED vec4 u_fogColor;
 
 // light
 varying vec3 v_normal;
+varying mat3 v_TBN;
 
 varying MED vec2 v_texCoord0;
-varying float v_fog;
 
 varying vec2 splatPosition;
-
-
 varying float v_clipDistance;
 
 void main(void) {
     if ( v_clipDistance < 0.0 )
         discard;
 
+    vec3 normal;
+
     // blend textures
     if(u_texture_has_diffuse == 1) {
         gl_FragColor = texture2D(u_texture_base, v_texCoord0);
+
+        if (u_texture_has_normal_base == 1) {
+            normal = texture2D(u_texture_base_normal, v_texCoord0).rgb;
+        }
     }
     if(u_texture_has_splatmap == 1) {
         vec4 splat = texture2D(u_texture_splat, splatPosition);
@@ -78,21 +97,45 @@ void main(void) {
         gl_FragColor = mix(gl_FragColor, texture2D(u_texture_g, v_texCoord0), splat.g);
         gl_FragColor = mix(gl_FragColor, texture2D(u_texture_b, v_texCoord0), splat.b);
         gl_FragColor = mix(gl_FragColor, texture2D(u_texture_a, v_texCoord0), splat.a);
+
+        // Mix in splat map normals
+        if (u_texture_has_normals == 1) {
+
+            if (u_texture_has_normal_r == 1) {
+                normal = mix(normal, texture2D(u_texture_r_normal, v_texCoord0).rgb, splat.r);
+            }
+            if (u_texture_has_normal_g == 1) {
+                normal = mix(normal, texture2D(u_texture_g_normal, v_texCoord0).rgb, splat.g);
+            }
+            if (u_texture_has_normal_b == 1) {
+                normal = mix(normal, texture2D(u_texture_b_normal, v_texCoord0).rgb, splat.b);
+            }
+            if (u_texture_has_normal_a == 1) {
+                normal = mix(normal, texture2D(u_texture_a_normal, v_texCoord0).rgb, splat.a);
+            }
+
+        }
+    }
+
+    if (u_texture_has_normals == 1) {
+        normal = normalize(v_TBN * ((2.0 * normal - 1.0)));
+    } else {
+        normal = normalize(v_TBN[2].xyz);
     }
 
     // =================================================================
     //                          Lighting
     // =================================================================
-    vec4 totalLight = CalcDirectionalLight(v_normal);
+    vec4 totalLight = CalcDirectionalLight(normal);
 
     for (int i = 0 ; i < numPointLights ; i++) {
         if (i >= u_activeNumPointLights){break;}
-        totalLight += CalcPointLight(u_pointLights[i], v_normal);
+        totalLight += CalcPointLight(u_pointLights[i], normal);
     }
 
     for (int i = 0; i < numSpotLights; i++) {
         if (i >= u_activeNumSpotLights){break;}
-        totalLight += CalcSpotLight(u_spotLights[i], v_normal);
+        totalLight += CalcSpotLight(u_spotLights[i], normal);
     }
 
     gl_FragColor *= totalLight;
@@ -100,9 +143,17 @@ void main(void) {
     //                          /Lighting
     // =================================================================
 
-
     // fog
-    gl_FragColor = mix(gl_FragColor, u_fogColor, v_fog);
+    if (u_fogEquation.z > 0.0) {
+        vec3 surfaceToCamera = u_camPos.xyz - v_worldPos;
+        float eyeDistance = length(surfaceToCamera);
+
+        float fog = (eyeDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
+        fog = clamp(fog, 0.0, 1.0);
+        fog = pow(fog, u_fogEquation.z);
+
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, u_fogColor.rgb, fog * u_fogColor.a);
+    }
 
     #ifdef PICKER
     if(u_pickerActive == 1) {

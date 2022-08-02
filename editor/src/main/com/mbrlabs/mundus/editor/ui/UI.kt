@@ -16,28 +16,47 @@
 
 package com.mbrlabs.mundus.editor.ui
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.Separator
 import com.kotcrab.vis.ui.widget.VisDialog
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.file.FileChooser
+import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.Mundus.postEvent
+import com.mbrlabs.mundus.editor.VERSION
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.ui.modules.MundusToolbar
 import com.mbrlabs.mundus.editor.ui.modules.Outline
 import com.mbrlabs.mundus.editor.ui.modules.StatusBar
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.*
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.AddComponentDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.AmbientLightDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.DirectionalLightsDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExitDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExportDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.FogDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.KeyboardShortcutsDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.NewProjectDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.ShadowSettingsDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.SkyboxDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.VersionDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportModelDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportTextureDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.settings.SettingsDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.tools.DebugRenderDialog
 import com.mbrlabs.mundus.editor.ui.modules.dock.DockBar
 import com.mbrlabs.mundus.editor.ui.modules.inspector.Inspector
 import com.mbrlabs.mundus.editor.ui.modules.menu.MundusMenuBar
 import com.mbrlabs.mundus.editor.ui.widgets.MundusMultiSplitPane
 import com.mbrlabs.mundus.editor.ui.widgets.MundusSplitPane
+import com.mbrlabs.mundus.editor.ui.widgets.PersistingFileChooser
 import com.mbrlabs.mundus.editor.ui.widgets.RenderWidget
 import com.mbrlabs.mundus.editor.utils.Toaster
 
@@ -57,11 +76,13 @@ object UI : Stage(ScreenViewport()) {
 
     // reusable ui elements
     val toaster: Toaster = Toaster(this)
-    val fileChooser: FileChooser = FileChooser(FileChooser.Mode.OPEN)
+    val fileChooser: FileChooser = PersistingFileChooser(FileChooser.Mode.OPEN)
     val assetSelectionDialog: AssetPickerDialog = AssetPickerDialog()
 
     // base elements
     private val root: VisTable
+    private val loadingRoot: VisTable
+    private val loadingLabel: VisLabel
     private var mainContainer: VisTable
     private lateinit var splitPane: MundusSplitPane
     var menuBar: MundusMenuBar
@@ -75,7 +96,6 @@ object UI : Stage(ScreenViewport()) {
     // dialogs
     val settingsDialog: SettingsDialog = SettingsDialog()
     val newProjectDialog: NewProjectDialog = NewProjectDialog()
-    val loadingProjectDialog: LoadingProjectDialog = LoadingProjectDialog()
     val exportDialog: ExportDialog = ExportDialog()
     val importModelDialog: ImportModelDialog = ImportModelDialog()
     val importTextureDialog: ImportTextureDialog = ImportTextureDialog()
@@ -83,19 +103,36 @@ object UI : Stage(ScreenViewport()) {
     val skyboxDialog: SkyboxDialog = SkyboxDialog()
     val ambientLightDialog: AmbientLightDialog = AmbientLightDialog()
     var directionalLightDialog: DirectionalLightsDialog = DirectionalLightsDialog()
+    var shadowSettingsDialog: ShadowSettingsDialog = ShadowSettingsDialog()
     var addComponentDialog: AddComponentDialog = AddComponentDialog()
+    val versionDialog: VersionDialog = VersionDialog()
+    val keyboardShortcuts: KeyboardShortcutsDialog = KeyboardShortcutsDialog()
+    val debugRenderDialog: DebugRenderDialog = DebugRenderDialog()
     val exitDialog: ExitDialog = ExitDialog()
 
     // styles
     val greenSeperatorStyle: Separator.SeparatorStyle
 
+    private var globalPrefManager: MundusPreferencesManager
+
     init {
-        FileChooser.setDefaultPrefsName("com.mbrlabs.mundus.editor")
         greenSeperatorStyle = Separator.SeparatorStyle(VisUI.getSkin().getDrawable("mundus-separator-green"), 1)
+
+        globalPrefManager = Mundus.inject()
 
         root = VisTable()
         addActor(root)
         root.setFillParent(true)
+
+        loadingRoot = VisTable()
+        loadingLabel = VisLabel()
+        val logo = Image(Texture(Gdx.files.internal("icon/logo.png")))
+        loadingRoot.addActor(logo)
+        loadingRoot.addActor(loadingLabel)
+        addActor(loadingRoot)
+
+        logo.color.a = 0.4f
+        loadingLabel.color.a = 0.6f
 
         mainContainer = VisTable()
         menuBar = MundusMenuBar()
@@ -105,6 +142,20 @@ object UI : Stage(ScreenViewport()) {
         sceneWidget = RenderWidget()
 
         addUIActors()
+    }
+
+    fun toggleLoadingScreen(value: Boolean, projectName: String = "") {
+        if (value) {
+            root.isVisible = false
+            loadingRoot.isVisible = true
+            loadingLabel.setText("Loading " + projectName.replaceFirstChar { it.uppercase() })
+            loadingLabel.pack()
+            loadingRoot.setPosition(viewport.screenWidth / 2f - (loadingRoot.children.get(0).width / 2f), viewport.screenHeight / 2f)
+            loadingLabel.setPosition((loadingRoot.children.get(0).width / 2f) - (loadingLabel.width / 2f), loadingRoot.originY - loadingLabel.height)
+        } else {
+            root.isVisible = true
+            loadingRoot.isVisible = false
+        }
     }
 
     private fun addUIActors() {
@@ -170,5 +221,17 @@ object UI : Stage(ScreenViewport()) {
             isFullScreenRender = true
         }
 
+    }
+
+    /**
+     * Conditionally displays the versioning dialog based on stored preferences
+     */
+    fun processVersionDialog() {
+        val previousVersion = globalPrefManager.getString(MundusPreferencesManager.GLOB_MUNDUS_VERSION, "null")
+        if (previousVersion != VERSION) {
+            // If version changed, display dialog
+            globalPrefManager.set(MundusPreferencesManager.GLOB_MUNDUS_VERSION, VERSION)
+            showDialog(versionDialog)
+        }
     }
 }

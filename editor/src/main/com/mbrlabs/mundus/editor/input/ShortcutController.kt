@@ -33,6 +33,9 @@ class ShortcutController(registry: Registry, private val projectManager: Project
 
     private var isCtrlPressed = false
 
+    /**
+     * Updates here should also be reflected in the KeyboardShortcutsDialog
+     */
     override fun keyDown(code: Int): Boolean {
         val keycode = convertKeycode(code)
 
@@ -76,6 +79,10 @@ class ShortcutController(registry: Registry, private val projectManager: Project
         } else if (keycode == Input.Keys.F) {
             toolManager.activateTool(toolManager.selectionTool)
             UI.toolbar.updateActiveToolButton()
+        } else if (keycode == Input.Keys.F2) {
+            projectManager.current().renderDebug = !projectManager.current().renderDebug
+        } else if (keycode == Input.Keys.F3) {
+            projectManager.current().renderWireframe = !projectManager.current().renderWireframe
         }
 
         return false

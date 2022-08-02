@@ -20,6 +20,7 @@ import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
+import com.mbrlabs.mundus.commons.env.CameraSettings;
 import com.mbrlabs.mundus.commons.env.lights.BaseLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
@@ -55,15 +56,17 @@ public class SceneConverter {
         }
 
         // environment stuff
-        dto.setFog(FogConverter.convert(scene.environment.getFog()));
+        dto.setFog(FogConverter.convert(scene.environment));
         dto.setAmbientLight(BaseLightConverter.convert(scene.environment.getAmbientLight()));
 
         DirectionalLightsAttribute directionalLight = scene.environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
-        dto.setDirectionalLight(DirectionalLightConverter.convert(directionalLight.lights.first()));
+        dto.setDirectionalLight(DirectionalLightConverter.convert(scene, directionalLight.lights.first()));
 
         // Water
-        dto.setWaterResolution(scene.waterResolution);
-        dto.setWaterHeight(scene.waterHeight);
+        dto.setWaterResolution(scene.settings.waterResolution);
+        dto.setWaterHeight(scene.settings.waterHeight);
+
+        dto.setUseFrustumCulling(scene.settings.useFrustumCulling);
 
         // camera
         dto.setCamPosX(scene.cam.position.x);
@@ -72,6 +75,9 @@ public class SceneConverter {
         dto.setCamDirX(scene.cam.direction.x);
         dto.setCamDirY(scene.cam.direction.y);
         dto.setCamDirZ(scene.cam.direction.z);
+        dto.setCamNearPlane(scene.cam.near);
+        dto.setCamFarPlane(scene.cam.far);
+        dto.setCamFieldOfView(scene.cam.fieldOfView);
         return dto;
     }
 
@@ -87,13 +93,13 @@ public class SceneConverter {
         scene.skyboxAssetId = dto.getSkyboxAssetId();
 
         // environment stuff
-        scene.environment.setFog(FogConverter.convert(dto.getFog()));
+        FogConverter.convert(dto.getFog(), scene.environment);
         BaseLight ambientLight = BaseLightConverter.convert(dto.getAmbientLight());
         if (ambientLight != null) {
             scene.environment.setAmbientLight(ambientLight);
         }
 
-        DirectionalLight light = DirectionalLightConverter.convert(dto.getDirectionalLight());
+        DirectionalLight light = DirectionalLightConverter.convert(scene, dto.getDirectionalLight());
         if (light != null) {
             DirectionalLightsAttribute directionalLight = scene.environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
             directionalLight.lights.clear();
@@ -101,11 +107,12 @@ public class SceneConverter {
         }
 
         // Water stuff
-        scene.waterResolution = dto.getWaterResolution();
-        if (scene.waterResolution == null)
-            scene.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
+        scene.settings.waterResolution = dto.getWaterResolution();
+        if (scene.settings.waterResolution == null)
+            scene.settings.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
 
-        scene.waterHeight = dto.getWaterHeight();
+        scene.settings.waterHeight = dto.getWaterHeight();
+        scene.settings.useFrustumCulling = dto.isUseFrustumCulling();
 
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);
@@ -118,6 +125,9 @@ public class SceneConverter {
         scene.cam.position.y = dto.getCamPosY();
         scene.cam.position.z = dto.getCamPosZ();
         scene.cam.direction.set(dto.getCamDirX(), dto.getCamDirY(), dto.getCamDirZ());
+        scene.cam.near = dto.getCamNearPlane() > 0 ? dto.getCamNearPlane() : CameraSettings.DEFAULT_NEAR_PLANE;
+        scene.cam.far = dto.getCamFarPlane() > 0 ? dto.getCamFarPlane() : CameraSettings.DEFAULT_FAR_PLANE;
+        scene.cam.fieldOfView = dto.getCamFieldOfView() > 0 ? dto.getCamFieldOfView() : CameraSettings.DEFAULT_FOV;
         scene.cam.update();
 
         return scene;

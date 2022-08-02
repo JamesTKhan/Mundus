@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.VertexAttributes
+import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelBatch
@@ -70,10 +71,10 @@ class Compass(private var worldCam: PerspectiveCamera?) : Disposable {
         this.worldCam = cam
     }
 
-    fun render(batch: ModelBatch) {
+    fun render(batch: ModelBatch, env:Environment) {
         update()
         batch.begin(ownCam)
-        batch.render(compassInstance)
+        batch.render(compassInstance, env)
         batch.end()
     }
 

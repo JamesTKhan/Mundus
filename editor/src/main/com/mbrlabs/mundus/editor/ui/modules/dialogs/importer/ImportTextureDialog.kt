@@ -16,29 +16,35 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.dialogs.importer
 
+import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
+import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
+import com.mbrlabs.mundus.editor.events.FilesDroppedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.editor.ui.widgets.ImageChooserField
+import com.mbrlabs.mundus.editor.ui.widgets.ImageChooserField.validateImageFile
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.isImage
+import java.io.File
 import java.io.IOException
 
 /**
  * @author Marcus Brummer
  * @version 07-06-2016
  */
-class ImportTextureDialog : BaseDialog("Import Texture"), Disposable {
+class ImportTextureDialog : BaseDialog("Import Texture"), FilesDroppedEvent.FilesDroppedListener, ImageChooserField.ImageChosenListener, Disposable {
 
     companion object {
         private val TAG = ImportTextureDialog::class.java.simpleName
@@ -49,13 +55,17 @@ class ImportTextureDialog : BaseDialog("Import Texture"), Disposable {
     private val projectManager: ProjectManager = Mundus.inject()
 
     init {
+        Mundus.registerEventListener(this)
+
         isModal = true
         isMovable = true
 
         val root = VisTable()
         add<Table>(root).expand().fill()
-        importTextureTable = ImportTextureTable()
+        importTextureTable = ImportTextureTable(this)
 
+        root.add("Drag and drop import is supported.").align(Align.center).row()
+        root.add("Preview Mode only supported for single texture selection.").align(Align.center).row()
         root.add(importTextureTable).minWidth(300f).expand().fill().left().top()
     }
 
@@ -71,10 +81,10 @@ class ImportTextureDialog : BaseDialog("Import Texture"), Disposable {
     /**
 
      */
-    private inner class ImportTextureTable : VisTable(), Disposable {
+    private inner class ImportTextureTable(listener: ImageChooserField.ImageChosenListener) : VisTable(), Disposable {
         // UI elements
         private val importBtn = VisTextButton("IMPORT")
-        private val imageChooserField = ImageChooserField(300)
+        private val imageChooserField = ImageChooserField(300, true, listener)
 
         init {
             this.setupUI()
@@ -115,6 +125,10 @@ class ImportTextureDialog : BaseDialog("Import Texture"), Disposable {
             })
         }
 
+        fun getImageChooserField(): ImageChooserField {
+            return imageChooserField
+        }
+
         fun removeTexture() {
             imageChooserField.removeImage()
         }
@@ -122,6 +136,82 @@ class ImportTextureDialog : BaseDialog("Import Texture"), Disposable {
         override fun dispose() {
 
         }
+    }
+
+    override fun onFilesDropped(event: FilesDroppedEvent) {
+        if (!dialogOpen) return
+        if (event.files == null || event.files.isEmpty()) return
+
+        if (event.files.size == 1) {
+            val fileHandle = FileHandle(File(event.files[0]))
+            val errorMessage = validateImageFile(fileHandle)
+
+            if (errorMessage == null) {
+                importTextureTable.getImageChooserField().setImage(fileHandle)
+            } else {
+                Dialogs.showErrorDialog(stage, errorMessage)
+            }
+            return
+        }
+
+        // <File Name, Error Message>
+        val failedFiles = HashMap<FileHandle, String>()
+        val files = Array<FileHandle>()
+
+        for (filePath in event.files) {
+            val fileHandle = FileHandle(File(filePath))
+            val errorMessage = validateImageFile(fileHandle)
+            if (errorMessage == null) {
+                files.add(fileHandle)
+            } else {
+                failedFiles[fileHandle] = errorMessage
+            }
+        }
+
+        importFiles(files, failedFiles)
+    }
+
+    private fun importFiles(files: Array<FileHandle>, failedFiles: HashMap<FileHandle, String>) {
+        for (file in files) {
+            try {
+                val assetManager = projectManager.current().assetManager
+                val asset = assetManager.createTextureAsset(file)
+                Mundus.postEvent(AssetImportEvent(asset))
+            } catch (ee: AssetAlreadyExistsException) {
+                Log.exception(TAG, ee)
+                failedFiles[file] = "There already exists a texture with the same name"
+            }
+        }
+
+        if (failedFiles.isEmpty()) {
+            close()
+            UI.toaster.success("Textures imported")
+            return
+        }
+
+        val dialogMessage = buildString {
+            append("The following could not be imported\n\n")
+            for (file in failedFiles) {
+                append(file.key.name())
+                append(" : ")
+                append(file.value)
+                append("\n")
+            }
+        }
+
+        Dialogs.showErrorDialog(stage, dialogMessage)
+        close()
+    }
+
+    override fun onImageChosen() {
+        // Unused
+    }
+
+    override fun onImagesChosen(
+        images: Array<FileHandle>,
+        failedFiles: HashMap<FileHandle, String>
+    ) {
+        importFiles(images, failedFiles)
     }
 
 }

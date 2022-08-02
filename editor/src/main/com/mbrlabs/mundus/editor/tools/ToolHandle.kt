@@ -16,10 +16,12 @@
 
 package com.mbrlabs.mundus.editor.tools
 
+import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
+import com.mbrlabs.mundus.commons.env.MundusEnvironment
 import com.mbrlabs.mundus.editor.tools.picker.PickerColorEncoder
 import com.mbrlabs.mundus.editor.tools.picker.PickerIDAttribute
 
@@ -40,6 +42,7 @@ abstract class ToolHandle(val id: Int) : Disposable {
     val rotation: Quaternion = Quaternion()
     val scale: Vector3 = Vector3(1f, 1f, 1f)
     val idAttribute: PickerIDAttribute = PickerIDAttribute()
+    val environment: Environment = MundusEnvironment()
 
     init {
         PickerColorEncoder.encodeRaypickColorId(id, idAttribute)

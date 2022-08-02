@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.commons.env;
+attribute vec3 a_position;
+attribute vec2 a_texCoord0;
+varying vec2 v_texCoords0;
 
-import com.badlogic.gdx.graphics.Color;
+uniform mat4 u_projViewWorldTrans;
 
-/**
- * @author Marcus Brummer
- * @version 06-01-2016
- */
-public class Fog {
-
-    public float density = 0.001f;
-    public float gradient = 1.5f;
-    public Color color = new Color(Color.WHITE);
-
+void main() {
+    gl_Position = u_projViewWorldTrans * vec4(a_position, 1.0);
+    v_texCoords0 = a_texCoord0;
 }

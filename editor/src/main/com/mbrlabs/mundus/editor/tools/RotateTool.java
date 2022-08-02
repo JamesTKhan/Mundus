@@ -15,17 +15,14 @@
  */
 package com.mbrlabs.mundus.editor.tools;
 
-import com.mbrlabs.mundus.editor.history.commands.RotateCommand;
-import org.lwjgl.opengl.GL11;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
@@ -38,11 +35,13 @@ import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
+import com.mbrlabs.mundus.editor.history.commands.RotateCommand;
 import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
 import com.mbrlabs.mundus.editor.utils.Fa;
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs;
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 
 /**
  * Rotate tool for game objects
@@ -54,26 +53,26 @@ public class RotateTool extends TransformTool {
 
     public static final String NAME = "Rotate Tool";
 
-    private RotateHandle xHandle;
-    private RotateHandle yHandle;
-    private RotateHandle zHandle;
-    private RotateHandle[] handles;
+    private final RotateHandle xHandle;
+    private final RotateHandle yHandle;
+    private final RotateHandle zHandle;
+    private final RotateHandle[] handles;
 
-    private Matrix4 shapeRenderMat = new Matrix4();
+    private final Matrix4 shapeRenderMat = new Matrix4();
 
-    private Vector3 temp0 = new Vector3();
-    private Vector3 temp1 = new Vector3();
-    private Quaternion tempQuat = new Quaternion();
+    private final Vector3 temp0 = new Vector3();
+    private final Vector3 temp1 = new Vector3();
+    private final Quaternion tempQuat = new Quaternion();
 
-    private ShapeRenderer shapeRenderer;
+    private final ShapeRenderer shapeRenderer;
 
     private TransformState state = TransformState.IDLE;
     private RotateCommand currentRotateCommand;
     private float lastRot = 0;
 
     public RotateTool(ProjectManager projectManager, GameObjectPicker goPicker, ToolHandlePicker handlePicker,
-            ShapeRenderer shapeRenderer, ModelBatch batch, CommandHistory history) {
-        super(projectManager, goPicker, handlePicker, batch, history);
+            ShapeRenderer shapeRenderer, CommandHistory history) {
+        super(projectManager, goPicker, handlePicker, history);
         this.shapeRenderer = shapeRenderer;
         xHandle = new RotateHandle(X_HANDLE_ID, COLOR_X);
         yHandle = new RotateHandle(Y_HANDLE_ID, COLOR_Y);
@@ -84,15 +83,15 @@ public class RotateTool extends TransformTool {
     @Override
     public void render() {
         super.render();
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 
         ProjectContext projectContext = getProjectManager().current();
         if (state == TransformState.IDLE && projectContext.currScene.currentSelection != null) {
-            getBatch().begin(projectContext.currScene.cam);
-            xHandle.render(getBatch());
-            yHandle.render(getBatch());
-            zHandle.render(getBatch());
-            getBatch().end();
+            getProjectManager().getModelBatch().begin(projectContext.currScene.cam);
+            xHandle.render(getProjectManager().getModelBatch());
+            yHandle.render(getProjectManager().getModelBatch());
+            zHandle.render(getProjectManager().getModelBatch());
+            getProjectManager().getModelBatch().end();
         } else if (projectContext.currScene.currentSelection != null) {
             Viewport vp = projectContext.currScene.viewport;
 
@@ -320,12 +319,12 @@ public class RotateTool extends TransformTool {
      */
     private class RotateHandle extends ToolHandle {
 
-        private Model model;
-        private ModelInstance modelInstance;
+        private final Model model;
+        private final ModelInstance modelInstance;
 
         public RotateHandle(int id, Color color) {
             super(id);
-            model = UsefulMeshs.torus(new Material(ColorAttribute.createDiffuse(color)), 20, 1f, 50, 50);
+            model = UsefulMeshs.torus(new Material(PBRColorAttribute.createBaseColorFactor(color)), 20, 1f, 50, 50);
             modelInstance = new ModelInstance(model);
             modelInstance.materials.first().set(getIdAttribute());
             switch (id) {
@@ -350,12 +349,12 @@ public class RotateTool extends TransformTool {
 
         @Override
         public void render(ModelBatch batch) {
-            batch.render(modelInstance);
+            batch.render(modelInstance, getEnvironment());
         }
 
         @Override
         public void renderPick(ModelBatch modelBatch) {
-            getBatch().render(modelInstance, Shaders.INSTANCE.getPickerShader());
+            getProjectManager().getModelBatch().render(modelInstance, Shaders.INSTANCE.getPickerShader());
         }
 
         @Override

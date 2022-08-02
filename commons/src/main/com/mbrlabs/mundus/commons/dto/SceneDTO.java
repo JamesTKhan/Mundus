@@ -19,6 +19,7 @@ package com.mbrlabs.mundus.commons.dto;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
+import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 
 /**
@@ -40,7 +41,11 @@ public class SceneDTO implements Json.Serializable {
     private float camDirX = 0;
     private float camDirY = 0;
     private float camDirZ = 0;
+    private float camNearPlane;
+    private float camFarPlane;
+    private float camFieldOfView;
     private float waterHeight;
+    private boolean useFrustumCulling;
     private WaterResolution waterResolution;
 
     public SceneDTO() {
@@ -111,6 +116,30 @@ public class SceneDTO implements Json.Serializable {
         this.camDirZ = camDirZ;
     }
 
+    public float getCamNearPlane() {
+        return camNearPlane;
+    }
+
+    public void setCamNearPlane(float camNearPlane) {
+        this.camNearPlane = camNearPlane;
+    }
+
+    public float getCamFarPlane() {
+        return camFarPlane;
+    }
+
+    public void setCamFarPlane(float camFarPlane) {
+        this.camFarPlane = camFarPlane;
+    }
+
+    public float getCamFieldOfView() {
+        return camFieldOfView;
+    }
+
+    public void setCamFieldOfView(float camFieldOfView) {
+        this.camFieldOfView = camFieldOfView;
+    }
+
     public FogDTO getFog() {
         return fog;
     }
@@ -157,6 +186,14 @@ public class SceneDTO implements Json.Serializable {
 
     public float getWaterHeight() {
         return waterHeight;
+    }
+
+    public boolean isUseFrustumCulling() {
+        return useFrustumCulling;
+    }
+
+    public void setUseFrustumCulling(boolean useFrustumCulling) {
+        this.useFrustumCulling = useFrustumCulling;
     }
 
     public void setSkyboxAssetId(String skyboxAssetId) {

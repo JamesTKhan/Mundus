@@ -21,7 +21,6 @@ import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.adapter.SimpleListAdapter
-import com.kotcrab.vis.ui.widget.ListView
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.Asset
@@ -32,6 +31,7 @@ import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
+import com.mbrlabs.mundus.editor.ui.widgets.AutoFocusListView
 
 /**
  * A filterable list of materials.
@@ -52,7 +52,7 @@ class AssetPickerDialog : BaseDialog(AssetPickerDialog.TITLE),
 
     private val root = VisTable()
     private val listAdapter = SimpleListAdapter(Array<Asset>())
-    private val list = ListView(listAdapter)
+    private val list = AutoFocusListView(listAdapter)
     private val noneBtn = VisTextButton("None / Remove old asset")
 
     private var filter: AssetFilter? = null

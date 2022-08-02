@@ -25,7 +25,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.Json
 import com.kotcrab.vis.ui.VisUI
+import com.kotcrab.vis.ui.widget.file.FileChooser
 import com.mbrlabs.mundus.commons.assets.meta.MetaLoader
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
@@ -36,6 +38,7 @@ import com.mbrlabs.mundus.editor.history.CommandHistory
 import com.mbrlabs.mundus.editor.input.FreeCamController
 import com.mbrlabs.mundus.editor.input.InputManager
 import com.mbrlabs.mundus.editor.input.ShortcutController
+import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
 import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker
@@ -61,6 +64,7 @@ object Mundus {
     val eventBus: EventBus
 
     lateinit var fa: BitmapFont
+    lateinit var faSmall: BitmapFont
 
     private val modelBatch: ModelBatch
     private val toolManager: ToolManager
@@ -77,8 +81,12 @@ object Mundus {
     private val goPicker: GameObjectPicker
     private val handlePicker: ToolHandlePicker
     private val json: Json
+    private val globalPrefManager: MundusPreferencesManager
+    private val glProfiler: MundusGLProfiler
 
     init {
+        FileChooser.setDefaultPrefsName("mundus.editor.filechooser")
+
         // create home dir
         val homeDir = File(Registry.HOME_DIR)
         if (!homeDir.exists()) {
@@ -102,16 +110,17 @@ object Mundus {
         commandHistory = CommandHistory(CommandHistory.DEFAULT_LIMIT)
         modelImporter = ModelImporter(registry)
         projectManager = ProjectManager(kryoManager, registry, modelBatch)
-        toolManager = ToolManager(input, projectManager, goPicker, handlePicker, modelBatch, shapeRenderer,
+        toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
                 commandHistory)
         gizmoManager = GizmoManager()
         shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager)
         json = Json()
+        globalPrefManager = MundusPreferencesManager("global")
+        glProfiler = MundusGLProfiler(Gdx.graphics)
 
         // add to DI container
         context.register {
             bindSingleton(shapeRenderer)
-            bindSingleton(modelBatch)
             bindSingleton(input)
             bindSingleton(goPicker)
             bindSingleton(handlePicker)
@@ -125,6 +134,8 @@ object Mundus {
             bindSingleton(shortcutController)
             bindSingleton(freeCamController)
             bindSingleton(json)
+            bindSingleton(globalPrefManager)
+            bindSingleton(glProfiler)
 
             bindSingleton(MetaSaver())
             bindSingleton(MetaLoader())
@@ -168,7 +179,8 @@ object Mundus {
     }
 
     private fun initFontAwesome() {
-        val faBuilder = Fa(Gdx.files.internal("fonts/fa45.ttf"))
+        // Build regular Font Awesome font
+        var faBuilder = Fa(Gdx.files.internal("fonts/fa45.ttf"))
         faBuilder.generatorParameter.size = (Gdx.graphics.height * 0.02f).toInt()
         faBuilder.generatorParameter.kerning = true
         faBuilder.generatorParameter.borderStraight = false
@@ -178,6 +190,13 @@ object Mundus {
                 addIcon(Fa.CARET_UP).addIcon(Fa.TIMES).addIcon(Fa.SORT).addIcon(Fa.HASHTAG).
                 addIcon(Fa.PAINT_BRUSH).addIcon(Fa.STAR).addIcon(Fa.REFRESH).addIcon(Fa.EXPAND).
                 addIcon(Fa.ARROWS_ALT).addIcon(Fa.EYE).addIcon(Fa.EYE_SLASH).build()
+
+        // Build smaller Font Awesome font
+        faBuilder = Fa(Gdx.files.internal("fonts/fa45.ttf"))
+        faBuilder.generatorParameter.size = (Gdx.graphics.height * 0.015f).toInt()
+        faBuilder.generatorParameter.kerning = true
+        faBuilder.generatorParameter.borderStraight = false
+        faSmall = faBuilder.addIcon(Fa.INFO_CIRCLE).build()
     }
 
     /**
@@ -217,6 +236,7 @@ object Mundus {
         modelBatch.dispose()
         goPicker.dispose()
         handlePicker.dispose()
+        glProfiler.disable()
     }
 
 }

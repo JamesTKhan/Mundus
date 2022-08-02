@@ -15,9 +15,6 @@
  */
 package com.mbrlabs.mundus.editor.tools;
 
-import com.badlogic.gdx.math.Vector2;
-import org.lwjgl.opengl.GL11;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -26,16 +23,15 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
-import com.mbrlabs.mundus.commons.utils.MathUtils;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
@@ -47,6 +43,8 @@ import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
 import com.mbrlabs.mundus.editor.ui.UI;
 import com.mbrlabs.mundus.editor.utils.Fa;
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs;
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
+import org.lwjgl.opengl.GL20;
 
 /**
  * Scales valid game objects.
@@ -74,27 +72,27 @@ public class ScaleTool extends TransformTool {
     private final Vector3 tempScale = new Vector3();
     private final Vector3 tempScaleDst = new Vector3();
 
-    private ShapeRenderer shapeRenderer;
+    private final ShapeRenderer shapeRenderer;
 
     private TransformState state = TransformState.IDLE;
     private ScaleCommand command;
 
     public ScaleTool(ProjectManager projectManager, GameObjectPicker goPicker, ToolHandlePicker handlePicker,
-            ShapeRenderer shapeRenderer, ModelBatch batch, CommandHistory history) {
-        super(projectManager, goPicker, handlePicker, batch, history);
+            ShapeRenderer shapeRenderer, CommandHistory history) {
+        super(projectManager, goPicker, handlePicker, history);
 
         this.shapeRenderer = shapeRenderer;
 
         ModelBuilder modelBuilder = new ModelBuilder();
-        Model xPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(ColorAttribute.createDiffuse(COLOR_X)),
+        Model xPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(PBRColorAttribute.createBaseColorFactor(COLOR_X)),
                 Vector3.Zero, new Vector3(15, 0, 0));
-        Model yPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(ColorAttribute.createDiffuse(COLOR_Y)),
+        Model yPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(PBRColorAttribute.createBaseColorFactor(COLOR_Y)),
                 Vector3.Zero, new Vector3(0, 15, 0));
-        Model zPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(ColorAttribute.createDiffuse(COLOR_Z)),
+        Model zPlaneHandleModel = UsefulMeshs.createArrowStub(new Material(PBRColorAttribute.createBaseColorFactor(COLOR_Z)),
                 Vector3.Zero, new Vector3(0, 0, 15));
         Model xyzPlaneHandleModel = modelBuilder.createBox(3, 3, 3,
-                new Material(ColorAttribute.createDiffuse(COLOR_XYZ)),
-                VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+                new Material(PBRColorAttribute.createBaseColorFactor(COLOR_XYZ)),
+                VertexAttributes.Usage.Position);
 
         xHandle = new ScaleHandle(X_HANDLE_ID, xPlaneHandleModel);
         yHandle = new ScaleHandle(Y_HANDLE_ID, yPlaneHandleModel);
@@ -108,15 +106,15 @@ public class ScaleTool extends TransformTool {
     public void render() {
         super.render();
 
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        GL20.glClear(GL20.GL_DEPTH_BUFFER_BIT);
         ProjectContext projectContext = getProjectManager().current();
         if (projectContext.currScene.currentSelection != null) {
-            getBatch().begin(projectContext.currScene.cam);
-            xHandle.render(getBatch());
-            yHandle.render(getBatch());
-            zHandle.render(getBatch());
-            xyzHandle.render(getBatch());
-            getBatch().end();
+            getProjectManager().getModelBatch().begin(projectContext.currScene.cam);
+            xHandle.render(getProjectManager().getModelBatch());
+            yHandle.render(getProjectManager().getModelBatch());
+            zHandle.render(getProjectManager().getModelBatch());
+            xyzHandle.render(getProjectManager().getModelBatch());
+            getProjectManager().getModelBatch().end();
 
             GameObject go = projectContext.currScene.currentSelection;
             go.getTransform().getTranslation(temp0);
@@ -320,11 +318,7 @@ public class ScaleTool extends TransformTool {
     }
 
     private boolean isScalable(GameObject go) {
-        if(go != null && go.findComponentByType(Component.Type.TERRAIN) != null) {
-            return false;
-        }
-
-        return true;
+        return go == null || go.findComponentByType(Component.Type.TERRAIN) == null;
     }
 
     @Override
@@ -390,8 +384,8 @@ public class ScaleTool extends TransformTool {
 
     private class ScaleHandle extends ToolHandle {
 
-        private Model model;
-        private ModelInstance modelInstance;
+        private final Model model;
+        private final ModelInstance modelInstance;
 
         public ScaleHandle(int id, Model model) {
             super(id);
@@ -402,18 +396,18 @@ public class ScaleTool extends TransformTool {
         }
 
         public void changeColor(Color color) {
-            ColorAttribute diffuse = (ColorAttribute) modelInstance.materials.get(0).get(ColorAttribute.Diffuse);
+            PBRColorAttribute diffuse = (PBRColorAttribute) modelInstance.materials.get(0).get(PBRColorAttribute.BaseColorFactor);
             diffuse.color.set(color);
         }
 
         @Override
         public void render(ModelBatch batch) {
-            batch.render(modelInstance);
+            batch.render(modelInstance, getEnvironment());
         }
 
         @Override
         public void renderPick(ModelBatch modelBatch) {
-            getBatch().render(modelInstance, Shaders.INSTANCE.getPickerShader());
+            modelBatch.render(modelInstance, Shaders.INSTANCE.getPickerShader());
         }
 
         @Override

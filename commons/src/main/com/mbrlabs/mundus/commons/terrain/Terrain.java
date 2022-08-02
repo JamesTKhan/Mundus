@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.commons.terrain;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -25,9 +26,9 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
-import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -36,6 +37,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
+import net.mgsx.gltf.loaders.shared.geometry.MeshTangentSpaceGenerator;
 
 /**
  * @author Marcus Brummer
@@ -52,6 +54,8 @@ public class Terrain implements RenderableProvider, Disposable {
     private static final Vector3 c01 = new Vector3();
     private static final Vector3 c10 = new Vector3();
     private static final Vector3 c11 = new Vector3();
+    private static final Vector3 tmp = new Vector3();
+    private static final Vector2 tmpV2 = new Vector2();
 
     public Matrix4 transform;
     public float[] heightData;
@@ -60,13 +64,13 @@ public class Terrain implements RenderableProvider, Disposable {
     public int vertexResolution;
 
     // used for building the mesh
-    private VertexAttributes attribs;
+    private final VertexAttributes attribs;
     private Vector2 uvScale = new Vector2(DEFAULT_UV_SCALE, DEFAULT_UV_SCALE);
-    private float vertices[];
-    private int stride;
-    private int posPos;
-    private int norPos;
-    private int uvPos;
+    private float[] vertices;
+    private final int stride;
+    private final int posPos;
+    private final int norPos;
+    private final int uvPos;
 
     // Textures
     private TerrainTexture terrainTexture;
@@ -79,8 +83,13 @@ public class Terrain implements RenderableProvider, Disposable {
 
     private Terrain(int vertexResolution) {
         this.transform = new Matrix4();
-        this.attribs = MeshBuilder.createAttributes(VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
-                | VertexAttributes.Usage.TextureCoordinates);
+        this.attribs = new VertexAttributes(
+                VertexAttribute.Position(),
+                VertexAttribute.Normal(),
+                new VertexAttribute(VertexAttributes.Usage.Tangent, 4, ShaderProgram.TANGENT_ATTRIBUTE),
+                VertexAttribute.TexCoords(0)
+        );
+
         this.posPos = attribs.getOffset(VertexAttributes.Usage.Position, -1);
         this.norPos = attribs.getOffset(VertexAttributes.Usage.Normal, -1);
         this.uvPos = attribs.getOffset(VertexAttributes.Usage.TextureCoordinates, -1);
@@ -157,11 +166,11 @@ public class Terrain implements RenderableProvider, Disposable {
         // we are in upper left triangle of the square
         if (xCoord <= (1 - zCoord)) {
             c00.set(0, heightData[gridZ * vertexResolution + gridX], 0);
-            return MathUtils.barryCentric(c00, c10, c01, new Vector2(zCoord, xCoord));
+            return MathUtils.barryCentric(c00, c10, c01, tmpV2.set(zCoord, xCoord));
         }
         // bottom right triangle
         c11.set(1, heightData[(gridZ + 1) * vertexResolution + gridX + 1], 1);
-        return MathUtils.barryCentric(c10, c11, c01, new Vector2(zCoord, xCoord));
+        return MathUtils.barryCentric(c10, c11, c01, tmpV2.set(zCoord, xCoord));
     }
 
     public Vector3 getRayIntersection(Vector3 out, Ray ray) {
@@ -177,7 +186,7 @@ public class Terrain implements RenderableProvider, Disposable {
             ray.getEndPoint(out, curDistance);
 
             boolean u = isUnderTerrain(out);
-            if (u != isUnder || rounds == 10000) {
+            if (u != isUnder || rounds == 20000) {
                 return out;
             }
             curDistance += u ? -0.1f : 0.1f;
@@ -188,7 +197,7 @@ public class Terrain implements RenderableProvider, Disposable {
     private short[] buildIndices() {
         final int w = vertexResolution - 1;
         final int h = vertexResolution - 1;
-        short indices[] = new short[w * h * 6];
+        short[] indices = new short[w * h * 6];
         int i = -1;
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
@@ -259,7 +268,7 @@ public class Terrain implements RenderableProvider, Disposable {
      * surrounding vertices
      */
     private MeshPartBuilder.VertexInfo calculateNormalAt(MeshPartBuilder.VertexInfo out, int x, int y) {
-        out.normal.set(getNormalAt(x, y));
+        getNormalAt(out.normal, x, y);
         return out;
     }
 
@@ -268,7 +277,7 @@ public class Terrain implements RenderableProvider, Disposable {
      * position in terrain coordinates and returns normal at that point. If
      * point doesn't belong to terrain -- it returns default
      * <code>Vector.Y<code> normal.
-     * 
+     *
      * @param worldX
      *            the x coord in world
      * @param worldZ
@@ -276,7 +285,7 @@ public class Terrain implements RenderableProvider, Disposable {
      * @return normal at that point. If point doesn't belong to terrain -- it
      *         returns default <code>Vector.Y<code> normal.
      */
-    public Vector3 getNormalAtWordCoordinate(float worldX, float worldZ) {
+    public Vector3 getNormalAtWordCoordinate(Vector3 out, float worldX, float worldZ) {
         transform.getTranslation(c00);
         float terrainX = worldX - c00.x;
         float terrainZ = worldZ - c00.z;
@@ -289,20 +298,21 @@ public class Terrain implements RenderableProvider, Disposable {
             return Vector3.Y.cpy();
         }
 
-        return getNormalAt(gridX, gridZ);
+        return getNormalAt(out, gridX, gridZ);
     }
 
     /**
      * Get Normal at x,y point of terrain
-     * 
+     *
+     * @param out
+     *            Output vector
      * @param x
      *            the x coord on terrain
      * @param y
      *            the y coord on terrain( actual z)
      * @return the normal at the point of terrain
      */
-    public Vector3 getNormalAt(int x, int y) {
-        Vector3 out = new Vector3();
+    public Vector3 getNormalAt(Vector3 out, int x, int y) {
         // handle edges of terrain
         int xP1 = (x + 1 >= vertexResolution) ? vertexResolution - 1 : x + 1;
         int yP1 = (y + 1 >= vertexResolution) ? vertexResolution - 1 : y + 1;
@@ -321,7 +331,8 @@ public class Terrain implements RenderableProvider, Disposable {
     }
 
     public boolean isUnderTerrain(Vector3 worldCoords) {
-        float terrainHeight = getHeightAtWorldCoord(worldCoords.x, worldCoords.z);
+        // Factor in world height position as well via getPosition.
+        float terrainHeight = getHeightAtWorldCoord(worldCoords.x, worldCoords.z) + getPosition(tmp).y;
         return terrainHeight > worldCoords.y;
     }
 
@@ -350,6 +361,16 @@ public class Terrain implements RenderableProvider, Disposable {
 
     public void update() {
         buildVertices();
+
+        VertexAttribute normalMapUVs = null;
+        for(VertexAttribute a : attribs){
+            if(a.usage == VertexAttributes.Usage.TextureCoordinates){
+                normalMapUVs = a;
+            }
+        }
+        // Get tangents added to terrains vertices array for normal mapping
+        MeshTangentSpaceGenerator.computeTangentSpace(vertices, buildIndices(), attribs, false, true, normalMapUVs);
+
         mesh.setVertices(vertices);
     }
 

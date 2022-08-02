@@ -34,7 +34,7 @@ import com.mbrlabs.mundus.editor.ui.widgets.MaterialWidget
  * @author Marcus Brummer
  * @version 13-10-2016
  */
-class ModelAssetInspectorWidget : BaseInspectorWidget(ModelAssetInspectorWidget.TITLE) {
+class ModelAssetInspectorWidget : BaseInspectorWidget(TITLE) {
 
     private var modelAsset: ModelAsset? = null
 
@@ -44,6 +44,7 @@ class ModelAssetInspectorWidget : BaseInspectorWidget(ModelAssetInspectorWidget.
     private val materialCount = VisLabel()
     private val vertexCount = VisLabel()
     private val indexCount = VisLabel()
+    private val boneCount = VisLabel()
 
     // materials
     private val materialContainer = VisTable()
@@ -64,7 +65,8 @@ class ModelAssetInspectorWidget : BaseInspectorWidget(ModelAssetInspectorWidget.
         collapsibleContent.add(nodeCount).growX().row()
         collapsibleContent.add(materialCount).growX().row()
         collapsibleContent.add(vertexCount).growX().row()
-        collapsibleContent.add(indexCount).growX().padBottom(15f).row()
+        collapsibleContent.add(indexCount).growX().row()
+        collapsibleContent.add(boneCount).growX().padBottom(15f).row()
 
         // actions
         collapsibleContent.add(VisLabel("Actions")).growX().row()
@@ -104,6 +106,7 @@ class ModelAssetInspectorWidget : BaseInspectorWidget(ModelAssetInspectorWidget.
         materialCount.setText("Materials: " + model.materials.size)
         vertexCount.setText("Vertices: " + verts)
         indexCount.setText("Indices: " + indices)
+        boneCount.setText("Bones: " + modelAsset!!.meta.model.numBones)
 
         materialContainer.clear()
         for (g3dbMatID in modelAsset!!.defaultMaterials.keys) {

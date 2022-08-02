@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.widget.VisCheckBox
@@ -44,6 +45,7 @@ import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.ui.widgets.ImageChooserField
 import com.mbrlabs.mundus.editor.utils.createDefaultSkybox
+import java.util.HashMap
 
 /**
  * @author Marcus Brummer
@@ -57,12 +59,12 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
     private lateinit var rotateEnabled: VisCheckBox
     private var rotateSpeed = VisTextField()
 
-    private val positiveX: ImageChooserField = ImageChooserField(100, this)
-    private var negativeX: ImageChooserField = ImageChooserField(100, this)
-    private var positiveY: ImageChooserField = ImageChooserField(100, this)
-    private var negativeY: ImageChooserField = ImageChooserField(100, this)
-    private var positiveZ: ImageChooserField = ImageChooserField(100, this)
-    private var negativeZ: ImageChooserField = ImageChooserField(100, this)
+    private val positiveX: ImageChooserField = ImageChooserField(100, false, this)
+    private var negativeX: ImageChooserField = ImageChooserField(100, false, this)
+    private var positiveY: ImageChooserField = ImageChooserField(100, false, this)
+    private var negativeY: ImageChooserField = ImageChooserField(100, false, this)
+    private var positiveZ: ImageChooserField = ImageChooserField(100, false, this)
+    private var negativeZ: ImageChooserField = ImageChooserField(100, false, this)
 
     private var createBtn = VisTextButton("Create skybox")
     private var defaultBtn = VisTextButton("Create default skybox")
@@ -375,6 +377,13 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
 
     override fun onImageChosen() {
         validateFields()
+    }
+
+    override fun onImagesChosen(
+        images: Array<FileHandle>?,
+        failedFiles: HashMap<FileHandle, String>
+    ) {
+        // Unused
     }
 
 }
