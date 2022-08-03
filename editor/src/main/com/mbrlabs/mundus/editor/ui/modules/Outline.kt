@@ -292,16 +292,19 @@ class Outline : VisTable(),
     /**
      * Building tree from game objects in sceneGraph, clearing previous
      * sceneGraph
-
      * @param sceneGraph
      */
     private fun buildTree(sceneGraph: SceneGraph) {
+        // Get all expanded nodes so their expanded state can be preserved on rebuild of tree
+        val expandedObjects = Array<GameObject>()
+        getExpandedNodes(tree.rootNodes, expandedObjects)
+
         tree.clearChildren()
 
         var containsWater = false
 
         for (go in sceneGraph.gameObjects) {
-            addGoToTree(null, go)
+            addGoToTree(null, go, expandedObjects)
 
             if (containsWater) continue
 
@@ -323,26 +326,46 @@ class Outline : VisTable(),
     }
 
     /**
+     * Get all Outline nodes that are currently expanded and add to list
+     */
+    private fun getExpandedNodes(nodes: Array<OutlineNode>?, expandedObjects: Array<GameObject>) {
+        if (nodes == null || nodes.isEmpty) return
+
+        for (node in nodes) {
+            if (node.isExpanded) {
+                expandedObjects.add(node.value)
+            }
+            getExpandedNodes(node.children, expandedObjects)
+        }
+    }
+
+    /**
      * Adding game object to outline
 
      * @param treeParentNode
      * *
      * @param gameObject
      */
-    private fun addGoToTree(treeParentNode: Tree.Node<OutlineNode, GameObject, NodeTable>?, gameObject: GameObject) {
+    private fun addGoToTree(treeParentNode: Tree.Node<OutlineNode, GameObject, NodeTable>?, gameObject: GameObject, expandedList: Array<GameObject>?) {
         val leaf = OutlineNode(NodeTable(gameObject), gameObject)
         if (treeParentNode == null) {
             tree.add(leaf)
         } else {
             treeParentNode.add(leaf)
         }
-        // Always expand after adding new node
-        leaf.expandTo()
+        // Only expand object if it's in the expanded list
+        if (expandedList != null && expandedList.contains(gameObject, true)) {
+            leaf.expandAll()
+        }
         if (gameObject.children != null) {
             for (goChild in gameObject.children) {
-                addGoToTree(leaf, goChild)
+                addGoToTree(leaf, goChild, expandedList)
             }
         }
+    }
+
+    private fun addGoToTree(treeParentNode: Tree.Node<OutlineNode, GameObject, NodeTable>?, gameObject: GameObject) {
+        addGoToTree(treeParentNode, gameObject, null)
     }
 
     /**
@@ -417,10 +440,16 @@ class Outline : VisTable(),
     inner class NodeTable(go: GameObject) : VisTable() {
 
         val nameLabel: VisLabel = VisLabel()
+        val childCountLabel: VisLabel = VisLabel()
 
         init {
             add(nameLabel).expand().fill()
             nameLabel.setText(go.name)
+            if (go.children != null && !go.children.isEmpty) {
+                add(childCountLabel).padLeft(4f)
+                childCountLabel.setText("(${go.children.size})")
+                childCountLabel.color = if (go.active) Colors.TEAL else Colors.GRAY_888
+            }
             if (!go.active) nameLabel.color = Colors.GRAY_888
         }
     }
@@ -454,7 +483,7 @@ class Outline : VisTable(),
                 moveUp.addListener(object : ClickListener() {
                     override fun clicked(event: InputEvent?, x: Float, y: Float) {
                         val parentChildArray = getParentChildArray()
-                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode!!.value)
                         // If the current Node is NOT the first one...
                         if (currentNodeIndex > 0) {
                             parentChildArray.swap(currentNodeIndex, currentNodeIndex-1)
@@ -466,7 +495,7 @@ class Outline : VisTable(),
                 moveDown.addListener(object : ClickListener() {
                     override fun clicked(event: InputEvent?, x: Float, y: Float) {
                         val parentChildArray = getParentChildArray()
-                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode!!.value)
                         // If the current Node is NOT the last one...
                         if (currentNodeIndex < parentChildArray.size - 1) {
                             parentChildArray.swap(currentNodeIndex, currentNodeIndex+1)
@@ -478,13 +507,13 @@ class Outline : VisTable(),
                 moveToTop.addListener(object : ClickListener() {
                     override fun clicked(event: InputEvent?, x: Float, y: Float) {
                         val parentChildArray = getParentChildArray()
-                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode!!.value)
 
                         // If already at top, return
                         if (currentNodeIndex == 0) return
 
-                        parentChildArray.removeValue(currentNode, true)
-                        parentChildArray.insert(0, currentNode)
+                        parentChildArray.removeValue(currentNode!!.value, true)
+                        parentChildArray.insert(0, currentNode!!.value)
                         updateChildren()
                     }
                 })
@@ -492,13 +521,13 @@ class Outline : VisTable(),
                 moveToBottom.addListener(object : ClickListener() {
                     override fun clicked(event: InputEvent?, x: Float, y: Float) {
                         val parentChildArray = getParentChildArray()
-                        val currentNodeIndex = parentChildArray.indexOf(currentNode)
+                        val currentNodeIndex = parentChildArray.indexOf(currentNode!!.value)
 
                         // If already at bottom, return
                         if (currentNodeIndex == parentChildArray.size - 1) return
 
-                        parentChildArray.removeValue(currentNode, true)
-                        parentChildArray.insert(parentChildArray.size, currentNode)
+                        parentChildArray.removeValue(currentNode!!.value, true)
+                        parentChildArray.insert(parentChildArray.size, currentNode!!.value)
                         updateChildren()
                     }
                 })
@@ -508,10 +537,10 @@ class Outline : VisTable(),
                 moveMenuItem.isDisabled = currentNode == null
                 if (currentNode == null) return
 
-                val parentChildArray: Array<OutlineNode> = getParentChildArray()
+                val parentChildArray: Array<GameObject> = getParentChildArray()
 
                 // Disable move menu items depending on nodes current index
-                val nodeIndex = parentChildArray.indexOf(currentNode, true)
+                val nodeIndex = parentChildArray.indexOf(currentNode!!.value, true)
                 moveUp.isDisabled = nodeIndex == 0
                 moveToTop.isDisabled = nodeIndex == 0
                 moveDown.isDisabled = nodeIndex == parentChildArray.size - 1
@@ -521,20 +550,12 @@ class Outline : VisTable(),
             /**
              * Get the parents child array of current node, for root nodes .parent is null
              */
-            fun getParentChildArray(): Array<OutlineNode> {
-                return if (currentNode!!.parent == null) {
-                    tree.rootNodes
-                } else {
-                    currentNode!!.parent.children
-                }
+            fun getParentChildArray(): Array<GameObject> {
+                return currentNode!!.value.parent.children
             }
 
             private fun updateChildren() {
-                if (currentNode!!.parent == null) {
-                    tree.updateRootNodes()
-                } else {
-                    currentNode!!.parent.updateChildren()
-                }
+                buildTree(currentNode!!.value.sceneGraph)
             }
         }
 
