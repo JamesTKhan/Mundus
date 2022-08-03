@@ -170,6 +170,8 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
         mc.shader = this.shader;
         mc.materials = this.materials;
         mc.setDimensions(mc.modelInstance);
+        mc.setUseModelCache(useModelCache);
+        gameObject.sceneGraph.scene.modelCacheManager.requestModelCacheRebuild();
         return mc;
     }
 

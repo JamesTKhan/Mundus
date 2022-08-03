@@ -40,7 +40,11 @@ public class ModelCacheManager implements Disposable {
         }
     }
 
-    protected void rebuildModelCache() {
+    /**
+     * Rebuilds model cache for the current scene. Potentially expensive
+     * depending on the size of the scene and should only be rebuilt when needed.
+     */
+    public void rebuildModelCache() {
         modelCache.begin(scene.cam);
         addModelsToCache(scene.sceneGraph.getGameObjects());
         modelCache.end();
@@ -91,6 +95,21 @@ public class ModelCacheManager implements Disposable {
      */
     public void setModelCacheUpdateInterval(float interval) {
         modelCacheUpdateInterval = interval;
+    }
+
+    /**
+     * Rebuild model cache if given GameObject has a cacheable component.
+     */
+    public static void rebuildIfCached(GameObject go, boolean immediately) {
+        for (int i = 0; i < go.getComponents().size; i++) {
+            if (go.getComponents().get(i) instanceof ModelCacheable) {
+                if (immediately)
+                    go.sceneGraph.scene.modelCacheManager.rebuildModelCache();
+                else
+                    go.sceneGraph.scene.modelCacheManager.requestModelCacheRebuild();
+                break;
+            }
+        }
     }
 
     @Override
