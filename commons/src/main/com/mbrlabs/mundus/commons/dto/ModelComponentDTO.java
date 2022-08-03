@@ -26,6 +26,7 @@ public class ModelComponentDTO {
 
     private String modelID;
     private HashMap<String, String> materials; // g3db material id to material asset uuid
+    private boolean useModelCache;
 
     public ModelComponentDTO() {
         materials = new HashMap<>();
@@ -47,4 +48,11 @@ public class ModelComponentDTO {
         this.modelID = modelID;
     }
 
+    public boolean isUseModelCache() {
+        return useModelCache;
+    }
+
+    public void setUseModelCache(boolean useModelCache) {
+        this.useModelCache = useModelCache;
+    }
 }

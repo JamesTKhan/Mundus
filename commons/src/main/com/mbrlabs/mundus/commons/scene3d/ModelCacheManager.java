@@ -1,0 +1,100 @@
+package com.mbrlabs.mundus.commons.scene3d;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.g3d.ModelCache;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
+import com.mbrlabs.mundus.commons.Scene;
+import com.mbrlabs.mundus.commons.scene3d.components.Component;
+
+/**
+ * Manages a ModelCache and keeps it up to date based on requests for rebuilds and set intervals
+ *
+ * @author JamesTKhan
+ * @version August 02, 2022
+ */
+public class ModelCacheManager implements Disposable {
+    private final Scene scene;
+
+    public ModelCache modelCache;
+    protected float modelCacheUpdateInterval = 0.5f;
+    protected float lastModelCacheRebuild = modelCacheUpdateInterval;
+    protected boolean modelCacheRebuildRequested = true;
+
+    public ModelCacheManager(Scene scene) {
+        modelCache = new ModelCache();
+        this.scene = scene;
+    }
+
+    public void update(float delta) {
+        if (modelCacheRebuildRequested) {
+            lastModelCacheRebuild += delta;
+
+            if (lastModelCacheRebuild > modelCacheUpdateInterval) {
+                modelCacheRebuildRequested = false;
+                lastModelCacheRebuild = 0f;
+                rebuildModelCache();
+            }
+        }
+    }
+
+    protected void rebuildModelCache() {
+        modelCache.begin(scene.cam);
+        addModelsToCache(scene.sceneGraph.getGameObjects());
+        modelCache.end();
+    }
+
+    protected void addModelsToCache(Array<GameObject> gameObjects) {
+        for (GameObject go : gameObjects) {
+
+            if (!go.active) continue;
+
+            for (Component comp : go.getComponents()) {
+                if (comp instanceof ModelCacheable && ((ModelCacheable) comp).shouldCache()) {
+                    ModelInstance modelInstance = ((ModelCacheable) comp).getModelInstance();
+
+                    boolean skip = false;
+                    for (Mesh mesh : modelInstance.model.meshes) {
+                        if (mesh.getNumIndices() <= 0) {
+                            Gdx.app.error(this.getClass().getSimpleName(), "Issues in mesh for " + go.name + " prevent it from being cacheable. Try cleaning mesh up in 3D modeling software.");
+                            skip = true;
+                            break;
+                        }
+                    }
+                    if (skip) {
+                        continue;
+                    }
+
+                    modelCache.add(((ModelCacheable) comp).getModelInstance());
+                }
+            }
+
+            if (go.getChildren() != null) {
+                addModelsToCache(go.getChildren());
+            }
+        }
+    }
+
+    /**
+     * Request for the model cache to be rebuilt on the next interval
+     */
+    public void requestModelCacheRebuild() {
+        modelCacheRebuildRequested = true;
+    }
+
+    /**
+     * Change how often the model cache should be updated, in seconds.
+     *
+     * @param interval update interval
+     */
+    public void setModelCacheUpdateInterval(float interval) {
+        modelCacheUpdateInterval = interval;
+    }
+
+    @Override
+    public void dispose() {
+        modelCache.dispose();
+    }
+}
