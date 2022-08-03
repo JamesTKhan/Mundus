@@ -41,7 +41,6 @@ import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
-import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -53,6 +52,7 @@ import net.mgsx.gltf.scene3d.utils.IBLBuilder;
  * @version 22-12-2015
  */
 public class Scene implements Disposable {
+    public static boolean isRuntime = true;
 
     private String name;
     private long id;
@@ -67,9 +67,9 @@ public class Scene implements Disposable {
     public ModelBatch batch;
     public ModelBatch depthBatch;
 
-    private FrameBuffer fboWaterReflection;
-    private FrameBuffer fboWaterRefraction;
-    private FrameBuffer fboDepthRefraction;
+    protected FrameBuffer fboWaterReflection;
+    protected FrameBuffer fboWaterRefraction;
+    protected FrameBuffer fboDepthRefraction;
 
     private DepthShader depthShader;
     private ShadowMapShader shadowMapShader;
@@ -200,10 +200,10 @@ public class Scene implements Disposable {
         shadowMapper.end();
     }
 
-    private void initFrameBuffers(int width, int height) {
-        fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-        fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-        fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+    protected void initFrameBuffers(int width, int height) {
+        fboWaterReflection = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        fboWaterRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        fboDepthRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
     }
 
     private void captureReflectionFBO(float delta) {
