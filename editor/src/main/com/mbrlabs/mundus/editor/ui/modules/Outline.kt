@@ -448,7 +448,7 @@ class Outline : VisTable(),
             if (go.children != null && !go.children.isEmpty) {
                 add(childCountLabel).padLeft(4f)
                 childCountLabel.setText("(${go.children.size})")
-                childCountLabel.color = if (go.active) Colors.TEAL else Colors.GRAY_888
+                childCountLabel.color = if (go.active) Colors.TEAL_LIGHT else Colors.GRAY_888
             }
             if (!go.active) nameLabel.color = Colors.GRAY_888
         }
