@@ -88,6 +88,7 @@ class Outline : VisTable(),
 
         tree = VisTree<OutlineNode, GameObject>()
         tree.selection.setProgrammaticChangeEvents(false)
+        tree.indentSpacing = 10f
         scrollPane = VisScrollPane(tree)
         scrollPane.setFlickScroll(false)
         scrollPane.setFadeScrollBars(false)
