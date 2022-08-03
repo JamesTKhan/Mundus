@@ -34,7 +34,7 @@ import com.mbrlabs.mundus.editor.events.FilesDroppedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.editor.ui.widgets.ImageChooserField
-import com.mbrlabs.mundus.editor.ui.widgets.ImageChooserField.validateImageFile
+import com.mbrlabs.mundus.editor.utils.ImageUtils
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.isImage
 import java.io.File
@@ -144,7 +144,7 @@ class ImportTextureDialog : BaseDialog("Import Texture"), FilesDroppedEvent.File
 
         if (event.files.size == 1) {
             val fileHandle = FileHandle(File(event.files[0]))
-            val errorMessage = validateImageFile(fileHandle)
+            val errorMessage = ImageUtils.validateImageFile(fileHandle)
 
             if (errorMessage == null) {
                 importTextureTable.getImageChooserField().setImage(fileHandle)
@@ -160,7 +160,7 @@ class ImportTextureDialog : BaseDialog("Import Texture"), FilesDroppedEvent.File
 
         for (filePath in event.files) {
             val fileHandle = FileHandle(File(filePath))
-            val errorMessage = validateImageFile(fileHandle)
+            val errorMessage = ImageUtils.validateImageFile(fileHandle)
             if (errorMessage == null) {
                 files.add(fileHandle)
             } else {

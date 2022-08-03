@@ -33,7 +33,7 @@ import com.kotcrab.vis.ui.widget.file.FileChooser;
 import com.kotcrab.vis.ui.widget.file.SingleFileChooserListener;
 import com.kotcrab.vis.ui.widget.file.StreamingFileChooserListener;
 import com.mbrlabs.mundus.editor.ui.UI;
-import com.mbrlabs.mundus.editor.utils.FileFormatUtils;
+import com.mbrlabs.mundus.editor.utils.ImageUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +50,8 @@ public class ImageChooserField extends VisTable {
     private final int width;
     private final VisTextButton fcBtn;
     private final boolean multiSelectEnabled;
+    private boolean requireSquareImage = false; // Require image to be perfect square
+    private boolean requirePowerOfTwo = false;  // Require image width/height to be power of 2
     private final ImageChosenListener listener;
 
     private Array<FileHandle> selectedFiles = null;
@@ -200,16 +202,24 @@ public class ImageChooserField extends VisTable {
         }
     }
 
-    public static String validateImageFile(FileHandle fileHandle) {
-        if (!fileHandle.exists()) {
-            return "File does not exist or unable to import.";
-        }
+    public String validateImageFile(FileHandle fileHandle) {
+        return ImageUtils.INSTANCE.validateImageFile(fileHandle, requireSquareImage, requirePowerOfTwo);
+    }
 
-        if (!FileFormatUtils.isImage(fileHandle)) {
-            return "Format not supported. Supported formats: png, jpg, jpeg, tga.";
-        }
+    public boolean isRequireSquareImage() {
+        return requireSquareImage;
+    }
 
-        return null;
+    public void setRequireSquareImage(boolean requireSquareImage) {
+        this.requireSquareImage = requireSquareImage;
+    }
+
+    public boolean isRequirePowerOfTwo() {
+        return requirePowerOfTwo;
+    }
+
+    public void setRequirePowerOfTwo(boolean requirePowerOfTwo) {
+        this.requirePowerOfTwo = requirePowerOfTwo;
     }
 
     public interface ImageChosenListener {
