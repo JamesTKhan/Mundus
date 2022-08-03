@@ -105,6 +105,12 @@ class MaterialWidget : VisTable() {
                 alphaTestField.value = value.alphaTest
                 normalScaleField.value = value.normalScale
                 shadowBiasField.value = value.shadowBias
+
+                val cullValues = Array<CullFace>()
+                for (cullValue in CullFace.values())
+                    cullValues.add(cullValue)
+                cullFaceSelectBox.items = cullValues
+
                 cullFaceSelectBox.selected = CullFace.getFromValue(value.cullFace)
 
                 scaleUField.textField.text = value.diffuseTexCoord.scaleU.toString()
@@ -194,12 +200,6 @@ class MaterialWidget : VisTable() {
         sliderTable.add(ToolTipLabel("Shadow Bias", "Increase to reduce shadow acne. Increase wisely as " +
                 "higher bias results in peter-panning effect.")).left()
         sliderTable.add(shadowBiasField).growX().row()
-
-        val values = Array<CullFace>()
-        for (value in CullFace.values())
-            values.add(value)
-
-        cullFaceSelectBox.items = values
 
         val cullTip = buildString {
             append("NONE: No culling\n")
