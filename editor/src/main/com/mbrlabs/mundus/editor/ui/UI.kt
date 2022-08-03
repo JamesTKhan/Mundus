@@ -33,7 +33,7 @@ import com.mbrlabs.mundus.editor.VERSION
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
 import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.ui.modules.MundusToolbar
-import com.mbrlabs.mundus.editor.ui.modules.Outline
+import com.mbrlabs.mundus.editor.ui.modules.outline.Outline
 import com.mbrlabs.mundus.editor.ui.modules.StatusBar
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.AddComponentDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.AmbientLightDialog
