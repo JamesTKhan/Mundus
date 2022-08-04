@@ -121,8 +121,11 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
             delete.isDisabled = true
         }
 
-        // terrainAsset can not be duplicated
-        duplicate.isDisabled = selectedGO == null || selectedGO!!.findComponentByType(Component.Type.TERRAIN) != null
+
+        // some assets can not be duplicated
+        duplicate.isDisabled = selectedGO == null
+                || selectedGO!!.findComponentByType(Component.Type.TERRAIN) != null
+                || selectedGO!!.findComponentByType(Component.Type.WATER) != null
     }
 
     fun showRenameDialog() {
