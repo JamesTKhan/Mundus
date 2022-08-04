@@ -82,4 +82,8 @@ public class MathUtils {
         vectorToRotate.rotate(axis, angleDegrees);
     }
 
+    public static boolean isPowerOfTwo(int number) {
+        return (number & (number - 1)) == 0;
+    }
+
 }

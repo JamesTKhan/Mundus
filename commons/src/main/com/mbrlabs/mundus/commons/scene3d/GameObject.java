@@ -279,6 +279,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
     public void addComponent(Component component) throws InvalidComponentException {
         isComponentAddable(component);
         components.add(component);
+
         if (component instanceof WaterComponent) {
             hasWaterComponent = true;
         }

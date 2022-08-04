@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.commons.scene3d.components;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.WaterAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -96,6 +97,6 @@ public class WaterComponent extends CullableComponent implements AssetUsage {
 
     @Override
     public Component clone(GameObject go) {
-        return null;
+        throw new GdxRuntimeException("Duplicating water is not supported.");
     }
 }

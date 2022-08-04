@@ -11,6 +11,7 @@ fun createWaterGO(sg: SceneGraph, shader: WaterShader, goID: Int, goName: String
                   water: WaterAsset): GameObject {
     val waterGO = GameObject(sg, null, goID)
     waterGO.name = goName
+    waterGO.hasWaterComponent = true
 
     water.water.setTransform(waterGO.transform)
     val waterComponent = PickableWaterComponent(waterGO, Shaders.waterShader)

@@ -58,10 +58,12 @@ public class SceneGraph {
         for (GameObject go : root.getChildren()) {
             if (go.hasWaterComponent) {
                 WaterComponent waterComponent = (WaterComponent) go.findComponentByType(Component.Type.WATER);
-                waterComponent.getWaterAsset().setWaterReflectionTexture(reflectionTexture);
-                waterComponent.getWaterAsset().setWaterRefractionTexture(refraction);
-                waterComponent.getWaterAsset().setWaterRefractionDepthTexture(refractionDepth);
-                go.render(delta);
+                if (waterComponent != null) {
+                    waterComponent.getWaterAsset().setWaterReflectionTexture(reflectionTexture);
+                    waterComponent.getWaterAsset().setWaterRefractionTexture(refraction);
+                    waterComponent.getWaterAsset().setWaterRefractionDepthTexture(refractionDepth);
+                    go.render(delta);
+                }
             }
         }
     }

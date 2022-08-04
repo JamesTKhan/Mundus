@@ -45,7 +45,6 @@ import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.ui.widgets.ImageChooserField
 import com.mbrlabs.mundus.editor.utils.createDefaultSkybox
-import java.util.HashMap
 
 /**
  * @author Marcus Brummer
@@ -89,6 +88,20 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
         positiveZ.setButtonText("Front (+Z)")
         negativeZ.setButtonText("Back (-Z)")
 
+        positiveX.isRequireSquareImage = true
+        negativeX.isRequireSquareImage = true
+        positiveY.isRequireSquareImage = true
+        negativeY.isRequireSquareImage = true
+        positiveZ.isRequireSquareImage = true
+        negativeZ.isRequireSquareImage = true
+
+        positiveX.isRequirePowerOfTwo = true
+        negativeX.isRequirePowerOfTwo = true
+        positiveY.isRequirePowerOfTwo = true
+        negativeY.isRequirePowerOfTwo = true
+        positiveZ.isRequirePowerOfTwo = true
+        negativeZ.isRequirePowerOfTwo = true
+
         rotateEnabled = VisCheckBox(null)
 
         root = VisTable()
@@ -110,7 +123,6 @@ class SkyboxDialog : BaseDialog("Skybox"), ProjectChangedEvent.ProjectChangedLis
         settingsTable.add(VisLabel("Rotate Speed: "))
         settingsTable.add(rotateSpeed).row()
         root.add(settingsTable).left().padBottom(10f).row()
-
 
         // Image pickers
         root.add(VisLabel("Create a Skybox")).left().padTop(10f).row()

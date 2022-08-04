@@ -29,6 +29,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
+import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 
 /**
@@ -112,8 +113,18 @@ public class ShadowMapper implements ShadowMap, Disposable {
         this.shadowResolution = resolution;
         this.textureWidth = (int) res.x;
         this.textureHeight = (int) res.y;
-        fbo.dispose();
-        fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
+        initFbo();
+    }
+
+    private void initFbo() {
+        if (fbo != null) {
+            fbo.dispose();
+        }
+        if (Scene.isRuntime) {
+            fbo = new FrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
+        } else {
+            fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
+        }
     }
 
     /**
@@ -129,11 +140,7 @@ public class ShadowMapper implements ShadowMap, Disposable {
         this.near = nearPlane;
         this.far = farPlane;
 
-        if (fbo != null) {
-            fbo.dispose();
-        }
-
-        fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, textureWidth, textureHeight, true);
+        initFbo();
 
         if (cam == null) {
             cam = new OrthographicCamera(this.viewportWidth, this.viewportHeight);

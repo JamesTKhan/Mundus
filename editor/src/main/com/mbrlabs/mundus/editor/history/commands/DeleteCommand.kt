@@ -22,7 +22,7 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.history.Command
-import com.mbrlabs.mundus.editor.ui.modules.Outline
+import com.mbrlabs.mundus.editor.ui.modules.outline.Outline
 import com.mbrlabs.mundus.editor.utils.Log
 
 /**
