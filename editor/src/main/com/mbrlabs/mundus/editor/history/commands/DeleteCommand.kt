@@ -17,6 +17,7 @@ package com.mbrlabs.mundus.editor.history.commands
 
 import com.badlogic.gdx.scenes.scene2d.ui.Tree
 import com.mbrlabs.mundus.commons.scene3d.GameObject
+import com.mbrlabs.mundus.commons.scene3d.ModelCacheManager
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
@@ -54,6 +55,7 @@ class DeleteCommand(private var go: GameObject?, private var node: Outline.Outli
         // remove from outline tree
         tree!!.remove(node)
         Mundus.postEvent(SceneGraphChangedEvent())
+        ModelCacheManager.rebuildIfCached(go, true)
     }
 
     override fun undo() {
@@ -67,6 +69,7 @@ class DeleteCommand(private var go: GameObject?, private var node: Outline.Outli
             parentNode!!.add(node)
         node.expandTo()
         Mundus.postEvent(SceneGraphChangedEvent())
+        ModelCacheManager.rebuildIfCached(go, true)
 
         // For components that utilize gizmos we should send a ComponentAddedEvent
         // so that GizmoManager can update as needed.

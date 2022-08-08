@@ -58,7 +58,9 @@ public class PickableModelComponent extends ModelComponent implements PickableCo
         mc.shader = this.shader;
         mc.materials = this.materials;
         mc.setDimensions(mc.modelInstance);
+        mc.setUseModelCache(useModelCache);
         mc.encodeRaypickColorId();
+        gameObject.sceneGraph.scene.modelCacheManager.requestModelCacheRebuild();
         return mc;
     }
 }
