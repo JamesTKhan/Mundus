@@ -37,6 +37,7 @@ import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.physics.bullet.BulletPhysicsSystem;
 import com.mbrlabs.mundus.commons.physics.enums.PhysicsState;
+import com.mbrlabs.mundus.commons.scene3d.ModelCacheManager;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.shaders.DepthShader;
 import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
@@ -70,6 +71,7 @@ public class Scene implements Disposable {
     public PerspectiveCamera cam;
     public ModelBatch batch;
     public ModelBatch depthBatch;
+    public ModelCacheManager modelCacheManager;
 
     protected FrameBuffer fboWaterReflection;
     protected FrameBuffer fboWaterRefraction;
@@ -99,6 +101,7 @@ public class Scene implements Disposable {
     public Scene(boolean hasGLContext) {
         environment = new MundusEnvironment();
         settings = new SceneSettings();
+        modelCacheManager = new ModelCacheManager(this);
 
         cam = new PerspectiveCamera(CameraSettings.DEFAULT_FOV, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 1, -3);
@@ -158,6 +161,8 @@ public class Scene implements Disposable {
             initFrameBuffers((int) res.x, (int) res.y);
          }
 
+        modelCacheManager.update(delta);
+
         if (sceneGraph.isContainsWater()) {
             captureDepth(delta);
             captureReflectionFBO(delta);
@@ -210,6 +215,7 @@ public class Scene implements Disposable {
         // Render objects
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneDisable, 0);
+        batch.render(modelCacheManager.modelCache, environment);
         batch.end();
     }
 
@@ -243,6 +249,7 @@ public class Scene implements Disposable {
         shadowMapper.begin(light.direction);
         depthBatch.begin(shadowMapper.getCam());
         sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
+        depthBatch.render(modelCacheManager.modelCache, environment, shadowMapShader);
         depthBatch.end();
         shadowMapper.end();
     }
@@ -272,6 +279,7 @@ public class Scene implements Disposable {
         renderSkybox();
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneReflection, -settings.waterHeight + settings.distortionEdgeCorrection);
+        batch.render(modelCacheManager.modelCache, environment);
         batch.end();
         fboWaterReflection.end();
 
@@ -287,6 +295,7 @@ public class Scene implements Disposable {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         depthBatch.begin(cam);
         sceneGraph.renderDepth(delta, clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection, depthShader);
+        depthBatch.render(modelCacheManager.modelCache, environment, depthShader);
         depthBatch.end();
         fboDepthRefraction.end();
     }
@@ -306,6 +315,7 @@ public class Scene implements Disposable {
         renderSkybox();
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection);
+        batch.render(modelCacheManager.modelCache, environment);
         batch.end();
         fboWaterRefraction.end();
     }
@@ -412,5 +422,6 @@ public class Scene implements Disposable {
         if (physicsSystem != null) {
             physicsSystem.dispose();
         }
+        modelCacheManager.dispose();
     }
 }

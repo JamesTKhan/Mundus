@@ -23,6 +23,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
 import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
 
@@ -66,6 +67,13 @@ public abstract class CullableComponent extends AbstractComponent {
         if (!gameObject.sceneGraph.scene.settings.useFrustumCulling) {
             isCulled = false;
             return;
+        }
+
+        // Cannot frustum cull model cache objects, no reason for perform calculations
+        if (this instanceof ModelCacheable) {
+            if (((ModelCacheable) this).shouldCache()) {
+                isCulled = false;
+            }
         }
 
         boolean visibleToPerspective;

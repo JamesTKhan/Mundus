@@ -37,6 +37,7 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.FilesDroppedEvent
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
+import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.input.FreeCamController
@@ -63,7 +64,8 @@ import org.lwjgl.opengl.GL11
 class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         ProjectChangedEvent.ProjectChangedListener,
         SceneChangedEvent.SceneChangedListener,
-        FullScreenEvent.FullScreenEventListener {
+        FullScreenEvent.FullScreenEventListener,
+        GameObjectModifiedEvent.GameObjectModifiedListener {
 
     private lateinit var axesInstance: ModelInstance
     private lateinit var compass: Compass
@@ -294,6 +296,11 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
     override fun filesDropped(files: Array<out String>?) {
         Mundus.postEvent(FilesDroppedEvent(files))
+    }
+
+    override fun onGameObjectModified(event: GameObjectModifiedEvent) {
+        if (event.gameObject == null) return
+        projectManager.current().currScene.modelCacheManager.requestModelCacheRebuild()
     }
 
     override fun dispose() {
