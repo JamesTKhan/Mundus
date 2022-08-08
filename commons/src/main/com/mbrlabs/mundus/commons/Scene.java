@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.env.CameraSettings;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
+import com.mbrlabs.mundus.commons.scene3d.ModelCacheManager;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.shaders.DepthShader;
 import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
@@ -41,7 +42,6 @@ import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
-import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -53,6 +53,7 @@ import net.mgsx.gltf.scene3d.utils.IBLBuilder;
  * @version 22-12-2015
  */
 public class Scene implements Disposable {
+    public static boolean isRuntime = true;
 
     private String name;
     private long id;
@@ -66,10 +67,11 @@ public class Scene implements Disposable {
     public PerspectiveCamera cam;
     public ModelBatch batch;
     public ModelBatch depthBatch;
+    public ModelCacheManager modelCacheManager;
 
-    private FrameBuffer fboWaterReflection;
-    private FrameBuffer fboWaterRefraction;
-    private FrameBuffer fboDepthRefraction;
+    protected FrameBuffer fboWaterReflection;
+    protected FrameBuffer fboWaterRefraction;
+    protected FrameBuffer fboDepthRefraction;
 
     private DepthShader depthShader;
     private ShadowMapShader shadowMapShader;
@@ -79,9 +81,23 @@ public class Scene implements Disposable {
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
 
+    /**
+     * The default way to instantiate a scene. Use this constructor if you
+     * are using the runtime.
+     */
     public Scene() {
+        this(true);
+    }
+
+    /**
+     * Optionally allow instantiation of a scene without using any OpenGL context
+     * useful for when you need a scene object loaded on a different thread.
+     * @param hasGLContext normally this should be true, false if you are not on main thread
+     */
+    public Scene(boolean hasGLContext) {
         environment = new MundusEnvironment();
         settings = new SceneSettings();
+        modelCacheManager = new ModelCacheManager(this);
 
         cam = new PerspectiveCamera(CameraSettings.DEFAULT_FOV, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 1, -3);
@@ -98,9 +114,10 @@ public class Scene implements Disposable {
         environment.getAmbientLight().intensity = 0.8f;
         environment.set(ColorAttribute.createAmbientLight(Color.WHITE));
 
-        initPBR();
-
-        setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
+        if (hasGLContext) {
+            initPBR();
+            setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
+        }
 
         sceneGraph = new SceneGraph(this);
     }
@@ -133,6 +150,8 @@ public class Scene implements Disposable {
             initFrameBuffers((int) res.x, (int) res.y);
         }
 
+        modelCacheManager.update(delta);
+
         if (sceneGraph.isContainsWater()) {
             captureDepth(delta);
             captureReflectionFBO(delta);
@@ -149,6 +168,7 @@ public class Scene implements Disposable {
         // Render objects
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneDisable, 0);
+        batch.render(modelCacheManager.modelCache, environment);
         batch.end();
     }
 
@@ -182,14 +202,15 @@ public class Scene implements Disposable {
         shadowMapper.begin(light.direction);
         depthBatch.begin(shadowMapper.getCam());
         sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
+        depthBatch.render(modelCacheManager.modelCache, environment, shadowMapShader);
         depthBatch.end();
         shadowMapper.end();
     }
 
-    private void initFrameBuffers(int width, int height) {
-        fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-        fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-        fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+    protected void initFrameBuffers(int width, int height) {
+        fboWaterReflection = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        fboWaterRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        fboDepthRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
     }
 
     private void captureReflectionFBO(float delta) {
@@ -211,6 +232,7 @@ public class Scene implements Disposable {
         renderSkybox();
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneReflection, -settings.waterHeight + settings.distortionEdgeCorrection);
+        batch.render(modelCacheManager.modelCache, environment);
         batch.end();
         fboWaterReflection.end();
 
@@ -226,6 +248,7 @@ public class Scene implements Disposable {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         depthBatch.begin(cam);
         sceneGraph.renderDepth(delta, clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection, depthShader);
+        depthBatch.render(modelCacheManager.modelCache, environment, depthShader);
         depthBatch.end();
         fboDepthRefraction.end();
     }
@@ -245,6 +268,7 @@ public class Scene implements Disposable {
         renderSkybox();
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection);
+        batch.render(modelCacheManager.modelCache, environment);
         batch.end();
         fboWaterRefraction.end();
     }
@@ -343,5 +367,6 @@ public class Scene implements Disposable {
         if (skybox != null) {
             skybox.dispose();
         }
+        modelCacheManager.dispose();
     }
 }

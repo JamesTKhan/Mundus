@@ -38,6 +38,7 @@ public class ModelComponentConverter {
                                          Shaders shaders, AssetManager assetManager) {
         ModelComponent mc = new ModelComponent(gameObject);
         mc.setModel((ModelAsset) assetManager.findAssetByID(modelComponentDTO.getModelID()), false);
+        mc.setUseModelCache(modelComponentDTO.isUseModelCache());
 
         for(Map.Entry<String, String> entry : modelComponentDTO.getMaterials().entrySet()) {
             mc.getMaterials().put(entry.getKey(), (MaterialAsset) assetManager.findAssetByID(entry.getValue()));

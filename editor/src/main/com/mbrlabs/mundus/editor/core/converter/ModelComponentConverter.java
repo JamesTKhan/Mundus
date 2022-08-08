@@ -22,7 +22,6 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.dto.ModelComponentDTO;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
-import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.utils.Log;
 
 import java.util.Map;
@@ -48,6 +47,7 @@ public class ModelComponentConverter {
 
         PickableModelComponent component = new PickableModelComponent(go);
         component.setModel(model, false);
+        component.setUseModelCache(dto.isUseModelCache());
 
         for (String g3dbMatID : dto.getMaterials().keySet()) {
             String uuid = dto.getMaterials().get(g3dbMatID);
@@ -64,6 +64,7 @@ public class ModelComponentConverter {
     public static ModelComponentDTO convert(PickableModelComponent modelComponent) {
         ModelComponentDTO dto = new ModelComponentDTO();
         dto.setModelID(modelComponent.getModelAsset().getID());
+        dto.setUseModelCache(modelComponent.shouldCache());
 
         // materials
         for (String g3dbMatID : modelComponent.getMaterials().keys()) {

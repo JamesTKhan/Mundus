@@ -30,5 +30,6 @@ object Colors {
     val GRAY_111 = Color(0x111111ff)
 
     val TEAL = Color(0x00b695ff)
+    val TEAL_LIGHT = Color.valueOf("a5feee")
 
 }

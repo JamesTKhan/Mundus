@@ -16,6 +16,9 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.inspector.components
 
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
+import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
@@ -23,6 +26,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
 import com.mbrlabs.mundus.editor.ui.widgets.MaterialWidget
+import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 
 /**
  * @author Marcus Brummer
@@ -31,6 +35,7 @@ import com.mbrlabs.mundus.editor.ui.widgets.MaterialWidget
 class ModelComponentWidget(modelComponent: ModelComponent) : ComponentWidget<ModelComponent>("Model Component", modelComponent) {
 
     private val materialContainer = VisTable()
+    private val useModelCache = VisCheckBox(null)
 
     init {
         this.component = modelComponent
@@ -44,6 +49,11 @@ class ModelComponentWidget(modelComponent: ModelComponent) : ComponentWidget<Mod
         //collapsibleContent.add(selectBox).expandX().fillX().row();
         collapsibleContent.add(VisLabel("Model asset: " + component.modelAsset.name)).grow().padBottom(15f).row()
 
+        val cacheTable = VisTable()
+        cacheTable.add(ToolTipLabel("Use in Model Cache? ", "Merges meshes together to reduce draw counts.\nNote: Only applicable for static, non-moving, non-animated models!")).padRight(2f)
+        cacheTable.add(useModelCache).left()
+        collapsibleContent.add(cacheTable).left().padBottom(5f).row()
+
         // create materials for all model nodes
         collapsibleContent.add(VisLabel("Materials")).expandX().fillX().left().padBottom(3f).padTop(3f).row()
         collapsibleContent.addSeparator().row()
@@ -51,11 +61,21 @@ class ModelComponentWidget(modelComponent: ModelComponent) : ComponentWidget<Mod
         val label = VisLabel()
         label.setWrap(true)
         label.setText("Here you change the materials of model components individually.\n"
-                + "Modifing the material will update all components, that use that material.")
+                + "Modifying the material will update all components, that use that material.")
         collapsibleContent.add(label).grow().padBottom(10f).row()
 
         collapsibleContent.add(materialContainer).grow().row()
         buildMaterials()
+
+        useModelCache.isChecked = component.shouldCache()
+
+        useModelCache.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                if (component.shouldCache() == useModelCache.isChecked) return
+                component.setUseModelCache(useModelCache.isChecked)
+                component.gameObject.sceneGraph.scene.modelCacheManager.requestModelCacheRebuild()
+            }
+        })
     }
 
     private fun buildMaterials() {

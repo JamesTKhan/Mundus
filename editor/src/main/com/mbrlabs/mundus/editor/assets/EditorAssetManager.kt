@@ -42,7 +42,6 @@ import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
 import com.mbrlabs.mundus.editor.Mundus.postEvent
-import com.mbrlabs.mundus.editor.core.EditorScene
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
@@ -210,6 +209,15 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         assetIndex[textureAsset.id] = textureAsset
         metaSaver.save(textureAsset.meta)
         return textureAsset
+    }
+
+    private fun getStandardAssets(): Array<Asset> {
+        val standardAssets = Array<Asset>()
+        standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD))
+        standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_DUDV))
+        standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_WATER_NORMAL))
+        standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_WATER_FOAM))
+        return standardAssets
     }
 
     /**
@@ -457,9 +465,41 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     /**
-     * Delete the asset from the project
+     * Searches all GameObjects and assets to find assets which are not used.
      */
-    fun deleteAsset(asset: Asset, projectManager: ProjectManager) {
+    fun findUnusedAssets(projectManager: ProjectManager): Array<Asset> {
+        val unusedAssets = Array<Asset>()
+        val standardAssets = getStandardAssets()
+
+        for (i in 0 until assets.size) {
+            val asset = assets[i]
+
+            // Do not consider standard assets as unused even if not currently used
+            if (standardAssets.contains(asset, true)) {
+                continue
+            }
+
+            if (asset is SkyboxAsset) {
+                continue // It is common to have these be unused
+            } else {
+                val objectsUsingAsset = findAssetUsagesInScenes(projectManager, asset)
+                val assetsUsingAsset = findAssetUsagesInAssets(asset)
+
+                if (objectsUsingAsset.isEmpty() && assetsUsingAsset.isEmpty()) {
+                    unusedAssets.add(asset)
+                }
+            }
+        }
+
+        return unusedAssets
+    }
+
+
+
+    /**
+     * Delete the asset from the project if no usages are found
+     */
+    fun deleteAssetSafe(asset: Asset, projectManager: ProjectManager) {
         if (asset is SkyboxAsset) {
             val skyboxUsages = findSkyboxUsagesInScenes(projectManager, asset)
             if (skyboxUsages.isNotEmpty()) {
@@ -476,6 +516,13 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             }
         }
 
+        deleteAsset(asset)
+    }
+
+    /**
+     * Delete asset, does not check if it is being used.
+     */
+    fun deleteAsset(asset: Asset) {
         // continue with deletion
         assets?.removeValue(asset, true)
 
@@ -551,7 +598,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     /**
      * Searches all assets in the current context for any usages of the given asset
      */
-    private fun findAssetUsagesInAssets(asset: Asset): ArrayList<Asset> {
+    fun findAssetUsagesInAssets(asset: Asset): ArrayList<Asset> {
         val assetsUsingAsset = ArrayList<Asset>()
 
         // Check for dependent assets that are not in scenes
@@ -567,25 +614,29 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     /**
      * Searches all scenes in the current context for any usages of the given asset
      */
-    private fun findAssetUsagesInScenes(projectManager: ProjectManager, asset: Asset): HashMap<GameObject, String> {
+    fun findAssetUsagesInScenes(projectManager: ProjectManager, asset: Asset): HashMap<GameObject, String> {
         val objectsWithAssets = HashMap<GameObject, String>()
 
         // we check for usages in all scenes
         for (sceneName in projectManager.current().scenes) {
-            val scene = projectManager.loadScene(projectManager.current(), sceneName)
-            checkSceneForAssetUsage(scene, asset, objectsWithAssets)
+            val gameObjects = projectManager.getSceneGameObjects(projectManager.current(), sceneName)
+            checkSceneForAssetUsage(sceneName, gameObjects, asset, objectsWithAssets)
         }
 
         return objectsWithAssets
     }
 
-    private fun checkSceneForAssetUsage(scene: EditorScene?, asset: Asset, objectsWithAssets: HashMap<GameObject, String>) {
-        for (gameObject in scene!!.sceneGraph.gameObjects) {
+    private fun checkSceneForAssetUsage(sceneName: String, gameObjects: Array<GameObject>, asset: Asset, objectsWithAssets: HashMap<GameObject, String>) {
+        for (gameObject in gameObjects) {
             for (component in gameObject.components) {
                 if (component is AssetUsage) {
                     if (component.usesAsset(asset))
-                        objectsWithAssets[gameObject] = scene.name
+                        objectsWithAssets[gameObject] = sceneName
                 }
+            }
+
+            if (gameObject.children != null) {
+                checkSceneForAssetUsage(sceneName, gameObject.children, asset, objectsWithAssets)
             }
         }
     }

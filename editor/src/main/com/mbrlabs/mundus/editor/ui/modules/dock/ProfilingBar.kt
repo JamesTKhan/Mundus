@@ -3,11 +3,11 @@ package com.mbrlabs.mundus.editor.ui.modules.dock
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
+import com.mbrlabs.mundus.editor.ui.widgets.AutoFocusScrollPane
 
 /**
  * @author JamesTKhan
@@ -19,7 +19,7 @@ class ProfilingBar : Tab(false, false) {
 
     private val root = VisTable()
     private val profileTable = VisTable()
-    private val pane = VisScrollPane(profileTable)
+    private val pane = AutoFocusScrollPane(profileTable)
 
     private val fpsLabel = VisLabel("FPS : ")
     private val fps = VisLabel()

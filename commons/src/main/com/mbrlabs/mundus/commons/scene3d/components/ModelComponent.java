@@ -26,6 +26,7 @@ import com.mbrlabs.mundus.commons.assets.MaterialAsset;
 import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
 import com.mbrlabs.mundus.commons.shaders.ClippableShader;
 import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
 
@@ -35,11 +36,12 @@ import java.util.Objects;
  * @author Marcus Brummer
  * @version 17-01-2016
  */
-public class ModelComponent extends CullableComponent implements AssetUsage, ClippableComponent {
+public class ModelComponent extends CullableComponent implements AssetUsage, ClippableComponent, ModelCacheable {
 
     protected ModelAsset modelAsset;
     protected ModelInstance modelInstance;
     protected Shader shader;
+    protected boolean useModelCache = false;
 
     protected ObjectMap<String, MaterialAsset> materials;  // g3db material id to material asset uuid
 
@@ -97,6 +99,17 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
         }
     }
 
+    @Override
+    public boolean shouldCache() {
+        return useModelCache;
+    }
+
+    @Override
+    public void setUseModelCache(boolean value) {
+        useModelCache = value;
+    }
+
+    @Override
     public ModelInstance getModelInstance() {
         return modelInstance;
     }
@@ -108,7 +121,7 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
 
         super.render(delta);
 
-        if (isCulled) return;
+        if (isCulled || useModelCache) return;
 
         if (shader != null) {
             gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
@@ -119,7 +132,7 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
 
     @Override
     public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader depthShader) {
-        if (isCulled) return;
+        if (isCulled || useModelCache) return;
 
         if (depthShader instanceof ClippableShader) {
             ((ClippableShader) depthShader).setClippingPlane(clippingPlane);
@@ -157,6 +170,8 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
         mc.shader = this.shader;
         mc.materials = this.materials;
         mc.setDimensions(mc.modelInstance);
+        mc.setUseModelCache(useModelCache);
+        gameObject.sceneGraph.scene.modelCacheManager.requestModelCacheRebuild();
         return mc;
     }
 

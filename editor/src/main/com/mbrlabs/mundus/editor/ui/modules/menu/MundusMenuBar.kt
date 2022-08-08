@@ -35,6 +35,7 @@ class MundusMenuBar : MenuBar() {
     val windowMenu = WindowMenu()
     val assetsMenu = AssetsMenu()
     val environmentMenu = EnvironmentMenu()
+    val toolsMenu = ToolsMenu()
     private val sceneMenu = SceneMenu()
 
     init {
@@ -43,6 +44,7 @@ class MundusMenuBar : MenuBar() {
         addMenu(assetsMenu)
         addMenu(environmentMenu)
         addMenu(sceneMenu)
+        addMenu(toolsMenu)
         addMenu(windowMenu)
     }
 

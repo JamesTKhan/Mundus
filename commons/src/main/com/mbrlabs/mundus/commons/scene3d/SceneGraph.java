@@ -48,8 +48,7 @@ public class SceneGraph {
 
     public void render(float delta, Vector3 clippingPlane, float clipHeight) {
         for (GameObject go : root.getChildren()) {
-            if (go.findComponentByType(Component.Type.WATER) != null)
-                continue;
+            if (go.hasWaterComponent) continue;
             go.render(delta, clippingPlane, clipHeight);
         }
     }
@@ -57,20 +56,21 @@ public class SceneGraph {
     //todo consider using renderable sorter instead
     public void renderWater(float delta, Texture reflectionTexture, Texture refraction, Texture refractionDepth) {
         for (GameObject go : root.getChildren()) {
-            WaterComponent waterComponent = (WaterComponent) go.findComponentByType(Component.Type.WATER);
-            if (waterComponent != null) {
-                waterComponent.getWaterAsset().setWaterReflectionTexture(reflectionTexture);
-                waterComponent.getWaterAsset().setWaterRefractionTexture(refraction);
-                waterComponent.getWaterAsset().setWaterRefractionDepthTexture(refractionDepth);
-                go.render(delta);
+            if (go.hasWaterComponent) {
+                WaterComponent waterComponent = (WaterComponent) go.findComponentByType(Component.Type.WATER);
+                if (waterComponent != null) {
+                    waterComponent.getWaterAsset().setWaterReflectionTexture(reflectionTexture);
+                    waterComponent.getWaterAsset().setWaterRefractionTexture(refraction);
+                    waterComponent.getWaterAsset().setWaterRefractionDepthTexture(refractionDepth);
+                    go.render(delta);
+                }
             }
         }
     }
 
     public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader) {
         for (GameObject go : root.getChildren()) {
-            if (go.findComponentByType(Component.Type.WATER) != null)
-                continue;
+            if (go.hasWaterComponent) continue;
             go.renderDepth(delta, clippingPlane, clipHeight, shader);
         }
     }

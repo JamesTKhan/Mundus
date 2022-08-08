@@ -33,7 +33,7 @@ import com.mbrlabs.mundus.editor.VERSION
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
 import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.ui.modules.MundusToolbar
-import com.mbrlabs.mundus.editor.ui.modules.Outline
+import com.mbrlabs.mundus.editor.ui.modules.outline.Outline
 import com.mbrlabs.mundus.editor.ui.modules.StatusBar
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.AddComponentDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.AddTerrainDialog
@@ -51,6 +51,7 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportModelDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportTextureDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.settings.SettingsDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.tools.DebugRenderDialog
 import com.mbrlabs.mundus.editor.ui.modules.dock.DockBar
 import com.mbrlabs.mundus.editor.ui.modules.inspector.Inspector
 import com.mbrlabs.mundus.editor.ui.modules.menu.MundusMenuBar
@@ -108,6 +109,7 @@ object UI : Stage(ScreenViewport()) {
     var addTerrainDialog: AddTerrainDialog = AddTerrainDialog()
     val versionDialog: VersionDialog = VersionDialog()
     val keyboardShortcuts: KeyboardShortcutsDialog = KeyboardShortcutsDialog()
+    val debugRenderDialog: DebugRenderDialog = DebugRenderDialog()
     val exitDialog: ExitDialog = ExitDialog()
 
     // styles
