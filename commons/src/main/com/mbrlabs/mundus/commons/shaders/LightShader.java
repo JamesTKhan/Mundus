@@ -1,6 +1,7 @@
 package com.mbrlabs.mundus.commons.shaders;
 
 import com.badlogic.gdx.graphics.g3d.Renderable;
+import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
@@ -20,7 +21,7 @@ import com.mbrlabs.mundus.commons.utils.LightUtils;
  * @author JamesTKhan
  * @version June 02, 2022
  */
-public abstract class LightShader extends ClippableShader {
+public abstract class LightShader extends BaseShader {
     // ============================ LIGHTS ============================
     protected final int UNIFORM_SHADOW_BIAS = register(new Uniform("u_shadowBias"));
     protected final int UNIFORM_USE_SHADOWS = register(new Uniform("u_useShadows"));

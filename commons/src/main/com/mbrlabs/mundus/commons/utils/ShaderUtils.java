@@ -35,6 +35,26 @@ public class ShaderUtils {
 
     protected static final String LIGHT_SHADER_PREFIX = "com/mbrlabs/mundus/commons/shaders/light.glsl";
 
+    public static ShaderProgram compile(String vertexShader, String fragmentShader, Shader shader, String customPrefix) {
+        String vert;
+        String frag;
+
+        if (Gdx.app.getType() == Application.ApplicationType.WebGL) {
+            vert = Gdx.files.internal(vertexShader).readString();
+            frag = Gdx.files.internal(fragmentShader).readString();
+        } else {
+            vert = Gdx.files.classpath(vertexShader).readString();
+            frag = Gdx.files.classpath(fragmentShader).readString();
+        }
+
+        ShaderProgram program = new ShaderProgram(customPrefix + vert,  getShaderPrefix(shader) + customPrefix + frag);
+        if (!program.isCompiled()) {
+            throw new GdxRuntimeException(program.getLog());
+        }
+
+        return program;
+    }
+
     /**
      * Compiles and links shader.
      *
@@ -48,23 +68,7 @@ public class ShaderUtils {
      * @return compiled shader program
      */
     public static ShaderProgram compile(String vertexShader, String fragmentShader, Shader shader) {
-        String vert;
-        String frag;
-
-        if (Gdx.app.getType() == Application.ApplicationType.WebGL) {
-            vert = Gdx.files.internal(vertexShader).readString();
-            frag = Gdx.files.internal(fragmentShader).readString();
-        } else {
-            vert = Gdx.files.classpath(vertexShader).readString();
-            frag = Gdx.files.classpath(fragmentShader).readString();
-        }
-
-        ShaderProgram program = new ShaderProgram(vert, getShaderPrefix(shader) + frag);
-        if (!program.isCompiled()) {
-            throw new GdxRuntimeException(program.getLog());
-        }
-
-        return program;
+        return compile(vertexShader, fragmentShader, shader, "");
     }
 
     public static String getShaderPrefix(Shader shader) {

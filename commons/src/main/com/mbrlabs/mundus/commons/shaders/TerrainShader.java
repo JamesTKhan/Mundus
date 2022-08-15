@@ -46,7 +46,7 @@ public class TerrainShader extends LightShader {
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
     protected final int UNIFORM_NORMAL_MATRIX = register(new Uniform("u_normalMatrix"));
-    protected final int UNIFORM_CAM_POS = register(new Uniform("u_camPos"));
+    protected final int UNIFORM_CAM_POS = register(new Uniform("u_cameraPosition"));
 
     // ============================ TEXTURE SPLATTING ============================
     protected final int UNIFORM_TERRAIN_SIZE = register(new Uniform("u_terrainSize"));

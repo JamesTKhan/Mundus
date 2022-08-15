@@ -74,7 +74,7 @@ public class Terrain implements RenderableProvider, Disposable {
 
     // Textures
     private TerrainTexture terrainTexture;
-    private final Material material;
+    private Material material;
 
     // Mesh
     private Model model;
@@ -134,6 +134,7 @@ public class Terrain implements RenderableProvider, Disposable {
         model = mb.end();
         modelInstance = new ModelInstance(model);
         modelInstance.transform = transform;
+        modelInstance.userData = terrainTexture;
     }
 
     public Vector3 getVertexPosition(Vector3 out, int x, int z) {
@@ -192,6 +193,14 @@ public class Terrain implements RenderableProvider, Disposable {
             curDistance += u ? -0.1f : 0.1f;
         }
 
+    }
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public ModelInstance getModelInstance() {
+        return modelInstance;
     }
 
     private short[] buildIndices() {

@@ -73,6 +73,8 @@ public class MundusPBRShader extends PBRShader {
             }
         }
 
+
+
         // Spot lights
         SpotLightsAttribute spotAttr = renderable.environment.get(SpotLightsAttribute.class, SpotLightsAttribute.Type);
         final Array<SpotLight> spotLights = spotAttr == null ? null : spotAttr.lights;
