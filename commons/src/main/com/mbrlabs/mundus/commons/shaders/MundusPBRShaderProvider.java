@@ -3,7 +3,7 @@ package com.mbrlabs.mundus.commons.shaders;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
-import com.mbrlabs.mundus.commons.terrain.TerrainTextureAttribute;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainTextureAttribute;
 import net.mgsx.gltf.scene3d.shaders.PBRShader;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;

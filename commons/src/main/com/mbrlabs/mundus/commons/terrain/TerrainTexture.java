@@ -17,11 +17,15 @@
 package com.mbrlabs.mundus.commons.terrain;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainAttribute;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainAttributes;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This essentially behaves like a terrain material
+ *
  * @author Marcus Brummer
  * @version 28-01-2016
  */

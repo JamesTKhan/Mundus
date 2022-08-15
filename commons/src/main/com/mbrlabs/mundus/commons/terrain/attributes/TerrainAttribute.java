@@ -1,4 +1,4 @@
-package com.mbrlabs.mundus.commons.terrain;
+package com.mbrlabs.mundus.commons.terrain.attributes;
 
 /**
  * @author JamesTKhan
@@ -29,7 +29,7 @@ public class TerrainAttribute extends MundusAttribute {
     public final static String NormalMapAAlias = "normalMapA";
     public final static long NormalMapA = register(NormalMapAAlias);
 
-    protected TerrainAttribute(long type) {
+    public TerrainAttribute(long type) {
         super(type);
     }
 

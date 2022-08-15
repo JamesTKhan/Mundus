@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.commons.terrain;
+package com.mbrlabs.mundus.commons.terrain.attributes;
 
 import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.NumberUtils;
+import com.mbrlabs.mundus.commons.terrain.TerrainTexture;
 
 /**
  * @author Marcus Brummer

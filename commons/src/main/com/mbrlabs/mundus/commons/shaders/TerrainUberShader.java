@@ -15,8 +15,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
-import com.mbrlabs.mundus.commons.terrain.TerrainTexture;
-import com.mbrlabs.mundus.commons.terrain.TerrainTextureAttribute;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainTextureAttribute;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 
 /**
@@ -278,7 +277,8 @@ public class TerrainUberShader extends LightShader {
             return false;
         }
 
-        return terrainTextureMask == ((TerrainTexture)instance.userData).getMask();
+        TerrainTextureAttribute terrainTextureAttribute = (TerrainTextureAttribute) instance.material.get(TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
+        return terrainTextureMask == terrainTextureAttribute.terrainTexture.getMask();
     }
 
     private static final long combineAttributeMasks (final Renderable renderable) {

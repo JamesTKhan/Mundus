@@ -36,6 +36,7 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainTextureAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
 import net.mgsx.gltf.loaders.shared.geometry.MeshTangentSpaceGenerator;
 

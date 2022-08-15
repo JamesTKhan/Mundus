@@ -29,7 +29,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.TerrainTexture;
-import com.mbrlabs.mundus.commons.terrain.TerrainTextureAttribute;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainTextureAttribute;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 
