@@ -54,7 +54,7 @@ public class TerrainTexture extends TerrainAttributes {
             splatmap.clearChannel(channel);
             splatmap.updateTexture();
 
-            if (has(getTerrainAttribute(channel, true))) {
+            if (has(getTerrainAttribute(channel, false))) {
                 remove(getTerrainAttribute(channel, false));
             }
         }
