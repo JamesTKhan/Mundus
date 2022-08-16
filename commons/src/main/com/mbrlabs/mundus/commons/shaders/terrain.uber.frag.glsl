@@ -167,7 +167,7 @@ void main(void) {
 //        gl_FragColor.rgb = mix(gl_FragColor.rgb, u_fogColor.rgb, fog * u_fogColor.a);
 //    }
 
-        #ifdef PICKER
+    #ifdef PICKER
     if(u_pickerActive == 1) {
         float dist = distance(u_pickerPos, v_pos);
         if(dist <= u_pickerRadius) {
@@ -176,6 +176,6 @@ void main(void) {
             gl_FragColor += COLOR_BRUSH * gradient;
         }
     }
-        #endif
+    #endif
 
 }

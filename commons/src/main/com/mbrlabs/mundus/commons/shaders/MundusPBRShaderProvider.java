@@ -31,7 +31,7 @@ public class MundusPBRShaderProvider extends PBRShaderProvider {
         return new MundusPBRShader(renderable, config, prefix);
     }
 
-    private Shader createTerrainShader(Renderable renderable) {
+    protected Shader createTerrainShader(Renderable renderable) {
         Shader shader = new TerrainUberShader(renderable, config);
         shaders.add(shader);
         Gdx.app.log(MundusPBRShader.class.getSimpleName(), "Terrain Shader Compiled");
