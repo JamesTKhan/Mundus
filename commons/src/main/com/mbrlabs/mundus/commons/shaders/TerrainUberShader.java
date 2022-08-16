@@ -56,8 +56,7 @@ public class TerrainUberShader extends LightShader {
             @Override
             public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
                 TerrainTextureAttribute textureAttribute = renderable.material.get(TerrainTextureAttribute.class, TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
-                // TODO hard coded size
-                shader.set(inputID, v2.set(1600.0f, 1600.0f));
+                shader.set(inputID, v2.set(textureAttribute.terrainTexture.getTerrain().terrainWidth, textureAttribute.terrainTexture.getTerrain().terrainDepth));
             }
         };
 
@@ -190,7 +189,7 @@ public class TerrainUberShader extends LightShader {
         u_splatANormal = register(TerrainInputs.splatANormal, TerrainSetters.splatANormal);
     }
 
-    private String createPrefixForRenderable(TerrainTextureAttribute textureAttribute) {
+    protected String createPrefixForRenderable(TerrainTextureAttribute textureAttribute) {
         String prefix = "";
 
         if (textureAttribute.terrainTexture.getSplatmap() != null && textureAttribute.terrainTexture.getSplatmap().getTexture() != null) {
