@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
@@ -17,6 +18,7 @@ import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainTextureAttribute;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
+import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 
 /**
  * @author JamesTKhan
@@ -49,6 +51,9 @@ public class TerrainUberShader extends LightShader {
         public final static Uniform splatGNormal = new Uniform("u_texture_g_normal");
         public final static Uniform splatBNormal = new Uniform("u_texture_b_normal");
         public final static Uniform splatANormal = new Uniform("u_texture_a_normal");
+
+        public final static Uniform fogColor = new Uniform("u_fogColor");
+        public final static Uniform fogEquation = new Uniform("u_fogEquation");
     }
 
     public static class TerrainSetters {
@@ -126,6 +131,10 @@ public class TerrainUberShader extends LightShader {
     public final int u_normalMatrix;
     public final int u_cameraPosition;
 
+    // env
+    public final int u_fogColor;
+    public final int u_fogEquation;
+
     // Terrain uniforms
     public final int u_terrainSize;
     public final int u_clipPlane;
@@ -157,7 +166,7 @@ public class TerrainUberShader extends LightShader {
         attributesMask = combineAttributeMasks(renderable);
         terrainTextureMask = textureAttribute.terrainTexture.getMask();
 
-        String prefix = createPrefixForRenderable(textureAttribute);
+        String prefix = createPrefixForRenderable(renderable);
 
         // Compile the shaders
         program = ShaderUtils.compile(VERTEX_SHADER, FRAGMENT_SHADER, this, prefix);
@@ -187,10 +196,19 @@ public class TerrainUberShader extends LightShader {
         u_splatGNormal = register(TerrainInputs.splatGNormal, TerrainSetters.splatGNormal);
         u_splatBNormal = register(TerrainInputs.splatBNormal, TerrainSetters.splatBNormal);
         u_splatANormal = register(TerrainInputs.splatANormal, TerrainSetters.splatANormal);
+
+        u_fogColor = register(TerrainInputs.fogColor);
+        u_fogEquation = register(TerrainInputs.fogEquation);
     }
 
-    protected String createPrefixForRenderable(TerrainTextureAttribute textureAttribute) {
+    protected String createPrefixForRenderable(Renderable renderable) {
         String prefix = "";
+
+        if (renderable.environment.has(ColorAttribute.Fog)) {
+            prefix += "#define fogFlag\n";
+        }
+
+        TerrainTextureAttribute textureAttribute = renderable.material.get(TerrainTextureAttribute.class, TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
 
         if (textureAttribute.terrainTexture.getSplatmap() != null && textureAttribute.terrainTexture.getSplatmap().getTexture() != null) {
             prefix += "#define splatFlag\n";
@@ -261,6 +279,15 @@ public class TerrainUberShader extends LightShader {
         setShadows(env);
 
         super.render(renderable);
+    }
+
+    @Override
+    public void render(Renderable renderable, Attributes combinedAttributes) {
+        if (combinedAttributes.has(ColorAttribute.Fog) && combinedAttributes.has(FogAttribute.FogEquation)) {
+            set(u_fogColor, ((ColorAttribute)combinedAttributes.get(ColorAttribute.Fog)).color);
+            set(u_fogEquation, ((FogAttribute)combinedAttributes.get(FogAttribute.FogEquation)).value);
+        }
+        super.render(renderable, combinedAttributes);
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.shaders.TerrainUberShader;
-import com.mbrlabs.mundus.commons.terrain.attributes.TerrainTextureAttribute;
 
 /**
  * @author JamesTKhan
@@ -24,9 +23,9 @@ public class EditorTerrainUberShader extends TerrainUberShader {
     }
 
     @Override
-    protected String createPrefixForRenderable(TerrainTextureAttribute textureAttribute) {
+    protected String createPrefixForRenderable(Renderable renderable) {
         String prefix = "#define PICKER\n";
-        return prefix + super.createPrefixForRenderable(textureAttribute);
+        return prefix + super.createPrefixForRenderable(renderable);
     }
 
     @Override
