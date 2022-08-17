@@ -23,7 +23,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.shaders.TerrainShader;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
+import com.mbrlabs.mundus.editor.shader.EditorTerrainUberShader;
 
+/**
+ * Legacy Terrain shader replaced by {@link EditorTerrainUberShader} shader
+ */
+@Deprecated
 public class EditorTerrainShader extends TerrainShader {
 
     // ============================ MOUSE PICKER ============================
@@ -32,7 +37,7 @@ public class EditorTerrainShader extends TerrainShader {
     protected final int UNIFORM_MOUSE_ACTIVE = register(new Uniform("u_pickerActive"));
 
     private boolean pickerActive = false;
-    private Vector3 pickerPosition = new Vector3();
+    private final Vector3 pickerPosition = new Vector3();
     private float pickerRadius = 0;
 
     public EditorTerrainShader() {

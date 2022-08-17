@@ -47,7 +47,7 @@ public class TerrainComponentConverter {
         }
 
         terrain.getTerrain().transform = go.getTransform();
-        PickableTerrainComponent terrainComponent = new PickableTerrainComponent(go, Shaders.INSTANCE.getTerrainShader());
+        PickableTerrainComponent terrainComponent = new PickableTerrainComponent(go, null);
         terrainComponent.setTerrain(terrain);
 
         return terrainComponent;

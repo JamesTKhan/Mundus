@@ -6,8 +6,8 @@
     <!-- glsl shaders -->
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/skybox.frag.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/skybox.vert.glsl" />
-    <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/terrain.frag.glsl" />
-    <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/terrain.vert.glsl" />
+    <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/terrain.uber.frag.glsl" />
+    <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/terrain.uber.vert.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/water.frag.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/water.vert.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/depth.frag.glsl" />

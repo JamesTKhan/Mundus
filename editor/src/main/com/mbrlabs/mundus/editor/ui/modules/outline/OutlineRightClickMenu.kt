@@ -307,7 +307,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
                         asset.applyDependencies()
 
                         val terrainGO = createTerrainGO(sceneGraph,
-                            Shaders.terrainShader, goID, name, asset)
+                            null, goID, name, asset)
                         // update sceneGraph
                         sceneGraph.addGameObject(terrainGO)
                         // update outline
