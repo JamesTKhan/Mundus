@@ -266,15 +266,16 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      * @throws IOException
      */
     @Throws(IOException::class, AssetAlreadyExistsException::class)
-    fun createTerraAsset(name: String, vertexResolution: Int, size: Int): TerrainAsset {
-        val terraFilename = name + ".terra"
-        val metaFilename = terraFilename + ".meta"
+    fun createTerraAsset(name: String, vertexResolution: Int, size: Int, splatMapResolution: Int): TerrainAsset {
+        val terraFilename = "$name.terra"
+        val metaFilename = "$terraFilename.meta"
 
         // create meta file
         val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
         val meta = createNewMetaFile(FileHandle(metaPath), AssetType.TERRAIN)
         meta.terrain = MetaTerrain()
         meta.terrain.size = size
+        meta.terrain.splatMapResolution = splatMapResolution
         meta.terrain.uv = 60f
         metaSaver.save(meta)
 

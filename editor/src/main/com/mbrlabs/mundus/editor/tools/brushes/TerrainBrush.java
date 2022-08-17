@@ -59,7 +59,7 @@ public abstract class TerrainBrush extends Tool {
         RAISE_LOWER,
         /** Sets all vertices of the selection to a specified height. */
         FLATTEN,
-        /** TBD */
+        /** Smooths terrain based on average height within radius */
         SMOOTH,
         /** Paints on the splatmap of the terrainAsset. */
         PAINT

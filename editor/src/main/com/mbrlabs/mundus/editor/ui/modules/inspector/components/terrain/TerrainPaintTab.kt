@@ -115,7 +115,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
         // create splatmap
         if (terrainAsset.splatmap == null) {
             try {
-                val splatmap = assetManager.createPixmapTextureAsset(512)
+                val splatmap = assetManager.createPixmapTextureAsset(terrainAsset.meta.terrain.splatMapResolution)
                 terrainAsset.splatmap = splatmap
                 terrainAsset.applyDependencies()
                 metaSaver.save(terrainAsset.meta)

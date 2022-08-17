@@ -359,6 +359,10 @@ public class Terrain implements RenderableProvider, Disposable {
         material.set(new TerrainTextureAttribute(TerrainTextureAttribute.ATTRIBUTE_SPLAT0, this.terrainTexture));
     }
 
+    public float[] getVertices() {
+        return vertices;
+    }
+
     public void update() {
         buildVertices();
 

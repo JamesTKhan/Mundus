@@ -36,6 +36,7 @@ import com.mbrlabs.mundus.editor.ui.modules.MundusToolbar
 import com.mbrlabs.mundus.editor.ui.modules.outline.Outline
 import com.mbrlabs.mundus.editor.ui.modules.StatusBar
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.AddComponentDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.AddTerrainDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.AmbientLightDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.DirectionalLightsDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExitDialog
@@ -105,6 +106,7 @@ object UI : Stage(ScreenViewport()) {
     var directionalLightDialog: DirectionalLightsDialog = DirectionalLightsDialog()
     var shadowSettingsDialog: ShadowSettingsDialog = ShadowSettingsDialog()
     var addComponentDialog: AddComponentDialog = AddComponentDialog()
+    var addTerrainDialog: AddTerrainDialog = AddTerrainDialog()
     val versionDialog: VersionDialog = VersionDialog()
     val keyboardShortcuts: KeyboardShortcutsDialog = KeyboardShortcutsDialog()
     val debugRenderDialog: DebugRenderDialog = DebugRenderDialog()
