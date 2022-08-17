@@ -110,14 +110,15 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         val selectorsTable = VisTable(true)
         selectBox = VisSelectBox<String>()
         selectBox.setItems(
+                WaterResolution._256.value,
+                WaterResolution._512.value,
                 WaterResolution._1024.value,
-                WaterResolution._1280.value,
-                WaterResolution._1600.value,
-                WaterResolution._1920.value
+                WaterResolution._2048.value
         )
         selectorsTable.add(selectBox).left()
 
-        qualitySettings.add(VisLabel("Texture resolution (Global per scene):")).growX().row()
+        qualitySettings.add(ToolTipLabel("Texture resolution (Global per scene):", "This resolution is used for " +
+                "multiple render passes\n to generate reflections and refractions in Frame Buffers.\nFor low end devices, mobile, and GWT use 256 or 512.")).growX().row()
         qualitySettings.add(selectorsTable).left().row()
 
         add(qualitySettings).grow().row()
@@ -195,7 +196,13 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         foamScrollSpeedFactor.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamScrollSpeed).toString()
         foamFallOffDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamFallOffDistance).toString()
         foamEdgeDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeDistance).toString()
-        selectBox.selected = projectManager.current().currScene.settings.waterResolution.value
+
+        if (!selectBox.items.contains(projectManager.current().currScene.settings.waterResolution.value)) {
+            selectBox.selected = WaterResolution.DEFAULT_WATER_RESOLUTION.value
+        } else {
+            selectBox.selected = projectManager.current().currScene.settings.waterResolution.value
+        }
+
     }
 
     private fun getSectionTable(): VisTable {
