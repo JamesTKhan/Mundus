@@ -43,6 +43,8 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.*
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.AutoFocusScrollPane
+import com.mbrlabs.mundus.editor.utils.ObjExporter
+import java.lang.RuntimeException
 
 
 /**
@@ -68,6 +70,7 @@ class AssetsDock : Tab(false, false),
     private val assetOpsMenu = PopupMenu()
     private val renameAsset = MenuItem("Rename Asset")
     private val deleteAsset = MenuItem("Delete Asset")
+    private val exportTerrainAsset = MenuItem("Export to OBJ")
 
     private var currentSelection: AssetItem? = null
     private val projectManager: ProjectManager = Mundus.inject()
@@ -130,6 +133,21 @@ class AssetsDock : Tab(false, false),
                 currentSelection?.asset?.let {
                     projectManager.current().assetManager.deleteAssetSafe(it, projectManager)
                     reloadAssets()
+                }
+            }
+        })
+
+        exportTerrainAsset.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent, x: Float, y: Float) {
+                currentSelection?.asset?.let {
+                    it as TerrainAsset
+                    try {
+                        ObjExporter.exportToObj(it.name, it.terrain)
+                        UI.toaster.success("Terrain export successful")
+                    } catch (ex: RuntimeException) {
+                        UI.toaster.error("Error during export. ${ex.message}")
+                    }
+
                 }
             }
         })
@@ -233,6 +251,15 @@ class AssetsDock : Tab(false, false),
                 override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
                     if (event!!.button == Input.Buttons.RIGHT) {
                         setSelected()
+
+                        if (asset is TerrainAsset) {
+                            if ( !exportTerrainAsset.hasParent())
+                                assetOpsMenu.addItem(exportTerrainAsset)
+                        } else {
+                            exportTerrainAsset.remove()
+                            assetOpsMenu.pack()
+                        }
+
                         assetOpsMenu.showMenu(UI, Gdx.input.x.toFloat(),
                                 (Gdx.graphics.height - Gdx.input.y).toFloat())
                     } else if (event.button == Input.Buttons.LEFT) {

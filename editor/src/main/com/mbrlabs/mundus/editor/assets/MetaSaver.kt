@@ -74,6 +74,7 @@ class MetaSaver {
 
         json.writeObjectStart(Meta.JSON_TERRAIN)
         json.writeValue(MetaTerrain.JSON_SIZE, terrain.size)
+        json.writeValue(MetaTerrain.JSON_SPLATMAP_RESOLUTION, terrain.splatMapResolution)
         json.writeValue(MetaTerrain.JSON_UV_SCALE, terrain.uv)
         json.writeValue(MetaTerrain.JSON_SPLAT_BASE64, terrain.splatBase64)
         if (terrain.splatmap != null) json.writeValue(MetaTerrain.JSON_SPLATMAP, terrain.splatmap)

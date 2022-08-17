@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons.utils;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
@@ -97,4 +98,27 @@ public class ModelUtils {
         tmpVec0.add(center);
         return cam.frustum.boundsInFrustum(tmpVec0, dimensions);
     }
+
+    /**
+     * Get Vertices count of a Model
+     */
+    public static int getVerticesCount(Model model) {
+        int vertices = 0;
+        for (Mesh mesh : model.meshes) {
+            vertices += mesh.getNumVertices();
+        }
+        return vertices;
+    }
+
+    /**
+     * Get Indices count of a Model
+     */
+    public static float getIndicesCount(Model model) {
+        int indices = 0;
+        for (Mesh mesh : model.meshes) {
+            indices += mesh.getNumIndices();
+        }
+        return indices;
+    }
+
 }
