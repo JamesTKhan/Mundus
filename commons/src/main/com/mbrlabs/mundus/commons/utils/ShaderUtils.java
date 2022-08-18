@@ -35,6 +35,20 @@ public class ShaderUtils {
 
     protected static final String LIGHT_SHADER_PREFIX = "com/mbrlabs/mundus/commons/shaders/light.glsl";
 
+    /**
+     * Compiles and links shader.
+     *
+     * @param vertexShader
+     *            path to vertex shader
+     * @param fragmentShader
+     *            path to fragment shader
+     * @param shader
+     *            the shader to compile a program for
+     * @param customPrefix
+     *             a custom prefix string to prepend to vertex and fragment shaders
+     *
+     * @return compiled shader program
+     */
     public static ShaderProgram compile(String vertexShader, String fragmentShader, Shader shader, String customPrefix) {
         String vert;
         String frag;

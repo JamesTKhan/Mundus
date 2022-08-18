@@ -6,6 +6,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.shaders.TerrainUberShader;
 
 /**
+ * Overrides TerrainUberShader to include picking data
+ *
  * @author JamesTKhan
  * @version August 16, 2022
  */

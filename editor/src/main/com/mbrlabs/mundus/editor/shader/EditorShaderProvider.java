@@ -3,11 +3,12 @@ package com.mbrlabs.mundus.editor.shader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
-import com.mbrlabs.mundus.commons.shaders.MundusPBRShader;
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 
 /**
+ * Overrides the regular provider to create an Editor version of the Terrain shader.
+ *
  * @author JamesTKhan
  * @version August 16, 2022
  */

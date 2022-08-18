@@ -62,19 +62,19 @@ uniform float u_shadowBias;
 uniform int u_useShadows;
 varying vec3 v_shadowMapUv;
 
-float getShadowness(vec2 offset, float bias)
+float getShadowness(vec2 offset)
 {
     const vec4 bitShifts = vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0);
-    return step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts) + bias) /*+(.5/255.0)*/;
+    return step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts) + u_shadowBias) /*+(.5/255.0)*/;
 }
 
-float getShadow(float bias)
+float getShadow()
 {
     return (//getShadowness(vec2(0,0)) +
-    getShadowness(vec2(u_shadowPCFOffset, u_shadowPCFOffset), bias) +
-    getShadowness(vec2(-u_shadowPCFOffset, u_shadowPCFOffset), bias) +
-    getShadowness(vec2(u_shadowPCFOffset, -u_shadowPCFOffset), bias) +
-    getShadowness(vec2(-u_shadowPCFOffset, -u_shadowPCFOffset), bias)) * 0.25;
+    getShadowness(vec2(u_shadowPCFOffset, u_shadowPCFOffset)) +
+    getShadowness(vec2(-u_shadowPCFOffset, u_shadowPCFOffset)) +
+    getShadowness(vec2(u_shadowPCFOffset, -u_shadowPCFOffset)) +
+    getShadowness(vec2(-u_shadowPCFOffset, -u_shadowPCFOffset))) * 0.25;
 }
 
 vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
@@ -90,7 +90,7 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
         DiffuseColor = vec4(Light.Color, 1.0) * Light.DiffuseIntensity * DiffuseFactor;
 
         if (u_useShadows == 1) {
-            DiffuseColor *= getShadow(u_shadowBias);
+            DiffuseColor *= getShadow();
         }
 
         if (u_useSpecular == 1) {

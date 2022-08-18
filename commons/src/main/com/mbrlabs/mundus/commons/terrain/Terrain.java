@@ -135,7 +135,6 @@ public class Terrain implements RenderableProvider, Disposable {
         model = mb.end();
         modelInstance = new ModelInstance(model);
         modelInstance.transform = transform;
-        modelInstance.userData = terrainTexture;
     }
 
     public Vector3 getVertexPosition(Vector3 out, int x, int z) {

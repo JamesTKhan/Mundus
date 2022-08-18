@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 /**
+ *  Copied from libGDX Attributes, due to 64 attribute limit in libGDX.
  * @author JamesTKhan
  * @version August 13, 2022
  */

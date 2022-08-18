@@ -37,7 +37,7 @@ const MED vec4 COLOR_BRUSH = vec4(0.4,0.4,0.4, 0.4);
 uniform sampler2D u_baseTexture;
 
 #ifdef splatFlag
-
+    varying vec2 v_splatPosition;
     uniform sampler2D u_texture_splat;
 
     #ifdef splatRFlag
@@ -80,8 +80,6 @@ varying vec3 v_pos;
 varying mat3 v_TBN;
 
 varying MED vec2 v_texCoord0;
-
-varying vec2 splatPosition;
 varying float v_clipDistance;
 
 void main(void) {
@@ -97,7 +95,7 @@ void main(void) {
 
     // Mix splat textures
     #ifdef splatFlag
-    vec4 splat = texture2D(u_texture_splat, splatPosition);
+    vec4 splat = texture2D(u_texture_splat, v_splatPosition);
         #ifdef splatRFlag
             gl_FragColor = mix(gl_FragColor, texture2D(u_texture_r, v_texCoord0), splat.r);
         #endif

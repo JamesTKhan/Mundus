@@ -29,17 +29,18 @@ uniform mat4 u_projViewTrans;
 uniform vec4 u_cameraPosition;
 uniform mat3 u_normalMatrix;
 
-// Attribute uniforms
-uniform vec2 u_terrainSize;
-
 varying vec2 v_texCoord0;
-varying vec2 splatPosition;
 varying vec3 v_normal;
 varying vec3 v_worldPos;
 varying mat3 v_TBN;
 
 #ifdef PICKER
 varying vec3 v_pos;
+#endif
+
+#ifdef splatFlag
+varying vec2 v_splatPosition;
+uniform vec2 u_terrainSize;
 #endif
 
 // clipping plane
@@ -70,7 +71,10 @@ void main(void) {
 
     // texture stuff
     v_texCoord0 = a_texCoord0;
-    splatPosition = vec2(a_position.x / u_terrainSize.x, a_position.z / u_terrainSize);
+
+    #ifdef splatFlag
+    v_splatPosition = vec2(a_position.x / u_terrainSize.x, a_position.z / u_terrainSize);
+    #endif
 
     v_worldPos = worldPos.xyz;
 
