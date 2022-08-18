@@ -170,7 +170,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                 asset.applyDependencies()
 
                 val terrainGO = createTerrainGO(sceneGraph,
-                    Shaders.terrainShader, goID, terrainName, asset)
+                    null, goID, terrainName, asset)
                 // update sceneGraph
                 sceneGraph.addGameObject(terrainGO)
                 terrainGO.setLocalPosition(posX, posY, posZ)

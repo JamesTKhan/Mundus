@@ -20,7 +20,7 @@ public class EditorShaderProvider extends MundusPBRShaderProvider {
     protected Shader createTerrainShader(Renderable renderable) {
         Shader shader = new EditorTerrainUberShader(renderable, config);
         shaders.add(shader);
-        Gdx.app.log(MundusPBRShader.class.getSimpleName(), "Terrain Shader Compiled");
+        Gdx.app.log(EditorShaderProvider.class.getSimpleName(), "Terrain Shader Compiled");
         return shader;
     }
 }
