@@ -155,9 +155,13 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
 
             result.rigidBody.setWorldTransform(bodyTransform);
         } else if (physicsShape == PhysicsShape.TERRAIN && terrainComponent != null) {
+            Matrix4 goTrans = gameObject.getTransform();
+            goTrans.getTranslation(translation);
             float size = terrainComponent.getTerrain().getTerrain().terrainWidth;
             float adjustedHeight = (terrainComponent.terrain.getMaxHeight() + terrainComponent.terrain.getMinHeight()) / 2f;
-            result.rigidBody.setWorldTransform(result.rigidBody.getWorldTransform().setTranslation(new Vector3((size / 2f), adjustedHeight, (size / 2f))));
+
+            Vector3 trans = new Vector3((size / 2f), adjustedHeight, (size / 2f)).add(translation);
+            result.rigidBody.setWorldTransform(result.rigidBody.getWorldTransform().setTranslation(trans));
         }
 
         constructionInfo = result.constructionInfo;
@@ -188,7 +192,7 @@ public class RigidBodyPhysicsComponent extends AbstractPhysicsComponent implemen
 
             if (terrainComponent != null ) {
                 // Disable debug drawing for terrain or high vertices models due to performance issues on wireframe mode
-                collisionFlags = collisionFlags | btCollisionObject.CollisionFlags.CF_DISABLE_VISUALIZE_OBJECT;
+//                collisionFlags = collisionFlags | btCollisionObject.CollisionFlags.CF_DISABLE_VISUALIZE_OBJECT;
             }
         }
 
