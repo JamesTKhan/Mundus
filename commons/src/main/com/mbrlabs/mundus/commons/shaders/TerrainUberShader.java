@@ -258,7 +258,7 @@ public class TerrainUberShader extends LightShader {
     public void init() {
         final ShaderProgram program = this.program;
         this.program = null;
-        init(program, renderable);
+        this.init(program, renderable);
         renderable = null;
     }
 
@@ -266,7 +266,7 @@ public class TerrainUberShader extends LightShader {
     public void begin(Camera camera, RenderContext context) {
         context.setCullFace(GL20.GL_BACK);
 
-        context.setDepthTest(GL20.GL_LEQUAL, 0f, 1f);
+        context.setDepthTest(GL20.GL_LESS, 0f, 1f);
         context.setDepthMask(true);
 
         super.begin(camera, context);
