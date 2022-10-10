@@ -48,6 +48,28 @@ The only runtime being developed is for libGDX, which is included in this reposi
 for an example.
 Runtimes for other engines/frameworks are not planned in the near futures.
 
+## Made with Mundus
+
+###[Raid on Bungeling Bay](https://antzgames.itch.io/raid3d)
+
+Created by: [AntzGames](https://github.com/antzGames)
+![image](https://user-images.githubusercontent.com/28971753/194956176-6964931c-ac80-43a0-9049-6d5abfe94be8.png)
+
+---
+
+###[28 Years Later](https://antzgames.itch.io/28-years-later)
+
+Created by: [AntzGames](https://github.com/antzGames)
+![image](https://user-images.githubusercontent.com/28971753/194956847-91da8ad3-eb63-42c3-b965-1317963c930f.png)
+
+---
+
+###[The Time Cruise](https://wjamesfl.itch.io/the-time-cruise)
+
+Created by: [JamesTKhan](https://github.com/JamesTKhan)
+![image](https://user-images.githubusercontent.com/28971753/194957213-7d83a201-9f68-46f1-a01a-f6b724ac5f11.png)
+
+
 ## Contributing
 Contributions are greatly appreciated. To make the process as easy as possible please follow the [Contribution Guide](https://github.com/JamesTKhan/Mundus/wiki/Contributing).
 To get an overview over the project you might also want to check out the [Project overview & architecture](https://github.com/JamesTKhan/Mundus/wiki/Project-overview-&-architecture) article.
