@@ -228,6 +228,12 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
         if (imageIndexMap!!.contains(textureAttribute)) {
             // Retrieve the image index for this texture attribute and create a texture asset for it.
             val index = imageIndexMap[textureAttribute]!!
+
+            // For GLTF embedded files this will allow them to import albeit the packed textures will not be usable.
+            if (importedModel.images.isEmpty) {
+                return null
+            }
+
             return assetManager.getOrCreateTextureAsset(importedModel.images.get(index))
         }
 

@@ -52,8 +52,10 @@ public class ModelUtils {
         ModelInstance instance = new ModelInstance(model);
         instance.getRenderables(renderables, pool);
 
-        if (renderables.get(0).bones != null) {
-            numBones = renderables.get(0).bones.length;
+        for (Renderable renderable : renderables) {
+            if (renderable.bones != null) {
+                numBones += renderable.bones.length;
+            }
         }
 
         renderables.clear();
