@@ -194,9 +194,9 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             inputTable.left().top()
 
             val label = VisLabel()
-            label.setText("The recommended format is '.gltf'. Mundus relies on textures being external image files," +
-                    " so using binary files like .glb where the files are compressed and packed into the binary is " +
-                    "not recommended. Automatic importing of material attributes only works with .gltf files currently.")
+            label.setText("The recommended format is '.gltf' separate (bin file, gltf file, textures). Mundus relies on textures being external image files," +
+                    " so using binary files like .glb or embedded .gltf where the files are compressed and packed into the binary is " +
+                    "not recommended. Automatic importing of material attributes only works with separate .gltf files currently.")
             label.wrap = true
             label.width = 300f
             inputTable.add(label).expandX().prefWidth(300f).padBottom(10f).row()
