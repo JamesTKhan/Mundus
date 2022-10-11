@@ -265,7 +265,7 @@ public class TerrainUberShader extends LightShader {
     @Override
     public void begin(Camera camera, RenderContext context) {
         context.setCullFace(GL20.GL_BACK);
-
+        context.setBlending(false, GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         context.setDepthTest(GL20.GL_LESS, 0f, 1f);
         context.setDepthMask(true);
 
@@ -307,7 +307,7 @@ public class TerrainUberShader extends LightShader {
         return terrainTextureMask == terrainTextureAttribute.terrainTexture.getMask();
     }
 
-    private static final long combineAttributeMasks (final Renderable renderable) {
+    private static long combineAttributeMasks (final Renderable renderable) {
         long mask = 0;
         if (renderable.environment != null) mask |= renderable.environment.getMask();
         if (renderable.material != null) mask |= renderable.material.getMask();
