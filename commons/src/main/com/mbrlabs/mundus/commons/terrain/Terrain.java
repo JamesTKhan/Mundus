@@ -36,6 +36,7 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainTextureAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
 import net.mgsx.gltf.loaders.shared.geometry.MeshTangentSpaceGenerator;
 
@@ -74,7 +75,7 @@ public class Terrain implements RenderableProvider, Disposable {
 
     // Textures
     private TerrainTexture terrainTexture;
-    private final Material material;
+    private Material material;
 
     // Mesh
     private Model model;
@@ -192,6 +193,14 @@ public class Terrain implements RenderableProvider, Disposable {
             curDistance += u ? -0.1f : 0.1f;
         }
 
+    }
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public ModelInstance getModelInstance() {
+        return modelInstance;
     }
 
     private short[] buildIndices() {

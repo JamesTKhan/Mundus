@@ -23,25 +23,24 @@ attribute vec3 a_normal;
 attribute vec2 a_texCoord0;
 attribute vec4 a_tangent;
 
-uniform mat4 u_transMatrix;
-uniform mat4 u_projViewMatrix;
+// Default Uniforms
+uniform mat4 u_worldTrans;
+uniform mat4 u_projViewTrans;
 uniform vec4 u_cameraPosition;
 uniform mat3 u_normalMatrix;
 
-// Fog
-uniform float u_fogDensity;
-uniform float u_fogGradient;
-
-uniform vec2 u_terrainSize;
-
 varying vec2 v_texCoord0;
-varying vec2 splatPosition;
 varying vec3 v_normal;
 varying vec3 v_worldPos;
 varying mat3 v_TBN;
 
 #ifdef PICKER
 varying vec3 v_pos;
+#endif
+
+#ifdef splatFlag
+varying vec2 v_splatPosition;
+uniform vec2 u_terrainSize;
 #endif
 
 // clipping plane
@@ -53,20 +52,17 @@ varying vec3 v_shadowMapUv;
 
 void main(void) {
     // position
-    vec4 worldPos = u_transMatrix * vec4(a_position, 1.0);
-    gl_Position = u_projViewMatrix * worldPos;
+    vec4 worldPos = u_worldTrans * vec4(a_position, 1.0);
+    gl_Position = u_projViewTrans * worldPos;
 
     vec4 spos = u_shadowMapProjViewTrans * worldPos;
     v_shadowMapUv.xy = (spos.xy / spos.w) * 0.5 + 0.5;
     v_shadowMapUv.z = min(spos.z * 0.5 + 0.5, 0.998);
 
-    // normal for lighting
-    v_normal = normalize((u_transMatrix * vec4(a_normal, 0.0)).xyz);
-
     // Logic for Tangent/Bi-tangent/Normal from gdx-gltf
     vec3 tangent = a_tangent.xyz;
     vec3 normalW = normalize(vec3(u_normalMatrix * a_normal.xyz));
-    vec3 tangentW = normalize(vec3(u_transMatrix * vec4(tangent, 0.0)));
+    vec3 tangentW = normalize(vec3(u_worldTrans * vec4(tangent, 0.0)));
     vec3 bitangentW = cross(normalW, tangentW) * a_tangent.w;
     v_TBN = mat3(tangentW, bitangentW, normalW);
 
@@ -75,7 +71,10 @@ void main(void) {
 
     // texture stuff
     v_texCoord0 = a_texCoord0;
-    splatPosition = vec2(a_position.x / u_terrainSize.x, a_position.z / u_terrainSize);
+
+    #ifdef splatFlag
+    v_splatPosition = vec2(a_position.x / u_terrainSize.x, a_position.z / u_terrainSize);
+    #endif
 
     v_worldPos = worldPos.xyz;
 

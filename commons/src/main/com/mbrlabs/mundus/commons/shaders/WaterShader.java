@@ -35,6 +35,7 @@ public class WaterShader extends LightShader {
     protected final int UNIFORM_FOAM_TEXTURE = register(new Uniform("u_foamTexture"));
 
     // ============================ FLOATS ============================
+    protected final int UNIFORM_CLIP_PLANE = register(new Uniform("u_clipPlane"));
     protected final int UNIFORM_MOVE_FACTOR = register(new Uniform("u_moveFactor"));
     protected final int UNIFORM_TILING = register(new Uniform("u_tiling"));
     protected final int UNIFORM_WAVE_STRENGTH = register(new Uniform("u_waveStrength"));

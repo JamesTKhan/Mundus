@@ -29,14 +29,16 @@ import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.TerrainTexture;
-import com.mbrlabs.mundus.commons.terrain.TerrainTextureAttribute;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainTextureAttribute;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 
 /**
+ * Legacy Terrain shader replaced by {@link TerrainUberShader} shader
  * @author Marcus Brummer
  * @version 22-11-2015
  */
+@Deprecated
 public class TerrainShader extends LightShader {
 
     protected static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/terrain.vert.glsl";
@@ -46,7 +48,7 @@ public class TerrainShader extends LightShader {
     protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
     protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
     protected final int UNIFORM_NORMAL_MATRIX = register(new Uniform("u_normalMatrix"));
-    protected final int UNIFORM_CAM_POS = register(new Uniform("u_camPos"));
+    protected final int UNIFORM_CAM_POS = register(new Uniform("u_cameraPosition"));
 
     // ============================ TEXTURE SPLATTING ============================
     protected final int UNIFORM_TERRAIN_SIZE = register(new Uniform("u_terrainSize"));

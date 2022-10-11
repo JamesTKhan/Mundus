@@ -34,29 +34,39 @@ const MED vec4 COLOR_BRIGHT = vec4(0.8,0.8,0.8, 1.0);
 const MED vec4 COLOR_BRUSH = vec4(0.4,0.4,0.4, 0.4);
 
 // splat textures
-uniform sampler2D u_texture_base;
-uniform sampler2D u_texture_r;
-uniform sampler2D u_texture_g;
-uniform sampler2D u_texture_b;
-uniform sampler2D u_texture_a;
-uniform sampler2D u_texture_splat;
-uniform int u_texture_has_splatmap;
-uniform int u_texture_has_diffuse;
+uniform sampler2D u_baseTexture;
 
-// splat normal texture
-uniform int u_texture_has_normals;
-uniform int u_texture_has_normal_base;
-uniform int u_texture_has_normal_r;
-uniform int u_texture_has_normal_g;
-uniform int u_texture_has_normal_b;
-uniform int u_texture_has_normal_a;
-uniform sampler2D u_texture_base_normal;
-uniform sampler2D u_texture_r_normal;
-uniform sampler2D u_texture_g_normal;
-uniform sampler2D u_texture_b_normal;
-uniform sampler2D u_texture_a_normal;
+#ifdef splatFlag
+    varying vec2 v_splatPosition;
+    uniform sampler2D u_texture_splat;
 
+    #ifdef splatRFlag
+    uniform sampler2D u_texture_r;
+    #endif
+    #ifdef splatGFlag
+    uniform sampler2D u_texture_g;
+    #endif
+    #ifdef splatBFlag
+    uniform sampler2D u_texture_b;
+    #endif
+    #ifdef splatAFlag
+    uniform sampler2D u_texture_a;
+    #endif
+
+    #ifdef normalTextureFlag
+    uniform sampler2D u_texture_base_normal;
+    uniform sampler2D u_texture_r_normal;
+    uniform sampler2D u_texture_g_normal;
+    uniform sampler2D u_texture_b_normal;
+    uniform sampler2D u_texture_a_normal;
+    #endif
+
+#endif // splatFlag
+
+#ifdef fogFlag
 uniform vec3 u_fogEquation;
+uniform MED vec4 u_fogColor;
+#endif
 
 // mouse picking
 #ifdef PICKER
@@ -66,15 +76,10 @@ uniform int u_pickerActive;
 varying vec3 v_pos;
 #endif
 
-uniform MED vec4 u_fogColor;
-
 // light
-varying vec3 v_normal;
 varying mat3 v_TBN;
 
 varying MED vec2 v_texCoord0;
-
-varying vec2 splatPosition;
 varying float v_clipDistance;
 
 void main(void) {
@@ -83,45 +88,51 @@ void main(void) {
 
     vec3 normal;
 
-    // blend textures
-    if(u_texture_has_diffuse == 1) {
-        gl_FragColor = texture2D(u_texture_base, v_texCoord0);
+    gl_FragColor = texture2D(u_baseTexture, v_texCoord0);
+    #ifdef normalTextureFlag
+        normal = texture2D(u_texture_base_normal, v_texCoord0).rgb;
+    #endif
 
-        if (u_texture_has_normal_base == 1) {
-            normal = texture2D(u_texture_base_normal, v_texCoord0).rgb;
-        }
-    }
-    if(u_texture_has_splatmap == 1) {
-        vec4 splat = texture2D(u_texture_splat, splatPosition);
-        gl_FragColor = mix(gl_FragColor, texture2D(u_texture_r, v_texCoord0), splat.r);
-        gl_FragColor = mix(gl_FragColor, texture2D(u_texture_g, v_texCoord0), splat.g);
-        gl_FragColor = mix(gl_FragColor, texture2D(u_texture_b, v_texCoord0), splat.b);
-        gl_FragColor = mix(gl_FragColor, texture2D(u_texture_a, v_texCoord0), splat.a);
+    // Mix splat textures
+    #ifdef splatFlag
+    vec4 splat = texture2D(u_texture_splat, v_splatPosition);
+        #ifdef splatRFlag
+            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_r, v_texCoord0), splat.r);
+        #endif
+        #ifdef splatGFlag
+            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_g, v_texCoord0), splat.g);
+        #endif
+        #ifdef splatBFlag
+            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_b, v_texCoord0), splat.b);
+        #endif
+        #ifdef splatAFlag
+            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_a, v_texCoord0), splat.a);
+        #endif
 
-        // Mix in splat map normals
-        if (u_texture_has_normals == 1) {
-
-            if (u_texture_has_normal_r == 1) {
+        #ifdef normalTextureFlag
+            // Splat normals
+            #ifdef splatRNormalFlag
                 normal = mix(normal, texture2D(u_texture_r_normal, v_texCoord0).rgb, splat.r);
-            }
-            if (u_texture_has_normal_g == 1) {
+            #endif
+            #ifdef splatGNormalFlag
                 normal = mix(normal, texture2D(u_texture_g_normal, v_texCoord0).rgb, splat.g);
-            }
-            if (u_texture_has_normal_b == 1) {
+            #endif
+            #ifdef splatBNormalFlag
                 normal = mix(normal, texture2D(u_texture_b_normal, v_texCoord0).rgb, splat.b);
-            }
-            if (u_texture_has_normal_a == 1) {
+            #endif
+            #ifdef splatANormalFlag
                 normal = mix(normal, texture2D(u_texture_a_normal, v_texCoord0).rgb, splat.a);
-            }
+            #endif
 
-        }
-    }
+        #endif
 
-    if (u_texture_has_normals == 1) {
+    #endif
+
+    #ifdef normalTextureFlag
         normal = normalize(v_TBN * ((2.0 * normal - 1.0)));
-    } else {
+    #else
         normal = normalize(v_TBN[2].xyz);
-    }
+    #endif
 
     // =================================================================
     //                          Lighting
@@ -143,6 +154,7 @@ void main(void) {
     //                          /Lighting
     // =================================================================
 
+    #ifdef fogFlag
     // fog
     if (u_fogEquation.z > 0.0) {
         vec3 surfaceToCamera = u_cameraPosition.xyz - v_worldPos;
@@ -154,6 +166,7 @@ void main(void) {
 
         gl_FragColor.rgb = mix(gl_FragColor.rgb, u_fogColor.rgb, fog * u_fogColor.a);
     }
+    #endif
 
     #ifdef PICKER
     if(u_pickerActive == 1) {

@@ -25,7 +25,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
@@ -40,6 +39,7 @@ import com.mbrlabs.mundus.editor.input.FreeCamController
 import com.mbrlabs.mundus.editor.input.InputManager
 import com.mbrlabs.mundus.editor.input.ShortcutController
 import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
+import com.mbrlabs.mundus.editor.shader.EditorShaderProvider
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.gizmos.GizmoManager
@@ -137,7 +137,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         val sg = scene.sceneGraph
 
         val config = ShaderUtils.buildPBRShaderConfig(projectManager.current().assetManager.maxNumBones)
-        projectManager.modelBatch = ModelBatch(MundusPBRShaderProvider(config), SceneRenderableSorter())
+        projectManager.modelBatch = ModelBatch(EditorShaderProvider(config), SceneRenderableSorter())
 
         val depthConfig = ShaderUtils.buildPBRShaderDepthConfig(projectManager.current().assetManager.maxNumBones)
         projectManager.setDepthBatch((ModelBatch(PBRDepthShaderProvider(depthConfig))))

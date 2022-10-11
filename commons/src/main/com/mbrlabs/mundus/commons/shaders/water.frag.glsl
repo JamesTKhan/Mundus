@@ -31,7 +31,6 @@ uniform MED float u_foamEdgeBias;
 uniform MED float u_foamEdgeDistance;
 uniform MED float u_foamFallOffDistance;
 uniform MED float u_foamScrollSpeed;
-uniform vec4 u_cameraPosition;
 uniform vec3 u_fogEquation;
 uniform float u_camNearPlane;
 uniform float u_camFarPlane;

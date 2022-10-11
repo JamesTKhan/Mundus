@@ -22,7 +22,6 @@ import com.mbrlabs.mundus.commons.shaders.DepthShader
 import com.mbrlabs.mundus.commons.shaders.ShadowMapShader
 import com.mbrlabs.mundus.commons.shaders.SkyboxShader
 import com.mbrlabs.mundus.commons.shaders.WaterShader
-import com.mbrlabs.mundus.editor.terrain.EditorTerrainShader
 import com.mbrlabs.mundus.editor.tools.picker.PickerShader
 
 /**
@@ -33,7 +32,6 @@ import com.mbrlabs.mundus.editor.tools.picker.PickerShader
 object Shaders : Disposable {
 
     val wireframeShader: WireframeShader
-    val terrainShader: EditorTerrainShader
     val waterShader: WaterShader
     val skyboxShader: SkyboxShader
     val pickerShader: PickerShader
@@ -44,8 +42,6 @@ object Shaders : Disposable {
         ShaderProgram.pedantic = false
         wireframeShader = WireframeShader()
         wireframeShader.init()
-        terrainShader = EditorTerrainShader()
-        terrainShader.init()
         waterShader = WaterShader()
         waterShader.init()
         skyboxShader = SkyboxShader()
@@ -60,7 +56,6 @@ object Shaders : Disposable {
 
     override fun dispose() {
         wireframeShader.dispose()
-        terrainShader.dispose()
         skyboxShader.dispose()
         pickerShader.dispose()
         waterShader.dispose()

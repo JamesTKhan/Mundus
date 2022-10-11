@@ -24,6 +24,8 @@ import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.shaders.ClippableShader;
+import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
+import com.mbrlabs.mundus.commons.shaders.TerrainUberShader;
 
 import java.util.Objects;
 
@@ -69,15 +71,13 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
     public void render(float delta) {
         super.render(delta);
         if (isCulled) return;
-        gameObject.sceneGraph.scene.batch.render(terrain.getTerrain(), gameObject.sceneGraph.scene.environment, shader);
+        gameObject.sceneGraph.scene.batch.render(terrain.getTerrain(), gameObject.sceneGraph.scene.environment);
     }
 
     @Override
     public void render(float delta, Vector3 clippingPlane, float clipHeight) {
-        if (shader instanceof ClippableShader) {
-            ((ClippableShader) shader).setClippingPlane(clippingPlane);
-            ((ClippableShader) shader).setClippingHeight(clipHeight);
-        }
+        TerrainUberShader.terrainClippingHeight = clipHeight;
+        TerrainUberShader.terrainClippingPlane.set(clippingPlane);
         render(delta);
     }
 

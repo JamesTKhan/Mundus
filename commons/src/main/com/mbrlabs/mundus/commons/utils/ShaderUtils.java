@@ -44,10 +44,12 @@ public class ShaderUtils {
      *            path to fragment shader
      * @param shader
      *            the shader to compile a program for
+     * @param customPrefix
+     *             a custom prefix string to prepend to vertex and fragment shaders
      *
      * @return compiled shader program
      */
-    public static ShaderProgram compile(String vertexShader, String fragmentShader, Shader shader) {
+    public static ShaderProgram compile(String vertexShader, String fragmentShader, Shader shader, String customPrefix) {
         String vert;
         String frag;
 
@@ -59,12 +61,28 @@ public class ShaderUtils {
             frag = Gdx.files.classpath(fragmentShader).readString();
         }
 
-        ShaderProgram program = new ShaderProgram(vert, getShaderPrefix(shader) + frag);
+        ShaderProgram program = new ShaderProgram(customPrefix + vert,  getShaderPrefix(shader) + customPrefix + frag);
         if (!program.isCompiled()) {
             throw new GdxRuntimeException(program.getLog());
         }
 
         return program;
+    }
+
+    /**
+     * Compiles and links shader.
+     *
+     * @param vertexShader
+     *            path to vertex shader
+     * @param fragmentShader
+     *            path to fragment shader
+     * @param shader
+     *            the shader to compile a program for
+     *
+     * @return compiled shader program
+     */
+    public static ShaderProgram compile(String vertexShader, String fragmentShader, Shader shader) {
+        return compile(vertexShader, fragmentShader, shader, "");
     }
 
     public static String getShaderPrefix(Shader shader) {

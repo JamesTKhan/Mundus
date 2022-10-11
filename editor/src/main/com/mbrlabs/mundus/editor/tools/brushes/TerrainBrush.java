@@ -36,6 +36,7 @@ import com.mbrlabs.mundus.editor.events.GlobalBrushSettingsChangedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.history.commands.TerrainHeightCommand;
 import com.mbrlabs.mundus.editor.history.commands.TerrainPaintCommand;
+import com.mbrlabs.mundus.editor.shader.EditorTerrainUberShader;
 import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.tools.Tool;
 import com.mbrlabs.mundus.editor.ui.UI;
@@ -494,7 +495,7 @@ public abstract class TerrainBrush extends Tool {
 
         mouseMoved = true;
 
-        Shaders.INSTANCE.getTerrainShader().setPickerPosition(brushPos.x, brushPos.y, brushPos.z);
+        EditorTerrainUberShader.setPickerPosition(brushPos.x, brushPos.y, brushPos.z);
 
         return false;
     }
@@ -506,7 +507,7 @@ public abstract class TerrainBrush extends Tool {
         } else {
             scale(1.1f);
         }
-        Shaders.INSTANCE.getTerrainShader().setPickerRadius(radius);
+        EditorTerrainUberShader.setPickerRadius(radius);
 
         return false;
     }
@@ -518,14 +519,14 @@ public abstract class TerrainBrush extends Tool {
 
     @Override
     public void onDisabled() {
-        Shaders.INSTANCE.getTerrainShader().activatePicker(false);
+        EditorTerrainUberShader.activatePicker(false);
     }
 
     @Override
     public void onActivated() {
-        Shaders.INSTANCE.getTerrainShader().activatePicker(true);
-        Shaders.INSTANCE.getTerrainShader().setPickerPosition(brushPos.x, brushPos.y, brushPos.z);
-        Shaders.INSTANCE.getTerrainShader().setPickerRadius(radius);
+        EditorTerrainUberShader.activatePicker(true);
+        EditorTerrainUberShader.setPickerPosition(brushPos.x, brushPos.y, brushPos.z);
+        EditorTerrainUberShader.setPickerRadius(radius);
     }
 
 }

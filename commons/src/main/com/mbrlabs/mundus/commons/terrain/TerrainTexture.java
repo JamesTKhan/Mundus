@@ -16,15 +16,20 @@
 
 package com.mbrlabs.mundus.commons.terrain;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainAttribute;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainAttributes;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This essentially behaves like a terrain material
+ *
  * @author Marcus Brummer
  * @version 28-01-2016
  */
-public class TerrainTexture {
-
+public class TerrainTexture extends TerrainAttributes {
     private final Map<SplatTexture.Channel, SplatTexture> textures;
     private final Map<SplatTexture.Channel, SplatTexture> normalTextures;
     private SplatMap splatmap;
@@ -48,19 +53,60 @@ public class TerrainTexture {
             textures.remove(channel);
             splatmap.clearChannel(channel);
             splatmap.updateTexture();
+
+            if (has(getTerrainAttribute(channel, false))) {
+                remove(getTerrainAttribute(channel, false));
+            }
         }
     }
 
     public void removeNormalTexture(SplatTexture.Channel channel) {
             normalTextures.remove(channel);
+            if (has(getTerrainAttribute(channel, true))) {
+                remove(getTerrainAttribute(channel, true));
+            }
     }
 
     public void setSplatTexture(SplatTexture tex) {
         textures.put(tex.channel, tex);
+        set(new TerrainAttribute(getTerrainAttribute(tex.channel, false)));
     }
 
     public void setSplatNormalTexture(SplatTexture tex) {
         normalTextures.put(tex.channel, tex);
+        set(new TerrainAttribute(getTerrainAttribute(tex.channel, true)));
+    }
+
+    private long getTerrainAttribute(SplatTexture.Channel channel, boolean isNormal) {
+        switch (channel) {
+            case BASE:
+                if (isNormal)
+                    return TerrainAttribute.NormalMapBase;
+                else
+                    return TerrainAttribute.DiffuseBase;
+            case R:
+                if (isNormal)
+                    return TerrainAttribute.NormalMapR;
+                else
+                    return TerrainAttribute.DiffuseR;
+            case G:
+                if (isNormal)
+                    return TerrainAttribute.NormalMapG;
+                else
+                    return TerrainAttribute.DiffuseG;
+            case B:
+                if (isNormal)
+                    return TerrainAttribute.NormalMapB;
+                else
+                    return TerrainAttribute.DiffuseB;
+            case A:
+                if (isNormal)
+                    return TerrainAttribute.NormalMapA;
+                else
+                    return TerrainAttribute.DiffuseA;
+            default:
+                throw new GdxRuntimeException("Invalid channel");
+        }
     }
 
     public SplatTexture.Channel getNextFreeChannel() {
@@ -85,6 +131,10 @@ public class TerrainTexture {
 
     public boolean hasTextureChannel(SplatTexture.Channel channel) {
         return textures.containsKey(channel);
+    }
+
+    public boolean hasNormalChannel(SplatTexture.Channel channel) {
+        return normalTextures.containsKey(channel);
     }
 
     public int countTextures() {

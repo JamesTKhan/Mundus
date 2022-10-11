@@ -50,7 +50,7 @@ varying vec3 v_worldPos;
 uniform int u_useSpecular;
 uniform int u_activeNumPointLights;
 uniform int u_activeNumSpotLights;
-uniform vec4 u_camPos;
+uniform vec4 u_cameraPosition;
 uniform MED float u_shininess;
 uniform DirectionalLight u_directionalLight;
 uniform PointLight u_pointLights[numPointLights];
@@ -94,7 +94,7 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
         }
 
         if (u_useSpecular == 1) {
-            vec3 PixelToCamera = normalize(u_camPos.xyz - v_worldPos);
+            vec3 PixelToCamera = normalize(u_cameraPosition.xyz - v_worldPos);
             vec3 LightReflect = normalize(reflect(LightDirection, Normal));
             float SpecularFactor = dot(PixelToCamera, LightReflect);
             if (SpecularFactor > 0.0) {

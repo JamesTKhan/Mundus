@@ -20,16 +20,8 @@ public abstract class ClippableShader extends BaseShader {
         set(UNIFORM_CLIP_PLANE, clippingPlane.x, clippingPlane.y, clippingPlane.z, clippingHeight);
     }
 
-    public Vector3 getClippingPlane() {
-        return clippingPlane;
-    }
-
     public void setClippingPlane(Vector3 clippingPlane) {
         this.clippingPlane = clippingPlane;
-    }
-
-    public float getClippingHeight() {
-        return clippingHeight;
     }
 
     public void setClippingHeight(float clippingHeight) {
