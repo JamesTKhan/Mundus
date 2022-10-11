@@ -7,7 +7,7 @@ those scenes in a libGDX project. See [runtime usage](https://github.com/JamesTK
 for an example. You can see current milestones for
 releases on the [milestones](https://github.com/JamesTKhan/Mundus/milestones) page.
 
-![Screenshot](https://raw.githubusercontent.com/mbrlabs/Mundus/master/screenshot.png)
+![Screenshot](https://user-images.githubusercontent.com/28971753/194986389-aff7af15-c04e-4639-97c6-a1c5b185bf15.png)
 
 This project is at a very early stage in development and APIs may be missing basic features. Create an issue
 if you notice something important that is missing.
