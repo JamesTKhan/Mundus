@@ -79,7 +79,7 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
         Tooltip.Builder("Save project (Ctrl+S)").target(saveBtn).build()
 
         importBtn.padRight(7f).padLeft(7f)
-        Tooltip.Builder("Import model").target(importBtn).build()
+        Tooltip.Builder("Import").target(importBtn).build()
 
         exportBtn.padRight(12f).padLeft(7f)
         Tooltip.Builder("Export project (F1)").target(exportBtn).build()
