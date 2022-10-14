@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.scene3d.components;
 
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -42,7 +43,9 @@ public class PickableModelComponent extends ModelComponent implements PickableCo
     @Override
     public void encodeRaypickColorId() {
         PickerIDAttribute goIDa = PickerColorEncoder.encodeRaypickColorId(gameObject);
-        this.modelInstance.materials.first().set(goIDa);
+        for (Material material : modelInstance.materials) {
+            material.set(goIDa);
+        }
     }
 
     @Override
