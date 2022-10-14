@@ -36,7 +36,7 @@ Below are some of the more interesting features, that already work
 - Highly accurate game object picking system, based on id color coding & offscreen framebuffer rendering.
   Basic concept: http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
 
-###Latest Release Video
+### Latest Release Video
 
 [![Release video](https://img.youtube.com/vi/Txc-uwf6gEM/0.jpg)](https://www.youtube.com/watch?v=Txc-uwf6gEM)
   
