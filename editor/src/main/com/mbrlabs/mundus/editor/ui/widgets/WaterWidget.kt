@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.editor.ui.widgets
 
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
@@ -12,9 +13,11 @@ import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
+import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
 import com.mbrlabs.mundus.commons.water.Water
 import com.mbrlabs.mundus.commons.water.WaterResolution
+import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -38,6 +41,8 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     private val enableReflections = VisCheckBox(null)
     private val enableRefractions = VisCheckBox(null)
 
+    private val colorPickerField = ColorPickerField()
+
     private lateinit var selectBox: VisSelectBox<String>
 
     private val resetDefaults = VisTextButton("Reset Defaults")
@@ -57,6 +62,24 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         addSeparator().padBottom(5f).row()
 
         val waveSettings = getSectionTable()
+
+        waveSettings.add(ToolTipLabel("Color:", "Color tint of the water. When using reflections/refractions, the alpha value\ncontrols the blending of the color")).growX()
+        waveSettings.add(colorPickerField).left().row()
+        // color
+        colorPickerField.colorAdapter = object: ColorPickerAdapter() {
+            override fun finished(newColor: Color) {
+                waterComponent.waterAsset.water.setColorAttribute(WaterColorAttribute.Diffuse, newColor)
+                projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
+            }
+
+            override fun changed(newColor: Color?) {
+                waterComponent.waterAsset.water.setColorAttribute(WaterColorAttribute.Diffuse, newColor)
+            }
+
+            override fun canceled(oldColor: Color?) {
+                waterComponent.waterAsset.water.setColorAttribute(WaterColorAttribute.Diffuse, oldColor)
+            }
+        }
 
         waveSettings.add(ToolTipLabel("Tiling:", "Tiling of the ripples. The smaller the value, the more spaced out the ripples will be.")).growX()
         waveSettings.add(tilingField).growX().row()
@@ -185,7 +208,12 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamEdgeDistance, Water.DEFAULT_FOAM_EDGE_DISTANCE)
                 waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamEdgeBias, Water.DEFAULT_FOAM_EDGE_BIAS)
                 waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE)
+
+                waterComponent.waterAsset.water.setColorAttribute(WaterColorAttribute.Diffuse, Water.DEFAULT_COLOR)
+
                 projectManager.current().currScene.settings.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION
+                projectManager.current().currScene.settings.enableWaterReflections = true
+                projectManager.current().currScene.settings.enableWaterRefractions = true
                 projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
 
                 setFieldsToCurrentValues()
@@ -223,6 +251,11 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         foamScrollSpeedFactor.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamScrollSpeed).toString()
         foamFallOffDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamFallOffDistance).toString()
         foamEdgeDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeDistance).toString()
+
+        colorPickerField.selectedColor = waterComponent.waterAsset.water.getColorAttribute(WaterColorAttribute.Diffuse)
+
+        enableRefractions.isChecked = projectManager.current().currScene.settings.enableWaterRefractions
+        enableReflections.isChecked = projectManager.current().currScene.settings.enableWaterReflections
 
         if (!selectBox.items.contains(projectManager.current().currScene.settings.waterResolution.value)) {
             selectBox.selected = WaterResolution.DEFAULT_WATER_RESOLUTION.value

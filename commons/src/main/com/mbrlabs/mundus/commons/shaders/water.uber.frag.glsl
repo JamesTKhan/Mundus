@@ -27,6 +27,7 @@ uniform sampler2D u_refractionDepthTexture;
 uniform sampler2D u_dudvTexture;
 uniform sampler2D u_normalMapTexture;
 uniform sampler2D u_foamTexture;
+uniform vec4 u_color;
 uniform MED float u_waveStrength;
 uniform MED float u_moveFactor;
 uniform MED float u_shineDamper;
@@ -37,8 +38,6 @@ uniform MED float u_foamEdgeDistance;
 uniform MED float u_foamFallOffDistance;
 uniform MED float u_foamScrollSpeed;
 uniform vec2 u_cameraNearFar;
-
-const vec4 COLOR_TURQUOISE = vec4(0,0.5,0.686, 0.2);
 
 #ifdef fogFlag
 uniform vec3 u_fogEquation;
@@ -127,13 +126,13 @@ void main() {
             vec4 color = refractColor;
         #else
             // We have neither reflection or refraction
-            vec4 color = COLOR_TURQUOISE;
+            vec4 color = u_color;
         #endif
 
     #endif
 
     // Mix some color in
-    color = mix(color, COLOR_TURQUOISE, 0.2);
+    color.rgb = mix(color.rgb, u_color.rgb, u_color.a);
 
     // Water Foam implemented from http://fire-face.com/personal/water/
     float edgePatternScroll = u_moveFactor * u_foamScrollSpeed;

@@ -2,11 +2,13 @@ package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.water.Water;
+import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
 
 import java.io.IOException;
@@ -31,6 +33,7 @@ public class WaterAsset extends Asset {
     public static final String PROP_FOAM_FALL_SCROLL_SPEED = "foamScrollSpeed";
     public static final String PROP_REFLECTIVITY = "reflectivity";
     public static final String PROP_SHINE_DAMPER = "shineDamper";
+    public static final String PROP_COLOR = "color";
 
     // ids of dependent assets
     public String dudvID;
@@ -72,6 +75,13 @@ public class WaterAsset extends Asset {
             water.setFloatAttribute(WaterFloatAttribute.FoamScrollSpeed, Float.parseFloat(MAP.get(PROP_FOAM_FALL_SCROLL_SPEED, String.valueOf(Water.DEFAULT_FOAM_SCROLL_SPEED))));
             water.setFloatAttribute(WaterFloatAttribute.Reflectivity, Float.parseFloat(MAP.get(PROP_REFLECTIVITY, String.valueOf(Water.DEFAULT_REFLECTIVITY))));
             water.setFloatAttribute(WaterFloatAttribute.ShineDamper, Float.parseFloat(MAP.get(PROP_SHINE_DAMPER, String.valueOf(Water.DEFAULT_SHINE_DAMPER))));
+
+            String colorValue = MAP.get(PROP_COLOR);
+            if (colorValue != null) {
+                water.setColorAttribute(WaterColorAttribute.Diffuse, Color.valueOf(colorValue));
+            } else {
+                water.setColorAttribute(WaterColorAttribute.Diffuse, Water.DEFAULT_COLOR);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.commons.water;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
+import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterMaterialAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterTextureAttribute;
@@ -27,6 +29,7 @@ public class Water implements RenderableProvider, Disposable {
     public static final float DEFAULT_FOAM_EDGE_DISTANCE = 0.2f;
     public static final float DEFAULT_FOAM_FALL_OFF_DISTANCE = 12.0f;
     public static final float DEFAULT_FOAM_SCROLL_SPEED = 4.0f;
+    public static final Color DEFAULT_COLOR = new Color(0,0.5f,0.686f, 0.2f);
     private static final String materialId = "waterMat";
 
 
@@ -81,6 +84,8 @@ public class Water implements RenderableProvider, Disposable {
         setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE);
         setFloatAttribute(WaterFloatAttribute.Reflectivity, DEFAULT_REFLECTIVITY);
         setFloatAttribute(WaterFloatAttribute.ShineDamper, DEFAULT_SHINE_DAMPER);
+
+        waterMaterial.set(WaterColorAttribute.createDiffuse(Water.DEFAULT_COLOR));
     }
 
     @Override
@@ -131,5 +136,13 @@ public class Water implements RenderableProvider, Disposable {
 
     public float getFloatAttribute(long attributeType) {
          return waterMaterial.get(WaterFloatAttribute.class, attributeType).value;
+    }
+
+    public void setColorAttribute(long attributeType, Color newColor) {
+        waterMaterial.set(new WaterColorAttribute(attributeType, newColor));
+    }
+
+    public Color getColorAttribute(long diffuse) {
+        return waterMaterial.get(WaterColorAttribute.class, diffuse).color;
     }
 }

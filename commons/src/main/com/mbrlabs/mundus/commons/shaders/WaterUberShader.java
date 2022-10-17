@@ -14,6 +14,7 @@ import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import com.mbrlabs.mundus.commons.water.Water;
 import com.mbrlabs.mundus.commons.water.WaterMaterial;
+import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterMaterialAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterTextureAttribute;
@@ -29,6 +30,9 @@ public class WaterUberShader extends LightShader {
 
     public static class WaterInputs {
         public final static Uniform diffuseUVTransform = new Uniform("u_diffuseUVTransform");
+
+        // Color Attributes
+        public final static Uniform color = new Uniform("u_color");
 
         // Float attributes
         public final static Uniform moveFactor = new Uniform("u_moveFactor");
@@ -62,6 +66,20 @@ public class WaterUberShader extends LightShader {
                 WaterFloatAttribute attr = (WaterFloatAttribute) mat.get(WaterFloatAttribute.FoamUVOffset);
                 if (attr != null)
                     shader.set(inputID,  attr.value, attr.value, 200f, 200f);
+            }
+        };
+
+        // Color attributes
+        public final static Setter color = new LocalSetter() {
+            @Override
+            public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+                WaterMaterialAttribute waterMaterialAttribute = (WaterMaterialAttribute) combinedAttributes
+                        .get(WaterMaterialAttribute.WaterMaterial);
+                WaterMaterial waterMaterial = waterMaterialAttribute.waterMaterial;
+                WaterColorAttribute attr = (WaterColorAttribute)(waterMaterial.get(WaterColorAttribute.Diffuse));
+
+                if (attr != null)
+                    shader.set(inputID, attr.color);
             }
         };
 
@@ -133,6 +151,9 @@ public class WaterUberShader extends LightShader {
     public final int u_cameraPosition;
     public final int u_cameraNearFar;
 
+    // Water color uniforms
+    public final int u_color;
+
     // Water float uniforms
     public final int u_diffuseUVTransform;
     public final int u_tiling;
@@ -199,6 +220,8 @@ public class WaterUberShader extends LightShader {
         u_dudvTexture = register(WaterInputs.dudvTexture, WaterSetters.dudvTexture);
         u_normalMapTexture = register(WaterInputs.normalMapTexture, WaterSetters.normalMapTexture);
         u_foamTexture = register(WaterInputs.foamTexture, WaterSetters.foamTexture);
+
+        u_color = register(WaterInputs.color, WaterSetters.color);
 
         u_fogColor = register(WaterInputs.fogColor);
         u_fogEquation = register(WaterInputs.fogEquation);
