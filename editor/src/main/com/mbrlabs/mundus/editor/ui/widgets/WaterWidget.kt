@@ -58,14 +58,14 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     private fun setupWidgets() {
         defaults().padBottom(10f)
 
-        /* Waves section */
-        add(VisLabel("Waves")).left().row()
+        /* General section */
+        add(VisLabel("General")).left().row()
         addSeparator().padBottom(5f).row()
 
-        val waveSettings = getSectionTable()
+        val generalSettings = getSectionTable()
 
-        waveSettings.add(ToolTipLabel("Color:", "Color tint of the water. When using reflections/refractions, the alpha value\ncontrols the blending of the color")).growX()
-        waveSettings.add(colorPickerField).left().row()
+        generalSettings.add(ToolTipLabel("Color:", "Color tint of the water. When using reflections/refractions, the alpha value\ncontrols the blending of the color")).growX()
+        generalSettings.add(colorPickerField).left().row()
         // color
         colorPickerField.colorAdapter = object: ColorPickerAdapter() {
             override fun finished(newColor: Color) {
@@ -82,8 +82,16 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
             }
         }
 
-        waveSettings.add(ToolTipLabel("Max Visible Depth:", "Maximum depth where objects underwater are still visible.\nOnly applicable with refractions are enabled.")).growX()
-        waveSettings.add(visibleDepthField).growX().row()
+        generalSettings.add(ToolTipLabel("Max Visible Depth:", "Maximum depth where objects underwater are still visible.\nOnly applicable when refractions are enabled.")).growX()
+        generalSettings.add(visibleDepthField).growX().row()
+
+        add(generalSettings).grow().row()
+
+        /* Waves section */
+        add(VisLabel("Waves")).left().row()
+        addSeparator().padBottom(5f).row()
+
+        val waveSettings = getSectionTable()
 
         waveSettings.add(ToolTipLabel("Tiling:", "Tiling of the ripples. The smaller the value, the more spaced out the ripples will be.")).growX()
         waveSettings.add(tilingField).growX().row()
