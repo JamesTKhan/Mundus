@@ -20,7 +20,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.NumberUtils;
 import com.mbrlabs.mundus.commons.MundusAttribute;
 
-public class WaterFloatAttributeU extends MundusAttribute {
+public class WaterFloatAttribute extends MundusAttribute {
 	public static final String TilingAlias = "tiling";
 	public static final long Tiling = register(TilingAlias);
 
@@ -59,18 +59,18 @@ public class WaterFloatAttributeU extends MundusAttribute {
 
 	public float value;
 
-	public WaterFloatAttributeU(long type) {
+	public WaterFloatAttribute(long type) {
 		super(type);
 	}
 
-	public WaterFloatAttributeU(long type, float value) {
+	public WaterFloatAttribute(long type, float value) {
 		super(type);
 		this.value = value;
 	}
 
 	@Override
 	public MundusAttribute copy () {
-		return new WaterFloatAttributeU(type, value);
+		return new WaterFloatAttribute(type, value);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class WaterFloatAttributeU extends MundusAttribute {
 	@Override
 	public int compareTo (MundusAttribute o) {
 		if (type != o.type) return (int)(type - o.type);
-		final float v = ((WaterFloatAttributeU)o).value;
+		final float v = ((WaterFloatAttribute)o).value;
 		return MathUtils.isEqual(value, v) ? 0 : value < v ? -1 : 1;
 	}
 }

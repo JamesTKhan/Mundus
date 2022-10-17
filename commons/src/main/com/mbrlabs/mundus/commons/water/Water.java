@@ -11,9 +11,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
-import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttributeU;
+import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterMaterialAttribute;
-import com.mbrlabs.mundus.commons.water.attributes.WaterTextureAttributeU;
+import com.mbrlabs.mundus.commons.water.attributes.WaterTextureAttribute;
 
 public class Water implements RenderableProvider, Disposable {
     public static final int DEFAULT_SIZE = 1600;
@@ -71,16 +71,16 @@ public class Water implements RenderableProvider, Disposable {
         material.set(WaterMaterialAttribute.createWaterMaterialAttribute(waterMaterial));
 
         // Set default values
-        setFloatAttribute(WaterFloatAttributeU.Tiling, DEFAULT_TILING);
-        setFloatAttribute(WaterFloatAttributeU.WaveStrength, DEFAULT_WAVE_STRENGTH);
-        setFloatAttribute(WaterFloatAttributeU.WaveSpeed, DEFAULT_WAVE_SPEED);
-        setFloatAttribute(WaterFloatAttributeU.FoamPatternScale, Water.DEFAULT_FOAM_SCALE);
-        setFloatAttribute(WaterFloatAttributeU.FoamScrollSpeed, Water.DEFAULT_FOAM_SCROLL_SPEED);
-        setFloatAttribute(WaterFloatAttributeU.FoamEdgeDistance, Water.DEFAULT_FOAM_EDGE_DISTANCE);
-        setFloatAttribute(WaterFloatAttributeU.FoamEdgeBias, Water.DEFAULT_FOAM_EDGE_BIAS);
-        setFloatAttribute(WaterFloatAttributeU.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE);
-        setFloatAttribute(WaterFloatAttributeU.Reflectivity, DEFAULT_REFLECTIVITY);
-        setFloatAttribute(WaterFloatAttributeU.ShineDamper, DEFAULT_SHINE_DAMPER);
+        setFloatAttribute(WaterFloatAttribute.Tiling, DEFAULT_TILING);
+        setFloatAttribute(WaterFloatAttribute.WaveStrength, DEFAULT_WAVE_STRENGTH);
+        setFloatAttribute(WaterFloatAttribute.WaveSpeed, DEFAULT_WAVE_SPEED);
+        setFloatAttribute(WaterFloatAttribute.FoamPatternScale, Water.DEFAULT_FOAM_SCALE);
+        setFloatAttribute(WaterFloatAttribute.FoamScrollSpeed, Water.DEFAULT_FOAM_SCROLL_SPEED);
+        setFloatAttribute(WaterFloatAttribute.FoamEdgeDistance, Water.DEFAULT_FOAM_EDGE_DISTANCE);
+        setFloatAttribute(WaterFloatAttribute.FoamEdgeBias, Water.DEFAULT_FOAM_EDGE_BIAS);
+        setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE);
+        setFloatAttribute(WaterFloatAttribute.Reflectivity, DEFAULT_REFLECTIVITY);
+        setFloatAttribute(WaterFloatAttribute.ShineDamper, DEFAULT_SHINE_DAMPER);
     }
 
     @Override
@@ -94,34 +94,34 @@ public class Water implements RenderableProvider, Disposable {
     }
 
     public void setWaterReflection(Texture texture) {
-        waterMaterial.set(new WaterTextureAttributeU(WaterTextureAttributeU.Reflection, texture));
+        waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.Reflection, texture));
     }
 
     public void setFoamTexture(Texture texture) {
-        waterMaterial.set(new WaterTextureAttributeU(WaterTextureAttributeU.Foam, texture));
+        waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.Foam, texture));
     }
 
     public void setDudvTexture(Texture texture) {
-        waterMaterial.set(new WaterTextureAttributeU(WaterTextureAttributeU.Dudv, texture));
+        waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.Dudv, texture));
     }
 
     public void setNormalMap(Texture texture) {
-        waterMaterial.set(new WaterTextureAttributeU(WaterTextureAttributeU.NormalMap, texture));
+        waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.NormalMap, texture));
     }
 
     public void setWaterRefractionTexture(Texture texture) {
-        waterMaterial.set(new WaterTextureAttributeU(WaterTextureAttributeU.Refraction, texture));
+        waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.Refraction, texture));
     }
 
     public void setWaterRefractionDepthTexture(Texture texture) {
-        waterMaterial.set(new WaterTextureAttributeU(WaterTextureAttributeU.RefractionDepth, texture));
+        waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.RefractionDepth, texture));
     }
 
     public void setFloatAttribute(long attributeType, float value) {
-        waterMaterial.set(new WaterFloatAttributeU(attributeType, value));
+        waterMaterial.set(new WaterFloatAttribute(attributeType, value));
     }
 
     public float getFloatAttribute(long attributeType) {
-         return waterMaterial.get(WaterFloatAttributeU.class, attributeType).value;
+         return waterMaterial.get(WaterFloatAttribute.class, attributeType).value;
     }
 }

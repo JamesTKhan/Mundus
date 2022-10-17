@@ -40,7 +40,7 @@ import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
-import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttributeU
+import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute
 import com.mbrlabs.mundus.editor.Mundus.postEvent
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
@@ -753,18 +753,18 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         props.setProperty(WaterAsset.PROP_DUDV, asset.dudvTexture.id)
         props.setProperty(WaterAsset.PROP_NORMAL_MAP, asset.normalMapTexture.id)
 
-        props.setProperty(WaterAsset.PROP_TILING, asset.water.getFloatAttribute(WaterFloatAttributeU.Tiling).toString())
-        props.setProperty(WaterAsset.PROP_WAVE_STRENGTH, asset.water.getFloatAttribute(WaterFloatAttributeU.WaveStrength).toString())
-        props.setProperty(WaterAsset.PROP_WAVE_SPEED, asset.water.getFloatAttribute(WaterFloatAttributeU.WaveSpeed).toString())
+        props.setProperty(WaterAsset.PROP_TILING, asset.water.getFloatAttribute(WaterFloatAttribute.Tiling).toString())
+        props.setProperty(WaterAsset.PROP_WAVE_STRENGTH, asset.water.getFloatAttribute(WaterFloatAttribute.WaveStrength).toString())
+        props.setProperty(WaterAsset.PROP_WAVE_SPEED, asset.water.getFloatAttribute(WaterFloatAttribute.WaveSpeed).toString())
 
-        props.setProperty(WaterAsset.PROP_FOAM_SCALE, asset.water.getFloatAttribute(WaterFloatAttributeU.FoamPatternScale).toString())
-        props.setProperty(WaterAsset.PROP_FOAM_EDGE_BIAS, asset.water.getFloatAttribute(WaterFloatAttributeU.FoamEdgeBias).toString())
-        props.setProperty(WaterAsset.PROP_FOAM_EDGE_DISTANCE, asset.water.getFloatAttribute(WaterFloatAttributeU.FoamEdgeDistance).toString())
-        props.setProperty(WaterAsset.PROP_FOAM_FALL_OFF_DISTANCE, asset.water.getFloatAttribute(WaterFloatAttributeU.FoamFallOffDistance).toString())
-        props.setProperty(WaterAsset.PROP_FOAM_FALL_SCROLL_SPEED, asset.water.getFloatAttribute(WaterFloatAttributeU.FoamScrollSpeed).toString())
+        props.setProperty(WaterAsset.PROP_FOAM_SCALE, asset.water.getFloatAttribute(WaterFloatAttribute.FoamPatternScale).toString())
+        props.setProperty(WaterAsset.PROP_FOAM_EDGE_BIAS, asset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeBias).toString())
+        props.setProperty(WaterAsset.PROP_FOAM_EDGE_DISTANCE, asset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeDistance).toString())
+        props.setProperty(WaterAsset.PROP_FOAM_FALL_OFF_DISTANCE, asset.water.getFloatAttribute(WaterFloatAttribute.FoamFallOffDistance).toString())
+        props.setProperty(WaterAsset.PROP_FOAM_FALL_SCROLL_SPEED, asset.water.getFloatAttribute(WaterFloatAttribute.FoamScrollSpeed).toString())
 
-        props.setProperty(WaterAsset.PROP_REFLECTIVITY, asset.water.getFloatAttribute(WaterFloatAttributeU.Reflectivity).toString())
-        props.setProperty(WaterAsset.PROP_SHINE_DAMPER, asset.water.getFloatAttribute(WaterFloatAttributeU.ShineDamper).toString())
+        props.setProperty(WaterAsset.PROP_REFLECTIVITY, asset.water.getFloatAttribute(WaterFloatAttribute.Reflectivity).toString())
+        props.setProperty(WaterAsset.PROP_SHINE_DAMPER, asset.water.getFloatAttribute(WaterFloatAttribute.ShineDamper).toString())
 
         val fileOutputStream = FileOutputStream(asset.file.file())
         props.store(fileOutputStream, null)

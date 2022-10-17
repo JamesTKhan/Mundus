@@ -12,7 +12,7 @@ import com.mbrlabs.mundus.commons.MundusAttribute;
  * @author JamesTKhan
  * @version October 16, 2022
  */
-public class WaterTextureAttributeU extends MundusAttribute {
+public class WaterTextureAttribute extends MundusAttribute {
     public final static String DudvAlias = "dudvTexture";
     public final static long Dudv = register(DudvAlias);
 
@@ -47,18 +47,18 @@ public class WaterTextureAttributeU extends MundusAttribute {
      * etc.), this value is usually ignored and the first texture coordinate vertex attribute is used. */
     public int uvIndex = 0;
 
-    public WaterTextureAttributeU(final long type) {
+    public WaterTextureAttribute(final long type) {
         super(type);
         if (!is(type)) throw new GdxRuntimeException("Invalid type specified");
         textureDescription = new TextureDescriptor<Texture>();
     }
 
-    public <T extends Texture> WaterTextureAttributeU(final long type, final TextureDescriptor<T> textureDescription) {
+    public <T extends Texture> WaterTextureAttribute(final long type, final TextureDescriptor<T> textureDescription) {
         this(type);
         this.textureDescription.set(textureDescription);
     }
 
-    public <T extends Texture> WaterTextureAttributeU(final long type, final TextureDescriptor<T> textureDescription, float offsetU,
+    public <T extends Texture> WaterTextureAttribute(final long type, final TextureDescriptor<T> textureDescription, float offsetU,
                                                      float offsetV, float scaleU, float scaleV, int uvIndex) {
         this(type, textureDescription);
         this.offsetU = offsetU;
@@ -68,22 +68,22 @@ public class WaterTextureAttributeU extends MundusAttribute {
         this.uvIndex = uvIndex;
     }
 
-    public <T extends Texture> WaterTextureAttributeU(final long type, final TextureDescriptor<T> textureDescription, float offsetU,
+    public <T extends Texture> WaterTextureAttribute(final long type, final TextureDescriptor<T> textureDescription, float offsetU,
                                                      float offsetV, float scaleU, float scaleV) {
         this(type, textureDescription, offsetU, offsetV, scaleU, scaleV, 0);
     }
 
-    public WaterTextureAttributeU(final long type, final Texture texture) {
+    public WaterTextureAttribute(final long type, final Texture texture) {
         this(type);
         textureDescription.texture = texture;
     }
 
-    public WaterTextureAttributeU(final long type, final TextureRegion region) {
+    public WaterTextureAttribute(final long type, final TextureRegion region) {
         this(type);
         set(region);
     }
 
-    public WaterTextureAttributeU(final WaterTextureAttributeU copyFrom) {
+    public WaterTextureAttribute(final WaterTextureAttribute copyFrom) {
         this(copyFrom.type, copyFrom.textureDescription, copyFrom.offsetU, copyFrom.offsetV, copyFrom.scaleU, copyFrom.scaleV,
                 copyFrom.uvIndex);
     }
@@ -98,7 +98,7 @@ public class WaterTextureAttributeU extends MundusAttribute {
 
     @Override
     public MundusAttribute copy () {
-        return new WaterTextureAttributeU(this);
+        return new WaterTextureAttribute(this);
     }
 
     @Override
@@ -116,7 +116,7 @@ public class WaterTextureAttributeU extends MundusAttribute {
     @Override
     public int compareTo (MundusAttribute o) {
         if (type != o.type) return type < o.type ? -1 : 1;
-        WaterTextureAttributeU other = (WaterTextureAttributeU)o;
+        WaterTextureAttribute other = (WaterTextureAttribute)o;
         final int c = textureDescription.compareTo(other.textureDescription);
         if (c != 0) return c;
         if (uvIndex != other.uvIndex) return uvIndex - other.uvIndex;

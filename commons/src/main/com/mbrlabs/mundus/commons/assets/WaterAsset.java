@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.water.Water;
-import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttributeU;
+import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -62,16 +62,16 @@ public class WaterAsset extends Asset {
             normaMapID = MAP.get(PROP_NORMAL_MAP, "waterNormal");
 
             // float attributes
-            water.setFloatAttribute(WaterFloatAttributeU.Tiling, Float.parseFloat(MAP.get(PROP_TILING, String.valueOf(Water.DEFAULT_TILING))));
-            water.setFloatAttribute(WaterFloatAttributeU.WaveStrength, Float.parseFloat(MAP.get(PROP_WAVE_STRENGTH, String.valueOf(Water.DEFAULT_WAVE_STRENGTH))));
-            water.setFloatAttribute(WaterFloatAttributeU.WaveSpeed, Float.parseFloat(MAP.get(PROP_WAVE_SPEED, String.valueOf(Water.DEFAULT_WAVE_SPEED))));
-            water.setFloatAttribute(WaterFloatAttributeU.FoamPatternScale, Float.parseFloat(MAP.get(PROP_FOAM_SCALE, String.valueOf(Water.DEFAULT_FOAM_SCALE))));
-            water.setFloatAttribute(WaterFloatAttributeU.FoamEdgeBias, Float.parseFloat(MAP.get(PROP_FOAM_EDGE_BIAS, String.valueOf(Water.DEFAULT_FOAM_EDGE_BIAS))));
-            water.setFloatAttribute(WaterFloatAttributeU.FoamEdgeDistance, Float.parseFloat(MAP.get(PROP_FOAM_EDGE_DISTANCE, String.valueOf(Water.DEFAULT_FOAM_EDGE_DISTANCE))));
-            water.setFloatAttribute(WaterFloatAttributeU.FoamFallOffDistance, Float.parseFloat(MAP.get(PROP_FOAM_FALL_OFF_DISTANCE, String.valueOf(Water.DEFAULT_FOAM_FALL_OFF_DISTANCE))));
-            water.setFloatAttribute(WaterFloatAttributeU.FoamScrollSpeed, Float.parseFloat(MAP.get(PROP_FOAM_FALL_SCROLL_SPEED, String.valueOf(Water.DEFAULT_FOAM_SCROLL_SPEED))));
-            water.setFloatAttribute(WaterFloatAttributeU.Reflectivity, Float.parseFloat(MAP.get(PROP_REFLECTIVITY, String.valueOf(Water.DEFAULT_REFLECTIVITY))));
-            water.setFloatAttribute(WaterFloatAttributeU.ShineDamper, Float.parseFloat(MAP.get(PROP_SHINE_DAMPER, String.valueOf(Water.DEFAULT_SHINE_DAMPER))));
+            water.setFloatAttribute(WaterFloatAttribute.Tiling, Float.parseFloat(MAP.get(PROP_TILING, String.valueOf(Water.DEFAULT_TILING))));
+            water.setFloatAttribute(WaterFloatAttribute.WaveStrength, Float.parseFloat(MAP.get(PROP_WAVE_STRENGTH, String.valueOf(Water.DEFAULT_WAVE_STRENGTH))));
+            water.setFloatAttribute(WaterFloatAttribute.WaveSpeed, Float.parseFloat(MAP.get(PROP_WAVE_SPEED, String.valueOf(Water.DEFAULT_WAVE_SPEED))));
+            water.setFloatAttribute(WaterFloatAttribute.FoamPatternScale, Float.parseFloat(MAP.get(PROP_FOAM_SCALE, String.valueOf(Water.DEFAULT_FOAM_SCALE))));
+            water.setFloatAttribute(WaterFloatAttribute.FoamEdgeBias, Float.parseFloat(MAP.get(PROP_FOAM_EDGE_BIAS, String.valueOf(Water.DEFAULT_FOAM_EDGE_BIAS))));
+            water.setFloatAttribute(WaterFloatAttribute.FoamEdgeDistance, Float.parseFloat(MAP.get(PROP_FOAM_EDGE_DISTANCE, String.valueOf(Water.DEFAULT_FOAM_EDGE_DISTANCE))));
+            water.setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Float.parseFloat(MAP.get(PROP_FOAM_FALL_OFF_DISTANCE, String.valueOf(Water.DEFAULT_FOAM_FALL_OFF_DISTANCE))));
+            water.setFloatAttribute(WaterFloatAttribute.FoamScrollSpeed, Float.parseFloat(MAP.get(PROP_FOAM_FALL_SCROLL_SPEED, String.valueOf(Water.DEFAULT_FOAM_SCROLL_SPEED))));
+            water.setFloatAttribute(WaterFloatAttribute.Reflectivity, Float.parseFloat(MAP.get(PROP_REFLECTIVITY, String.valueOf(Water.DEFAULT_REFLECTIVITY))));
+            water.setFloatAttribute(WaterFloatAttribute.ShineDamper, Float.parseFloat(MAP.get(PROP_SHINE_DAMPER, String.valueOf(Water.DEFAULT_SHINE_DAMPER))));
 
         } catch (IOException e) {
             e.printStackTrace();
