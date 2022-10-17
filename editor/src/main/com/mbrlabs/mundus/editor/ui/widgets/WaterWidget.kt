@@ -46,7 +46,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     }
 
     private fun setupWidgets() {
-        defaults().padBottom(5f)
+        defaults().padBottom(10f)
 
         /* Waves section */
         add(VisLabel("Waves")).left().row()
@@ -54,13 +54,13 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
         val waveSettings = getSectionTable()
 
-        waveSettings.add(VisLabel("Tiling:")).growX().row()
+        waveSettings.add(ToolTipLabel("Tiling:", "Tiling of the ripples. The smaller the value, the more spaced out the ripples will be.")).growX()
         waveSettings.add(tilingField).growX().row()
 
-        waveSettings.add(VisLabel("Wave Strength:")).growX().row()
+        waveSettings.add(ToolTipLabel("Wave Strength:", "Affects how distorted reflections and refractions will be.\nHigher means more distortion.")).growX()
         waveSettings.add(waveStrength).growX().row()
 
-        waveSettings.add(VisLabel("Wave Speed:")).growX().row()
+        waveSettings.add(ToolTipLabel("Wave Speed:", "Affects how fast the ripples move on the water.")).growX()
         waveSettings.add(waveSpeed).growX().row()
 
         add(waveSettings).grow().row()
@@ -71,19 +71,19 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
         val foamSettings = getSectionTable()
 
-        foamSettings.add(VisLabel("Foam Scale:")).growX().row()
+        foamSettings.add(ToolTipLabel("Scale:", "Scales the foam texture. Higher value results in smaller texture.")).growX()
         foamSettings.add(foamPatternScale).growX().row()
 
-        foamSettings.add(VisLabel("Foam Edge Bias:")).growX().row()
+        foamSettings.add(ToolTipLabel("Edge Bias:", "Affects the strength and fading of the foam coming from the shoreline out.")).growX()
         foamSettings.add(foamEdgeBias).growX().row()
 
-        foamSettings.add(VisLabel("Foam Scroll Speed:")).growX().row()
+        foamSettings.add(ToolTipLabel("Scroll Speed:", "Affects how fast the foam moves (scrolls).")).growX()
         foamSettings.add(foamScrollSpeedFactor).growX().row()
 
-        foamSettings.add(VisLabel("Foam Fall Off Distance:")).growX().row()
+        foamSettings.add(ToolTipLabel("Fall Off Distance:", "Affects how far out the foam will travel.")).growX()
         foamSettings.add(foamFallOffDistance).growX().row()
 
-        foamSettings.add(VisLabel("Foam Edge Fall Off Distance:")).growX().row()
+        foamSettings.add(ToolTipLabel("Edge Fall Off Distance:", "Affects how far out the stronger solid edge foam will travel.")).growX()
         foamSettings.add(foamEdgeDistance).growX().row()
 
         add(foamSettings).grow().row()
@@ -94,10 +94,10 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
         val lightingSettings = getSectionTable()
 
-        lightingSettings.add(VisLabel("Reflectivity:")).growX().row()
+        lightingSettings.add(ToolTipLabel("Reflectivity:", "The strength of the specular highlights.")).growX()
         lightingSettings.add(reflectivity).growX().row()
 
-        lightingSettings.add(VisLabel("Shine Damper:")).growX().row()
+        lightingSettings.add(ToolTipLabel("Shine Damper:", "Lowering this will increase how far the specular highlights will spread.")).growX()
         lightingSettings.add(shineDamper).growX().row()
 
         add(lightingSettings).grow().row()
@@ -117,8 +117,8 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         )
         selectorsTable.add(selectBox).left()
 
-        qualitySettings.add(ToolTipLabel("Texture resolution (Global per scene):", "This resolution is used for " +
-                "multiple render passes\n to generate reflections and refractions in Frame Buffers.\nFor low end devices, mobile, and GWT use 256 or 512.")).growX().row()
+        qualitySettings.add(ToolTipLabel("Texture resolution:", "This resolution (Global per scene) is used for " +
+                "multiple render passes\n to generate reflections and refractions in Frame Buffers.\nFor low end devices, mobile, and GWT use 256 or 512.")).growX().left()
         qualitySettings.add(selectorsTable).left().row()
 
         add(qualitySettings).grow().row()
@@ -207,7 +207,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
     private fun getSectionTable(): VisTable {
         val table = VisTable()
-        table.defaults().padLeft(10f).padBottom(5f)
+        table.defaults().padLeft(0f).padBottom(5f)
         return table
     }
 }
