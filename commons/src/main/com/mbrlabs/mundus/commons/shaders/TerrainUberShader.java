@@ -163,7 +163,7 @@ public class TerrainUberShader extends LightShader {
 
         TerrainTextureAttribute textureAttribute = renderable.material.get(TerrainTextureAttribute.class, TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
 
-        attributesMask = combineAttributeMasks(renderable);
+        attributesMask = ShaderUtils.combineAttributeMasks(renderable);
         terrainTextureMask = textureAttribute.terrainTexture.getMask();
 
         String prefix = createPrefixForRenderable(renderable);
@@ -299,7 +299,7 @@ public class TerrainUberShader extends LightShader {
 
     @Override
     public boolean canRender(Renderable instance) {
-        if (combineAttributeMasks(instance) != attributesMask) {
+        if (ShaderUtils.combineAttributeMasks(instance) != attributesMask) {
             return false;
         }
 
@@ -307,10 +307,4 @@ public class TerrainUberShader extends LightShader {
         return terrainTextureMask == terrainTextureAttribute.terrainTexture.getMask();
     }
 
-    private static long combineAttributeMasks (final Renderable renderable) {
-        long mask = 0;
-        if (renderable.environment != null) mask |= renderable.environment.getMask();
-        if (renderable.material != null) mask |= renderable.material.getMask();
-        return mask;
-    }
 }

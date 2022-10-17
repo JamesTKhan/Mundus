@@ -1,5 +1,7 @@
 package com.mbrlabs.mundus.commons.terrain.attributes;
 
+import com.mbrlabs.mundus.commons.MundusAttribute;
+
 /**
  * @author JamesTKhan
  * @version August 13, 2022

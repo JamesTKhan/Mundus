@@ -13,8 +13,8 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
 import com.mbrlabs.mundus.commons.water.Water
-import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
 import com.mbrlabs.mundus.commons.water.WaterResolution
+import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttributeU
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
@@ -127,16 +127,16 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         add(resetDefaults).padTop(10f).growX().row()
 
         // Register listeners for the float fields
-        registerFloatFieldListener(tilingField, WaterFloatAttribute.Tiling)
-        registerFloatFieldListener(waveStrength, WaterFloatAttribute.WaveStrength)
-        registerFloatFieldListener(waveSpeed, WaterFloatAttribute.WaveSpeed)
-        registerFloatFieldListener(foamPatternScale, WaterFloatAttribute.FoamPatternScale)
-        registerFloatFieldListener(foamEdgeBias, WaterFloatAttribute.FoamEdgeBias)
-        registerFloatFieldListener(foamScrollSpeedFactor, WaterFloatAttribute.FoamScrollSpeed)
-        registerFloatFieldListener(foamEdgeDistance, WaterFloatAttribute.FoamEdgeDistance)
-        registerFloatFieldListener(foamFallOffDistance, WaterFloatAttribute.FoamFallOffDistance)
-        registerFloatFieldListener(reflectivity, WaterFloatAttribute.Reflectivity)
-        registerFloatFieldListener(shineDamper, WaterFloatAttribute.ShineDamper)
+        registerFloatFieldListener(tilingField, WaterFloatAttributeU.Tiling)
+        registerFloatFieldListener(waveStrength, WaterFloatAttributeU.WaveStrength)
+        registerFloatFieldListener(waveSpeed, WaterFloatAttributeU.WaveSpeed)
+        registerFloatFieldListener(foamPatternScale, WaterFloatAttributeU.FoamPatternScale)
+        registerFloatFieldListener(foamEdgeBias, WaterFloatAttributeU.FoamEdgeBias)
+        registerFloatFieldListener(foamScrollSpeedFactor, WaterFloatAttributeU.FoamScrollSpeed)
+        registerFloatFieldListener(foamEdgeDistance, WaterFloatAttributeU.FoamEdgeDistance)
+        registerFloatFieldListener(foamFallOffDistance, WaterFloatAttributeU.FoamFallOffDistance)
+        registerFloatFieldListener(reflectivity, WaterFloatAttributeU.Reflectivity)
+        registerFloatFieldListener(shineDamper, WaterFloatAttributeU.ShineDamper)
 
         // resolution
         selectBox.addListener(object : ChangeListener() {
@@ -148,16 +148,16 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
         resetDefaults.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.Tiling, Water.DEFAULT_TILING)
-                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.WaveStrength, Water.DEFAULT_WAVE_STRENGTH)
-                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.WaveSpeed, Water.DEFAULT_WAVE_SPEED)
-                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.Reflectivity, Water.DEFAULT_REFLECTIVITY)
-                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.ShineDamper, Water.DEFAULT_SHINE_DAMPER)
-                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamPatternScale, Water.DEFAULT_FOAM_SCALE)
-                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamScrollSpeed, Water.DEFAULT_FOAM_SCROLL_SPEED)
-                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamEdgeDistance, Water.DEFAULT_FOAM_EDGE_DISTANCE)
-                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamEdgeBias, Water.DEFAULT_FOAM_EDGE_BIAS)
-                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttributeU.Tiling, Water.DEFAULT_TILING)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttributeU.WaveStrength, Water.DEFAULT_WAVE_STRENGTH)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttributeU.WaveSpeed, Water.DEFAULT_WAVE_SPEED)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttributeU.Reflectivity, Water.DEFAULT_REFLECTIVITY)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttributeU.ShineDamper, Water.DEFAULT_SHINE_DAMPER)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttributeU.FoamPatternScale, Water.DEFAULT_FOAM_SCALE)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttributeU.FoamScrollSpeed, Water.DEFAULT_FOAM_SCROLL_SPEED)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttributeU.FoamEdgeDistance, Water.DEFAULT_FOAM_EDGE_DISTANCE)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttributeU.FoamEdgeBias, Water.DEFAULT_FOAM_EDGE_BIAS)
+                waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttributeU.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE)
                 projectManager.current().currScene.settings.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION
                 projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
 
@@ -186,16 +186,16 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     }
 
     fun setFieldsToCurrentValues() {
-        tilingField.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.Tiling).toString()
-        waveStrength.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.WaveStrength).toString()
-        waveSpeed.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.WaveSpeed).toString()
-        reflectivity.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.Reflectivity).toString()
-        shineDamper.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.ShineDamper).toString()
-        foamPatternScale.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamPatternScale).toString()
-        foamEdgeBias.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeBias).toString()
-        foamScrollSpeedFactor.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamScrollSpeed).toString()
-        foamFallOffDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamFallOffDistance).toString()
-        foamEdgeDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeDistance).toString()
+        tilingField.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttributeU.Tiling).toString()
+        waveStrength.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttributeU.WaveStrength).toString()
+        waveSpeed.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttributeU.WaveSpeed).toString()
+        reflectivity.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttributeU.Reflectivity).toString()
+        shineDamper.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttributeU.ShineDamper).toString()
+        foamPatternScale.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttributeU.FoamPatternScale).toString()
+        foamEdgeBias.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttributeU.FoamEdgeBias).toString()
+        foamScrollSpeedFactor.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttributeU.FoamScrollSpeed).toString()
+        foamFallOffDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttributeU.FoamFallOffDistance).toString()
+        foamEdgeDistance.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttributeU.FoamEdgeDistance).toString()
 
         if (!selectBox.items.contains(projectManager.current().currScene.settings.waterResolution.value)) {
             selectBox.selected = WaterResolution.DEFAULT_WATER_RESOLUTION.value
