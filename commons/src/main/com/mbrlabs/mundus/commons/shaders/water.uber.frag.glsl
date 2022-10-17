@@ -114,8 +114,19 @@ void main() {
         refractTexCoords = refractTexCoords + totalDistortion;
         refractTexCoords = clamp(refractTexCoords, 0.001, 0.999);
 
-        vec4 refractColor = texture2D(u_refractionTexture, refractTexCoords);
-        refractColor = mix(refractColor, u_color, normalizeRange(waterDepth, 0.0, u_maxVisibleDepth));
+        vec4 refractColor;
+
+        // Blend amount for color vs refraction texture
+        if (waterDepth <= 0.0) {
+            // Color in the refraction when depth <= 0 which happens if nothing is underneath the water
+            // (like corners of water)
+            refractColor = u_color;
+        } else {
+            refractColor = texture2D(u_refractionTexture, refractTexCoords);
+            float refractionBlend = normalizeRange(waterDepth, 0.0, u_maxVisibleDepth);
+            refractColor = mix(refractColor, u_color, refractionBlend);
+        }
+
     #endif
 
     // Fresnel Effect
