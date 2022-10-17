@@ -122,7 +122,7 @@ public class Scene implements Disposable {
         sceneGraph = new SceneGraph(this);
     }
 
-    private void initPBR() {
+    protected void initPBR() {
         DirectionalLightEx directionalLightEx = new DirectionalLightEx();
         directionalLightEx.intensity = DirectionalLight.DEFAULT_INTENSITY;
         directionalLightEx.setColor(DirectionalLight.DEFAULT_COLOR);
@@ -164,7 +164,7 @@ public class Scene implements Disposable {
         renderObjects(delta);
     }
 
-    private void renderObjects(float delta) {
+    protected void renderObjects(float delta) {
         // Render objects
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneDisable, 0);
@@ -172,7 +172,7 @@ public class Scene implements Disposable {
         batch.end();
     }
 
-    private void renderWater(float delta) {
+    protected void renderWater(float delta) {
         if (sceneGraph.isContainsWater()) {
             Texture refraction = fboWaterRefraction.getColorBufferTexture();
             Texture reflection = fboWaterReflection.getColorBufferTexture();
@@ -190,7 +190,7 @@ public class Scene implements Disposable {
         }
     }
 
-    private void renderShadowMap(float delta) {
+    protected void renderShadowMap(float delta) {
         if (shadowMapper == null) {
             setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
         }
@@ -213,7 +213,7 @@ public class Scene implements Disposable {
         fboDepthRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
     }
 
-    private void captureReflectionFBO(float delta) {
+    protected void captureReflectionFBO(float delta) {
         // Calc vertical distance for camera for reflection FBO
         float camReflectionDistance = 2 * (cam.position.y - settings.waterHeight);
 
@@ -242,7 +242,7 @@ public class Scene implements Disposable {
         cam.update();
     }
 
-    private void captureDepth(float delta) {
+    protected void captureDepth(float delta) {
         // Render depth refractions to FBO
         fboDepthRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -253,7 +253,7 @@ public class Scene implements Disposable {
         fboDepthRefraction.end();
     }
 
-    private void renderSkybox() {
+    protected void renderSkybox() {
         if (skybox != null) {
             batch.begin(cam);
             batch.render(skybox.getSkyboxInstance(), environment, skybox.shader);
@@ -261,7 +261,7 @@ public class Scene implements Disposable {
         }
     }
 
-    private void captureRefractionFBO(float delta) {
+    protected void captureRefractionFBO(float delta) {
         // Render refractions to FBO
         fboWaterRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
