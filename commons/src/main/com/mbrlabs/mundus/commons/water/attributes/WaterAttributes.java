@@ -1,4 +1,4 @@
-package com.mbrlabs.mundus.commons.terrain.attributes;
+package com.mbrlabs.mundus.commons.water.attributes;
 
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.MundusAttribute;
@@ -11,7 +11,7 @@ import java.util.Iterator;
  * @author JamesTKhan
  * @version August 13, 2022
  */
-public class TerrainAttributes implements Iterable<MundusAttribute>, Comparator<MundusAttribute>, Comparable<TerrainAttributes> {
+public class WaterAttributes implements Iterable<MundusAttribute>, Comparator<MundusAttribute>, Comparable<WaterAttributes> {
     protected long mask;
     protected final Array<MundusAttribute> MundusAttributes = new Array<MundusAttribute>();
 
@@ -152,7 +152,7 @@ public class TerrainAttributes implements Iterable<MundusAttribute>, Comparator<
      * values of each MundusAttribute.
      * @param compareValues True to compare MundusAttribute values, false to only compare MundusAttribute types
      * @return True if this collection contains the same MundusAttributes (and optionally MundusAttribute values) as the other. */
-    public final boolean same (final TerrainAttributes other, boolean compareValues) {
+    public final boolean same (final WaterAttributes other, boolean compareValues) {
         if (other == this) return true;
         if ((other == null) || (mask != other.mask)) return false;
         if (!compareValues) return true;
@@ -163,9 +163,9 @@ public class TerrainAttributes implements Iterable<MundusAttribute>, Comparator<
         return true;
     }
 
-    /** See {@link #same(TerrainAttributes, boolean)}
+    /** See {@link #same(WaterAttributes, boolean)}
      * @return True if this collection contains the same MundusAttributes (but not values) as the other. */
-    public final boolean same (final TerrainAttributes other) {
+    public final boolean same (final WaterAttributes other) {
         return same(other, false);
     }
 
@@ -200,13 +200,13 @@ public class TerrainAttributes implements Iterable<MundusAttribute>, Comparator<
 
     @Override
     public boolean equals (Object other) {
-        if (!(other instanceof TerrainAttributes)) return false;
+        if (!(other instanceof WaterAttributes)) return false;
         if (other == this) return true;
-        return same((TerrainAttributes)other, true);
+        return same((WaterAttributes)other, true);
     }
 
     @Override
-    public int compareTo (TerrainAttributes other) {
+    public int compareTo (WaterAttributes other) {
         if (other == this)
             return 0;
         if (mask != other.mask)

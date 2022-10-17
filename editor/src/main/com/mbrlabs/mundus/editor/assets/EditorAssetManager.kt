@@ -40,7 +40,7 @@ import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
-import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
+import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute
 import com.mbrlabs.mundus.editor.Mundus.postEvent
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent

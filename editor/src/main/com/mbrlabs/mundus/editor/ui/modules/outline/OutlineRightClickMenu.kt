@@ -14,7 +14,6 @@ import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
-import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.createWaterGO
@@ -311,7 +310,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
                         asset.applyDependencies()
 
                         val waterGO = createWaterGO(sceneGraph,
-                            Shaders.waterShader, goID, name, asset)
+                            null, goID, name, asset)
                         // update sceneGraph
                         sceneGraph.addGameObject(waterGO)
                         // update outline

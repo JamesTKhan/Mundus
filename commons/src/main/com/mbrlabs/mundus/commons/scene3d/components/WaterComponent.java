@@ -22,7 +22,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.WaterAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.water.WaterFloatAttribute;
+import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
 
 public class WaterComponent extends CullableComponent implements AssetUsage {
 
@@ -56,17 +56,14 @@ public class WaterComponent extends CullableComponent implements AssetUsage {
 
     @Override
     public boolean usesAsset(Asset assetToCheck) {
-        if (assetToCheck == waterAsset)
-            return true;
-
-        return false;
+        return assetToCheck == waterAsset;
     }
 
     @Override
     public void render(float delta) {
         super.render(delta);
         if (isCulled) return;
-        gameObject.sceneGraph.scene.batch.render(waterAsset.water, gameObject.sceneGraph.scene.environment, shader);
+        gameObject.sceneGraph.scene.batch.render(waterAsset.water, gameObject.sceneGraph.scene.environment);
     }
 
     @Override

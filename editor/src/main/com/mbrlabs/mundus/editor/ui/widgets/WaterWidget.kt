@@ -13,8 +13,8 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
 import com.mbrlabs.mundus.commons.water.Water
-import com.mbrlabs.mundus.commons.water.WaterFloatAttribute
 import com.mbrlabs.mundus.commons.water.WaterResolution
+import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent

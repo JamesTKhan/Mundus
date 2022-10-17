@@ -19,6 +19,7 @@ package com.mbrlabs.mundus.commons.utils;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -131,6 +132,19 @@ public class ShaderUtils {
         depthConfig.numBones = numBones;
         depthConfig.defaultCullFace = GL20.GL_BACK;
         return depthConfig;
+    }
+
+    /**
+     * Combine the environment and material of the renderable to create a bitmask.
+     *
+     * @param renderable renderable to combine masks for
+     * @return mask of environment and material
+     */
+    public static long combineAttributeMasks(final Renderable renderable) {
+        long mask = 0;
+        if (renderable.environment != null) mask |= renderable.environment.getMask();
+        if (renderable.material != null) mask |= renderable.material.getMask();
+        return mask;
     }
 
 }

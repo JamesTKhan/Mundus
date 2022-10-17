@@ -47,7 +47,7 @@ public class WaterComponentConverter {
         }
 
         water.water.transform = go.getTransform();
-        PickableWaterComponent waterComponent = new PickableWaterComponent(go, Shaders.INSTANCE.getWaterShader());
+        PickableWaterComponent waterComponent = new PickableWaterComponent(go, null);
         waterComponent.setWaterAsset(water);
         go.hasWaterComponent = true;
 

@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.PropertiesUtils;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.water.Water;
-import com.mbrlabs.mundus.commons.water.WaterFloatAttribute;
+import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
 
 import java.io.IOException;
 import java.io.Reader;

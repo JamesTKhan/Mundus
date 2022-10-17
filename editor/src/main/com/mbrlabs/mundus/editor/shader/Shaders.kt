@@ -21,7 +21,6 @@ import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.shaders.DepthShader
 import com.mbrlabs.mundus.commons.shaders.ShadowMapShader
 import com.mbrlabs.mundus.commons.shaders.SkyboxShader
-import com.mbrlabs.mundus.commons.shaders.WaterShader
 import com.mbrlabs.mundus.editor.tools.picker.PickerShader
 
 /**
@@ -32,7 +31,6 @@ import com.mbrlabs.mundus.editor.tools.picker.PickerShader
 object Shaders : Disposable {
 
     val wireframeShader: WireframeShader
-    val waterShader: WaterShader
     val skyboxShader: SkyboxShader
     val pickerShader: PickerShader
     val depthShader: DepthShader
@@ -42,8 +40,6 @@ object Shaders : Disposable {
         ShaderProgram.pedantic = false
         wireframeShader = WireframeShader()
         wireframeShader.init()
-        waterShader = WaterShader()
-        waterShader.init()
         skyboxShader = SkyboxShader()
         skyboxShader.init()
         pickerShader = PickerShader()
@@ -58,7 +54,6 @@ object Shaders : Disposable {
         wireframeShader.dispose()
         skyboxShader.dispose()
         pickerShader.dispose()
-        waterShader.dispose()
         depthShader.dispose()
     }
 

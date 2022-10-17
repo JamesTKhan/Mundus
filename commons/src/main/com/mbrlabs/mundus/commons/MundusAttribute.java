@@ -1,4 +1,4 @@
-package com.mbrlabs.mundus.commons.terrain.attributes;
+package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.utils.Array;
 
