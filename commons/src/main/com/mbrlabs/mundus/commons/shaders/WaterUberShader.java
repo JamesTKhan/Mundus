@@ -45,6 +45,7 @@ public class WaterUberShader extends LightShader {
         public final static Uniform foamEdgeDistance = new Uniform("u_foamEdgeDistance");
         public final static Uniform foamFallOffDistance = new Uniform("u_foamFallOffDistance");
         public final static Uniform foamScrollSpeed = new Uniform("u_foamScrollSpeed");
+        public final static Uniform maxVisibleDepth = new Uniform("u_maxVisibleDepth");
 
         // Texture attributes
         public final static Uniform reflectionTexture = new Uniform("u_reflectionTexture");
@@ -94,6 +95,7 @@ public class WaterUberShader extends LightShader {
         public final static Setter foamEdgeDistance = new FloatSetter(WaterFloatAttribute.FoamEdgeDistance, Water.DEFAULT_FOAM_EDGE_DISTANCE);
         public final static Setter foamFallOffDistance = new FloatSetter(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE);
         public final static Setter foamScrollSpeed = new FloatSetter(WaterFloatAttribute.FoamScrollSpeed, Water.DEFAULT_FOAM_SCROLL_SPEED);
+        public final static Setter maxVisibleDepth = new FloatSetter(WaterFloatAttribute.MaxVisibleDepth, Water.DEFAULT_MAX_VISIBLE_DEPTH);
 
         // Texture attributes
         public final static Setter reflectionTexture = getTextureSetter(WaterTextureAttribute.Reflection);
@@ -166,6 +168,7 @@ public class WaterUberShader extends LightShader {
     public final int u_foamEdgeDistance;
     public final int u_foamFallOffDistance;
     public final int u_foamScrollSpeed;
+    public final int u_maxVisibleDepth;
 
     // Water texture uniforms
     public final int u_reflectionTexture;
@@ -213,6 +216,7 @@ public class WaterUberShader extends LightShader {
         u_foamEdgeDistance = register(WaterInputs.foamEdgeDistance, WaterSetters.foamEdgeDistance);
         u_foamFallOffDistance = register(WaterInputs.foamFallOffDistance, WaterSetters.foamFallOffDistance);
         u_foamScrollSpeed = register(WaterInputs.foamScrollSpeed, WaterSetters.foamScrollSpeed);
+        u_maxVisibleDepth = register(WaterInputs.maxVisibleDepth, WaterSetters.maxVisibleDepth);
 
         u_reflectionTexture = register(WaterInputs.reflectionTexture, WaterSetters.reflectionTexture);
         u_refractionTexture = register(WaterInputs.refractionTexture, WaterSetters.refractionTexture);

@@ -29,6 +29,7 @@ public class Water implements RenderableProvider, Disposable {
     public static final float DEFAULT_FOAM_EDGE_DISTANCE = 0.2f;
     public static final float DEFAULT_FOAM_FALL_OFF_DISTANCE = 12.0f;
     public static final float DEFAULT_FOAM_SCROLL_SPEED = 4.0f;
+    public static final float DEFAULT_MAX_VISIBLE_DEPTH = 100.0f;
     public static final Color DEFAULT_COLOR = new Color(0,0.5f,0.686f, 0.2f);
     private static final String materialId = "waterMat";
 
@@ -84,6 +85,7 @@ public class Water implements RenderableProvider, Disposable {
         setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE);
         setFloatAttribute(WaterFloatAttribute.Reflectivity, DEFAULT_REFLECTIVITY);
         setFloatAttribute(WaterFloatAttribute.ShineDamper, DEFAULT_SHINE_DAMPER);
+        setFloatAttribute(WaterFloatAttribute.MaxVisibleDepth, DEFAULT_MAX_VISIBLE_DEPTH);
 
         waterMaterial.set(WaterColorAttribute.createDiffuse(Water.DEFAULT_COLOR));
     }

@@ -763,6 +763,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         props.setProperty(WaterAsset.PROP_FOAM_EDGE_DISTANCE, asset.water.getFloatAttribute(WaterFloatAttribute.FoamEdgeDistance).toString())
         props.setProperty(WaterAsset.PROP_FOAM_FALL_OFF_DISTANCE, asset.water.getFloatAttribute(WaterFloatAttribute.FoamFallOffDistance).toString())
         props.setProperty(WaterAsset.PROP_FOAM_FALL_SCROLL_SPEED, asset.water.getFloatAttribute(WaterFloatAttribute.FoamScrollSpeed).toString())
+        props.setProperty(WaterAsset.PROP_MAX_VIS_DEPTH, asset.water.getFloatAttribute(WaterFloatAttribute.MaxVisibleDepth).toString())
 
         props.setProperty(WaterAsset.PROP_REFLECTIVITY, asset.water.getFloatAttribute(WaterFloatAttribute.Reflectivity).toString())
         props.setProperty(WaterAsset.PROP_SHINE_DAMPER, asset.water.getFloatAttribute(WaterFloatAttribute.ShineDamper).toString())

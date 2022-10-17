@@ -27,6 +27,7 @@ import com.mbrlabs.mundus.editor.events.LogType
 
 class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
+    private val visibleDepthField = VisTextField()
     private val tilingField = VisTextField()
     private val waveStrength = VisTextField()
     private val waveSpeed = VisTextField()
@@ -80,6 +81,9 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 waterComponent.waterAsset.water.setColorAttribute(WaterColorAttribute.Diffuse, oldColor)
             }
         }
+
+        waveSettings.add(ToolTipLabel("Max Visible Depth:", "Maximum depth where objects underwater are still visible.\nOnly applicable with refractions are enabled.")).growX()
+        waveSettings.add(visibleDepthField).growX().row()
 
         waveSettings.add(ToolTipLabel("Tiling:", "Tiling of the ripples. The smaller the value, the more spaced out the ripples will be.")).growX()
         waveSettings.add(tilingField).growX().row()
@@ -177,6 +181,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         add(resetDefaults).padTop(10f).growX().row()
 
         // Register listeners for the float fields
+        registerFloatFieldListener(visibleDepthField, WaterFloatAttribute.MaxVisibleDepth, 0.01f)
         registerFloatFieldListener(tilingField, WaterFloatAttribute.Tiling)
         registerFloatFieldListener(waveStrength, WaterFloatAttribute.WaveStrength)
         registerFloatFieldListener(waveSpeed, WaterFloatAttribute.WaveSpeed)
@@ -224,13 +229,20 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
     }
 
-    private fun registerFloatFieldListener(floatField: VisTextField, attributeType: Long) {
+    private fun registerFloatFieldListener(floatField: VisTextField, attributeType: Long, min: Float? = null) {
         floatField.textFieldFilter = FloatDigitsOnlyFilter(false)
         floatField.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 if (floatField.isInputValid && !floatField.isEmpty) {
                     try {
-                        waterComponent.waterAsset.water.setFloatAttribute(attributeType, floatField.text.toFloat())
+                        var value = floatField.text.toFloat()
+
+                        // If min value specified we won't allow it go below the minimum
+                        if (min != null && value < min) {
+                            value = min
+                        }
+
+                        waterComponent.waterAsset.water.setFloatAttribute(attributeType, value)
                         projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
                     } catch (ex : NumberFormatException) {
                         Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + floatField.name))
@@ -241,6 +253,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     }
 
     fun setFieldsToCurrentValues() {
+        visibleDepthField.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.MaxVisibleDepth).toString()
         tilingField.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.Tiling).toString()
         waveStrength.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.WaveStrength).toString()
         waveSpeed.text = waterComponent.waterAsset.water.getFloatAttribute(WaterFloatAttribute.WaveSpeed).toString()

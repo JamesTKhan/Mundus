@@ -33,6 +33,7 @@ public class WaterAsset extends Asset {
     public static final String PROP_FOAM_FALL_SCROLL_SPEED = "foamScrollSpeed";
     public static final String PROP_REFLECTIVITY = "reflectivity";
     public static final String PROP_SHINE_DAMPER = "shineDamper";
+    public static final String PROP_MAX_VIS_DEPTH = "maxVisibleDepth";
     public static final String PROP_COLOR = "color";
 
     // ids of dependent assets
@@ -75,6 +76,7 @@ public class WaterAsset extends Asset {
             water.setFloatAttribute(WaterFloatAttribute.FoamScrollSpeed, Float.parseFloat(MAP.get(PROP_FOAM_FALL_SCROLL_SPEED, String.valueOf(Water.DEFAULT_FOAM_SCROLL_SPEED))));
             water.setFloatAttribute(WaterFloatAttribute.Reflectivity, Float.parseFloat(MAP.get(PROP_REFLECTIVITY, String.valueOf(Water.DEFAULT_REFLECTIVITY))));
             water.setFloatAttribute(WaterFloatAttribute.ShineDamper, Float.parseFloat(MAP.get(PROP_SHINE_DAMPER, String.valueOf(Water.DEFAULT_SHINE_DAMPER))));
+            water.setFloatAttribute(WaterFloatAttribute.MaxVisibleDepth, Float.parseFloat(MAP.get(PROP_MAX_VIS_DEPTH, String.valueOf(Water.DEFAULT_MAX_VISIBLE_DEPTH))));
 
             String colorValue = MAP.get(PROP_COLOR);
             if (colorValue != null) {

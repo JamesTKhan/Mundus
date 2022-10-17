@@ -21,6 +21,7 @@ uniform sampler2D u_reflectionTexture;
 
 #ifdef refractionFlag
 uniform sampler2D u_refractionTexture;
+uniform float u_maxVisibleDepth;
 #endif
 
 uniform sampler2D u_refractionDepthTexture;
@@ -58,6 +59,14 @@ vec3 calcSpecularHighlights(BaseLight baseLight, vec3 direction, vec3 normal, ve
     return specularHighlights;
 }
 
+float normalizeRange(float value, float minValue, float maxValue) {
+    float weight = max(minValue, value);
+    weight = min(maxValue, weight);
+    weight -= minValue;
+    weight /= maxValue - minValue; // Normalizes to 0.0-1.0 range
+    return weight;
+}
+
 void main() {
 
     // Normalized device coordinates
@@ -76,7 +85,10 @@ void main() {
     // Dudv distortion
     vec2 distortedTexCoords = texture2D(u_dudvTexture, vec2(v_waterTexCoords.x + u_moveFactor, v_waterTexCoords.y)).rg*0.1;
     distortedTexCoords = v_waterTexCoords + vec2(distortedTexCoords.x, distortedTexCoords.y+u_moveFactor);
-    vec2 totalDistortion = (texture2D(u_dudvTexture, distortedTexCoords).rg * 2.0 - 1.0) * u_waveStrength * clamp(waterDepth/20.0, 0.0, 1.0);
+
+    // Soften distortions near edges
+    float soften = clamp(waterDepth/80.0, 0.0, 1.0);
+    vec2 totalDistortion = (texture2D(u_dudvTexture, distortedTexCoords).rg * 2.0 - 1.0) * u_waveStrength * soften;
 
     float minTexCoord = 0.005;
     float maxTexCoord = 1.0 - minTexCoord;
@@ -103,6 +115,7 @@ void main() {
         refractTexCoords = clamp(refractTexCoords, 0.001, 0.999);
 
         vec4 refractColor = texture2D(u_refractionTexture, refractTexCoords);
+        refractColor = mix(refractColor, u_color, normalizeRange(waterDepth, 0.0, u_maxVisibleDepth));
     #endif
 
     // Fresnel Effect
