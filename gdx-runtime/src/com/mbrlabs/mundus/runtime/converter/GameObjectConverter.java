@@ -53,7 +53,7 @@ public class GameObjectConverter {
         } else if (dto.getTerrainComponent() != null) {
             go.getComponents().add(TerrainComponentConverter.convert(dto.getTerrainComponent(), go, shaders, assetManager));
         } else if (dto.getWaterComponent() != null) {
-            go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, shaders.getWaterShader(), assetManager));
+            go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, shaders, assetManager));
         }
 
         if (dto.getLightComponent() != null) {

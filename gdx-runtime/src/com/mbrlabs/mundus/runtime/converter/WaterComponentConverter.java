@@ -21,7 +21,7 @@ import com.mbrlabs.mundus.commons.assets.WaterAsset;
 import com.mbrlabs.mundus.commons.dto.WaterComponentDTO;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
-import com.mbrlabs.mundus.commons.shaders.WaterShader;
+import com.mbrlabs.mundus.runtime.Shaders;
 
 /**
  * The converter for Water.
@@ -34,8 +34,8 @@ public class WaterComponentConverter {
      * Converts {@link WaterComponentDTO} to {@link WaterComponent}.
      */
     public static WaterComponent convert(WaterComponentDTO waterComponentDTO, GameObject gameObject,
-                                         WaterShader waterShader, AssetManager assetManager) {
-        WaterComponent wc = new WaterComponent(gameObject, waterShader);
+                                         Shaders shaders, AssetManager assetManager) {
+        WaterComponent wc = new WaterComponent(gameObject, null);
         wc.setWaterAsset((WaterAsset) assetManager.findAssetByID(waterComponentDTO.getWaterId()));
         gameObject.hasWaterComponent = true;
 
