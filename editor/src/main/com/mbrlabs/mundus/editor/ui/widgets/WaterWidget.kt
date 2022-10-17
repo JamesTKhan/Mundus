@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
+import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
@@ -33,6 +34,9 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     private val foamEdgeDistance = VisTextField()
     private val reflectivity = VisTextField()
     private val shineDamper = VisTextField()
+
+    private val enableReflections = VisCheckBox(null)
+    private val enableRefractions = VisCheckBox(null)
 
     private lateinit var selectBox: VisSelectBox<String>
 
@@ -107,6 +111,29 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
         addSeparator().padBottom(5f).row()
 
         val qualitySettings = getSectionTable()
+
+        val checkboxTable = VisTable()
+        checkboxTable.defaults().padBottom(5f)
+        checkboxTable.add(ToolTipLabel("Enable Reflections", "Toggles water reflections. Disabling them improves performance.")).padRight(2f)
+        checkboxTable.add(enableReflections).left().row()
+        enableReflections.isChecked = projectManager.current().currScene.settings.enableWaterReflections
+        enableReflections.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                projectManager.current().currScene.settings.enableWaterReflections = enableReflections.isChecked
+            }
+        })
+
+        checkboxTable.add(ToolTipLabel("Enable Refractions", "Toggles water refractions. Disabling them improves performance.")).padRight(2f)
+        checkboxTable.add(enableRefractions).left().row()
+        enableRefractions.isChecked = projectManager.current().currScene.settings.enableWaterRefractions
+        enableRefractions.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                projectManager.current().currScene.settings.enableWaterRefractions = enableRefractions.isChecked
+            }
+        })
+
+        qualitySettings.add(checkboxTable).left().padBottom(5f).row()
+
         val selectorsTable = VisTable(true)
         selectBox = VisSelectBox<String>()
         selectBox.setItems(

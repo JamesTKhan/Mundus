@@ -94,7 +94,11 @@ public class Water implements RenderableProvider, Disposable {
     }
 
     public void setWaterReflection(Texture texture) {
-        waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.Reflection, texture));
+        if (texture == null) {
+            waterMaterial.remove(WaterTextureAttribute.Reflection);
+        } else {
+            waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.Reflection, texture));
+        }
     }
 
     public void setFoamTexture(Texture texture) {
@@ -110,7 +114,11 @@ public class Water implements RenderableProvider, Disposable {
     }
 
     public void setWaterRefractionTexture(Texture texture) {
-        waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.Refraction, texture));
+        if (texture == null) {
+            waterMaterial.remove(WaterTextureAttribute.Refraction);
+        } else {
+            waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.Refraction, texture));
+        }
     }
 
     public void setWaterRefractionDepthTexture(Texture texture) {

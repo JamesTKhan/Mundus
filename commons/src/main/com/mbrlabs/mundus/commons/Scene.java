@@ -174,8 +174,8 @@ public class Scene implements Disposable {
 
     protected void renderWater(float delta) {
         if (sceneGraph.isContainsWater()) {
-            Texture refraction = fboWaterRefraction.getColorBufferTexture();
-            Texture reflection = fboWaterReflection.getColorBufferTexture();
+            Texture refraction = settings.enableWaterRefractions ? fboWaterRefraction.getColorBufferTexture() : null;
+            Texture reflection = settings.enableWaterReflections ? fboWaterReflection.getColorBufferTexture() : null;
             Texture refractionDepth = fboDepthRefraction.getColorBufferTexture();
 
             Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -214,6 +214,8 @@ public class Scene implements Disposable {
     }
 
     protected void captureReflectionFBO(float delta) {
+        if (!settings.enableWaterReflections) return;
+
         // Calc vertical distance for camera for reflection FBO
         float camReflectionDistance = 2 * (cam.position.y - settings.waterHeight);
 
@@ -262,6 +264,7 @@ public class Scene implements Disposable {
     }
 
     protected void captureRefractionFBO(float delta) {
+        if (!settings.enableWaterRefractions) return;
         // Render refractions to FBO
         fboWaterRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
