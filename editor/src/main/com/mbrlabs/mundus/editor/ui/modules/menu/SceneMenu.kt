@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editor.ui.modules.menu
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.dialog.Dialogs
@@ -41,6 +42,7 @@ class SceneMenu : Menu("Scenes"),
 
     companion object {
         private val TAG = SceneMenu::class.java.simpleName
+        private const val DELETE_BUTTON_NAME = "delete_scene_submenu"
     }
 
     private val sceneItems = Array<MenuItem>()
@@ -100,6 +102,17 @@ class SceneMenu : Menu("Scenes"),
         menuItem.addListener(object: ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 projectManager.changeScene(projectManager.current(), sceneName)
+
+                for (mi in sceneItems) {
+                    val deleteMenuItem = mi.subMenu.findActor<MenuItem>(DELETE_BUTTON_NAME)
+
+                    // Enable other delete buttons and disable current delete button
+                    if (mi.text.contentEquals(sceneName)) {
+                        disableMenuItem(deleteMenuItem)
+                    } else {
+                        enableMenuItem(deleteMenuItem)
+                    }
+                }
             }
         })
         return menuItem
@@ -107,14 +120,32 @@ class SceneMenu : Menu("Scenes"),
 
     private fun buildDeleteSubMenuItem(sceneName: String, screenMenu: MenuItem): MenuItem {
         val menuItem = MenuItem("Delete")
+        menuItem.name = DELETE_BUTTON_NAME
         menuItem.addListener(object: ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 projectManager.deleteScene(projectManager.current(), sceneName)
+                sceneItems.removeValue(screenMenu, true)
                 removeActor(screenMenu)
                 pack()
             }
         })
+
+        // The current scene's delete button will be disabled
+        if (projectManager.current().activeSceneName.equals(sceneName)) {
+            disableMenuItem(menuItem)
+        }
+
         return menuItem
+    }
+
+    private fun disableMenuItem(menuItem: MenuItem) {
+        menuItem.touchable = Touchable.disabled
+        menuItem.isDisabled = true
+    }
+
+    private fun enableMenuItem(menuItem: MenuItem) {
+        menuItem.touchable = Touchable.enabled
+        menuItem.isDisabled = false
     }
 
     override fun onProjectChanged(event: ProjectChangedEvent) {
