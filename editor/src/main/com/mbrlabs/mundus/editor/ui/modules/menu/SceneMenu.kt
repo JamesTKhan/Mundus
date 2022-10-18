@@ -82,11 +82,11 @@ class SceneMenu : Menu("Scenes"),
     }
 
     private fun buildMenuItem(sceneName: String): MenuItem {
+        val menuItem = MenuItem(sceneName)
+
         val subMenus = PopupMenu()
         subMenus.addItem(buildChangeToSubMenuItem(sceneName))
-        subMenus.addItem(buildDeleteSubMenuItem(sceneName))
-
-        val menuItem = MenuItem(sceneName)
+        subMenus.addItem(buildDeleteSubMenuItem(sceneName, menuItem))
         menuItem.subMenu = subMenus
 
         addItem(menuItem)
@@ -105,11 +105,13 @@ class SceneMenu : Menu("Scenes"),
         return menuItem
     }
 
-    private fun buildDeleteSubMenuItem(sceneName: String): MenuItem {
+    private fun buildDeleteSubMenuItem(sceneName: String, screenMenu: MenuItem): MenuItem {
         val menuItem = MenuItem("Delete")
         menuItem.addListener(object: ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                // TODO
+                projectManager.deleteScene(projectManager.current(), sceneName)
+                removeActor(screenMenu)
+                pack()
             }
         })
         return menuItem

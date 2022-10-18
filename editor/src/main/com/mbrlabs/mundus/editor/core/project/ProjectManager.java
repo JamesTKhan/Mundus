@@ -524,6 +524,17 @@ public class ProjectManager implements Disposable {
         }
     }
 
+    /**
+     * Deletes scene
+     *
+     * @param project The project context
+     * @param sceneName The screen name
+     */
+    public void deleteScene(final ProjectContext project, final String sceneName) {
+        project.scenes.removeValue(sceneName, false);
+        SceneManager.deleteScene(project, sceneName);
+    }
+
     private void initGameObject(ProjectContext context, GameObject root) {
         initComponents(context, root);
         if (root.getChildren() != null) {
