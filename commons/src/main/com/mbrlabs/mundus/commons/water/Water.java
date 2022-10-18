@@ -44,6 +44,11 @@ public class Water implements RenderableProvider, Disposable {
     private Model model;
     public ModelInstance modelInstance;
 
+    // Hold reference to these instead of creating new every frame
+    private WaterTextureAttribute reflection;
+    private WaterTextureAttribute refraction;
+    private WaterTextureAttribute refractionDepth;
+
     public Water(int size) {
         this.waterWidth = size;
         this.waterDepth = size;
@@ -103,8 +108,46 @@ public class Water implements RenderableProvider, Disposable {
     public void setWaterReflection(Texture texture) {
         if (texture == null) {
             waterMaterial.remove(WaterTextureAttribute.Reflection);
+            return;
+        }
+
+        if (reflection == null) {
+            reflection = new WaterTextureAttribute(WaterTextureAttribute.Reflection, texture);
         } else {
-            waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.Reflection, texture));
+            reflection.textureDescription.texture = texture;
+        }
+
+        if (!waterMaterial.has(WaterTextureAttribute.Reflection)) {
+            waterMaterial.set(reflection);
+        }
+    }
+
+    public void setWaterRefractionTexture(Texture texture) {
+        if (texture == null) {
+            waterMaterial.remove(WaterTextureAttribute.Refraction);
+            return;
+        }
+
+        if (refraction == null) {
+            refraction = new WaterTextureAttribute(WaterTextureAttribute.Refraction, texture);
+        } else {
+            refraction.textureDescription.texture = texture;
+        }
+
+        if (!waterMaterial.has(WaterTextureAttribute.Refraction)) {
+            waterMaterial.set(refraction);
+        }
+    }
+
+    public void setWaterRefractionDepthTexture(Texture texture) {
+        if (refractionDepth == null) {
+            refractionDepth = new WaterTextureAttribute(WaterTextureAttribute.RefractionDepth, texture);
+        } else {
+            refractionDepth.textureDescription.texture = texture;
+        }
+
+        if (!waterMaterial.has(WaterTextureAttribute.RefractionDepth)) {
+            waterMaterial.set(refractionDepth);
         }
     }
 
@@ -120,20 +163,13 @@ public class Water implements RenderableProvider, Disposable {
         waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.NormalMap, texture));
     }
 
-    public void setWaterRefractionTexture(Texture texture) {
-        if (texture == null) {
-            waterMaterial.remove(WaterTextureAttribute.Refraction);
-        } else {
-            waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.Refraction, texture));
-        }
-    }
-
-    public void setWaterRefractionDepthTexture(Texture texture) {
-        waterMaterial.set(new WaterTextureAttribute(WaterTextureAttribute.RefractionDepth, texture));
-    }
-
     public void setFloatAttribute(long attributeType, float value) {
-        waterMaterial.set(new WaterFloatAttribute(attributeType, value));
+        WaterFloatAttribute floatAttribute = (WaterFloatAttribute) waterMaterial.get(attributeType);
+        if (floatAttribute != null) {
+            floatAttribute.value = value;
+        } else {
+            waterMaterial.set(new WaterFloatAttribute(attributeType, value));
+        }
     }
 
     public float getFloatAttribute(long attributeType) {
@@ -141,7 +177,12 @@ public class Water implements RenderableProvider, Disposable {
     }
 
     public void setColorAttribute(long attributeType, Color newColor) {
-        waterMaterial.set(new WaterColorAttribute(attributeType, newColor));
+        WaterColorAttribute colorAttribute = (WaterColorAttribute) waterMaterial.get(attributeType);
+        if (colorAttribute != null) {
+            colorAttribute.color.set(newColor);
+        } else {
+            waterMaterial.set(new WaterColorAttribute(attributeType, newColor));
+        }
     }
 
     public Color getColorAttribute(long diffuse) {
