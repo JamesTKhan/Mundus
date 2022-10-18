@@ -102,12 +102,10 @@ void main() {
     #ifdef reflectionFlag
         vec2 reflectTexCoords = vec2(ndc.x, 1.0-ndc.y);
         reflectTexCoords = reflectTexCoords + totalDistortion;
-        reflectTexCoords.x = clamp(reflectTexCoords.x, 0.001, 0.999);
-        reflectTexCoords.y = clamp(reflectTexCoords.y, 0.001, 0.999);
+        reflectTexCoords.x = clamp(reflectTexCoords.x, minTexCoord, maxTexCoord);
+        reflectTexCoords.y = clamp(reflectTexCoords.y, minTexCoord, maxTexCoord);
 
         vec4 reflectColor = texture2D(u_reflectionTexture, reflectTexCoords);
-    #else
-        vec4 reflectColor = vec4(0);
     #endif
 
     #ifdef refractionFlag
@@ -126,7 +124,6 @@ void main() {
             float refractionBlend = normalizeRange(waterDepth, 0.0, u_maxVisibleDepth);
             refractColor = mix(refractColor, u_color, refractionBlend);
         }
-
     #endif
 
     // Fresnel Effect
@@ -134,7 +131,6 @@ void main() {
     float refractiveFactor = dot(viewVector, normal);
 
     #ifdef reflectionFlag
-
         #ifdef refractionFlag
             // If we have both Reflection and Reflection, blend based on fresnel effect
             vec4 color =  mix(reflectColor, refractColor, refractiveFactor);
@@ -142,9 +138,7 @@ void main() {
             // No Refraction but we have reflection
             vec4 color = reflectColor;
         #endif
-
     #else
-
         #ifdef refractionFlag
             // No Reflection but we have refraction
             vec4 color = refractColor;
@@ -152,7 +146,6 @@ void main() {
             // We have neither reflection or refraction
             vec4 color = u_color;
         #endif
-
     #endif
 
     // Mix some color in
