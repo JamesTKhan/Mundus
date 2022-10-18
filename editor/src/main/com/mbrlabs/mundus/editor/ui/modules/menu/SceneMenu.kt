@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
+import com.kotcrab.vis.ui.util.dialog.OptionDialogAdapter
 import com.kotcrab.vis.ui.widget.Menu
 import com.kotcrab.vis.ui.widget.MenuItem
 import com.kotcrab.vis.ui.widget.PopupMenu
@@ -123,10 +124,14 @@ class SceneMenu : Menu("Scenes"),
         menuItem.name = DELETE_BUTTON_NAME
         menuItem.addListener(object: ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                projectManager.deleteScene(projectManager.current(), sceneName)
-                sceneItems.removeValue(screenMenu, true)
-                removeActor(screenMenu)
-                pack()
+                Dialogs.showOptionDialog(UI, "Deleting scene", "Are you sure you want to delete '" + sceneName + "' scene?", Dialogs.OptionDialogType.YES_CANCEL, object : OptionDialogAdapter() {
+                    override fun yes() {
+                        projectManager.deleteScene(projectManager.current(), sceneName)
+                        sceneItems.removeValue(screenMenu, true)
+                        removeActor(screenMenu)
+                        pack()
+                    }
+                })
             }
         })
 
