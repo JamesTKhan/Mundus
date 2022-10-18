@@ -55,7 +55,7 @@ class FileMenu : Menu("File") {
         saveProject.setShortcut(Input.Keys.CONTROL_LEFT, Input.Keys.S)
 
         // setup recent projects
-        val recentPrjectsPopup = PopupMenu()
+        val recentProjectsPopup = PopupMenu()
         for (ref in registry.projects) {
             val pro = MenuItem(ref.name + " - [" + ref.path + "]")
             pro.addListener(object : ClickListener() {
@@ -70,9 +70,9 @@ class FileMenu : Menu("File") {
 
                 }
             })
-            recentPrjectsPopup.addItem(pro)
+            recentProjectsPopup.addItem(pro)
         }
-        recentProjects.subMenu = recentPrjectsPopup
+        recentProjects.subMenu = recentProjectsPopup
 
         addItem(newProject)
         addItem(importProject)

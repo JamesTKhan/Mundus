@@ -23,6 +23,7 @@ import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
 import com.kotcrab.vis.ui.widget.Menu
 import com.kotcrab.vis.ui.widget.MenuItem
+import com.kotcrab.vis.ui.widget.PopupMenu
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
@@ -81,15 +82,36 @@ class SceneMenu : Menu("Scenes"),
     }
 
     private fun buildMenuItem(sceneName: String): MenuItem {
+        val subMenus = PopupMenu()
+        subMenus.addItem(buildChangeToSubMenuItem(sceneName))
+        subMenus.addItem(buildDeleteSubMenuItem(sceneName))
+
         val menuItem = MenuItem(sceneName)
-        menuItem.addListener(object : ClickListener() {
+        menuItem.subMenu = subMenus
+
+        addItem(menuItem)
+        sceneItems.add(menuItem)
+
+        return menuItem
+    }
+
+    private fun buildChangeToSubMenuItem(sceneName: String): MenuItem {
+        val menuItem = MenuItem("Change to")
+        menuItem.addListener(object: ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 projectManager.changeScene(projectManager.current(), sceneName)
             }
         })
-        addItem(menuItem)
-        sceneItems.add(menuItem)
+        return menuItem
+    }
 
+    private fun buildDeleteSubMenuItem(sceneName: String): MenuItem {
+        val menuItem = MenuItem("Delete")
+        menuItem.addListener(object: ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                // TODO
+            }
+        })
         return menuItem
     }
 
