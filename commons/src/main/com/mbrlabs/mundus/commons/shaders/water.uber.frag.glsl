@@ -248,13 +248,11 @@ void main() {
 
     // Fog
     #ifdef fogFlag
-    if (u_fogEquation.z > 0.0) {
-        float fog = (waterDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
-        fog = clamp(fog, 0.0, 1.0);
-        fog = pow(fog, u_fogEquation.z);
+    float fog = (waterDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
+    fog = clamp(fog, 0.0, 1.0);
+    fog = pow(fog, u_fogEquation.z);
 
-        color.rgb  = mix(color.rgb, u_fogColor.rgb, fog * u_fogColor.a);
-    }
+    color.rgb  = mix(color.rgb, u_fogColor.rgb, fog * u_fogColor.a);
     #endif
 
     gl_FragColor = color;
