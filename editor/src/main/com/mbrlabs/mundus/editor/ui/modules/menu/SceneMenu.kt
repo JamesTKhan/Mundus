@@ -25,6 +25,7 @@ import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
 import com.kotcrab.vis.ui.widget.Menu
 import com.kotcrab.vis.ui.widget.MenuItem
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneAddedEvent
@@ -47,6 +48,7 @@ class SceneMenu : Menu("Scenes"),
     private val addScene = MenuItem("Add scene")
 
     private val projectManager: ProjectManager = Mundus.inject()
+    private val kryoManager : KryoManager = Mundus.inject()
 
     init {
         Mundus.registerEventListener(this)
@@ -102,6 +104,10 @@ class SceneMenu : Menu("Scenes"),
     override fun onSceneAdded(event: SceneAddedEvent) {
         val sceneName = event.scene!!.name
         buildMenuItem(sceneName)
+
+        // Save context here so that the ID above is persisted in .pro file
+        kryoManager.saveProjectContext(projectManager.current())
+
         Log.trace(TAG, "SceneMenu", "New scene [{}] added.", sceneName)
     }
 
