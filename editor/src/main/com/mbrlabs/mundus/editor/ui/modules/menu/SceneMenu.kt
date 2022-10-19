@@ -30,7 +30,6 @@ import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneAddedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
-import org.apache.commons.lang3.StringUtils
 
 /**
  * @author Marcus Brummer
@@ -55,9 +54,10 @@ class SceneMenu : Menu("Scenes"),
         addScene.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 Dialogs.showInputDialog(UI, "Add Scene", "Name:", SceneNameValidator(), object : InputDialogAdapter() {
-                    override fun finished(input: String?) {
+                    override fun finished(input: String) {
+                        val newSceneName = input.trim()
                         val project = projectManager.current()
-                        val scene = projectManager.createScene(project, input)
+                        val scene = projectManager.createScene(project, newSceneName)
                         projectManager.changeScene(project, scene.name)
                         Mundus.postEvent(SceneAddedEvent(scene))
                     }
@@ -107,7 +107,7 @@ class SceneMenu : Menu("Scenes"),
 
     inner class SceneNameValidator : InputValidator {
         override fun validateInput(input: String): Boolean {
-            return StringUtils.EMPTY != input;
+            return input.isNotBlank()
         }
 
     }
