@@ -88,7 +88,7 @@ class SceneMenu : Menu("Scenes"),
         val menuItem = MenuItem(sceneName)
 
         val subMenus = PopupMenu()
-        subMenus.addItem(buildChangeToSubMenuItem(sceneName))
+        subMenus.addItem(buildOpenSubMenuItem(sceneName))
         subMenus.addItem(buildDeleteSubMenuItem(sceneName, menuItem))
         menuItem.subMenu = subMenus
 
@@ -98,8 +98,8 @@ class SceneMenu : Menu("Scenes"),
         return menuItem
     }
 
-    private fun buildChangeToSubMenuItem(sceneName: String): MenuItem {
-        val menuItem = MenuItem("Change to")
+    private fun buildOpenSubMenuItem(sceneName: String): MenuItem {
+        val menuItem = MenuItem("Open")
         menuItem.addListener(object: ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 projectManager.changeScene(projectManager.current(), sceneName)
