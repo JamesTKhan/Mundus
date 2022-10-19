@@ -103,17 +103,7 @@ class SceneMenu : Menu("Scenes"),
         menuItem.addListener(object: ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 projectManager.changeScene(projectManager.current(), sceneName)
-
-                for (mi in sceneItems) {
-                    val deleteMenuItem = mi.subMenu.findActor<MenuItem>(DELETE_BUTTON_NAME)
-
-                    // Enable other delete buttons and disable current delete button
-                    if (mi.text.contentEquals(sceneName)) {
-                        disableMenuItem(deleteMenuItem)
-                    } else {
-                        enableMenuItem(deleteMenuItem)
-                    }
-                }
+                updateDeleteButtonEnable(sceneName)
             }
         })
         return menuItem
@@ -143,6 +133,19 @@ class SceneMenu : Menu("Scenes"),
         return menuItem
     }
 
+    private fun updateDeleteButtonEnable(currentSceneName: String) {
+        for (mi in sceneItems) {
+            val deleteMenuItem = mi.subMenu.findActor<MenuItem>(DELETE_BUTTON_NAME)
+
+            // Enable other delete buttons and disable current delete button
+            if (mi.text.contentEquals(currentSceneName)) {
+                disableMenuItem(deleteMenuItem)
+            } else {
+                enableMenuItem(deleteMenuItem)
+            }
+        }
+    }
+
     private fun disableMenuItem(menuItem: MenuItem) {
         menuItem.touchable = Touchable.disabled
         menuItem.isDisabled = true
@@ -161,6 +164,8 @@ class SceneMenu : Menu("Scenes"),
         val sceneName = event.scene!!.name
         buildMenuItem(sceneName)
         Log.trace(TAG, "SceneMenu", "New scene [{}] added.", sceneName)
+
+        updateDeleteButtonEnable(sceneName)
     }
 
 }
