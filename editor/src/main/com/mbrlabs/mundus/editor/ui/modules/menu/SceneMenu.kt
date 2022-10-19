@@ -114,12 +114,13 @@ class SceneMenu : Menu("Scenes"),
         menuItem.name = DELETE_BUTTON_NAME
         menuItem.addListener(object: ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                Dialogs.showOptionDialog(UI, "Deleting scene", "Are you sure you want to delete '" + sceneName + "' scene?", Dialogs.OptionDialogType.YES_CANCEL, object : OptionDialogAdapter() {
+                Dialogs.showOptionDialog(UI, "Deleting scene", "Are you sure you want to delete '$sceneName' scene?", Dialogs.OptionDialogType.YES_CANCEL, object : OptionDialogAdapter() {
                     override fun yes() {
                         projectManager.deleteScene(projectManager.current(), sceneName)
                         sceneItems.removeValue(screenMenu, true)
                         removeActor(screenMenu)
                         pack()
+                        Log.trace(TAG, "SceneMenu", "Scene [{}] deleted.", sceneName)
                     }
                 })
             }
@@ -163,9 +164,8 @@ class SceneMenu : Menu("Scenes"),
     override fun onSceneAdded(event: SceneAddedEvent) {
         val sceneName = event.scene!!.name
         buildMenuItem(sceneName)
-        Log.trace(TAG, "SceneMenu", "New scene [{}] added.", sceneName)
-
         updateDeleteButtonEnable(sceneName)
+        Log.trace(TAG, "SceneMenu", "New scene [{}] added.", sceneName)
     }
 
 }
