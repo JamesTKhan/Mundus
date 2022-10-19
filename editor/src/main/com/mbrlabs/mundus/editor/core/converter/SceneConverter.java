@@ -65,6 +65,8 @@ public class SceneConverter {
         // Water
         dto.setWaterResolution(scene.settings.waterResolution);
         dto.setWaterHeight(scene.settings.waterHeight);
+        dto.setEnableWaterReflections(scene.settings.enableWaterReflections);
+        dto.setEnableWaterRefractions(scene.settings.enableWaterRefractions);
 
         dto.setUseFrustumCulling(scene.settings.useFrustumCulling);
 
@@ -113,6 +115,8 @@ public class SceneConverter {
 
         scene.settings.waterHeight = dto.getWaterHeight();
         scene.settings.useFrustumCulling = dto.isUseFrustumCulling();
+        scene.settings.enableWaterReflections = dto.isEnableWaterReflections();
+        scene.settings.enableWaterRefractions = dto.isEnableWaterRefractions();
 
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);

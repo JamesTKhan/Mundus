@@ -46,6 +46,8 @@ public class SceneDTO implements Json.Serializable {
     private float camFieldOfView;
     private float waterHeight;
     private boolean useFrustumCulling;
+    private boolean enableWaterReflections = true;
+    private boolean enableWaterRefractions = true;
     private WaterResolution waterResolution;
 
     public SceneDTO() {
@@ -202,6 +204,22 @@ public class SceneDTO implements Json.Serializable {
 
     public String getSkyboxAssetId() {
         return skyboxAssetId;
+    }
+
+    public boolean isEnableWaterReflections() {
+        return enableWaterReflections;
+    }
+
+    public void setEnableWaterReflections(boolean enableWaterReflections) {
+        this.enableWaterReflections = enableWaterReflections;
+    }
+
+    public boolean isEnableWaterRefractions() {
+        return enableWaterRefractions;
+    }
+
+    public void setEnableWaterRefractions(boolean enableWaterRefractions) {
+        this.enableWaterRefractions = enableWaterRefractions;
     }
 
     @Override

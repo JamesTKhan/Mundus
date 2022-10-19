@@ -1,4 +1,8 @@
-[0.4.0] ~ 07/10/2022
+[0.5.0]
+- Convert Water Shader to an Uber Shader
+- Water Shader Enhancements (visible depth, toggle reflection/refraction)
+
+[0.4.0] ~ 10/12/2022
 - [BREAKING CHANGE] The loadScene method for the runtime has changed. A ModelBatch is no longer required to be passed in.
 - Added config parameter to Mundus constructor
 - Add converter for Light Components

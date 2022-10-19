@@ -37,7 +37,7 @@ class ToolTipLabel(val label: String, toolTipText: String) : VisTable() {
 
     init {
         defaults().padRight(4f)
-        add(fieldLabel, fieldInfo)
+        add(fieldLabel, fieldInfo).align(Align.left)
         Tooltip.Builder(toolTipText, Align.left).target(fieldInfo).build()
 
         fieldInfo.addListener(object : InputListener() {

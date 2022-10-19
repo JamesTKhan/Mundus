@@ -156,16 +156,14 @@ void main(void) {
 
     #ifdef fogFlag
     // fog
-    if (u_fogEquation.z > 0.0) {
-        vec3 surfaceToCamera = u_cameraPosition.xyz - v_worldPos;
-        float eyeDistance = length(surfaceToCamera);
+    vec3 surfaceToCamera = u_cameraPosition.xyz - v_worldPos;
+    float eyeDistance = length(surfaceToCamera);
 
-        float fog = (eyeDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
-        fog = clamp(fog, 0.0, 1.0);
-        fog = pow(fog, u_fogEquation.z);
+    float fog = (eyeDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
+    fog = clamp(fog, 0.0, 1.0);
+    fog = pow(fog, u_fogEquation.z);
 
-        gl_FragColor.rgb = mix(gl_FragColor.rgb, u_fogColor.rgb, fog * u_fogColor.a);
-    }
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, u_fogColor.rgb, fog * u_fogColor.a);
     #endif
 
     #ifdef PICKER
