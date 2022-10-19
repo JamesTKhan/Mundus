@@ -16,6 +16,7 @@ import com.mbrlabs.mundus.commons.water.Water;
 import com.mbrlabs.mundus.commons.water.WaterMaterial;
 import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
+import com.mbrlabs.mundus.commons.water.attributes.WaterIntAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterMaterialAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
@@ -242,7 +243,6 @@ public class WaterUberShader extends LightShader {
     @Override
     public void begin(Camera camera, RenderContext context) {
         context.begin();
-        context.setCullFace(GL20.GL_BACK);
 
         context.setDepthTest(GL20.GL_LEQUAL, 0f, 1f);
         context.setDepthMask(true);
@@ -264,6 +264,18 @@ public class WaterUberShader extends LightShader {
             set(u_fogColor, ((ColorAttribute)combinedAttributes.get(ColorAttribute.Fog)).color);
             set(u_fogEquation, ((FogAttribute)combinedAttributes.get(FogAttribute.FogEquation)).value);
         }
+
+        int cullFace = GL20.GL_BACK;
+        // If mask has WaterIntAttribute, use it
+        if ((WaterIntAttribute.CullFace & waterMaterialMask) == WaterIntAttribute.CullFace) {
+            WaterMaterial material = getWaterMaterial(renderable);
+            WaterIntAttribute attr = (WaterIntAttribute) material.get(WaterIntAttribute.CullFace);
+            if (attr != null && attr.value != -1) {
+                cullFace = attr.value;
+            }
+        }
+        context.setCullFace(cullFace);
+
 
         super.render(renderable, combinedAttributes);
     }

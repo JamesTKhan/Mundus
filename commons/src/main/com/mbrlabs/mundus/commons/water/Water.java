@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
 import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
+import com.mbrlabs.mundus.commons.water.attributes.WaterIntAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterMaterialAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterTextureAttribute;
 
@@ -30,6 +31,7 @@ public class Water implements RenderableProvider, Disposable {
     public static final float DEFAULT_FOAM_FALL_OFF_DISTANCE = 12.0f;
     public static final float DEFAULT_FOAM_SCROLL_SPEED = 4.0f;
     public static final float DEFAULT_MAX_VISIBLE_DEPTH = 100.0f;
+    public static final int DEFAULT_CULL_FACE = GL20.GL_BACK;
     public static final Color DEFAULT_COLOR = new Color(0,0.5f,0.686f, 0.2f);
     private static final String materialId = "waterMat";
 
@@ -91,6 +93,8 @@ public class Water implements RenderableProvider, Disposable {
         setFloatAttribute(WaterFloatAttribute.Reflectivity, DEFAULT_REFLECTIVITY);
         setFloatAttribute(WaterFloatAttribute.ShineDamper, DEFAULT_SHINE_DAMPER);
         setFloatAttribute(WaterFloatAttribute.MaxVisibleDepth, DEFAULT_MAX_VISIBLE_DEPTH);
+
+        setIntAttribute(WaterIntAttribute.CullFace, DEFAULT_CULL_FACE);
 
         waterMaterial.set(WaterColorAttribute.createDiffuse(Water.DEFAULT_COLOR));
     }
@@ -187,5 +191,13 @@ public class Water implements RenderableProvider, Disposable {
 
     public Color getColorAttribute(long diffuse) {
         return waterMaterial.get(WaterColorAttribute.class, diffuse).color;
+    }
+
+    public void setIntAttribute(long attributeType, int value) {
+        waterMaterial.set(new WaterIntAttribute(attributeType, value));
+    }
+
+    public int getIntAttribute(long attributeType) {
+        return waterMaterial.get(WaterIntAttribute.class, attributeType).value;
     }
 }

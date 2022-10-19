@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
@@ -19,6 +20,7 @@ import com.mbrlabs.mundus.commons.water.Water
 import com.mbrlabs.mundus.commons.water.WaterResolution
 import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute
+import com.mbrlabs.mundus.commons.water.attributes.WaterIntAttribute
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
@@ -43,6 +45,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
     private val enableRefractions = VisCheckBox(null)
 
     private val colorPickerField = ColorPickerField()
+    private val cullFaceSelectBox: VisSelectBox<MaterialWidget.CullFace> = VisSelectBox()
 
     private lateinit var selectBox: VisSelectBox<String>
 
@@ -84,6 +87,29 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
 
         generalSettings.add(ToolTipLabel("Max Visible Depth:", "Maximum depth where objects underwater are still visible.\nOnly applicable when refractions are enabled.")).growX()
         generalSettings.add(visibleDepthField).growX().row()
+
+        // Cull Face select
+        val cullTip = buildString {
+            append("NONE: No culling\n")
+            append("DEFAULT: Use Mundus Default (GL_BACK)\n")
+            append("GL_BACK: Back face culling, recommended for performance.\n")
+            append("GL_FRONT: Front face culling.\n")
+            append("GL_FRONT_AND_BACK: Entire model culled (front and back).")
+        }
+        generalSettings.add(ToolTipLabel("Cull Face", cullTip)).left()
+        generalSettings.add(cullFaceSelectBox).left().row()
+        val cullValues = Array<MaterialWidget.CullFace>()
+        for (cullValue in MaterialWidget.CullFace.values())
+            cullValues.add(cullValue)
+        cullFaceSelectBox.items = cullValues
+
+        cullFaceSelectBox.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                val value = cullFaceSelectBox.selected.value
+                waterComponent.waterAsset.water.setIntAttribute(WaterIntAttribute.CullFace, value)
+                projectManager.current().assetManager.addModifiedAsset(waterComponent.waterAsset)
+            }
+        })
 
         add(generalSettings).grow().row()
 
@@ -223,6 +249,7 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
                 waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE)
                 waterComponent.waterAsset.water.setFloatAttribute(WaterFloatAttribute.MaxVisibleDepth, Water.DEFAULT_MAX_VISIBLE_DEPTH)
 
+                waterComponent.waterAsset.water.setIntAttribute(WaterIntAttribute.CullFace, Water.DEFAULT_CULL_FACE)
                 waterComponent.waterAsset.water.setColorAttribute(WaterColorAttribute.Diffuse, Water.DEFAULT_COLOR)
 
                 projectManager.current().currScene.settings.waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION
@@ -285,6 +312,8 @@ class WaterWidget(val waterComponent: WaterComponent) : VisTable() {
             selectBox.selected = projectManager.current().currScene.settings.waterResolution.value
         }
 
+        val cullFace = waterComponent.waterAsset.water.getIntAttribute(WaterIntAttribute.CullFace)
+        cullFaceSelectBox.selected = MaterialWidget.CullFace.getFromValue(cullFace)
     }
 
     private fun getSectionTable(): VisTable {

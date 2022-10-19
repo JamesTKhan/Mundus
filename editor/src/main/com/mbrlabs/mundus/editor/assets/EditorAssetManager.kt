@@ -42,6 +42,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute
+import com.mbrlabs.mundus.commons.water.attributes.WaterIntAttribute
 import com.mbrlabs.mundus.editor.Mundus.postEvent
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
@@ -764,6 +765,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         props.setProperty(WaterAsset.PROP_FOAM_FALL_OFF_DISTANCE, asset.water.getFloatAttribute(WaterFloatAttribute.FoamFallOffDistance).toString())
         props.setProperty(WaterAsset.PROP_FOAM_FALL_SCROLL_SPEED, asset.water.getFloatAttribute(WaterFloatAttribute.FoamScrollSpeed).toString())
         props.setProperty(WaterAsset.PROP_MAX_VIS_DEPTH, asset.water.getFloatAttribute(WaterFloatAttribute.MaxVisibleDepth).toString())
+        props.setProperty(WaterAsset.PROP_CULL_FACE, asset.water.getIntAttribute(WaterIntAttribute.CullFace).toString())
 
         props.setProperty(WaterAsset.PROP_REFLECTIVITY, asset.water.getFloatAttribute(WaterFloatAttribute.Reflectivity).toString())
         props.setProperty(WaterAsset.PROP_SHINE_DAMPER, asset.water.getFloatAttribute(WaterFloatAttribute.ShineDamper).toString())

@@ -10,6 +10,7 @@ import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.water.Water;
 import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
+import com.mbrlabs.mundus.commons.water.attributes.WaterIntAttribute;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -34,6 +35,7 @@ public class WaterAsset extends Asset {
     public static final String PROP_REFLECTIVITY = "reflectivity";
     public static final String PROP_SHINE_DAMPER = "shineDamper";
     public static final String PROP_MAX_VIS_DEPTH = "maxVisibleDepth";
+    public static final String PROP_CULL_FACE = "cullFace";
     public static final String PROP_COLOR = "color";
 
     // ids of dependent assets
@@ -77,6 +79,8 @@ public class WaterAsset extends Asset {
             water.setFloatAttribute(WaterFloatAttribute.Reflectivity, Float.parseFloat(MAP.get(PROP_REFLECTIVITY, String.valueOf(Water.DEFAULT_REFLECTIVITY))));
             water.setFloatAttribute(WaterFloatAttribute.ShineDamper, Float.parseFloat(MAP.get(PROP_SHINE_DAMPER, String.valueOf(Water.DEFAULT_SHINE_DAMPER))));
             water.setFloatAttribute(WaterFloatAttribute.MaxVisibleDepth, Float.parseFloat(MAP.get(PROP_MAX_VIS_DEPTH, String.valueOf(Water.DEFAULT_MAX_VISIBLE_DEPTH))));
+
+            water.setIntAttribute(WaterIntAttribute.CullFace, Integer.parseInt(MAP.get(PROP_CULL_FACE, String.valueOf(Water.DEFAULT_CULL_FACE))));
 
             String colorValue = MAP.get(PROP_COLOR);
             if (colorValue != null) {
