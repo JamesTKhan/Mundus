@@ -120,10 +120,17 @@ class SceneMenu : Menu("Scenes"),
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 Dialogs.showOptionDialog(UI, "Deleting scene", "Are you sure you want to delete '$sceneName' scene?", Dialogs.OptionDialogType.YES_CANCEL, object : OptionDialogAdapter() {
                     override fun yes() {
+                        // Delete scene file
                         projectManager.deleteScene(projectManager.current(), sceneName)
+
+                        // Delete scene from project
+                        kryoManager.saveProjectContext(projectManager.current())
+
+                        // Delete scene from UI
                         sceneItems.removeValue(screenMenu, true)
                         removeActor(screenMenu)
                         pack()
+
                         Log.trace(TAG, "SceneMenu", "Scene [{}] deleted.", sceneName)
                     }
                 })
@@ -170,7 +177,7 @@ class SceneMenu : Menu("Scenes"),
         buildMenuItem(sceneName)
         updateDeleteButtonEnable(sceneName)
 
-        // Save context here so that the ID above is persisted in .pro file
+        // Save context here so that the scene name above is persisted in .pro file
         kryoManager.saveProjectContext(projectManager.current())
 
         Log.trace(TAG, "SceneMenu", "New scene [{}] added.", sceneName)
