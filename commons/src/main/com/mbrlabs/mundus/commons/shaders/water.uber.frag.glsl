@@ -82,6 +82,9 @@ void main() {
     float waterDistance = 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
     float waterDepth = floorDistance - waterDistance;
 
+    // When nothing is under(behind) the water, we get some weird values, so ensure depth is atleast above 0.0
+    waterDepth = max(waterDepth, 0.0);
+
     // Dudv distortion
     vec2 distortedTexCoords = texture2D(u_dudvTexture, vec2(v_waterTexCoords.x + u_moveFactor, v_waterTexCoords.y)).rg*0.1;
     distortedTexCoords = v_waterTexCoords + vec2(distortedTexCoords.x, distortedTexCoords.y+u_moveFactor);
@@ -115,8 +118,8 @@ void main() {
         vec4 refractColor;
 
         // Blend amount for color vs refraction texture
-        if (waterDepth <= 0.0) {
-            // Color in the refraction when depth <= 0 which happens if nothing is underneath the water
+        if (waterDepth == 0.0) {
+            // Color in the refraction when depth = 0 which happens if nothing is underneath the water
             // (like corners of water)
             refractColor = u_color;
         } else {
@@ -126,13 +129,12 @@ void main() {
         }
     #endif
 
-    // Fresnel Effect
     vec3 viewVector = normalize(v_toCameraVector);
-    float refractiveFactor = dot(viewVector, normal);
 
     #ifdef reflectionFlag
         #ifdef refractionFlag
             // If we have both Reflection and Reflection, blend based on fresnel effect
+            float refractiveFactor = dot(viewVector, normal);
             vec4 color =  mix(reflectColor, refractColor, refractiveFactor);
         #else
             // No Refraction but we have reflection
@@ -185,7 +187,7 @@ void main() {
 
     // This is a workaround fix to resolve an issue when using packed depth that causes white borders on water
     // so if the red channel is full 1.0 its probably pure white (border) so we ignore it.
-    if (edge.r < 0.99) {
+    if (edge.r < 0.99 && waterDepth > 0.0) {
         // Fade foam out after a distance, otherwise we get ugly 1 pixel lines
         float distanceToCam = length(v_worldPos - u_cameraPosition.xyz);
         float foamVisibleFactor = clamp(1.0 - distanceToCam / 500.0, 0.0, 1.0);
