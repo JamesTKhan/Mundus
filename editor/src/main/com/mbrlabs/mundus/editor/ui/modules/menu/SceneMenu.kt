@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
+import com.kotcrab.vis.ui.util.InputValidator
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
 import com.kotcrab.vis.ui.util.dialog.OptionDialogAdapter
@@ -27,6 +28,7 @@ import com.kotcrab.vis.ui.widget.Menu
 import com.kotcrab.vis.ui.widget.MenuItem
 import com.kotcrab.vis.ui.widget.PopupMenu
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneAddedEvent
@@ -50,16 +52,18 @@ class SceneMenu : Menu("Scenes"),
     private val addScene = MenuItem("Add scene")
 
     private val projectManager: ProjectManager = Mundus.inject()
+    private val kryoManager : KryoManager = Mundus.inject()
 
     init {
         Mundus.registerEventListener(this)
 
         addScene.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                Dialogs.showInputDialog(UI, "Add Scene", "Name:", object : InputDialogAdapter() {
-                    override fun finished(input: String?) {
+                Dialogs.showInputDialog(UI, "Add Scene", "Name:", SceneNameValidator(), object : InputDialogAdapter() {
+                    override fun finished(input: String) {
+                        val newSceneName = input.trim()
                         val project = projectManager.current()
-                        val scene = projectManager.createScene(project, input)
+                        val scene = projectManager.createScene(project, newSceneName)
                         projectManager.changeScene(project, scene.name)
                         Mundus.postEvent(SceneAddedEvent(scene))
                     }
@@ -165,7 +169,18 @@ class SceneMenu : Menu("Scenes"),
         val sceneName = event.scene!!.name
         buildMenuItem(sceneName)
         updateDeleteButtonEnable(sceneName)
+
+        // Save context here so that the ID above is persisted in .pro file
+        kryoManager.saveProjectContext(projectManager.current())
+
         Log.trace(TAG, "SceneMenu", "New scene [{}] added.", sceneName)
+    }
+
+    inner class SceneNameValidator : InputValidator {
+        override fun validateInput(input: String): Boolean {
+            return input.isNotBlank()
+        }
+
     }
 
 }

@@ -14,7 +14,9 @@ import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import com.mbrlabs.mundus.commons.water.Water;
 import com.mbrlabs.mundus.commons.water.WaterMaterial;
+import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
+import com.mbrlabs.mundus.commons.water.attributes.WaterIntAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterMaterialAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
@@ -30,6 +32,9 @@ public class WaterUberShader extends LightShader {
     public static class WaterInputs {
         public final static Uniform diffuseUVTransform = new Uniform("u_diffuseUVTransform");
 
+        // Color Attributes
+        public final static Uniform color = new Uniform("u_color");
+
         // Float attributes
         public final static Uniform moveFactor = new Uniform("u_moveFactor");
         public final static Uniform tiling = new Uniform("u_tiling");
@@ -41,6 +46,7 @@ public class WaterUberShader extends LightShader {
         public final static Uniform foamEdgeDistance = new Uniform("u_foamEdgeDistance");
         public final static Uniform foamFallOffDistance = new Uniform("u_foamFallOffDistance");
         public final static Uniform foamScrollSpeed = new Uniform("u_foamScrollSpeed");
+        public final static Uniform maxVisibleDepth = new Uniform("u_maxVisibleDepth");
 
         // Texture attributes
         public final static Uniform reflectionTexture = new Uniform("u_reflectionTexture");
@@ -65,6 +71,20 @@ public class WaterUberShader extends LightShader {
             }
         };
 
+        // Color attributes
+        public final static Setter color = new LocalSetter() {
+            @Override
+            public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+                WaterMaterialAttribute waterMaterialAttribute = (WaterMaterialAttribute) combinedAttributes
+                        .get(WaterMaterialAttribute.WaterMaterial);
+                WaterMaterial waterMaterial = waterMaterialAttribute.waterMaterial;
+                WaterColorAttribute attr = (WaterColorAttribute)(waterMaterial.get(WaterColorAttribute.Diffuse));
+
+                if (attr != null)
+                    shader.set(inputID, attr.color);
+            }
+        };
+
         // Float attributes
         public final static Setter moveFactor = new FloatSetter(WaterFloatAttribute.MoveFactor, 0);
         public final static Setter tiling = new FloatSetter(WaterFloatAttribute.Tiling, Water.DEFAULT_TILING);
@@ -76,6 +96,7 @@ public class WaterUberShader extends LightShader {
         public final static Setter foamEdgeDistance = new FloatSetter(WaterFloatAttribute.FoamEdgeDistance, Water.DEFAULT_FOAM_EDGE_DISTANCE);
         public final static Setter foamFallOffDistance = new FloatSetter(WaterFloatAttribute.FoamFallOffDistance, Water.DEFAULT_FOAM_FALL_OFF_DISTANCE);
         public final static Setter foamScrollSpeed = new FloatSetter(WaterFloatAttribute.FoamScrollSpeed, Water.DEFAULT_FOAM_SCROLL_SPEED);
+        public final static Setter maxVisibleDepth = new FloatSetter(WaterFloatAttribute.MaxVisibleDepth, Water.DEFAULT_MAX_VISIBLE_DEPTH);
 
         // Texture attributes
         public final static Setter reflectionTexture = getTextureSetter(WaterTextureAttribute.Reflection);
@@ -133,6 +154,9 @@ public class WaterUberShader extends LightShader {
     public final int u_cameraPosition;
     public final int u_cameraNearFar;
 
+    // Water color uniforms
+    public final int u_color;
+
     // Water float uniforms
     public final int u_diffuseUVTransform;
     public final int u_tiling;
@@ -145,6 +169,7 @@ public class WaterUberShader extends LightShader {
     public final int u_foamEdgeDistance;
     public final int u_foamFallOffDistance;
     public final int u_foamScrollSpeed;
+    public final int u_maxVisibleDepth;
 
     // Water texture uniforms
     public final int u_reflectionTexture;
@@ -192,6 +217,7 @@ public class WaterUberShader extends LightShader {
         u_foamEdgeDistance = register(WaterInputs.foamEdgeDistance, WaterSetters.foamEdgeDistance);
         u_foamFallOffDistance = register(WaterInputs.foamFallOffDistance, WaterSetters.foamFallOffDistance);
         u_foamScrollSpeed = register(WaterInputs.foamScrollSpeed, WaterSetters.foamScrollSpeed);
+        u_maxVisibleDepth = register(WaterInputs.maxVisibleDepth, WaterSetters.maxVisibleDepth);
 
         u_reflectionTexture = register(WaterInputs.reflectionTexture, WaterSetters.reflectionTexture);
         u_refractionTexture = register(WaterInputs.refractionTexture, WaterSetters.refractionTexture);
@@ -199,6 +225,8 @@ public class WaterUberShader extends LightShader {
         u_dudvTexture = register(WaterInputs.dudvTexture, WaterSetters.dudvTexture);
         u_normalMapTexture = register(WaterInputs.normalMapTexture, WaterSetters.normalMapTexture);
         u_foamTexture = register(WaterInputs.foamTexture, WaterSetters.foamTexture);
+
+        u_color = register(WaterInputs.color, WaterSetters.color);
 
         u_fogColor = register(WaterInputs.fogColor);
         u_fogEquation = register(WaterInputs.fogEquation);
@@ -215,7 +243,6 @@ public class WaterUberShader extends LightShader {
     @Override
     public void begin(Camera camera, RenderContext context) {
         context.begin();
-        context.setCullFace(GL20.GL_BACK);
 
         context.setDepthTest(GL20.GL_LEQUAL, 0f, 1f);
         context.setDepthMask(true);
@@ -237,6 +264,18 @@ public class WaterUberShader extends LightShader {
             set(u_fogColor, ((ColorAttribute)combinedAttributes.get(ColorAttribute.Fog)).color);
             set(u_fogEquation, ((FogAttribute)combinedAttributes.get(FogAttribute.FogEquation)).value);
         }
+
+        int cullFace = GL20.GL_BACK;
+        // If mask has WaterIntAttribute, use it
+        if ((WaterIntAttribute.CullFace & waterMaterialMask) == WaterIntAttribute.CullFace) {
+            WaterMaterial material = getWaterMaterial(renderable);
+            WaterIntAttribute attr = (WaterIntAttribute) material.get(WaterIntAttribute.CullFace);
+            if (attr != null && attr.value != -1) {
+                cullFace = attr.value;
+            }
+        }
+        context.setCullFace(cullFace);
+
 
         super.render(renderable, combinedAttributes);
     }

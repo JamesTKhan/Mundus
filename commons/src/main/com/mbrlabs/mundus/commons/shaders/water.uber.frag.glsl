@@ -21,12 +21,14 @@ uniform sampler2D u_reflectionTexture;
 
 #ifdef refractionFlag
 uniform sampler2D u_refractionTexture;
+uniform float u_maxVisibleDepth;
 #endif
 
 uniform sampler2D u_refractionDepthTexture;
 uniform sampler2D u_dudvTexture;
 uniform sampler2D u_normalMapTexture;
 uniform sampler2D u_foamTexture;
+uniform vec4 u_color;
 uniform MED float u_waveStrength;
 uniform MED float u_moveFactor;
 uniform MED float u_shineDamper;
@@ -37,8 +39,6 @@ uniform MED float u_foamEdgeDistance;
 uniform MED float u_foamFallOffDistance;
 uniform MED float u_foamScrollSpeed;
 uniform vec2 u_cameraNearFar;
-
-const vec4 COLOR_TURQUOISE = vec4(0,0.5,0.686, 0.2);
 
 #ifdef fogFlag
 uniform vec3 u_fogEquation;
@@ -59,6 +59,14 @@ vec3 calcSpecularHighlights(BaseLight baseLight, vec3 direction, vec3 normal, ve
     return specularHighlights;
 }
 
+float normalizeRange(float value, float minValue, float maxValue) {
+    float weight = max(minValue, value);
+    weight = min(maxValue, weight);
+    weight -= minValue;
+    weight /= maxValue - minValue; // Normalizes to 0.0-1.0 range
+    return weight;
+}
+
 void main() {
 
     // Normalized device coordinates
@@ -74,10 +82,16 @@ void main() {
     float waterDistance = 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
     float waterDepth = floorDistance - waterDistance;
 
+    // When nothing is under(behind) the water, we get some weird values, so ensure depth is atleast above 0.0
+    waterDepth = max(waterDepth, 0.0);
+
     // Dudv distortion
     vec2 distortedTexCoords = texture2D(u_dudvTexture, vec2(v_waterTexCoords.x + u_moveFactor, v_waterTexCoords.y)).rg*0.1;
     distortedTexCoords = v_waterTexCoords + vec2(distortedTexCoords.x, distortedTexCoords.y+u_moveFactor);
-    vec2 totalDistortion = (texture2D(u_dudvTexture, distortedTexCoords).rg * 2.0 - 1.0) * u_waveStrength * clamp(waterDepth/20.0, 0.0, 1.0);
+
+    // Soften distortions near edges
+    float soften = clamp(waterDepth/80.0, 0.0, 1.0);
+    vec2 totalDistortion = (texture2D(u_dudvTexture, distortedTexCoords).rg * 2.0 - 1.0) * u_waveStrength * soften;
 
     float minTexCoord = 0.005;
     float maxTexCoord = 1.0 - minTexCoord;
@@ -91,49 +105,53 @@ void main() {
     #ifdef reflectionFlag
         vec2 reflectTexCoords = vec2(ndc.x, 1.0-ndc.y);
         reflectTexCoords = reflectTexCoords + totalDistortion;
-        reflectTexCoords.x = clamp(reflectTexCoords.x, 0.001, 0.999);
-        reflectTexCoords.y = clamp(reflectTexCoords.y, 0.001, 0.999);
+        reflectTexCoords.x = clamp(reflectTexCoords.x, minTexCoord, maxTexCoord);
+        reflectTexCoords.y = clamp(reflectTexCoords.y, minTexCoord, maxTexCoord);
 
         vec4 reflectColor = texture2D(u_reflectionTexture, reflectTexCoords);
-    #else
-        vec4 reflectColor = vec4(0);
     #endif
 
     #ifdef refractionFlag
         refractTexCoords = refractTexCoords + totalDistortion;
         refractTexCoords = clamp(refractTexCoords, 0.001, 0.999);
 
-        vec4 refractColor = texture2D(u_refractionTexture, refractTexCoords);
+        vec4 refractColor;
+
+        // Blend amount for color vs refraction texture
+        if (waterDepth == 0.0) {
+            // Color in the refraction when depth = 0 which happens if nothing is underneath the water
+            // (like corners of water)
+            refractColor = u_color;
+        } else {
+            refractColor = texture2D(u_refractionTexture, refractTexCoords);
+            float refractionBlend = normalizeRange(waterDepth, 0.0, u_maxVisibleDepth);
+            refractColor = mix(refractColor, u_color, refractionBlend);
+        }
     #endif
 
-    // Fresnel Effect
     vec3 viewVector = normalize(v_toCameraVector);
-    float refractiveFactor = dot(viewVector, normal);
 
     #ifdef reflectionFlag
-
         #ifdef refractionFlag
             // If we have both Reflection and Reflection, blend based on fresnel effect
+            float refractiveFactor = dot(viewVector, normal);
             vec4 color =  mix(reflectColor, refractColor, refractiveFactor);
         #else
             // No Refraction but we have reflection
             vec4 color = reflectColor;
         #endif
-
     #else
-
         #ifdef refractionFlag
             // No Reflection but we have refraction
             vec4 color = refractColor;
         #else
             // We have neither reflection or refraction
-            vec4 color = COLOR_TURQUOISE;
+            vec4 color = u_color;
         #endif
-
     #endif
 
     // Mix some color in
-    color = mix(color, COLOR_TURQUOISE, 0.2);
+    color.rgb = mix(color.rgb, u_color.rgb, u_color.a);
 
     // Water Foam implemented from http://fire-face.com/personal/water/
     float edgePatternScroll = u_moveFactor * u_foamScrollSpeed;
@@ -169,7 +187,7 @@ void main() {
 
     // This is a workaround fix to resolve an issue when using packed depth that causes white borders on water
     // so if the red channel is full 1.0 its probably pure white (border) so we ignore it.
-    if (edge.r < 0.99) {
+    if (edge.r < 0.99 && waterDepth > 0.0) {
         // Fade foam out after a distance, otherwise we get ugly 1 pixel lines
         float distanceToCam = length(v_worldPos - u_cameraPosition.xyz);
         float foamVisibleFactor = clamp(1.0 - distanceToCam / 500.0, 0.0, 1.0);
@@ -225,13 +243,11 @@ void main() {
 
     // Fog
     #ifdef fogFlag
-    if (u_fogEquation.z > 0.0) {
-        float fog = (waterDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
-        fog = clamp(fog, 0.0, 1.0);
-        fog = pow(fog, u_fogEquation.z);
+    float fog = (waterDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
+    fog = clamp(fog, 0.0, 1.0);
+    fog = pow(fog, u_fogEquation.z);
 
-        color.rgb  = mix(color.rgb, u_fogColor.rgb, fog * u_fogColor.a);
-    }
+    color.rgb  = mix(color.rgb, u_fogColor.rgb, fog * u_fogColor.a);
     #endif
 
     gl_FragColor = color;

@@ -38,10 +38,8 @@ class WaterComponentWidget(waterComponent: WaterComponent) :
         label.setText("NOTE: All water instances must have the same height (Y value) for proper reflections.")
         collapsibleContent.add(label).grow().padBottom(10f).row()
 
-        collapsibleContent.add(VisLabel("Settings")).left().row()
-        collapsibleContent.addSeparator().padBottom(5f).row()
-        settingsContainer.add(WaterWidget(waterComponent)).padLeft(10f)
-        collapsibleContent.add(settingsContainer).left().row()
+        settingsContainer.add(WaterWidget(waterComponent)).grow()
+        collapsibleContent.add(settingsContainer).left().grow().row()
     }
 
     override fun setValues(go: GameObject) {

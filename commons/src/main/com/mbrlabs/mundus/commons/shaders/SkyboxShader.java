@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.commons.shaders;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -80,6 +81,13 @@ public class SkyboxShader extends BaseShader {
     public void begin(Camera camera, RenderContext context) {
         this.context = context;
         context.begin();
+
+        // GL_LEQUAL instead of the default GL_LESS.
+        // The depth buffer will be filled with values of 1.0 for the skybox,
+        // so we need to make sure the skybox passes the depth tests with values less than or equal to
+        // the depth buffer instead of less than.
+        context.setDepthTest(GL20.GL_LEQUAL);
+
         program.bind();
 
         set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined);

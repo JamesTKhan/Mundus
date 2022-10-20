@@ -13,6 +13,8 @@ public class SceneSettings {
     public float waterHeight = 0f;
     public final float distortionEdgeCorrection = 1f;
     public WaterResolution waterResolution = WaterResolution.DEFAULT_WATER_RESOLUTION;
+    public boolean enableWaterReflections = true;
+    public boolean enableWaterRefractions = true;
 
     // Performance
     public boolean useFrustumCulling = true;

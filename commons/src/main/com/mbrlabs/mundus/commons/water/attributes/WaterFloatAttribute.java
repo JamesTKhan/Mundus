@@ -57,6 +57,9 @@ public class WaterFloatAttribute extends MundusAttribute {
 	public static final String MoveFactorAlias = "moveFactor";
 	public static final long MoveFactor = register(MoveFactorAlias);
 
+	public static final String MaxVisibleDepthAlias = "maxVisibleDepth";
+	public static final long MaxVisibleDepth = register(MaxVisibleDepthAlias);
+
 	public float value;
 
 	public WaterFloatAttribute(long type) {
