@@ -2,6 +2,7 @@
 - Convert Water Shader to an Uber Shader
 - Water Shader Enhancements (visible depth, toggle reflection/refraction)
 - Skybox rendering performance tweak
+- Added scene delete button
 
 [0.4.0] ~ 10/12/2022
 - [BREAKING CHANGE] The ModelShader was replaced with custom PBR shader.
