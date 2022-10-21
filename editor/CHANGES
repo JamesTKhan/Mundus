@@ -1,3 +1,6 @@
+[0.4.1] ~ 10/21/2022
+- Fix incorrect bone counts causing 1024 shader register error
+
 [0.4.0] ~ 10/12/2022
 - [BREAKING CHANGE] The ModelShader was replaced with custom PBR shader.
 - [BREAKING CHANGE] Models from older versions may be invisible as first and will need their opacity updated on materials.
