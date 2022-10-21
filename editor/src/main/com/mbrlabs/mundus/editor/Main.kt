@@ -26,7 +26,7 @@ import com.mbrlabs.mundus.editor.utils.StartOnFirstThreadHelper
 
 const private val TAG = "Main"
 
-const val VERSION = "v0.4.0"
+const val VERSION = "v0.4.1"
 const val TITLE = "Mundus $VERSION"
 
 @Suppress("UNUSED_PARAMETER")

@@ -44,7 +44,7 @@ class VersionDialog : BaseDialog("Version Info") {
         root.add(LinkLabel("Issues","https://github.com/JamesTKhan/Mundus/issues")).row()
 
         label = VisLabel()
-        label.setText("v0.4.0 introduces a modified implementation of gdx-gltf's PBR shader for model rendering as well as changes to the " +
+        label.setText("v0.4.0 introduced a modified implementation of gdx-gltf's PBR shader for model rendering as well as changes to the " +
                 "lighting and fog code. You may need to adjust lighting and fog if you are using a project from " +
                 "a prior version.")
         label.wrap = true
