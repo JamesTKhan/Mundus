@@ -52,9 +52,13 @@ public class ModelUtils {
         ModelInstance instance = new ModelInstance(model);
         instance.getRenderables(renderables, pool);
 
+        // Bones appear to be copied to each NodePart
+        // So we just count the first renderable that has bones
+        // and break
         for (Renderable renderable : renderables) {
             if (renderable.bones != null) {
                 numBones += renderable.bones.length;
+                break;
             }
         }
 
