@@ -17,13 +17,16 @@
 package com.mbrlabs.mundus.editor.ui.modules.menu
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.InputValidator
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
+import com.kotcrab.vis.ui.util.dialog.OptionDialogAdapter
 import com.kotcrab.vis.ui.widget.Menu
 import com.kotcrab.vis.ui.widget.MenuItem
+import com.kotcrab.vis.ui.widget.PopupMenu
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -42,6 +45,7 @@ class SceneMenu : Menu("Scenes"),
 
     companion object {
         private val TAG = SceneMenu::class.java.simpleName
+        private const val DELETE_BUTTON_NAME = "delete_scene_submenu"
     }
 
     private val sceneItems = Array<MenuItem>()
@@ -86,15 +90,82 @@ class SceneMenu : Menu("Scenes"),
 
     private fun buildMenuItem(sceneName: String): MenuItem {
         val menuItem = MenuItem(sceneName)
-        menuItem.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                projectManager.changeScene(projectManager.current(), sceneName)
-            }
-        })
+
+        val subMenus = PopupMenu()
+        subMenus.addItem(buildOpenSubMenuItem(sceneName))
+        subMenus.addItem(buildDeleteSubMenuItem(sceneName, menuItem))
+        menuItem.subMenu = subMenus
+
         addItem(menuItem)
         sceneItems.add(menuItem)
 
         return menuItem
+    }
+
+    private fun buildOpenSubMenuItem(sceneName: String): MenuItem {
+        val menuItem = MenuItem("Open")
+        menuItem.addListener(object: ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                projectManager.changeScene(projectManager.current(), sceneName)
+                updateDeleteButtonEnable(sceneName)
+            }
+        })
+        return menuItem
+    }
+
+    private fun buildDeleteSubMenuItem(sceneName: String, screenMenu: MenuItem): MenuItem {
+        val menuItem = MenuItem("Delete")
+        menuItem.name = DELETE_BUTTON_NAME
+        menuItem.addListener(object: ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                Dialogs.showOptionDialog(UI, "Deleting scene", "Are you sure you want to delete '$sceneName' scene?", Dialogs.OptionDialogType.YES_CANCEL, object : OptionDialogAdapter() {
+                    override fun yes() {
+                        // Delete scene file
+                        projectManager.deleteScene(projectManager.current(), sceneName)
+
+                        // Delete scene from project
+                        kryoManager.saveProjectContext(projectManager.current())
+
+                        // Delete scene from UI
+                        sceneItems.removeValue(screenMenu, true)
+                        removeActor(screenMenu)
+                        pack()
+
+                        Log.trace(TAG, "SceneMenu", "Scene [{}] deleted.", sceneName)
+                    }
+                })
+            }
+        })
+
+        // The current scene's delete button will be disabled
+        if (projectManager.current().activeSceneName.equals(sceneName)) {
+            disableMenuItem(menuItem)
+        }
+
+        return menuItem
+    }
+
+    private fun updateDeleteButtonEnable(currentSceneName: String) {
+        for (mi in sceneItems) {
+            val deleteMenuItem = mi.subMenu.findActor<MenuItem>(DELETE_BUTTON_NAME)
+
+            // Enable other delete buttons and disable current delete button
+            if (mi.text.contentEquals(currentSceneName)) {
+                disableMenuItem(deleteMenuItem)
+            } else {
+                enableMenuItem(deleteMenuItem)
+            }
+        }
+    }
+
+    private fun disableMenuItem(menuItem: MenuItem) {
+        menuItem.touchable = Touchable.disabled
+        menuItem.isDisabled = true
+    }
+
+    private fun enableMenuItem(menuItem: MenuItem) {
+        menuItem.touchable = Touchable.enabled
+        menuItem.isDisabled = false
     }
 
     override fun onProjectChanged(event: ProjectChangedEvent) {
@@ -104,8 +175,9 @@ class SceneMenu : Menu("Scenes"),
     override fun onSceneAdded(event: SceneAddedEvent) {
         val sceneName = event.scene!!.name
         buildMenuItem(sceneName)
+        updateDeleteButtonEnable(sceneName)
 
-        // Save context here so that the ID above is persisted in .pro file
+        // Save context here so that the scene name above is persisted in .pro file
         kryoManager.saveProjectContext(projectManager.current())
 
         Log.trace(TAG, "SceneMenu", "New scene [{}] added.", sceneName)

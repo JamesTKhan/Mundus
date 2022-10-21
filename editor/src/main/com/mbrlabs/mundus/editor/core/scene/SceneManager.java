@@ -62,6 +62,18 @@ public class SceneManager {
         return json.fromJson(SceneDTO.class, new FileInputStream(sceneDir));
     }
 
+    /**
+     * Deletes scene.
+     *
+     * @param context project context of the scene
+     * @param sceneName name of the scene to remove
+     */
+    public static void deleteScene(final ProjectContext context, final String sceneName) {
+        final String sceneDir = getScenePath(context, sceneName);
+        FileHandle sceneFile = Gdx.files.absolute(sceneDir);
+        sceneFile.delete();
+    }
+
     private static String getScenePath(ProjectContext context, String sceneName) {
         return FilenameUtils.concat(context.path + "/" + ProjectManager.PROJECT_SCENES_DIR,
                 sceneName + "." + ProjectManager.PROJECT_SCENE_EXTENSION);

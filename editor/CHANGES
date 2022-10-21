@@ -2,6 +2,7 @@
 - Convert Water Shader to an Uber Shader
 - Water Shader Enhancements (visible depth, toggle reflection/refraction)
 - Skybox rendering performance tweak
+- Added scene delete button
 
 [0.4.1]
 - Fix incorrect bone counts causing 1024 shader register error
