@@ -76,6 +76,8 @@ class TerrainAssetInspectorWidget : BaseInspectorWidget(TITLE) {
                 newComponent.terrainAsset = terrainAsset
                 newComponent.encodeRaypickColorId()
 
+                projectManager.current().currScene.terrains.add(newComponent)
+
                 modelGo.addComponent(newComponent)
 
                 postEvent(SceneGraphChangedEvent())
