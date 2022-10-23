@@ -112,4 +112,42 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
     public ModelInstance getModelInstance() {
         return modelInstance;
     }
+
+    /**
+     * Returns the terrain height at the given world coordinates, in world coordinates.
+     *
+     * @param worldX X world position to get height
+     * @param worldZ Z world position to get height
+     * @return float height value
+     */
+    public float getHeightAtWorldCoord(float worldX, float worldZ) {
+        return terrainAsset.getTerrain().getHeightAtWorldCoord(worldX, worldZ, modelInstance.transform);
+    }
+
+    /**
+     * Get normal at world coordinates. The methods calculates exact point
+     * position in terrain coordinates and returns normal at that point. If
+     * point doesn't belong to terrain -- it returns default
+     * <code>Vector.Y<code> normal.
+     *
+     * @param worldX
+     *            the x coord in world
+     * @param worldZ
+     *            the z coord in world
+     * @return normal at that point. If point doesn't belong to terrain -- it
+     *         returns default <code>Vector.Y<code> normal.
+     */
+    public Vector3 getNormalAtWordCoordinate(Vector3 out, float worldX, float worldZ) {
+        return terrainAsset.getTerrain().getNormalAtWordCoordinate(out, worldX, worldZ, modelInstance.transform);
+    }
+
+    /**
+     * Determines if the world coordinates are within the terrains X and Z boundaries, does not including height
+     * @param worldX worldX to check
+     * @param worldZ worldZ to check
+     * @return boolean true if within the terrains boundary, else false
+     */
+    public boolean isOnTerrain(float worldX, float worldZ) {
+        return terrainAsset.getTerrain().isOnTerrain(worldX, worldZ, modelInstance.transform);
+    }
 }
