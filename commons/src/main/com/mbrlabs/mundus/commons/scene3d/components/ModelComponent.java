@@ -82,6 +82,13 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
         setDimensions(modelInstance);
     }
 
+    public void setModel(final ModelInstance modelInstance) {
+        this.modelInstance = modelInstance;
+        modelInstance.transform = gameObject.getTransform();
+
+        setDimensions(this.modelInstance);
+    }
+
     public ObjectMap<String, MaterialAsset> getMaterials() {
         return materials;
     }
