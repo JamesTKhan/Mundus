@@ -27,6 +27,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
@@ -37,7 +38,6 @@ import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.history.commands.TerrainHeightCommand;
 import com.mbrlabs.mundus.editor.history.commands.TerrainPaintCommand;
 import com.mbrlabs.mundus.editor.shader.EditorTerrainUberShader;
-import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.tools.Tool;
 import com.mbrlabs.mundus.editor.ui.UI;
 
@@ -116,6 +116,7 @@ public abstract class TerrainBrush extends Tool {
     protected float radius = 25f;
     protected BrushMode mode;
     protected TerrainAsset terrainAsset;
+    protected TerrainComponent terrainComponent;
     private BrushAction action;
 
     private boolean mouseMoved = false;
@@ -146,7 +147,7 @@ public abstract class TerrainBrush extends Tool {
         // sample height
         if (action == BrushAction.SECONDARY && mode == BrushMode.FLATTEN) {
             // brushPos is in world coords, convert to terrains local height by negating world height
-            heightSample = brushPos.y - terrainAsset.getTerrain().getPosition(tVec0).y;
+            heightSample = brushPos.y - getTerrainPosition(tVec0).y;
             UI.INSTANCE.getToaster().success("Height Sampled: " + heightSample);
             action = null;
             return;
@@ -173,7 +174,7 @@ public abstract class TerrainBrush extends Tool {
         SplatMap sm = terrain.getTerrainTexture().getSplatmap();
         if (sm == null) return;
 
-        Vector3 terrainPos = terrain.getPosition(tVec1);
+        Vector3 terrainPos = getTerrainPosition(tVec1);
         final float splatX = ((brushPos.x - terrainPos.x) / (float) terrain.terrainWidth) * sm.getWidth();
         final float splatY = ((brushPos.z - terrainPos.z) / (float) terrain.terrainDepth) * sm.getHeight();
         final float splatRad = (radius / terrain.terrainWidth) * sm.getWidth();
@@ -201,7 +202,7 @@ public abstract class TerrainBrush extends Tool {
      */
     private void smooth() {
         Terrain terrain = terrainAsset.getTerrain();
-        final Vector3 terPos = terrain.getPosition(tVec1);
+        final Vector3 terPos = getTerrainPosition(tVec1);
 
         int weights = 0;
         float totalHeights = 0;
@@ -256,7 +257,7 @@ public abstract class TerrainBrush extends Tool {
 
     private void flatten() {
         Terrain terrain = terrainAsset.getTerrain();
-        final Vector3 terPos = terrain.getPosition(tVec1);
+        final Vector3 terPos = getTerrainPosition(tVec1);
         for (int x = 0; x < terrain.vertexResolution; x++) {
             for (int z = 0; z < terrain.vertexResolution; z++) {
                 final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
@@ -298,7 +299,7 @@ public abstract class TerrainBrush extends Tool {
 
     private void raiseLower(BrushAction action) {
         Terrain terrain = terrainAsset.getTerrain();
-        final Vector3 terPos = terrain.getPosition(tVec1);
+        final Vector3 terPos = getTerrainPosition(tVec1);
         float dir = (action == BrushAction.PRIMARY) ? 1 : -1;
         for (int x = 0; x < terrain.vertexResolution; x++) {
             for (int z = 0; z < terrain.vertexResolution; z++) {
@@ -398,8 +399,9 @@ public abstract class TerrainBrush extends Tool {
         return terrainAsset;
     }
 
-    public void setTerrainAsset(TerrainAsset terrainAsset) {
-        this.terrainAsset = terrainAsset;
+    public void setTerrainComponent(TerrainComponent terrainComponent) {
+        this.terrainAsset = terrainComponent.getTerrainAsset();
+        this.terrainComponent = terrainComponent;
     }
 
     public boolean supportsMode(BrushMode mode) {
@@ -412,6 +414,11 @@ public abstract class TerrainBrush extends Tool {
         }
 
         return false;
+    }
+
+    private Vector3 getTerrainPosition(Vector3 vector3) {
+        terrainComponent.getModelInstance().transform.getTranslation(vector3);
+        return vector3;
     }
 
     @Override
@@ -490,7 +497,7 @@ public abstract class TerrainBrush extends Tool {
     public boolean mouseMoved(int screenX, int screenY) {
         if (terrainAsset != null) {
             Ray ray = getProjectManager().current().currScene.viewport.getPickRay(screenX, screenY);
-            terrainAsset.getTerrain().getRayIntersection(brushPos, ray);
+            terrainAsset.getTerrain().getRayIntersection(brushPos, ray, terrainComponent.getModelInstance().transform);
         }
 
         mouseMoved = true;

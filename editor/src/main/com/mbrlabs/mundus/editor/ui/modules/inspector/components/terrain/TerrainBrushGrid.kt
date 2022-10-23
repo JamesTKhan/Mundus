@@ -67,7 +67,7 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget) : VisTable(),
         strengthSlider.value = TerrainBrush.getStrength()
         settingsTable.add(strengthSlider).expandX().fillX().row()
         strengthSlider.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
+            override fun changed(event: ChangeEvent, actor: Actor) {
                 TerrainBrush.setStrength(strengthSlider.value)
             }
         })
@@ -84,7 +84,7 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget) : VisTable(),
         try {
             brush.mode = brushMode
             toolManager.activateTool(brush)
-            brush.terrainAsset = parent.component.terrain
+            brush.setTerrainComponent(parent.component)
         } catch (e: TerrainBrush.ModeNotSupportedException) {
             e.printStackTrace()
             Dialogs.showErrorDialog(UI, e.message)

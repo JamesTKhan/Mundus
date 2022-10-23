@@ -16,47 +16,85 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.inspector.assets
 
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.TerrainAsset
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.utils.ModelUtils
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.Mundus.postEvent
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
+import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent
 import com.mbrlabs.mundus.editor.ui.modules.inspector.BaseInspectorWidget
 
 /**
  * @author Marcus Brummer
  * @version 15-10-2016
  */
-class TerrainAssetInspectorWidget : BaseInspectorWidget(TerrainAssetInspectorWidget.TITLE) {
+class TerrainAssetInspectorWidget : BaseInspectorWidget(TITLE) {
 
     companion object {
         private val TITLE = "Terrain Asset"
     }
 
+    private val projectManager: ProjectManager = Mundus.inject()
+
     private val name = VisLabel()
-    private var terrain: TerrainAsset? = null
+    private var terrainAsset: TerrainAsset? = null
     private val vertexCount = VisLabel()
     private val indexCount = VisLabel()
     private val splatMapSize = VisLabel()
+
+    // actions
+    private val terrainPlacement = VisTextButton("Add Terrain to Scene")
 
     init {
         collapsibleContent.add(name).growX().row()
         collapsibleContent.add(vertexCount).growX().row()
         collapsibleContent.add(indexCount).growX().row()
         collapsibleContent.add(splatMapSize).growX().row()
+
+        // actions
+        collapsibleContent.add(VisLabel("Actions")).growX().row()
+        collapsibleContent.addSeparator().padBottom(5f).row()
+        collapsibleContent.add(terrainPlacement).growX().padBottom(15f).row()
+
+        // model placement action
+        terrainPlacement.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                if (terrainAsset == null) return
+
+                val id = projectManager.current().obtainID()
+                val modelGo = GameObject(projectManager.current().currScene.sceneGraph, terrainAsset!!.name, id)
+
+                projectManager.current().currScene.sceneGraph.addGameObject(modelGo)
+
+                val newComponent = PickableTerrainComponent(modelGo, null)
+                newComponent.terrainAsset = terrainAsset
+                newComponent.encodeRaypickColorId()
+
+                modelGo.addComponent(newComponent)
+
+                postEvent(SceneGraphChangedEvent())
+            }
+        })
     }
 
     fun setTerrainAsset(asset: TerrainAsset) {
-        this.terrain = asset
+        this.terrainAsset = asset
         updateUI()
     }
 
     private fun updateUI() {
-        val model = terrain!!.terrain.modelInstance.model
+        val model = terrainAsset!!.terrain.model
 
-        name.setText("Name: " + terrain!!.name)
+        name.setText("Name: " + terrainAsset!!.name)
         vertexCount.setText("Vertices: " + ModelUtils.getVerticesCount(model))
         indexCount.setText("Indices: " + ModelUtils.getIndicesCount(model))
-        splatMapSize.setText("SplatMap Resolution: " + terrain!!.meta.terrain.splatMapResolution)
+        splatMapSize.setText("SplatMap Resolution: " + terrainAsset!!.meta.terrain.splatMapResolution)
     }
 
     override fun onDelete() {

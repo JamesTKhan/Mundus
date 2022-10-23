@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -24,7 +25,6 @@ import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.shaders.ClippableShader;
-import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
 import com.mbrlabs.mundus.commons.shaders.TerrainUberShader;
 
 import java.util.Objects;
@@ -37,7 +37,8 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
 
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
-    protected TerrainAsset terrain;
+    protected ModelInstance modelInstance;
+    protected TerrainAsset terrainAsset;
     protected Shader shader;
 
     public TerrainComponent(GameObject go, Shader shader) {
@@ -47,16 +48,18 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
     }
 
     public void updateUVs(Vector2 uvScale) {
-        terrain.updateUvScale(uvScale);
+        terrainAsset.updateUvScale(uvScale);
     }
 
-    public void setTerrain(TerrainAsset terrain) {
-        this.terrain = terrain;
-        setDimensions(terrain.getTerrain().modelInstance);
+    public void setTerrainAsset(TerrainAsset terrainAsset) {
+        this.terrainAsset = terrainAsset;
+        modelInstance = new ModelInstance(terrainAsset.getTerrain().getModel());
+        modelInstance.transform = gameObject.getTransform();
+        setDimensions(modelInstance);
     }
 
-    public TerrainAsset getTerrain() {
-        return terrain;
+    public TerrainAsset getTerrainAsset() {
+        return terrainAsset;
     }
 
     public Shader getShader() {
@@ -71,7 +74,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
     public void render(float delta) {
         super.render(delta);
         if (isCulled) return;
-        gameObject.sceneGraph.scene.batch.render(terrain.getTerrain(), gameObject.sceneGraph.scene.environment);
+        gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment);
     }
 
     @Override
@@ -90,7 +93,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
             ((ClippableShader) shader).setClippingHeight(clipHeight);
         }
 
-        gameObject.sceneGraph.scene.depthBatch.render(terrain.getTerrain(), gameObject.sceneGraph.scene.environment, shader);
+        gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
     }
 
     @Override
@@ -100,9 +103,13 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
 
     @Override
     public boolean usesAsset(Asset assetToCheck) {
-        if (Objects.equals(terrain.getID(), assetToCheck.getID()))
+        if (Objects.equals(terrainAsset.getID(), assetToCheck.getID()))
             return true;
 
-        return terrain.usesAsset(assetToCheck);
+        return terrainAsset.usesAsset(assetToCheck);
+    }
+
+    public ModelInstance getModelInstance() {
+        return modelInstance;
     }
 }
