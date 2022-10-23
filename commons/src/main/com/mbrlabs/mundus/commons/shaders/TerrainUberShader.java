@@ -234,6 +234,10 @@ public class TerrainUberShader extends LightShader {
         if (textureAttribute.terrainTexture.hasNormalTextures()) {
             prefix += "#define normalTextureFlag\n";
 
+            if (textureAttribute.terrainTexture.hasNormalChannel(SplatTexture.Channel.BASE)) {
+                prefix += "#define baseNormalFlag\n";
+            }
+
             if (textureAttribute.terrainTexture.hasNormalChannel(SplatTexture.Channel.R)) {
                 prefix += "#define splatRNormalFlag\n";
             }

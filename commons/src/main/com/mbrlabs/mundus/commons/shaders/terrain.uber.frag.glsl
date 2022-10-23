@@ -36,6 +36,10 @@ const MED vec4 COLOR_BRUSH = vec4(0.4,0.4,0.4, 0.4);
 // splat textures
 uniform sampler2D u_baseTexture;
 
+#ifdef baseNormalFlag
+uniform sampler2D u_texture_base_normal;
+#endif
+
 #ifdef splatFlag
     varying vec2 v_splatPosition;
     uniform sampler2D u_texture_splat;
@@ -53,11 +57,16 @@ uniform sampler2D u_baseTexture;
     uniform sampler2D u_texture_a;
     #endif
 
-    #ifdef normalTextureFlag
-    uniform sampler2D u_texture_base_normal;
+    #ifdef splatRNormalFlag
     uniform sampler2D u_texture_r_normal;
+    #endif
+    #ifdef splatGNormalFlag
     uniform sampler2D u_texture_g_normal;
+    #endif
+    #ifdef splatBNormalFlag
     uniform sampler2D u_texture_b_normal;
+    #endif
+    #ifdef splatANormalFlag
     uniform sampler2D u_texture_a_normal;
     #endif
 
@@ -89,7 +98,8 @@ void main(void) {
     vec3 normal;
 
     gl_FragColor = texture2D(u_baseTexture, v_texCoord0);
-    #ifdef normalTextureFlag
+
+    #ifdef baseNormalFlag
         normal = texture2D(u_texture_base_normal, v_texCoord0).rgb;
     #endif
 
