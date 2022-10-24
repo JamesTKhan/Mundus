@@ -18,11 +18,14 @@ package com.mbrlabs.mundus.commons.scene3d;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
+import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 
 /**
@@ -98,6 +101,56 @@ public class SceneGraph {
         if (waterComponent != null) {
             containsWater = true;
         }
+    }
+
+    /**
+     * Adds a model to the scene graph to the given position.
+     *
+     * @param model The model.
+     * @param position The position.
+     * @return The game object of added model.
+     */
+    public GameObject addGameObject(final Model model, final Vector3 position) {
+        return addGameObject(new ModelInstance(model), position);
+    }
+
+    /**
+     * Adds a model instance to the scene graph to the given position.
+     *
+     * @param modelInstance The model instance.
+     * @param position The position.
+     * @return The game object of added model instance.
+     */
+    public GameObject addGameObject(final ModelInstance modelInstance, final Vector3 position) {
+        final GameObject go = new GameObject(this, "", getNextId());
+
+        go.translate(position);
+
+        ModelComponent modelComponent = new ModelComponent(go);
+        modelComponent.setModel(modelInstance);
+
+        try {
+            go.addComponent(modelComponent);
+        } catch (final InvalidComponentException ex) {
+            // Because we created a new game object which has not any component
+            // this exception won't throw
+        }
+
+        root.addChild(go);
+
+        return go;
+    }
+
+    private int getNextId() {
+        int maxId = 0;
+
+        for (final GameObject go : root.getChildren()) {
+            if (go.id > maxId) {
+                maxId = go.id;
+            }
+        }
+
+        return maxId + 1;
     }
 
     public GameObject getRoot() {
