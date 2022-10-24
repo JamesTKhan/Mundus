@@ -3,6 +3,7 @@
 - Water Shader Enhancements (visible depth, toggle reflection/refraction)
 - Skybox rendering performance tweak
 - Added scene delete button
+- Terrain Assets can now be reused in the same scene and other scenes
 
 [0.4.1]
 - Fix incorrect bone counts causing 1024 shader register error
