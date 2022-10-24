@@ -41,7 +41,7 @@ import net.mgsx.gltf.loaders.shared.geometry.MeshTangentSpaceGenerator;
  */
 public class Terrain implements Disposable {
 
-    public static final int DEFAULT_SIZE = 1600;
+    public static final int DEFAULT_SIZE = 1200;
     public static final int DEFAULT_VERTEX_RESOLUTION = 180;
     public static final int DEFAULT_UV_SCALE = 60;
 
