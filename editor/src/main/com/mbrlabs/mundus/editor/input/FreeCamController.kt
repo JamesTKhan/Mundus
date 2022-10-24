@@ -47,6 +47,8 @@ class FreeCamController : InputAdapter() {
     private var zoomAmount = SPEED_01
     private var degreesPerPixel = 0.5f
     private val tmp = Vector3()
+    private val tmp2 = Vector3()
+    private val tmp3 = Vector3()
     private var pan = true
 
     fun setCamera(camera: Camera) {
@@ -95,7 +97,16 @@ class FreeCamController : InputAdapter() {
 
                 camera!!.direction.rotate(camera!!.up, deltaX)
                 tmp.set(camera!!.direction).crs(camera!!.up).nor()
-                camera!!.direction.rotate(tmp, deltaY)
+
+                // Resolves Gimbal Lock : https://github.com/libgdx/libgdx/issues/4023
+                val oldPitchAxis = tmp.set(camera!!.direction).crs(camera!!.up).nor()
+                val newDirection: Vector3 = tmp2.set(camera!!.direction).rotate(tmp, deltaY)
+                val newPitchAxis: Vector3 = tmp3.set(tmp2).crs(camera!!.up)
+
+                if (!newPitchAxis.hasOppositeDirection(oldPitchAxis)) {
+                    camera!!.direction.set(newDirection)
+                }
+
             } else {
                 tmp.set(camera!!.direction).crs(camera!!.up).nor().scl(deltaX / velocity)
                 camera!!.position.add(tmp)
