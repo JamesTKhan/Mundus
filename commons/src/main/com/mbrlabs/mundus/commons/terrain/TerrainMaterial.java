@@ -29,13 +29,13 @@ import java.util.Map;
  * @author Marcus Brummer
  * @version 28-01-2016
  */
-public class TerrainTexture extends TerrainAttributes {
+public class TerrainMaterial extends TerrainAttributes {
     private final Map<SplatTexture.Channel, SplatTexture> textures;
     private final Map<SplatTexture.Channel, SplatTexture> normalTextures;
     private SplatMap splatmap;
     private Terrain terrain;
 
-    public TerrainTexture() {
+    public TerrainMaterial() {
         textures = new HashMap<>(5, 1);
         normalTextures = new HashMap<>(5, 1);
     }
