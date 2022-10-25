@@ -298,6 +298,10 @@ vec3 getNormal()
 }
 #endif
 
+#ifdef ENV_ROTATION
+uniform mat3 u_envRotation;
+#endif
+
 // Calculation of the lighting contribution from an optional Image Based Light source.
 // Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
 // See our README.md on Environment Maps [3] for additional discussion.
@@ -306,18 +310,29 @@ vec3 getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 reflection)
 {
     // retrieve a scale and bias to F0. See [1], Figure 3
 #ifdef brdfLUTTexture
-	vec2 brdf = SRGBtoLINEAR(texture2D(u_brdfLUT, vec2(pbrSurface.NdotV, 1.0 - pbrSurface.perceptualRoughness))).xy;
+	vec2 brdf = texture2D(u_brdfLUT, vec2(pbrSurface.NdotV, 1.0 - pbrSurface.perceptualRoughness)).xy;
 #else // TODO not sure about how to compute it ...
 	vec2 brdf = vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness);
 #endif
-    
-    vec3 diffuseLight = SRGBtoLINEAR(textureCube(u_DiffuseEnvSampler, n)).rgb;
+
+#ifdef ENV_ROTATION
+	vec3 diffuseDirection = u_envRotation * n;
+#else
+	vec3 diffuseDirection = n;
+#endif
+    vec3 diffuseLight = SRGBtoLINEAR(textureCube(u_DiffuseEnvSampler, diffuseDirection)).rgb;
+
+#ifdef ENV_ROTATION
+	vec3 specularDirection = u_envRotation * reflection;
+#else
+	vec3 specularDirection = reflection;
+#endif
 
 #ifdef USE_TEX_LOD
     float lod = (pbrSurface.perceptualRoughness * u_mipmapScale);
-    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, reflection, lod)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, specularDirection, lod)).rgb;
 #else
-    vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, reflection)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, specularDirection)).rgb;
 #endif
 
     vec3 diffuse = diffuseLight * pbrSurface.diffuseColor;
@@ -388,7 +403,7 @@ void main() {
 #ifdef colorFlag
     baseColor *= v_color;
 #endif
-    
+
     vec3 color = baseColor.rgb;
 
     // final frag color
@@ -491,7 +506,7 @@ vec3 getSpotLightContribution(PBRSurfaceInfo pbrSurface, SpotLight light)
 void main() {
     if ( v_clipDistance < 0.0 )
         discard;
-	
+
     // Metallic and Roughness material properties are packed together
     // In glTF, these factors can be specified by fixed scalar values
     // or from a metallic-roughness map
@@ -526,7 +541,7 @@ void main() {
 #ifdef colorFlag
     baseColor *= v_color;
 #endif
-    
+
     vec3 f0 = vec3(0.04);
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
     diffuseColor *= 1.0 - metallic;
@@ -623,14 +638,14 @@ void main() {
     color += emissive;
 #endif
 
-    
+
     // final frag color
 #ifdef GAMMA_CORRECTION
     out_FragColor = vec4(pow(color,vec3(1.0/GAMMA_CORRECTION)), baseColor.a);
 #else
     out_FragColor = vec4(color, baseColor.a);
 #endif
-    
+
 #ifdef fogFlag
 #ifdef fogEquationFlag
     float fog = (eyeDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
