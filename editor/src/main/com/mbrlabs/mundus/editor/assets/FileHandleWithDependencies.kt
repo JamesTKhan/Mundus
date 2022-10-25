@@ -18,12 +18,16 @@ package com.mbrlabs.mundus.editor.assets
 
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.utils.Array
+import com.badlogic.gdx.utils.GdxRuntimeException
 import com.badlogic.gdx.utils.Json
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.editor.Mundus
 import net.mgsx.gltf.data.GLTF
 import net.mgsx.gltf.data.texture.GLTFTextureInfo
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute
+import java.io.UnsupportedEncodingException
+import java.nio.charset.Charset
+
 
 class FileHandleWithDependencies(val file: FileHandle, val dependencies: ArrayList<FileHandle> = ArrayList()) {
     // Holds all the images parsed from the GLTF file,
@@ -66,7 +70,7 @@ class FileHandleWithDependencies(val file: FileHandle, val dependencies: ArrayLi
         }
 
         dto.images?.forEach {
-            val depFile = FileHandle(file.parent().path() + '/' + it.uri)
+            val depFile = FileHandle(file.parent().path() + '/' + decodePath(it.uri))
             if (depFile.exists()) {
                 images.add(depFile)
                 dependencies.add(depFile)
@@ -79,6 +83,38 @@ class FileHandleWithDependencies(val file: FileHandle, val dependencies: ArrayLi
                 dependencies.add(depFile)
             }
         }
+    }
+
+    /**
+     * From gdx-gltf library. https://github.com/mgsx-dev/gdx-gltf/issues/81
+     * Decode URIs that have things like %20 empty spaces.
+     */
+    private fun decodePath(uri: String): String? {
+        val bytes = ByteArray(uri.length)
+        var pos = 0
+        var i = 0
+        while (i < uri.length) {
+            val c = uri[i]
+            if (c == '%') {
+                val code = uri.substring(i + 1, i + 3).toInt(16)
+                bytes[pos++] = code.toByte()
+                i += 2
+            } else {
+                bytes[pos++] = c.code.toByte()
+            }
+            i++
+        }
+        return try {
+            String(bytes, 0, pos, Charset.forName("UTF-8"))
+        } catch (e: UnsupportedEncodingException) {
+            throw GdxRuntimeException(e)
+        }
+        // TODO following code is cleaner but not emulated by libgdx GWT backend.
+//		try {
+//			return URLDecoder.decode(uri, "UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			throw new GdxRuntimeException(e);
+//		}
     }
 
     /**

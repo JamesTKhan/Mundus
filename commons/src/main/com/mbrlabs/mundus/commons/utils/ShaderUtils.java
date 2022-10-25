@@ -115,6 +115,10 @@ public class ShaderUtils {
         config.numPointLights = LightUtils.MAX_POINT_LIGHTS;
         config.numSpotLights = LightUtils.MAX_SPOT_LIGHTS;
         config.numBones = numBones;
+        // Disabled on gdx-gltf 2.1.0 upgrade for now as to not change current visuals, to support gamma correction properly
+        // I believe we would need to also update the other shaders to use gamma correction as well.
+        // or apply in post-process
+        config.manualGammaCorrection = false;
         config.defaultCullFace = GL20.GL_BACK;
         config.vertexShader = Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.vs.glsl").readString();
         config.fragmentShader = Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.fs.glsl").readString();
