@@ -58,8 +58,11 @@ class TerrainAssetInspectorWidget : BaseInspectorWidget(TITLE) {
         collapsibleContent.add(splatMapSize).growX().row()
 
         // actions
-        collapsibleContent.add(VisLabel("Actions")).growX().row()
+        collapsibleContent.add(VisLabel("Actions")).padTop(5f).growX().row()
         collapsibleContent.addSeparator().padBottom(5f).row()
+        val placementLabel = VisLabel("Note: Places Terrain at 0,0,0. Modifying any placed instance of an existing Terrain Asset updates all instances.")
+        placementLabel.wrap = true
+        collapsibleContent.add(placementLabel).padBottom(5f).grow().row()
         collapsibleContent.add(terrainPlacement).growX().padBottom(15f).row()
 
         // model placement action
