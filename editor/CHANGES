@@ -4,6 +4,8 @@
 - Skybox rendering performance tweak
 - Added scene delete button
 - Terrain Assets can now be reused in the same scene and other scenes
+- Update gdx-gltf to 2.1.0
+- Fix import of models with spaces in dependencies name
 
 [0.4.2] ~ 10/24/2022
 - Fix shader compilation error for Terrain when using normal maps
