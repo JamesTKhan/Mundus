@@ -44,12 +44,12 @@ class TerrainSettingsTab(private val parentWidget: TerrainComponentWidget) : Tab
         table.add(VisLabel("Settings")).row()
 
         table.add(VisLabel("UV scale")).left().row()
-        uvSlider.value = parentWidget.component.terrain.terrain.uvScale.x
+        uvSlider.value = parentWidget.component.terrainAsset.terrain.uvScale.x
         table.add(uvSlider).expandX().fillX().row()
         uvSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 val assetManager = projectManager.current().assetManager
-                assetManager.addModifiedAsset(parentWidget.component.terrain)
+                assetManager.addModifiedAsset(parentWidget.component.terrainAsset)
                 parentWidget.component.updateUVs(Vector2(uvSlider.value, uvSlider.value))
             }
         })

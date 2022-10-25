@@ -99,7 +99,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
     private fun addTexture(textureAsset: TextureAsset) {
         val assetManager = projectManager.current().assetManager
 
-        val terrainAsset = this@TerrainPaintTab.parentWidget.component.terrain
+        val terrainAsset = this@TerrainPaintTab.parentWidget.component.terrainAsset
         val terrainTexture = terrainAsset.terrain.terrainTexture
 
         assetManager.addModifiedAsset(terrainAsset)
@@ -178,7 +178,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
 
     private fun setTexturesInUiGrid() {
         textureGrid.removeTextures()
-        val terrainTexture = parentWidget.component.terrain.terrain.terrainTexture
+        val terrainTexture = parentWidget.component.terrainAsset.terrain.terrainTexture
         if (terrainTexture.getTexture(SplatTexture.Channel.BASE) != null) {
             textureGrid.addTexture(terrainTexture.getTexture(SplatTexture.Channel.BASE))
         }
@@ -224,7 +224,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
             removeTexture.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     if (channel != null) {
-                        val terrain = parentWidget.component.terrain
+                        val terrain = parentWidget.component.terrainAsset
                         if (channel == SplatTexture.Channel.R) {
                             terrain.splatR = null
                             terrain.splatRNormal = null
@@ -256,7 +256,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
                         UI.assetSelectionDialog.show(false, AssetTextureFilter(), object: AssetPickerDialog.AssetPickerListener {
                             override fun onSelected(asset: Asset?) {
                                 if (channel != null) {
-                                    val terrain = parentWidget.component.terrain
+                                    val terrain = parentWidget.component.terrainAsset
                                     if (channel == SplatTexture.Channel.BASE) {
                                         terrain.splatBase = asset as TextureAsset
                                     } else if (channel == SplatTexture.Channel.R) {
@@ -286,7 +286,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
                         UI.assetSelectionDialog.show(false, AssetTextureFilter(), object: AssetPickerDialog.AssetPickerListener {
                             override fun onSelected(asset: Asset?) {
                                 if (channel != null) {
-                                    val terrain = parentWidget.component.terrain
+                                    val terrain = parentWidget.component.terrainAsset
                                     if (channel == SplatTexture.Channel.BASE) {
                                         terrain.splatBaseNormal = asset as TextureAsset
                                     } else if (channel == SplatTexture.Channel.R) {
@@ -312,7 +312,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
             removeNormalMap.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     if (channel != null) {
-                        val terrain = parentWidget.component.terrain
+                        val terrain = parentWidget.component.terrainAsset
                         if (channel == SplatTexture.Channel.BASE) {
                             terrain.splatBaseNormal = null
                         }
@@ -346,7 +346,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
         private fun updateMenuVisibility() {
             // Show/Hide remove normal map button conditionally
             var normalMapRemoveVisible = false
-            val terrain = parentWidget.component.terrain
+            val terrain = parentWidget.component.terrainAsset
             if (channel == SplatTexture.Channel.BASE && terrain.splatBaseNormal != null) {
                 normalMapRemoveVisible = true
             } else if (channel == SplatTexture.Channel.R && terrain.splatRNormal != null) {

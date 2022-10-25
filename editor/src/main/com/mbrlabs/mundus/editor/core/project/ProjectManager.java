@@ -475,7 +475,7 @@ public class ProjectManager implements Disposable {
         }
         for (Component c : terrainComponents) {
             if (c instanceof TerrainComponent) {
-                scene.terrains.add(((TerrainComponent) c).getTerrain());
+                scene.terrains.add(((TerrainComponent) c));
             }
         }
 
@@ -566,8 +566,6 @@ public class ProjectManager implements Disposable {
                 } else {
                     Log.fatal(TAG, "model for modelInstance not found: {}", modelComponent.getModelAsset().getID());
                 }
-            } else if (c.getType() == Component.Type.TERRAIN) {
-                ((TerrainComponent) c).getTerrain().getTerrain().setTransform(go.getTransform());
             } else if (c.getType() == Component.Type.WATER) {
                 ((WaterComponent) c).getWaterAsset().water.setTransform(go.getTransform());
             }

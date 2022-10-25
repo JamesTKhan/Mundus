@@ -104,8 +104,6 @@ public class SceneLoader {
                 } else {
                     Gdx.app.error(TAG, "Could not find model for instance: " + modelComponent.getModelAsset().getID());
                 }
-            } else if (c.getType() == Component.Type.TERRAIN) {
-                ((TerrainComponent) c).getTerrain().getTerrain().setTransform(go.getTransform());
             } else if (c.getType() == Component.Type.WATER) {
                 ((WaterComponent) c).getWaterAsset().water.setTransform(go.getTransform());
             }
