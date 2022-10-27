@@ -14,6 +14,7 @@ import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
+import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.createWaterGO
@@ -33,6 +34,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
     private val outline: Outline
     private val projectManager: ProjectManager = Mundus.inject()
     private val kryoManager: KryoManager = Mundus.inject()
+    private val toolManager: ToolManager = Mundus.inject()
 
     init {
         this.outline = outline
@@ -80,6 +82,9 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 if (selectedGO != null) {
                     outline.removeGo(selectedGO!!)
+                    if (toolManager.isSelected(selectedGO)) {
+                        toolManager.activeTool.onDisabled()
+                    }
                 }
             }
         })

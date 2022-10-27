@@ -115,6 +115,10 @@ public class ToolManager extends InputAdapter implements Disposable {
         return activeTool;
     }
 
+    public boolean isSelected(final GameObject go) {
+        return go.equals(getSelectedObject());
+    }
+
     @Override
     public boolean keyUp(int keycode) {
         if (keycode == KEY_DEACTIVATE) {
