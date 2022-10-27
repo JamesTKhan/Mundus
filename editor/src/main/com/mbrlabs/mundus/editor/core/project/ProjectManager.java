@@ -525,6 +525,31 @@ public class ProjectManager implements Disposable {
     }
 
     /**
+     * Renames scene.
+     *
+     * @param project The project context
+     * @param oldSceneName The old name of scene
+     * @param newSceneName The new name of scene
+     */
+    public void renameScene(final ProjectContext project, final String oldSceneName, final String newSceneName) {
+        // Rename scene name in scene list
+        for(int i = 0; i < project.scenes.size; ++i) {
+            if (project.scenes.get(i).equals(oldSceneName)) {
+                project.scenes.removeIndex(i);
+                project.scenes.insert(i, newSceneName);
+            }
+        }
+
+        // If it is the current scene then rename it in project context too
+        if (project.currScene.getName().equals(oldSceneName)) {
+            project.currScene.setName(newSceneName);
+        }
+
+        // Rename scene file on filesystem
+        SceneManager.renameScene(project, oldSceneName, newSceneName);
+    }
+
+    /**
      * Deletes scene
      *
      * @param project The project context
