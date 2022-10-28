@@ -21,7 +21,6 @@ import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.dto.TerrainComponentDTO;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
-import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.utils.Log;
 
 import java.util.Map;
@@ -46,9 +45,8 @@ public class TerrainComponentConverter {
             return null;
         }
 
-        terrain.getTerrain().transform = go.getTransform();
         PickableTerrainComponent terrainComponent = new PickableTerrainComponent(go, null);
-        terrainComponent.setTerrain(terrain);
+        terrainComponent.setTerrainAsset(terrain);
 
         return terrainComponent;
     }
@@ -58,7 +56,7 @@ public class TerrainComponentConverter {
      */
     public static TerrainComponentDTO convert(PickableTerrainComponent terrainComponent) {
         TerrainComponentDTO descriptor = new TerrainComponentDTO();
-        descriptor.setTerrainID(terrainComponent.getTerrain().getID());
+        descriptor.setTerrainID(terrainComponent.getTerrainAsset().getID());
 
         return descriptor;
     }

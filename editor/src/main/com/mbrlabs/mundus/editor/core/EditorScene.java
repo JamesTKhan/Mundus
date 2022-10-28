@@ -20,8 +20,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mbrlabs.mundus.commons.Scene;
-import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 
 /**
@@ -31,7 +31,7 @@ import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 public class EditorScene extends Scene {
 
     public Viewport viewport;
-    public Array<TerrainAsset> terrains;
+    public Array<TerrainComponent> terrains;
     public GameObject currentSelection;
 
     public EditorScene() {

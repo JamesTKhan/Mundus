@@ -36,12 +36,12 @@ public class PickableTerrainComponent extends TerrainComponent implements Pickab
     @Override
     public void encodeRaypickColorId() {
         PickerIDAttribute goIDa = PickerColorEncoder.encodeRaypickColorId(gameObject);
-        terrain.getTerrain().modelInstance.materials.first().set(goIDa);
+        modelInstance.materials.first().set(goIDa);
     }
 
     @Override
     public void renderPick() {
-        gameObject.sceneGraph.scene.batch.render(terrain.getTerrain(), Shaders.INSTANCE.getPickerShader());
+        gameObject.sceneGraph.scene.batch.render(modelInstance, Shaders.INSTANCE.getPickerShader());
     }
 
 }

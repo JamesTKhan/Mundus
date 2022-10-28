@@ -23,7 +23,7 @@ task run(dependsOn: classes, type: JavaExec) {
 
 task distEditor(type: Jar) {
     archivesBaseName = 'Mundus'
-    archiveVersion.set('0.4.1')
+    archiveVersion.set('0.4.2')
 
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 

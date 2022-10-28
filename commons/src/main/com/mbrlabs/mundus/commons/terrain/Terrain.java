@@ -22,9 +22,6 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
@@ -33,9 +30,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.Pool;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
 import net.mgsx.gltf.loaders.shared.geometry.MeshTangentSpaceGenerator;
@@ -44,9 +39,9 @@ import net.mgsx.gltf.loaders.shared.geometry.MeshTangentSpaceGenerator;
  * @author Marcus Brummer
  * @version 30-11-2015
  */
-public class Terrain implements RenderableProvider, Disposable {
+public class Terrain implements Disposable {
 
-    public static final int DEFAULT_SIZE = 1600;
+    public static final int DEFAULT_SIZE = 1200;
     public static final int DEFAULT_VERTEX_RESOLUTION = 180;
     public static final int DEFAULT_UV_SCALE = 60;
 
@@ -58,7 +53,6 @@ public class Terrain implements RenderableProvider, Disposable {
     private static final Vector3 tmp = new Vector3();
     private static final Vector2 tmpV2 = new Vector2();
 
-    public Matrix4 transform;
     public float[] heightData;
     public int terrainWidth = 1200;
     public int terrainDepth = 1200;
@@ -79,11 +73,9 @@ public class Terrain implements RenderableProvider, Disposable {
 
     // Mesh
     private Model model;
-    public ModelInstance modelInstance;
     private Mesh mesh;
 
     private Terrain(int vertexResolution) {
-        this.transform = new Matrix4();
         this.attribs = new VertexAttributes(
                 VertexAttribute.Position(),
                 VertexAttribute.Normal(),
@@ -114,11 +106,6 @@ public class Terrain implements RenderableProvider, Disposable {
         this.heightData = heightData;
     }
 
-    public void setTransform(Matrix4 transform) {
-        this.transform = transform;
-        modelInstance.transform = this.transform;
-    }
-
     public void init() {
         final int numVertices = this.vertexResolution * vertexResolution;
         final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
@@ -135,8 +122,6 @@ public class Terrain implements RenderableProvider, Disposable {
         mb.begin();
         mb.part(meshPart, material);
         model = mb.end();
-        modelInstance = new ModelInstance(model);
-        modelInstance.transform = transform;
     }
 
     public Vector3 getVertexPosition(Vector3 out, int x, int z) {
@@ -147,8 +132,16 @@ public class Terrain implements RenderableProvider, Disposable {
         return out;
     }
 
-    public float getHeightAtWorldCoord(float worldX, float worldZ) {
-        transform.getTranslation(c00);
+    /**
+     * Returns the terrain height at the given world coordinates, in world coordinates.
+     *
+     * @param worldX X world position to get height
+     * @param worldZ Z world position to get height
+     * @param terrainTransform The world transform (modelInstance transform) of the terrain
+     * @return
+     */
+    public float getHeightAtWorldCoord(float worldX, float worldZ, Matrix4 terrainTransform) {
+        terrainTransform.getTranslation(c00);
         float terrainX = worldX - c00.x;
         float terrainZ = worldZ - c00.z;
 
@@ -176,19 +169,27 @@ public class Terrain implements RenderableProvider, Disposable {
         return MathUtils.barryCentric(c10, c11, c01, tmpV2.set(zCoord, xCoord));
     }
 
-    public Vector3 getRayIntersection(Vector3 out, Ray ray) {
+    /**
+     * Casts the given ray to determine where it intersects on the terrain.
+     *
+     * @param out Vector3 to populate with intersect point with
+     * @param ray the ray to cast
+     * @param terrainTransform The world transform (modelInstance transform) of the terrain
+     * @return
+     */
+    public Vector3 getRayIntersection(Vector3 out, Ray ray, Matrix4 terrainTransform) {
         // TODO improve performance. use binary search
         float curDistance = 2;
         int rounds = 0;
 
         ray.getEndPoint(out, curDistance);
-        boolean isUnder = isUnderTerrain(out);
+        boolean isUnder = isUnderTerrain(out, terrainTransform);
 
         while (true) {
             rounds++;
             ray.getEndPoint(out, curDistance);
 
-            boolean u = isUnderTerrain(out);
+            boolean u = isUnderTerrain(out, terrainTransform);
             if (u != isUnder || rounds == 20000) {
                 return out;
             }
@@ -199,10 +200,6 @@ public class Terrain implements RenderableProvider, Disposable {
 
     public Material getMaterial() {
         return material;
-    }
-
-    public ModelInstance getModelInstance() {
-        return modelInstance;
     }
 
     private short[] buildIndices() {
@@ -293,11 +290,13 @@ public class Terrain implements RenderableProvider, Disposable {
      *            the x coord in world
      * @param worldZ
      *            the z coord in world
+     * @param terrainTransform
+     *             The world transform (modelInstance transform) of the terrain
      * @return normal at that point. If point doesn't belong to terrain -- it
      *         returns default <code>Vector.Y<code> normal.
      */
-    public Vector3 getNormalAtWordCoordinate(Vector3 out, float worldX, float worldZ) {
-        transform.getTranslation(c00);
+    public Vector3 getNormalAtWordCoordinate(Vector3 out, float worldX, float worldZ, Matrix4 terrainTransform) {
+        terrainTransform.getTranslation(c00);
         float terrainX = worldX - c00.x;
         float terrainZ = worldZ - c00.z;
 
@@ -341,20 +340,28 @@ public class Terrain implements RenderableProvider, Disposable {
         return out;
     }
 
-    public boolean isUnderTerrain(Vector3 worldCoords) {
+    /**
+     * Checks if given world coordinates are above or below the terrain
+     * @param worldCoords the world coordinates to check
+     * @param terrainTransform the world transform (modelInstance transform) of the terrain
+     * @return boolean true if under the terrain, else false
+     */
+    public boolean isUnderTerrain(Vector3 worldCoords, Matrix4 terrainTransform) {
         // Factor in world height position as well via getPosition.
-        float terrainHeight = getHeightAtWorldCoord(worldCoords.x, worldCoords.z) + getPosition(tmp).y;
+        float terrainHeight = getHeightAtWorldCoord(worldCoords.x, worldCoords.z, terrainTransform) + terrainTransform.getTranslation(tmp).y;
         return terrainHeight > worldCoords.y;
     }
 
-    public boolean isOnTerrain(float worldX, float worldZ) {
-        transform.getTranslation(c00);
+    /**
+     * Determines if the world coordinates are within the terrains X and Z boundaries, does not including height
+     * @param worldX worldX to check
+     * @param worldZ worldZ to check
+     * @param terrainTransform the world transform (modelInstance transform) of the terrain
+     * @return boolean true if within the terrains boundary, else false
+     */
+    public boolean isOnTerrain(float worldX, float worldZ, Matrix4 terrainTransform) {
+        terrainTransform.getTranslation(c00);
         return worldX >= c00.x && worldX <= c00.x + terrainWidth && worldZ >= c00.z && worldZ <= c00.z + terrainDepth;
-    }
-
-    public Vector3 getPosition(Vector3 out) {
-        transform.getTranslation(out);
-        return out;
     }
 
     public TerrainMaterial getTerrainTexture() {
@@ -389,9 +396,8 @@ public class Terrain implements RenderableProvider, Disposable {
         mesh.setVertices(vertices);
     }
 
-    @Override
-    public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
-        modelInstance.getRenderables(renderables, pool);
+    public Model getModel() {
+        return model;
     }
 
     @Override

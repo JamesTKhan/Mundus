@@ -25,14 +25,16 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.assets.TerrainAsset
+import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.SplatMapResolution
+import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
-import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FloatFieldWithLabel
 import com.mbrlabs.mundus.editor.ui.widgets.IntegerFieldWithLabel
@@ -72,8 +74,8 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
     }
 
     private fun setDefaults() {
-        vertexResolution.text = "180"
-        terrainWidth.text = "1200"
+        vertexResolution.text = Terrain.DEFAULT_VERTEX_RESOLUTION.toString()
+        terrainWidth.text = Terrain.DEFAULT_SIZE.toString()
         positionX.text = "0"
         positionY.text = "0"
         positionZ.text = "0"
@@ -175,7 +177,8 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                 sceneGraph.addGameObject(terrainGO)
                 terrainGO.setLocalPosition(posX, posY, posZ)
 
-                context.currScene.terrains.add(asset)
+                val terrainComponent = terrainGO.findComponentByType(Component.Type.TERRAIN)
+                context.currScene.terrains.add(terrainComponent as TerrainComponent?)
                 projectManager.current().assetManager.addNewAsset(asset)
                 Mundus.postEvent(AssetImportEvent(asset))
                 Mundus.postEvent(SceneGraphChangedEvent())
