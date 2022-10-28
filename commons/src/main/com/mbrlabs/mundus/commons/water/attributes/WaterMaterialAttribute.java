@@ -1,8 +1,6 @@
 package com.mbrlabs.mundus.commons.water.attributes;
 
 import com.badlogic.gdx.graphics.g3d.Attribute;
-import com.mbrlabs.mundus.commons.terrain.TerrainTexture;
-import com.mbrlabs.mundus.commons.terrain.attributes.TerrainTextureAttribute;
 import com.mbrlabs.mundus.commons.water.WaterMaterial;
 
 /**

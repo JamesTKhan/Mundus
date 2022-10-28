@@ -16,7 +16,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
-import com.mbrlabs.mundus.commons.terrain.attributes.TerrainTextureAttribute;
+import com.mbrlabs.mundus.commons.terrain.TerrainMaterial;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 
@@ -60,8 +61,8 @@ public class TerrainUberShader extends LightShader {
         public final static Setter terrainSize = new LocalSetter() {
             @Override
             public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
-                TerrainTextureAttribute textureAttribute = renderable.material.get(TerrainTextureAttribute.class, TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
-                shader.set(inputID, v2.set(textureAttribute.terrainTexture.getTerrain().terrainWidth, textureAttribute.terrainTexture.getTerrain().terrainDepth));
+                TerrainMaterialAttribute terrainMaterialAttribute = (TerrainMaterialAttribute) combinedAttributes.get(TerrainMaterialAttribute.TerrainMaterial);
+                shader.set(inputID, v2.set(terrainMaterialAttribute.terrainMaterial.getTerrain().terrainWidth, terrainMaterialAttribute.terrainMaterial.getTerrain().terrainDepth));
             }
         };
 
@@ -88,8 +89,9 @@ public class TerrainUberShader extends LightShader {
             return new LocalSetter() {
                 @Override
                 public void set(BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
-                    TerrainTextureAttribute textureAttribute = renderable.material.get(TerrainTextureAttribute.class, TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
-                    textureDescription.texture = textureAttribute.terrainTexture.getTexture(channel).getTexture();
+                    TerrainMaterialAttribute terrainMaterialAttribute = (TerrainMaterialAttribute) combinedAttributes.get(TerrainMaterialAttribute.TerrainMaterial);
+                    TerrainMaterial material = terrainMaterialAttribute.terrainMaterial;
+                    textureDescription.texture = material.getTexture(channel).getTexture();
                     final int unit = shader.context.textureBinder
                             .bind(textureDescription);
                     shader.set(inputID, unit);
@@ -101,8 +103,9 @@ public class TerrainUberShader extends LightShader {
             return new LocalSetter() {
                 @Override
                 public void set(BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
-                    TerrainTextureAttribute textureAttribute = renderable.material.get(TerrainTextureAttribute.class, TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
-                    textureDescription.texture = textureAttribute.terrainTexture.getNormalTexture(channel).getTexture();
+                    TerrainMaterialAttribute terrainMaterialAttribute = (TerrainMaterialAttribute) combinedAttributes.get(TerrainMaterialAttribute.TerrainMaterial);
+                    TerrainMaterial material = terrainMaterialAttribute.terrainMaterial;
+                    textureDescription.texture = material.getNormalTexture(channel).getTexture();
                     final int unit = shader.context.textureBinder
                             .bind(textureDescription);
                     shader.set(inputID, unit);
@@ -113,8 +116,10 @@ public class TerrainUberShader extends LightShader {
         public static Setter splatTexture = new LocalSetter() {
                 @Override
                 public void set(BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
-                    TerrainTextureAttribute textureAttribute = renderable.material.get(TerrainTextureAttribute.class, TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
-                    textureDescription.texture = textureAttribute.terrainTexture.getSplatmap().getTexture();
+                    TerrainMaterialAttribute terrainMaterialAttribute = (TerrainMaterialAttribute) combinedAttributes.get(TerrainMaterialAttribute.TerrainMaterial);
+                    TerrainMaterial material = terrainMaterialAttribute.terrainMaterial;
+
+                    textureDescription.texture = material.getSplatmap().getTexture();
                     final int unit = shader.context.textureBinder
                             .bind(textureDescription);
                     shader.set(inputID, unit);
@@ -156,15 +161,15 @@ public class TerrainUberShader extends LightShader {
 
     /** The attributes that this shader supports */
     protected final long attributesMask;
-    protected final long terrainTextureMask;
+    protected final long terrainMaterialMask;
 
     public TerrainUberShader(Renderable renderable, DefaultShader.Config config) {
         this.renderable = renderable;
 
-        TerrainTextureAttribute textureAttribute = renderable.material.get(TerrainTextureAttribute.class, TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
+        TerrainMaterial terrainMaterial = getTerrainMaterial(renderable);
 
         attributesMask = ShaderUtils.combineAttributeMasks(renderable);
-        terrainTextureMask = textureAttribute.terrainTexture.getMask();
+        terrainMaterialMask = terrainMaterial.getMask();
 
         String prefix = createPrefixForRenderable(renderable);
 
@@ -208,49 +213,49 @@ public class TerrainUberShader extends LightShader {
             prefix += "#define fogFlag\n";
         }
 
-        TerrainTextureAttribute textureAttribute = renderable.material.get(TerrainTextureAttribute.class, TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
+        TerrainMaterial terrainMaterial = getTerrainMaterial(renderable);
 
-        if (textureAttribute.terrainTexture.getSplatmap() != null && textureAttribute.terrainTexture.getSplatmap().getTexture() != null) {
+        if (terrainMaterial.getSplatmap() != null && terrainMaterial.getSplatmap().getTexture() != null) {
             prefix += "#define splatFlag\n";
         }
 
-        if (textureAttribute.terrainTexture.hasTextureChannel(SplatTexture.Channel.R)) {
+        if (terrainMaterial.hasTextureChannel(SplatTexture.Channel.R)) {
             prefix += "#define splatRFlag\n";
         }
 
-        if (textureAttribute.terrainTexture.hasTextureChannel(SplatTexture.Channel.G)) {
+        if (terrainMaterial.hasTextureChannel(SplatTexture.Channel.G)) {
             prefix += "#define splatGFlag\n";
         }
 
-        if (textureAttribute.terrainTexture.hasTextureChannel(SplatTexture.Channel.B)) {
+        if (terrainMaterial.hasTextureChannel(SplatTexture.Channel.B)) {
             prefix += "#define splatBFlag\n";
         }
 
-        if (textureAttribute.terrainTexture.hasTextureChannel(SplatTexture.Channel.A)) {
+        if (terrainMaterial.hasTextureChannel(SplatTexture.Channel.A)) {
             prefix += "#define splatAFlag\n";
         }
 
         // Normals
-        if (textureAttribute.terrainTexture.hasNormalTextures()) {
+        if (terrainMaterial.hasNormalTextures()) {
             prefix += "#define normalTextureFlag\n";
 
-            if (textureAttribute.terrainTexture.hasNormalChannel(SplatTexture.Channel.BASE)) {
+            if (terrainMaterial.hasNormalChannel(SplatTexture.Channel.BASE)) {
                 prefix += "#define baseNormalFlag\n";
             }
 
-            if (textureAttribute.terrainTexture.hasNormalChannel(SplatTexture.Channel.R)) {
+            if (terrainMaterial.hasNormalChannel(SplatTexture.Channel.R)) {
                 prefix += "#define splatRNormalFlag\n";
             }
 
-            if (textureAttribute.terrainTexture.hasNormalChannel(SplatTexture.Channel.G)) {
+            if (terrainMaterial.hasNormalChannel(SplatTexture.Channel.G)) {
                 prefix += "#define splatGNormalFlag\n";
             }
 
-            if (textureAttribute.terrainTexture.hasNormalChannel(SplatTexture.Channel.B)) {
+            if (terrainMaterial.hasNormalChannel(SplatTexture.Channel.B)) {
                 prefix += "#define splatBNormalFlag\n";
             }
 
-            if (textureAttribute.terrainTexture.hasNormalChannel(SplatTexture.Channel.A)) {
+            if (terrainMaterial.hasNormalChannel(SplatTexture.Channel.A)) {
                 prefix += "#define splatANormalFlag\n";
             }
         }
@@ -307,8 +312,12 @@ public class TerrainUberShader extends LightShader {
             return false;
         }
 
-        TerrainTextureAttribute terrainTextureAttribute = (TerrainTextureAttribute) instance.material.get(TerrainTextureAttribute.ATTRIBUTE_SPLAT0);
-        return terrainTextureMask == terrainTextureAttribute.terrainTexture.getMask();
+        TerrainMaterial terrainMaterial = getTerrainMaterial(instance);
+        return terrainMaterialMask == terrainMaterial.getMask();
+    }
+
+    private static TerrainMaterial getTerrainMaterial(Renderable renderable) {
+        return renderable.material.get(TerrainMaterialAttribute.class, TerrainMaterialAttribute.TerrainMaterial).terrainMaterial;
     }
 
 }

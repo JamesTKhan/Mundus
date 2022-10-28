@@ -26,7 +26,7 @@ import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader;
-import com.mbrlabs.mundus.commons.terrain.TerrainTexture;
+import com.mbrlabs.mundus.commons.terrain.TerrainMaterial;
 
 import java.util.Map;
 
@@ -308,63 +308,63 @@ public class TerrainAsset extends Asset {
 
     @Override
     public void applyDependencies() {
-        TerrainTexture terrainTexture = terrain.getTerrainTexture();
+        TerrainMaterial terrainMaterial = terrain.getTerrainTexture();
 
         if (splatmap == null) {
-            terrainTexture.setSplatmap(null);
+            terrainMaterial.setSplatmap(null);
         } else {
-            terrainTexture.setSplatmap(new SplatMap(splatmap));
+            terrainMaterial.setSplatmap(new SplatMap(splatmap));
         }
         if (splatBase == null) {
-            terrainTexture.removeTexture(SplatTexture.Channel.BASE);
+            terrainMaterial.removeTexture(SplatTexture.Channel.BASE);
         } else {
-            terrainTexture.setSplatTexture(new SplatTexture(SplatTexture.Channel.BASE, splatBase));
+            terrainMaterial.setSplatTexture(new SplatTexture(SplatTexture.Channel.BASE, splatBase));
         }
         if (splatR == null) {
-            terrainTexture.removeTexture(SplatTexture.Channel.R);
+            terrainMaterial.removeTexture(SplatTexture.Channel.R);
         } else {
-            terrainTexture.setSplatTexture(new SplatTexture(SplatTexture.Channel.R, splatR));
+            terrainMaterial.setSplatTexture(new SplatTexture(SplatTexture.Channel.R, splatR));
         }
         if (splatG == null) {
-            terrainTexture.removeTexture(SplatTexture.Channel.G);
+            terrainMaterial.removeTexture(SplatTexture.Channel.G);
         } else {
-            terrainTexture.setSplatTexture(new SplatTexture(SplatTexture.Channel.G, splatG));
+            terrainMaterial.setSplatTexture(new SplatTexture(SplatTexture.Channel.G, splatG));
         }
         if (splatB == null) {
-            terrainTexture.removeTexture(SplatTexture.Channel.B);
+            terrainMaterial.removeTexture(SplatTexture.Channel.B);
         } else {
-            terrainTexture.setSplatTexture(new SplatTexture(SplatTexture.Channel.B, splatB));
+            terrainMaterial.setSplatTexture(new SplatTexture(SplatTexture.Channel.B, splatB));
         }
         if (splatA == null) {
-            terrainTexture.removeTexture(SplatTexture.Channel.A);
+            terrainMaterial.removeTexture(SplatTexture.Channel.A);
         } else {
-            terrainTexture.setSplatTexture(new SplatTexture(SplatTexture.Channel.A, splatA));
+            terrainMaterial.setSplatTexture(new SplatTexture(SplatTexture.Channel.A, splatA));
         }
 
         if (splatBaseNormal == null) {
-            terrainTexture.removeNormalTexture(SplatTexture.Channel.BASE);
+            terrainMaterial.removeNormalTexture(SplatTexture.Channel.BASE);
         } else {
-            terrainTexture.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.BASE, splatBaseNormal));
+            terrainMaterial.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.BASE, splatBaseNormal));
         }
         if (splatRNormal == null) {
-            terrainTexture.removeNormalTexture(SplatTexture.Channel.R);
+            terrainMaterial.removeNormalTexture(SplatTexture.Channel.R);
         } else {
-            terrainTexture.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.R, splatRNormal));
+            terrainMaterial.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.R, splatRNormal));
         }
         if (splatGNormal == null) {
-            terrainTexture.removeNormalTexture(SplatTexture.Channel.G);
+            terrainMaterial.removeNormalTexture(SplatTexture.Channel.G);
         } else {
-            terrainTexture.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.G, splatGNormal));
+            terrainMaterial.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.G, splatGNormal));
         }
         if (splatBNormal == null) {
-            terrainTexture.removeNormalTexture(SplatTexture.Channel.B);
+            terrainMaterial.removeNormalTexture(SplatTexture.Channel.B);
         } else {
-            terrainTexture.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.B, splatBNormal));
+            terrainMaterial.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.B, splatBNormal));
         }
         if (splatANormal == null) {
-            terrainTexture.removeNormalTexture(SplatTexture.Channel.A);
+            terrainMaterial.removeNormalTexture(SplatTexture.Channel.A);
         } else {
-            terrainTexture.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.A, splatANormal));
+            terrainMaterial.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.A, splatANormal));
         }
 
         terrain.update();

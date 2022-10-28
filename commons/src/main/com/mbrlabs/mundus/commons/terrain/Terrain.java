@@ -31,7 +31,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
-import com.mbrlabs.mundus.commons.terrain.attributes.TerrainTextureAttribute;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
 import net.mgsx.gltf.loaders.shared.geometry.MeshTangentSpaceGenerator;
 
@@ -68,7 +68,7 @@ public class Terrain implements Disposable {
     private final int uvPos;
 
     // Textures
-    private TerrainTexture terrainTexture;
+    private TerrainMaterial terrainMaterial;
     private Material material;
 
     // Mesh
@@ -91,10 +91,12 @@ public class Terrain implements Disposable {
         this.vertexResolution = vertexResolution;
         this.heightData = new float[vertexResolution * vertexResolution];
 
-        this.terrainTexture = new TerrainTexture();
-        this.terrainTexture.setTerrain(this);
+        this.terrainMaterial = new TerrainMaterial();
+        this.terrainMaterial.setTerrain(this);
+
+        // Attach our custom water material to the main material
         material = new Material();
-        material.set(new TerrainTextureAttribute(TerrainTextureAttribute.ATTRIBUTE_SPLAT0, terrainTexture));
+        material.set(TerrainMaterialAttribute.createTerrainMaterialAttribute(terrainMaterial));
     }
 
     public Terrain(int size, float[] heightData) {
@@ -362,17 +364,17 @@ public class Terrain implements Disposable {
         return worldX >= c00.x && worldX <= c00.x + terrainWidth && worldZ >= c00.z && worldZ <= c00.z + terrainDepth;
     }
 
-    public TerrainTexture getTerrainTexture() {
-        return terrainTexture;
+    public TerrainMaterial getTerrainTexture() {
+        return terrainMaterial;
     }
 
-    public void setTerrainTexture(TerrainTexture terrainTexture) {
-        if (terrainTexture == null) return;
+    public void setTerrainTexture(TerrainMaterial terrainMaterial) {
+        if (terrainMaterial == null) return;
 
-        terrainTexture.setTerrain(this);
-        this.terrainTexture = terrainTexture;
+        terrainMaterial.setTerrain(this);
+        this.terrainMaterial = terrainMaterial;
 
-        material.set(new TerrainTextureAttribute(TerrainTextureAttribute.ATTRIBUTE_SPLAT0, this.terrainTexture));
+        material.set(TerrainMaterialAttribute.createTerrainMaterialAttribute(terrainMaterial));
     }
 
     public float[] getVertices() {
