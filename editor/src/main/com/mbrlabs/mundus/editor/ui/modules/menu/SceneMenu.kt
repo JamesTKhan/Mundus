@@ -92,8 +92,9 @@ class SceneMenu : Menu("Scenes"),
         val menuItem = MenuItem(sceneName)
 
         val subMenus = PopupMenu()
-        subMenus.addItem(buildOpenSubMenuItem(sceneName))
-        subMenus.addItem(buildDeleteSubMenuItem(sceneName, menuItem))
+        subMenus.addItem(buildOpenSubMenuItem(menuItem))
+        subMenus.addItem(buildRenameSubMenuItem(menuItem))
+        subMenus.addItem(buildDeleteSubMenuItem(menuItem))
         menuItem.subMenu = subMenus
 
         addItem(menuItem)
@@ -102,10 +103,11 @@ class SceneMenu : Menu("Scenes"),
         return menuItem
     }
 
-    private fun buildOpenSubMenuItem(sceneName: String): MenuItem {
+    private fun buildOpenSubMenuItem(parentMenu: MenuItem): MenuItem {
         val menuItem = MenuItem("Open")
         menuItem.addListener(object: ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                val sceneName = parentMenu.text.toString()
                 projectManager.changeScene(projectManager.current(), sceneName)
                 updateDeleteButtonEnable(sceneName)
             }
@@ -113,12 +115,39 @@ class SceneMenu : Menu("Scenes"),
         return menuItem
     }
 
-    private fun buildDeleteSubMenuItem(sceneName: String, screenMenu: MenuItem): MenuItem {
+    private fun buildRenameSubMenuItem(parentMenu: MenuItem): MenuItem {
+        val menuItem = MenuItem("Rename")
+        menuItem.addListener(object: ClickListener() {
+            override fun clicked(event: InputEvent, x: Float, y: Float) {
+                val oldSceneName =  parentMenu.text.toString()
+
+                val dialog = Dialogs.showInputDialog(UI, "Rename scene", "Name", SceneNameValidator(), object : InputDialogAdapter() {
+                    override fun finished(input: String) {
+                        // Rename scene file
+                        projectManager.renameScene(projectManager.current(), oldSceneName, input)
+
+                        // Update project
+                        kryoManager.saveProjectContext(projectManager.current())
+
+                        // Update menu
+                        parentMenu.text = input
+                    }
+
+                })
+                dialog.setText(oldSceneName)
+            }
+        })
+        return menuItem
+    }
+
+    private fun buildDeleteSubMenuItem(sceneMenu: MenuItem): MenuItem {
         val menuItem = MenuItem("Delete")
         menuItem.name = DELETE_BUTTON_NAME
         menuItem.addListener(object: ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                Dialogs.showOptionDialog(UI, "Deleting scene", "Are you sure you want to delete '$sceneName' scene?", Dialogs.OptionDialogType.YES_CANCEL, object : OptionDialogAdapter() {
+                val sceneName = sceneMenu.text.toString()
+
+                Dialogs.showOptionDialog(UI, "Delete scene", "Are you sure you want to delete '$sceneName' scene?", Dialogs.OptionDialogType.YES_CANCEL, object : OptionDialogAdapter() {
                     override fun yes() {
                         // Delete scene file
                         projectManager.deleteScene(projectManager.current(), sceneName)
@@ -127,8 +156,8 @@ class SceneMenu : Menu("Scenes"),
                         kryoManager.saveProjectContext(projectManager.current())
 
                         // Delete scene from UI
-                        sceneItems.removeValue(screenMenu, true)
-                        removeActor(screenMenu)
+                        sceneItems.removeValue(sceneMenu, true)
+                        removeActor(sceneMenu)
                         pack()
 
                         Log.trace(TAG, "SceneMenu", "Scene [{}] deleted.", sceneName)
@@ -138,7 +167,7 @@ class SceneMenu : Menu("Scenes"),
         })
 
         // The current scene's delete button will be disabled
-        if (projectManager.current().activeSceneName.equals(sceneName)) {
+        if (projectManager.current().activeSceneName.equals(sceneMenu.text.toString())) {
             disableMenuItem(menuItem)
         }
 
@@ -156,6 +185,16 @@ class SceneMenu : Menu("Scenes"),
                 enableMenuItem(deleteMenuItem)
             }
         }
+    }
+
+    private fun isFreeSceneName(newSceneName: String): Boolean {
+        for (scene in sceneItems) {
+            if (scene.text.toString() == newSceneName) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private fun disableMenuItem(menuItem: MenuItem) {
@@ -185,7 +224,7 @@ class SceneMenu : Menu("Scenes"),
 
     inner class SceneNameValidator : InputValidator {
         override fun validateInput(input: String): Boolean {
-            return input.isNotBlank()
+            return input.isNotBlank() && isFreeSceneName(input)
         }
 
     }

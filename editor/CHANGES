@@ -3,6 +3,7 @@
 - Water Shader Enhancements (visible depth, toggle reflection/refraction)
 - Skybox rendering performance tweak
 - Added scene delete button
+- Added scene rename button
 - Terrain Assets can now be reused in the same scene and other scenes
 - Update gdx-gltf to 2.1.0
 - Fix import of models with spaces in dependencies name
