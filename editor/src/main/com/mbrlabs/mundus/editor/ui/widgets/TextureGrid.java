@@ -31,7 +31,7 @@ import com.mbrlabs.mundus.commons.utils.TextureProvider;
  */
 public class TextureGrid<T extends TextureProvider> extends VisTable {
 
-    private GridGroup grid;
+    private final GridGroup grid;
     private OnTextureClickedListener listener;
 
     public TextureGrid(int imgSize, int spacing) {
@@ -68,7 +68,7 @@ public class TextureGrid<T extends TextureProvider> extends VisTable {
      *
      */
     public interface OnTextureClickedListener {
-        public void onTextureSelected(TextureProvider textureProvider, boolean leftClick);
+        void onTextureSelected(TextureProvider textureProvider, boolean leftClick);
     }
 
     /**
@@ -87,6 +87,7 @@ public class TextureGrid<T extends TextureProvider> extends VisTable {
 
                 @Override
                 public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                    if (listener == null) return;
                     listener.onTextureSelected(tex, button == Input.Buttons.LEFT);
                 }
             });
