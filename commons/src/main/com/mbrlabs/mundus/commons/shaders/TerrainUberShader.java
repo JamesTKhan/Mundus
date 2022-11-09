@@ -109,6 +109,7 @@ public class TerrainUberShader extends LightShader {
                     TerrainMaterialAttribute terrainMaterialAttribute = (TerrainMaterialAttribute) combinedAttributes.get(TerrainMaterialAttribute.TerrainMaterial);
                     TerrainMaterial material = terrainMaterialAttribute.terrainMaterial;
                     textureDescription.texture = material.getNormalTexture(channel).getTexture();
+                    if (textureDescription.texture == null) return;
                     final int unit = shader.context.textureBinder
                             .bind(textureDescription);
                     shader.set(inputID, unit);
@@ -163,9 +164,11 @@ public class TerrainUberShader extends LightShader {
     public final int u_activeHeightLayers = register(new Uniform("u_activeHeightLayers"));
     public final int u_activeSlopeLayers = register(new Uniform("u_activeSlopeLayers"));
     public int[] u_heightTextureLayers = new int[MAX_LAYERS];
+    public int[] u_heightNormalTextureLayers = new int[MAX_LAYERS];
     public int[] u_heightFloatLayers = new int[MAX_LAYERS];
 
     public int[] u_slopeTextureLayers = new int[MAX_LAYERS];
+    public int[] u_slopeNormalTextureLayers = new int[MAX_LAYERS];
     public int[] u_slopeHeightLayers = new int[MAX_LAYERS];
     public int[] u_slopeStrengthLayers = new int[MAX_LAYERS];
 
@@ -228,16 +231,33 @@ public class TerrainUberShader extends LightShader {
             prefix += "#define fogFlag\n";
         }
 
+        boolean hasLayerNormals = false;
         TerrainMaterial terrainMaterial = getTerrainMaterial(renderable);
 
         TerrainLayerAttribute attr = (TerrainLayerAttribute) terrainMaterial.get(TerrainLayerAttribute.HeightLayer);
         if (attr != null) {
             prefix += "#define " + TerrainLayerAttribute.HeightLayerAlias + "\n";
+
+            for (TerrainLayer layer : attr.terrainLayers) {
+                if (layer.normalTextureAsset != null) {
+                    prefix += "#define " + TerrainLayerAttribute.HeightLayerAlias + "NormalFlag\n";
+                    hasLayerNormals = true;
+                    break;
+                }
+            }
         }
 
         attr = (TerrainLayerAttribute) terrainMaterial.get(TerrainLayerAttribute.SlopeLayer);
         if (attr != null) {
             prefix += "#define " + TerrainLayerAttribute.SlopeLayerAlias + "\n";
+
+            for (TerrainLayer layer : attr.terrainLayers) {
+                if (layer.normalTextureAsset != null) {
+                    prefix += "#define " + TerrainLayerAttribute.SlopeLayerAlias + "NormalFlag\n";
+                    hasLayerNormals = true;
+                    break;
+                }
+            }
         }
 
         if (terrainMaterial.getSplatmap() != null && terrainMaterial.getSplatmap().getTexture() != null) {
@@ -283,6 +303,8 @@ public class TerrainUberShader extends LightShader {
             if (terrainMaterial.hasNormalChannel(SplatTexture.Channel.A)) {
                 prefix += "#define splatANormalFlag\n";
             }
+        } else if (hasLayerNormals) {
+            prefix += "#define normalTextureFlag\n";
         }
 
         return prefix;
@@ -293,9 +315,11 @@ public class TerrainUberShader extends LightShader {
 
         for (int i = 0; i < MAX_LAYERS; i++) {
             u_heightTextureLayers[i] = register(new Uniform("u_heightLayers["+ i +"].texture"));
+            u_heightNormalTextureLayers[i] = register(new Uniform("u_heightLayers["+ i +"].normalTexture"));
             u_heightFloatLayers[i] = register(new Uniform("u_heightLayers["+ i +"].minMaxHeight"));
 
             u_slopeTextureLayers[i] = register(new Uniform("u_slopeLayers["+ i +"].texture"));
+            u_slopeNormalTextureLayers[i] = register(new Uniform("u_slopeLayers["+ i +"].normalTexture"));
             u_slopeHeightLayers[i] = register(new Uniform("u_slopeLayers["+ i +"].minMaxHeight"));
             u_slopeStrengthLayers[i] = register(new Uniform("u_slopeLayers["+ i +"].slopeStrength"));
         }

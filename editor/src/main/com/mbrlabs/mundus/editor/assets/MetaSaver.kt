@@ -115,9 +115,13 @@ class MetaSaver {
             val layer = layers.get(i) as MetaTerrainLayer
             json.writeValue(MetaTerrain.JSON_HEIGHT_LAYER_NAME, layer.name)
             json.writeValue(MetaTerrain.JSON_HEIGHT_LAYER_ACTIVE, layer.isActive)
-            json.writeValue(MetaTerrain.JSON_HEIGHT_LAYER_ASSET, layer.textureAssetId)
+            json.writeValue(MetaTerrain.JSON_LAYER_TEXTURE_ASSET, layer.textureAssetId)
             json.writeValue(MetaTerrain.JSON_HEIGHT_LAYER_MAX_HEIGHT, layer.maxHeight)
             json.writeValue(MetaTerrain.JSON_HEIGHT_LAYER_MIN_HEIGHT, layer.minHeight)
+
+            if (layer.normalTextureAssetId != null) {
+                json.writeValue(MetaTerrain.JSON_LAYER_NORMAL_TEXTURE_ASSET, layer.normalTextureAssetId)
+            }
 
             if (isSlopeLayer) {
                 json.writeValue(MetaTerrain.JSON_LAYER_SLOPE_STRENGTH, layer.slopeStrength)

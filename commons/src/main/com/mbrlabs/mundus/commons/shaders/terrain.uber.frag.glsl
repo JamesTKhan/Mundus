@@ -35,10 +35,7 @@ const MED vec4 COLOR_BRUSH = vec4(0.4,0.4,0.4, 0.4);
 
 // splat textures
 uniform sampler2D u_baseTexture;
-
-#ifdef baseNormalFlag
 uniform sampler2D u_texture_base_normal;
-#endif
 
 #if defined(heightLayer) || defined(slopeLayer)
 // Needed by both layers
@@ -47,6 +44,7 @@ struct Layer
     vec2 minMaxHeight;
     float slopeStrength;
     sampler2D texture;
+    sampler2D normalTexture;
 };
 
 varying vec3 v_normal; // Vertex Normal
@@ -129,9 +127,10 @@ void main(void) {
     if ( v_clipDistance < 0.0 )
         discard;
 
-    vec3 normal;
-
+    // Terrains always have a base texture, so we sample it first
     gl_FragColor = texture2D(u_baseTexture, v_texCoord0);
+
+    vec3 normal = texture2D(u_texture_base_normal, v_texCoord0).rgb;
 
     #ifdef heightLayer
     for (int i = 0 ; i < maxLayers; i++) {
@@ -139,6 +138,9 @@ void main(void) {
 
         float blend = normalizeRange(v_localPos.y, u_heightLayers[i].minMaxHeight.x /*+ noises*/, u_heightLayers[i].minMaxHeight.y /*+ noises*/);
         gl_FragColor = mix(gl_FragColor, texture2D(u_heightLayers[i].texture, v_texCoord0), blend);
+
+        // Blend normals always, to remove base normal from appearing over the layer
+        normal = mix(normal, texture2D(u_heightLayers[i].normalTexture, v_texCoord0).rgb, blend);
     }
     #endif
 
@@ -155,11 +157,8 @@ void main(void) {
         slopeBlend = clamp(slopeBlend, 0.0, 1.0);
 
         gl_FragColor = mix(gl_FragColor, texture2D(u_slopeLayers[i].texture, v_texCoord0), slopeBlend);
+        normal = mix(normal, texture2D(u_slopeLayers[i].normalTexture, v_texCoord0).rgb, slopeBlend);
     }
-    #endif
-
-    #ifdef baseNormalFlag
-        normal = texture2D(u_texture_base_normal, v_texCoord0).rgb;
     #endif
 
     // Mix splat textures

@@ -20,6 +20,8 @@ public class EditorTerrainUberShader extends TerrainUberShader {
     private static Vector3 pickerPosition = new Vector3();
     private static float pickerRadius = 0;
 
+    public boolean invalid = false;
+
     public EditorTerrainUberShader(Renderable renderable, DefaultShader.Config config) {
         super(renderable, config);
     }
@@ -28,6 +30,14 @@ public class EditorTerrainUberShader extends TerrainUberShader {
     protected String createPrefixForRenderable(Renderable renderable) {
         String prefix = "#define PICKER\n";
         return prefix + super.createPrefixForRenderable(renderable);
+    }
+
+    @Override
+    public boolean canRender(Renderable instance) {
+        if (invalid) {
+            return false;
+        }
+        return super.canRender(instance);
     }
 
     @Override

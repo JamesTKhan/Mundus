@@ -37,5 +37,9 @@ public class SlopeTerrainLayer extends HeightTerrainLayer {
         shader.set(shader.u_slopeTextureLayers[uniformIndex], textureAsset.getTexture());
         shader.set(shader.u_slopeHeightLayers[uniformIndex], minHeight, maxHeight);
         shader.set(shader.u_slopeStrengthLayers[uniformIndex], strength);
+
+        if (normalTextureAsset != null) {
+            shader.set(shader.u_slopeNormalTextureLayers[uniformIndex], normalTextureAsset.getTexture());
+        }
     }
 }

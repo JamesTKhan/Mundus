@@ -42,7 +42,8 @@ public class MetaTerrain {
     public static final String JSON_UV_SCALE= "uv";
     public static final String JSON_HEIGHT_LAYERS = "hLayers";
     public static final String JSON_SLOPE_LAYERS = "sLayers";
-    public static final String JSON_HEIGHT_LAYER_ASSET = "asset";
+    public static final String JSON_LAYER_TEXTURE_ASSET = "asset";
+    public static final String JSON_LAYER_NORMAL_TEXTURE_ASSET = "assetNorm";
     public static final String JSON_HEIGHT_LAYER_ACTIVE = "active";
     public static final String JSON_HEIGHT_LAYER_NAME = "name";
     public static final String JSON_HEIGHT_LAYER_MIN_HEIGHT = "minH";

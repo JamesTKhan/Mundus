@@ -23,6 +23,7 @@ import com.kotcrab.vis.ui.widget.Menu
 import com.kotcrab.vis.ui.widget.MenuItem
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.InvalidateShadersEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.tools.AssetCleanUpDialog
 
@@ -34,12 +35,14 @@ class ToolsMenu : Menu("Tools") {
 
     private val findUnusedAssets = MenuItem("Asset Clean Up")
     private val debugRendering = MenuItem("Debug Render Options")
+    private val invalidateShaders = MenuItem("Invalidate Shaders")
 
     val projectManager: ProjectManager = Mundus.inject()
 
     init {
         addItem(findUnusedAssets)
         addItem(debugRendering)
+        addItem(invalidateShaders)
 
         findUnusedAssets.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -57,6 +60,12 @@ class ToolsMenu : Menu("Tools") {
         debugRendering.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 UI.showDialog(UI.debugRenderDialog)
+            }
+        })
+
+        invalidateShaders.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                Mundus.postEvent(InvalidateShadersEvent())
             }
         })
     }

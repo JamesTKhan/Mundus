@@ -8,6 +8,7 @@ package com.mbrlabs.mundus.commons.assets.meta;
 public class MetaTerrainLayer {
     private String name;
     private String textureAssetId;
+    private String normalTextureAssetId;
     private boolean active;
     private float minHeight;
     private float maxHeight;
@@ -27,6 +28,14 @@ public class MetaTerrainLayer {
 
     public void setTextureAssetId(String textureAssetId) {
         this.textureAssetId = textureAssetId;
+    }
+
+    public String getNormalTextureAssetId() {
+        return normalTextureAssetId;
+    }
+
+    public void setNormalTextureAssetId(String normalTextureAssetId) {
+        this.normalTextureAssetId = normalTextureAssetId;
     }
 
     public boolean isActive() {

@@ -34,7 +34,9 @@ import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.commons.terrain.layers.HeightTerrainLayer
 import com.mbrlabs.mundus.commons.terrain.layers.SlopeTerrainLayer
 import com.mbrlabs.mundus.commons.terrain.layers.TerrainLayer
+import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
+import com.mbrlabs.mundus.editor.events.InvalidateShadersEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.utils.Fa
@@ -216,9 +218,12 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
 
     private inner class TextureRightClickMenu : PopupMenu() {
         private val changeTexture = MenuItem("Change texture")
+        private val addNormalMap = MenuItem("Add Normal Map")
+        private val removeNormalMap = MenuItem("Remove Normal Map")
 
         init {
             addItem(changeTexture)
+            addItem(addNormalMap)
 
             changeTexture.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -235,10 +240,44 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
                         })
                 }
             })
+
+            addNormalMap.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    UI.assetSelectionDialog.show(
+                        false,
+                        AssetTextureFilter(),
+                        object : AssetPickerDialog.AssetPickerListener {
+                            override fun onSelected(asset: Asset?) {
+                                layer.normalTextureAsset = asset as TextureAsset
+                                onLayerModifiedListener?.onLayerModified()
+                                // Force shaders to be recompiled
+                                Mundus.postEvent(InvalidateShadersEvent())
+                            }
+                        })
+                }
+            })
+
+            removeNormalMap.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    layer.normalTextureAsset = null
+                    onLayerModifiedListener?.onLayerModified()
+                    Mundus.postEvent(InvalidateShadersEvent())
+                }
+            })
         }
 
         fun show() {
+            updateMenuVisibility()
             showMenu(UI, Gdx.input.x.toFloat(), (Gdx.graphics.height - Gdx.input.y).toFloat())
+        }
+
+        fun updateMenuVisibility() {
+            if (layer.normalTextureAsset != null) {
+                addItem(removeNormalMap)
+            } else {
+                removeNormalMap.remove()
+            }
+            pack()
         }
     }
 

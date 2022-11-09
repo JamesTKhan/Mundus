@@ -39,5 +39,9 @@ public class HeightTerrainLayer extends TerrainLayer {
     public void setUniforms(TerrainUberShader shader, int uniformIndex) {
         shader.set(shader.u_heightTextureLayers[uniformIndex], textureAsset.getTexture());
         shader.set(shader.u_heightFloatLayers[uniformIndex], minHeight, maxHeight);
+
+        if (normalTextureAsset != null) {
+            shader.set(shader.u_heightNormalTextureLayers[uniformIndex], normalTextureAsset.getTexture());
+        }
     }
 }

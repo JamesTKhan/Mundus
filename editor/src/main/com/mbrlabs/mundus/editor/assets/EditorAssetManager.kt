@@ -719,6 +719,10 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             metaLayer.maxHeight = layer.maxHeight
             metaLayer.minHeight = layer.minHeight
 
+            if (layer.normalTextureAsset != null) {
+                metaLayer.normalTextureAssetId = layer.normalTextureAsset.id
+            }
+
             if (layer is SlopeTerrainLayer) {
                 metaLayer.slopeStrength = layer.strength
             }

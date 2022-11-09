@@ -102,7 +102,8 @@ public class MetaLoader {
             MetaTerrainLayer metaTerrainLayer = new MetaTerrainLayer();
             metaTerrainLayer.setName(child.getString(MetaTerrain.JSON_HEIGHT_LAYER_NAME));
             metaTerrainLayer.setActive(child.getBoolean(MetaTerrain.JSON_HEIGHT_LAYER_ACTIVE));
-            metaTerrainLayer.setTextureAssetId(child.getString(MetaTerrain.JSON_HEIGHT_LAYER_ASSET));
+            metaTerrainLayer.setTextureAssetId(child.getString(MetaTerrain.JSON_LAYER_TEXTURE_ASSET));
+            metaTerrainLayer.setNormalTextureAssetId(child.getString(MetaTerrain.JSON_LAYER_NORMAL_TEXTURE_ASSET, null));
             metaTerrainLayer.setMaxHeight(child.getFloat(MetaTerrain.JSON_HEIGHT_LAYER_MAX_HEIGHT));
             metaTerrainLayer.setMinHeight(child.getFloat(MetaTerrain.JSON_HEIGHT_LAYER_MIN_HEIGHT));
 

@@ -324,6 +324,10 @@ public class TerrainAsset extends Asset {
                 terrainLayer.setName(metaLayer.getName());
                 terrainLayer.active = metaLayer.isActive();
 
+                if (metaLayer.getNormalTextureAssetId() != null) {
+                    terrainLayer.normalTextureAsset = (TextureAsset) assets.get(metaLayer.getNormalTextureAssetId());
+                }
+
                 heightLayers.add(terrainLayer);
             }
         }
@@ -338,6 +342,10 @@ public class TerrainAsset extends Asset {
                 SlopeTerrainLayer terrainLayer = new SlopeTerrainLayer(texAsset, metaLayer.getMinHeight(), metaLayer.getMaxHeight(), metaLayer.getSlopeStrength());
                 terrainLayer.setName(metaLayer.getName());
                 terrainLayer.active = metaLayer.isActive();
+
+                if (metaLayer.getNormalTextureAssetId() != null) {
+                    terrainLayer.normalTextureAsset = (TextureAsset) assets.get(metaLayer.getNormalTextureAssetId());
+                }
 
                 slopeLayers.add(terrainLayer);
             }

@@ -33,6 +33,7 @@ import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.FilesDroppedEvent
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
 import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
+import com.mbrlabs.mundus.editor.events.InvalidateShadersEvent
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.input.FreeCamController
@@ -61,7 +62,8 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         ProjectChangedEvent.ProjectChangedListener,
         SceneChangedEvent.SceneChangedListener,
         FullScreenEvent.FullScreenEventListener,
-        GameObjectModifiedEvent.GameObjectModifiedListener {
+        GameObjectModifiedEvent.GameObjectModifiedListener,
+        InvalidateShadersEvent.InvalidateShadersListener {
 
     private lateinit var axesInstance: ModelInstance
     private lateinit var compass: Compass
@@ -77,6 +79,8 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var glProfiler: MundusGLProfiler
     private lateinit var shapeRenderer: ShapeRenderer
     private lateinit var debugRenderer: DebugRenderer
+
+    private lateinit var shaderProvider: EditorShaderProvider
 
     override fun create() {
         Mundus.registerEventListener(this)
@@ -137,7 +141,8 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         val sg = scene.sceneGraph
 
         val config = ShaderUtils.buildPBRShaderConfig(projectManager.current().assetManager.maxNumBones)
-        projectManager.modelBatch = ModelBatch(EditorShaderProvider(config), SceneRenderableSorter())
+        shaderProvider = EditorShaderProvider(config)
+        projectManager.modelBatch = ModelBatch(shaderProvider, SceneRenderableSorter())
 
         val depthConfig = ShaderUtils.buildPBRShaderDepthConfig(projectManager.current().assetManager.maxNumBones)
         projectManager.setDepthBatch((ModelBatch(PBRDepthShaderProvider(depthConfig))))
@@ -256,6 +261,10 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     override fun onGameObjectModified(event: GameObjectModifiedEvent) {
         if (event.gameObject == null) return
         projectManager.current().currScene.modelCacheManager.requestModelCacheRebuild()
+    }
+
+    override fun onInvalidateShaders(event: InvalidateShadersEvent) {
+        shaderProvider.invalidateShaders()
     }
 
     override fun dispose() {
