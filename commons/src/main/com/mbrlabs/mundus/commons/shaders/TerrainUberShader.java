@@ -359,16 +359,21 @@ public class TerrainUberShader extends LightShader {
     }
 
     /**
-     * Iterate through and set uniforms for terrain layers
+     * Iterate through and set uniforms for active terrain layers
      */
     private void setLayers(TerrainLayerAttribute attr, int u_activeLayerLoc) {
         if (attr != null) {
-            set(u_activeLayerLoc, attr.terrainLayers.size);
+            int count = 0;
 
             for (int i = 0; i < attr.terrainLayers.size; i++) {
                 TerrainLayer layer = attr.terrainLayers.get(i);
+                if (!layer.active) continue;
+
                 layer.setUniforms(this, i);
+                count++;
             }
+
+            set(u_activeLayerLoc, count);
         }
     }
 

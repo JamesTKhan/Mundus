@@ -21,9 +21,11 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.MenuItem
 import com.kotcrab.vis.ui.widget.PopupMenu
+import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.assets.Asset
@@ -156,11 +158,20 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
     }
 
     private fun addHeaderButtons() {
-        val buttonTable = VisTable()
-        buttonTable.defaults().pad(0f,2f,0f,2f)
+        val headerTable = VisTable()
+        headerTable.defaults().pad(0f,2f,0f,2f)
+
+        val active = VisCheckBox("Active")
+        active.isChecked = layer.active
+        active.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                layer.active = active.isChecked
+            }
+        })
+        headerTable.add(active)
 
         val moveUpBtn = FaTextButton(Fa.CARET_UP)
-        buttonTable.add(moveUpBtn)
+        headerTable.add(moveUpBtn)
         moveUpBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 onLayerSwapListener?.onLayerSwap(layer, -1)
@@ -168,7 +179,7 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
         })
 
         val moveDownBtn = FaTextButton(Fa.CARET_DOWN)
-        buttonTable.add(moveDownBtn)
+        headerTable.add(moveDownBtn)
         moveDownBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 onLayerSwapListener?.onLayerSwap(layer, 1)
@@ -176,14 +187,15 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
         })
 
         val deleteBtn = FaTextButton(Fa.TIMES)
-        buttonTable.add(deleteBtn).row()
+        headerTable.add(deleteBtn).row()
         deleteBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 onLayerRemovedListener?.onLayerRemoved(layer)
             }
         })
 
-        add(buttonTable).right().row()
+        headerTable.align(Align.right)
+        add(headerTable).fillX().expandX().row()
     }
 
     private inner class TextureRightClickMenu : PopupMenu() {

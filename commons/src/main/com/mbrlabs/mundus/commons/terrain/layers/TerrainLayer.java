@@ -12,6 +12,7 @@ import com.mbrlabs.mundus.commons.utils.TextureProvider;
  */
 public abstract class TerrainLayer implements TextureProvider {
     public TextureAsset textureAsset;
+    public boolean active = true;
 
     private String name;
 

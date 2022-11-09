@@ -27,13 +27,6 @@ precision highp float;
 
 #define PI 3.1415926535897932384626433832795
 
-struct Layer
-{
-    vec2 minMaxHeight;
-    float slopeStrength;
-    sampler2D texture;
-};
-
 const MED vec4 COLOR_TURQUOISE = vec4(0,0.714,0.586, 1.0);
 const MED vec4 COLOR_WHITE = vec4(1,1,1, 1.0);
 const MED vec4 COLOR_DARK = vec4(0.05,0.05,0.05, 1.0);
@@ -47,6 +40,19 @@ uniform sampler2D u_baseTexture;
 uniform sampler2D u_texture_base_normal;
 #endif
 
+#if defined(heightLayer) || defined(slopeLayer)
+// Needed by both layers
+struct Layer
+{
+    vec2 minMaxHeight;
+    float slopeStrength;
+    sampler2D texture;
+};
+
+varying vec3 v_normal; // Vertex Normal
+varying vec3 v_localPos; // Vertex Position
+#endif
+
 #ifdef heightLayer
 uniform int u_activeHeightLayers;
 uniform Layer u_heightLayers[4];
@@ -58,8 +64,6 @@ uniform Layer u_slopeLayers[4];
 #endif
 
 #if defined(heightLayer) || defined(slopeLayer)
-varying vec3 v_normal; // Vertex Normal
-varying vec3 v_localPos; // Vertex Position
 #endif
 
 #ifdef splatFlag
