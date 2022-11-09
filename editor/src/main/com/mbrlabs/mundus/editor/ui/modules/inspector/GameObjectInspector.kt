@@ -28,6 +28,9 @@ import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
+import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.IdentifierWidget
@@ -41,7 +44,8 @@ import com.mbrlabs.mundus.editor.ui.modules.inspector.components.WaterComponentW
  * @author Marcus Brummer
  * @version 13-10-2016
  */
-class GameObjectInspector : VisTable() {
+class GameObjectInspector : VisTable(), ProjectChangedEvent.ProjectChangedListener,
+    SceneChangedEvent.SceneChangedListener {
 
     private val identifierWidget = IdentifierWidget()
     private val transformWidget = TransformWidget()
@@ -52,6 +56,8 @@ class GameObjectInspector : VisTable() {
     private var gameObject: GameObject? = null
 
     init {
+        Mundus.registerEventListener(this)
+
         align(Align.top)
         add(identifierWidget).growX().pad(7f).row()
         add(transformWidget).growX().pad(7f).row()
@@ -68,7 +74,7 @@ class GameObjectInspector : VisTable() {
         })
     }
 
-    fun setGameObject(gameObject: GameObject) {
+    fun setGameObject(gameObject: GameObject?) {
         this.gameObject = gameObject
 
         // build ui
@@ -84,18 +90,26 @@ class GameObjectInspector : VisTable() {
 
     fun updateGameObject() {
         if (gameObject != null) {
+            identifierWidget.isVisible = true
+            transformWidget.isVisible = true
+            addComponentBtn.isVisible = true
+
             identifierWidget.setValues(gameObject!!)
             transformWidget.setValues(gameObject!!)
 
             for (cw in componentWidgets) {
                 cw.setValues(gameObject!!)
             }
+        } else {
+            identifierWidget.isVisible = false
+            transformWidget.isVisible = false
+            addComponentBtn.isVisible = false
         }
     }
 
     private fun buildComponentWidgets() {
+        componentWidgets.clear()
         if (gameObject != null) {
-            componentWidgets.clear()
             for (component in gameObject!!.components) {
                 // model component widget!!
                 if (component.type == Component.Type.MODEL) {
@@ -124,6 +138,14 @@ class GameObjectInspector : VisTable() {
             componentWidgets.add(LightComponentWidget(component))
             componentTable.add(componentWidgets.last()).grow().row()
         }
+    }
+
+    override fun onProjectChanged(event: ProjectChangedEvent) {
+        setGameObject(null)
+    }
+
+    override fun onSceneChanged(event: SceneChangedEvent) {
+        setGameObject(null)
     }
 
 }
