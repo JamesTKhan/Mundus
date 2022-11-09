@@ -16,12 +16,14 @@
 
 package com.mbrlabs.mundus.editor.assets
 
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonWriter
 import com.mbrlabs.mundus.commons.assets.AssetType
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
+import com.mbrlabs.mundus.commons.assets.meta.MetaTerrainLayer
 
 /**
  *
@@ -88,7 +90,42 @@ class MetaSaver {
         if (terrain.splatGNormal != null) json.writeValue(MetaTerrain.JSON_SPLAT_G_NORMAL, terrain.splatGNormal)
         if (terrain.splatBNormal != null) json.writeValue(MetaTerrain.JSON_SPLAT_B_NORMAL, terrain.splatBNormal)
         if (terrain.splatANormal != null) json.writeValue(MetaTerrain.JSON_SPLAT_A_NORMAL, terrain.splatANormal)
+
+        // Convert layers
+        addTerrainLayer(json, terrain.heightLayers, false)
+        addTerrainLayer(json, terrain.slopeLayers, true)
+
         json.writeObjectEnd()
+    }
+
+    /**
+     * Writes MetaTerrainLayers to the Meta Json object as arrays
+     */
+    private fun addTerrainLayer(json: Json, layers: Array<MetaTerrainLayer>?, isSlopeLayer: Boolean) {
+        if (layers == null || layers.isEmpty) return
+
+        if (isSlopeLayer) {
+            json.writeArrayStart(MetaTerrain.JSON_SLOPE_LAYERS)
+        } else {
+            json.writeArrayStart(MetaTerrain.JSON_HEIGHT_LAYERS)
+        }
+
+        for (i in 0 until layers.size) {
+            json.writeObjectStart()
+            val layer = layers.get(i) as MetaTerrainLayer
+            json.writeValue(MetaTerrain.JSON_HEIGHT_LAYER_NAME, layer.name)
+            json.writeValue(MetaTerrain.JSON_HEIGHT_LAYER_ACTIVE, layer.isActive)
+            json.writeValue(MetaTerrain.JSON_HEIGHT_LAYER_ASSET, layer.textureAssetId)
+            json.writeValue(MetaTerrain.JSON_HEIGHT_LAYER_MAX_HEIGHT, layer.maxHeight)
+            json.writeValue(MetaTerrain.JSON_HEIGHT_LAYER_MIN_HEIGHT, layer.minHeight)
+
+            if (isSlopeLayer) {
+                json.writeValue(MetaTerrain.JSON_LAYER_SLOPE_STRENGTH, layer.slopeStrength)
+            }
+
+            json.writeObjectEnd()
+        }
+        json.writeArrayEnd()
     }
 
 }

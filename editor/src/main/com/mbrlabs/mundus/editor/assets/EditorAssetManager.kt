@@ -37,8 +37,12 @@ import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.WaterAsset
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
+import com.mbrlabs.mundus.commons.assets.meta.MetaTerrainLayer
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainLayerAttribute
+import com.mbrlabs.mundus.commons.terrain.layers.HeightTerrainLayer
+import com.mbrlabs.mundus.commons.terrain.layers.SlopeTerrainLayer
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute
@@ -686,8 +690,42 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             terrain.meta.terrain.splatBase64 = "data:image/png;base64,$encoded"
         }
 
+        val heightAttr = terrain.terrain.terrainTexture.get(TerrainLayerAttribute.HeightLayer) as TerrainLayerAttribute?
+        val slopeAttr = terrain.terrain.terrainTexture.get(TerrainLayerAttribute.SlopeLayer) as TerrainLayerAttribute?
+
+        terrain.meta.terrain.heightLayers = getMetaTerrainLayers(heightAttr)
+        terrain.meta.terrain.slopeLayers = getMetaTerrainLayers(slopeAttr)
+
         // save meta file
         metaSaver.save(terrain.meta)
+    }
+
+    /**
+     * Builds Array of MetaTerrainLayers for persisting Terrain Layers based on the given attribute
+     */
+    private fun getMetaTerrainLayers(attribute: TerrainLayerAttribute?): Array<MetaTerrainLayer>? {
+        if (attribute == null) return null
+
+        var arr : Array<MetaTerrainLayer>? = null
+
+        for (layer in attribute.terrainLayers) {
+            if (arr == null) arr = Array<MetaTerrainLayer>()
+
+            layer as HeightTerrainLayer
+            val metaLayer = MetaTerrainLayer()
+            metaLayer.isActive = layer.active
+            metaLayer.textureAssetId = layer.textureAsset.id
+            metaLayer.name = layer.name
+            metaLayer.maxHeight = layer.maxHeight
+            metaLayer.minHeight = layer.minHeight
+
+            if (layer is SlopeTerrainLayer) {
+                metaLayer.slopeStrength = layer.strength
+            }
+
+            arr.add(metaLayer)
+        }
+        return arr
     }
 
     @Throws(IOException::class)

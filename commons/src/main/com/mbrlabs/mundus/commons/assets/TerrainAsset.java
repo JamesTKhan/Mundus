@@ -21,12 +21,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
+import com.mbrlabs.mundus.commons.assets.meta.MetaTerrainLayer;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader;
 import com.mbrlabs.mundus.commons.terrain.TerrainMaterial;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainLayerAttribute;
+import com.mbrlabs.mundus.commons.terrain.layers.HeightTerrainLayer;
+import com.mbrlabs.mundus.commons.terrain.layers.SlopeTerrainLayer;
+import com.mbrlabs.mundus.commons.terrain.layers.TerrainLayer;
 
 import java.util.Map;
 
@@ -50,6 +56,8 @@ public class TerrainAsset extends Asset {
     private TextureAsset splatBNormal;
     private TextureAsset splatGNormal;
     private TextureAsset splatANormal;
+    private Array<TerrainLayer> heightLayers;
+    private Array<TerrainLayer> slopeLayers;
 
     private Terrain terrain;
 
@@ -304,6 +312,36 @@ public class TerrainAsset extends Asset {
         if (id != null && assets.containsKey(id)) {
             setSplatANormal((TextureAsset) assets.get(id));
         }
+
+        // Height layers
+        if (meta.getTerrain().getHeightLayers() != null) {
+            for (MetaTerrainLayer metaLayer : meta.getTerrain().getHeightLayers()) {
+                if (heightLayers == null) heightLayers = new Array<>();
+
+                TextureAsset texAsset = (TextureAsset) assets.get(metaLayer.getTextureAssetId());
+
+                HeightTerrainLayer terrainLayer = new HeightTerrainLayer(texAsset, metaLayer.getMinHeight(), metaLayer.getMaxHeight());
+                terrainLayer.setName(metaLayer.getName());
+                terrainLayer.active = metaLayer.isActive();
+
+                heightLayers.add(terrainLayer);
+            }
+        }
+
+        // Slope layers
+        if (meta.getTerrain().getSlopeLayers() != null) {
+            for (MetaTerrainLayer metaLayer : meta.getTerrain().getSlopeLayers()) {
+                if (slopeLayers == null) slopeLayers = new Array<>();
+
+                TextureAsset texAsset = (TextureAsset) assets.get(metaLayer.getTextureAssetId());
+
+                SlopeTerrainLayer terrainLayer = new SlopeTerrainLayer(texAsset, metaLayer.getMinHeight(), metaLayer.getMaxHeight(), metaLayer.getSlopeStrength());
+                terrainLayer.setName(metaLayer.getName());
+                terrainLayer.active = metaLayer.isActive();
+
+                slopeLayers.add(terrainLayer);
+            }
+        }
     }
 
     @Override
@@ -365,6 +403,22 @@ public class TerrainAsset extends Asset {
             terrainMaterial.removeNormalTexture(SplatTexture.Channel.A);
         } else {
             terrainMaterial.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.A, splatANormal));
+        }
+
+        if (heightLayers == null) {
+            terrainMaterial.remove(TerrainLayerAttribute.HeightLayer);
+        } else {
+            TerrainLayerAttribute attr = new TerrainLayerAttribute(TerrainLayerAttribute.HeightLayer);
+            attr.terrainLayers.addAll(heightLayers);
+            terrainMaterial.set(attr);
+        }
+
+        if (slopeLayers == null) {
+            terrainMaterial.remove(TerrainLayerAttribute.SlopeLayer);
+        } else {
+            TerrainLayerAttribute attr = new TerrainLayerAttribute(TerrainLayerAttribute.SlopeLayer);
+            attr.terrainLayers.addAll(slopeLayers);
+            terrainMaterial.set(attr);
         }
 
         terrain.update();

@@ -31,7 +31,9 @@ import com.mbrlabs.mundus.commons.terrain.attributes.TerrainLayerAttribute
 import com.mbrlabs.mundus.commons.terrain.layers.HeightTerrainLayer
 import com.mbrlabs.mundus.commons.terrain.layers.SlopeTerrainLayer
 import com.mbrlabs.mundus.commons.terrain.layers.TerrainLayer
+import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.widgets.TerrainLayerWidget
@@ -44,8 +46,10 @@ class TerrainLayerTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
 
     private val table = VisTable()
     private val layerTable = VisTable()
+    private val projectManager: ProjectManager = Mundus.inject()
 
     init {
+        Mundus.registerEventListener(this)
         layerTable.defaults().pad(4f)
 
         setupUI()
@@ -101,6 +105,13 @@ class TerrainLayerTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
                     buildLayerTable()
                 }
             })
+
+            // Layer modified listener
+            widget.setListener(object : TerrainLayerWidget.OnLayerModifiedListener {
+                override fun onLayerModified() {
+                    addToModifiedAssets()
+                }
+            })
         }
     }
 
@@ -115,6 +126,7 @@ class TerrainLayerTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
                         override fun onSelected(asset: Asset?) {
                             val terrain = parentWidget.component.terrainAsset.terrain
                             asset as TextureAsset
+                            addToModifiedAssets()
 
                             var attr =
                                 terrain.terrainTexture.get(TerrainLayerAttribute.HeightLayer) as TerrainLayerAttribute?
@@ -150,6 +162,7 @@ class TerrainLayerTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
                         override fun onSelected(asset: Asset?) {
                             val terrain = parentWidget.component.terrainAsset.terrain
                             asset as TextureAsset
+                            addToModifiedAssets()
 
                             var attr =
                                 terrain.terrainTexture.get(TerrainLayerAttribute.SlopeLayer) as TerrainLayerAttribute?
@@ -224,6 +237,10 @@ class TerrainLayerTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
 
         attr.terrainLayers.removeValue(layer as TerrainLayer?, true)
         if (attr.terrainLayers.isEmpty) terrain.terrainTexture.remove(mask)
+    }
+
+    private fun addToModifiedAssets() {
+        projectManager.current().assetManager.addModifiedAsset(parentWidget.component.terrainAsset)
     }
 
     override fun getTabTitle(): String {

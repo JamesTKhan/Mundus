@@ -16,6 +16,8 @@
 
 package com.mbrlabs.mundus.commons.assets.meta;
 
+import com.badlogic.gdx.utils.Array;
+
 /**
  *
  * @author Marcus Brummer
@@ -38,6 +40,14 @@ public class MetaTerrain {
     public static final String JSON_SPLAT_B_NORMAL = "bNorm";
     public static final String JSON_SPLAT_A_NORMAL = "aNorm";
     public static final String JSON_UV_SCALE= "uv";
+    public static final String JSON_HEIGHT_LAYERS = "hLayers";
+    public static final String JSON_SLOPE_LAYERS = "sLayers";
+    public static final String JSON_HEIGHT_LAYER_ASSET = "asset";
+    public static final String JSON_HEIGHT_LAYER_ACTIVE = "active";
+    public static final String JSON_HEIGHT_LAYER_NAME = "name";
+    public static final String JSON_HEIGHT_LAYER_MIN_HEIGHT = "minH";
+    public static final String JSON_HEIGHT_LAYER_MAX_HEIGHT = "maxH";
+    public static final String JSON_LAYER_SLOPE_STRENGTH = "slopeStr";
 
     private int size;
     private int splatMapResolution;
@@ -54,6 +64,8 @@ public class MetaTerrain {
     private String splatGNormal;
     private String splatBNormal;
     private String splatANormal;
+    private Array<MetaTerrainLayer> heightLayers;
+    private Array<MetaTerrainLayer> slopeLayers;
 
     public String getSplatmap() {
         return splatmap;
@@ -173,6 +185,22 @@ public class MetaTerrain {
 
     public void setSplatANormal(String splatANormal) {
         this.splatANormal = splatANormal;
+    }
+
+    public Array<MetaTerrainLayer> getHeightLayers() {
+        return heightLayers;
+    }
+
+    public void setHeightLayers(Array<MetaTerrainLayer> heightLayers) {
+        this.heightLayers = heightLayers;
+    }
+
+    public Array<MetaTerrainLayer> getSlopeLayers() {
+        return slopeLayers;
+    }
+
+    public void setSlopeLayers(Array<MetaTerrainLayer> slopeLayers) {
+        this.slopeLayers = slopeLayers;
     }
 
     @Override

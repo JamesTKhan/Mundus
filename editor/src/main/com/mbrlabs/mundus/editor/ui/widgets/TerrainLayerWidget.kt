@@ -51,6 +51,7 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
 
     var onLayerRemovedListener: OnLayerRemovedListener? = null
     var onLayerSwapListener: OnLayerSwapListener? = null
+    var onLayerModifiedListener: OnLayerModifiedListener? = null
 
     /**
      * Called when the X button is pressed to remove the layer is pressed
@@ -64,6 +65,13 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
      */
     interface OnLayerSwapListener {
         fun onLayerSwap(layer: TerrainLayer, swapDirection: Int)
+    }
+
+    /**
+     * Called when an attribute value is modified
+     */
+    interface OnLayerModifiedListener {
+        fun onLayerModified()
     }
 
     init {
@@ -96,6 +104,7 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
         nameField.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 layer.name = nameField.text
+                onLayerModifiedListener?.onLayerModified()
             }
         })
         innerTable.add(ToolTipLabel("Name", "Name of the layer for convenience."))
@@ -108,6 +117,7 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
             slopeStrengthSlider.addListener(object : ChangeListener() {
                 override fun changed(event: ChangeEvent?, actor: Actor?) {
                     (layer as SlopeTerrainLayer).strength = slopeStrengthSlider.value
+                    onLayerModifiedListener?.onLayerModified()
                 }
             })
             innerTable.add(ToolTipLabel("Slope Factor", "This value is multiplied to the surface normal.\n" +
@@ -126,6 +136,7 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
             minHeightSlider.addListener(object : ChangeListener() {
                 override fun changed(event: ChangeEvent?, actor: Actor?) {
                     (layer as HeightTerrainLayer).minHeight = minHeightSlider.value
+                    onLayerModifiedListener?.onLayerModified()
                 }
             })
             innerTable.add(ToolTipLabel("Height Blend Start", "The height at which this texture starts blending."))
@@ -136,6 +147,7 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
             maxHeightSlider.addListener(object : ChangeListener() {
                 override fun changed(event: ChangeEvent?, actor: Actor?) {
                     (layer as HeightTerrainLayer).maxHeight = maxHeightSlider.value
+                    onLayerModifiedListener?.onLayerModified()
                 }
             })
             innerTable.add(ToolTipLabel("Height Blend End", "The height at which this texture is fully blended.\n" +
@@ -166,6 +178,7 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
         active.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 layer.active = active.isChecked
+                onLayerModifiedListener?.onLayerModified()
             }
         })
         headerTable.add(active)
@@ -175,6 +188,7 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
         moveUpBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 onLayerSwapListener?.onLayerSwap(layer, -1)
+                onLayerModifiedListener?.onLayerModified()
             }
         })
 
@@ -183,6 +197,7 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
         moveDownBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 onLayerSwapListener?.onLayerSwap(layer, 1)
+                onLayerModifiedListener?.onLayerModified()
             }
         })
 
@@ -191,6 +206,7 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
         deleteBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 onLayerRemovedListener?.onLayerRemoved(layer)
+                onLayerModifiedListener?.onLayerModified()
             }
         })
 
@@ -214,6 +230,7 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
                                 textureGrid.removeTextures()
                                 layer.textureAsset = asset as TextureAsset
                                 textureGrid.addTexture(layer)
+                                onLayerModifiedListener?.onLayerModified()
                             }
                         })
                 }
@@ -231,6 +248,10 @@ class TerrainLayerWidget(var layer: TerrainLayer, var terrain: Terrain, var inde
 
     fun setListener(listener: OnLayerSwapListener) {
         onLayerSwapListener = listener
+    }
+
+    fun setListener(listener: OnLayerModifiedListener) {
+        onLayerModifiedListener = listener
     }
 
 }

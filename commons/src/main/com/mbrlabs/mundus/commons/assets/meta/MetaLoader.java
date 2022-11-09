@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons.assets.meta;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.mbrlabs.mundus.commons.assets.AssetType;
@@ -74,7 +75,48 @@ public class MetaLoader {
         terrain.setSplatBNormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_B_NORMAL, null));
         terrain.setSplatANormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_A_NORMAL, null));
 
+        // Load Terrain Layers
+        Array<MetaTerrainLayer> hLayers = parseTerrainLayers(jsonTerrain.get(MetaTerrain.JSON_HEIGHT_LAYERS), false);
+        Array<MetaTerrainLayer> sLayers = parseTerrainLayers(jsonTerrain.get(MetaTerrain.JSON_SLOPE_LAYERS), true);
+        terrain.setHeightLayers(hLayers);
+        terrain.setSlopeLayers(sLayers);
+
         meta.setTerrain(terrain);
+    }
+
+    /**
+     * Converts JsonValue Array of terrain layers into MetaTerrainLayer for
+     * loading the layer in the future.
+     */
+    private Array<MetaTerrainLayer> parseTerrainLayers(JsonValue layerArray, boolean isSlopeLayer) {
+        if (layerArray == null) return null;
+
+        Array<MetaTerrainLayer> layers = null;
+
+        // Get first layer of array
+        JsonValue child = layerArray.child;
+
+        while (child != null) {
+            if (layers == null) layers = new Array<>();
+
+            MetaTerrainLayer metaTerrainLayer = new MetaTerrainLayer();
+            metaTerrainLayer.setName(child.getString(MetaTerrain.JSON_HEIGHT_LAYER_NAME));
+            metaTerrainLayer.setActive(child.getBoolean(MetaTerrain.JSON_HEIGHT_LAYER_ACTIVE));
+            metaTerrainLayer.setTextureAssetId(child.getString(MetaTerrain.JSON_HEIGHT_LAYER_ASSET));
+            metaTerrainLayer.setMaxHeight(child.getFloat(MetaTerrain.JSON_HEIGHT_LAYER_MAX_HEIGHT));
+            metaTerrainLayer.setMinHeight(child.getFloat(MetaTerrain.JSON_HEIGHT_LAYER_MIN_HEIGHT));
+
+            if (isSlopeLayer) {
+                metaTerrainLayer.setSlopeStrength(child.getFloat(MetaTerrain.JSON_LAYER_SLOPE_STRENGTH));
+            }
+
+            layers.add(metaTerrainLayer);
+
+            // Get next array element
+            child = child.next();
+        }
+
+        return layers;
     }
 
     private void parseModel(Meta meta, JsonValue jsonModel) {
