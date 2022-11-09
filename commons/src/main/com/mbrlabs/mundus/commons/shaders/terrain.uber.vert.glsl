@@ -30,9 +30,13 @@ uniform vec4 u_cameraPosition;
 uniform mat3 u_normalMatrix;
 
 varying vec2 v_texCoord0;
-varying vec3 v_normal;
 varying vec3 v_worldPos;
 varying mat3 v_TBN;
+
+#if defined(heightLayer) || defined(slopeLayer)
+varying vec3 v_normal;
+varying vec3 v_localPos;
+#endif
 
 #ifdef PICKER
 varying vec3 v_pos;
@@ -53,7 +57,6 @@ varying vec3 v_shadowMapUv;
 void main(void) {
     // position
     vec4 worldPos = u_worldTrans * vec4(a_position, 1.0);
-    gl_Position = u_projViewTrans * worldPos;
 
     vec4 spos = u_shadowMapProjViewTrans * worldPos;
     v_shadowMapUv.xy = (spos.xy / spos.w) * 0.5 + 0.5;
@@ -65,6 +68,11 @@ void main(void) {
     vec3 tangentW = normalize(vec3(u_worldTrans * vec4(tangent, 0.0)));
     vec3 bitangentW = cross(normalW, tangentW) * a_tangent.w;
     v_TBN = mat3(tangentW, bitangentW, normalW);
+
+    #if defined(heightLayer) || defined(slopeLayer)
+    v_localPos = a_position;
+    v_normal = normalize(u_normalMatrix * a_normal);
+    #endif
 
     // clipping plane
     v_clipDistance = dot(worldPos, u_clipPlane);
@@ -82,4 +90,5 @@ void main(void) {
     v_pos = worldPos.xyz;
     #endif
 
+    gl_Position = u_projViewTrans * worldPos;
 }

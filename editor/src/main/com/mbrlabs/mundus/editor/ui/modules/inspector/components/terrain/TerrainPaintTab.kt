@@ -61,6 +61,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
 
     init {
         root.align(Align.left)
+        root.add(VisLabel("Use CTRL+Scroll Wheel to adjust brush size")).center().padBottom(4f).row()
 
         // brushes
         root.add(TerrainBrushGrid(parentWidget, TerrainBrush.BrushMode.PAINT)).expand().fill().padBottom(5f).row()

@@ -27,6 +27,13 @@ precision highp float;
 
 #define PI 3.1415926535897932384626433832795
 
+struct Layer
+{
+    vec2 minMaxHeight;
+    float slopeStrength;
+    sampler2D texture;
+};
+
 const MED vec4 COLOR_TURQUOISE = vec4(0,0.714,0.586, 1.0);
 const MED vec4 COLOR_WHITE = vec4(1,1,1, 1.0);
 const MED vec4 COLOR_DARK = vec4(0.05,0.05,0.05, 1.0);
@@ -38,6 +45,21 @@ uniform sampler2D u_baseTexture;
 
 #ifdef baseNormalFlag
 uniform sampler2D u_texture_base_normal;
+#endif
+
+#ifdef heightLayer
+uniform int u_activeHeightLayers;
+uniform Layer u_heightLayers[4];
+#endif
+
+#ifdef slopeLayer
+uniform int u_activeSlopeLayers;
+uniform Layer u_slopeLayers[4];
+#endif
+
+#if defined(heightLayer) || defined(slopeLayer)
+varying vec3 v_normal; // Vertex Normal
+varying vec3 v_localPos; // Vertex Position
 #endif
 
 #ifdef splatFlag
@@ -91,6 +113,14 @@ varying mat3 v_TBN;
 varying MED vec2 v_texCoord0;
 varying float v_clipDistance;
 
+float normalizeRange(float value, float minValue, float maxValue) {
+    float weight = max(minValue, value);
+    weight = min(maxValue, weight);
+    weight -= minValue;
+    weight /= maxValue - minValue; // Normalizes to 0.0-1.0 range
+    return weight;
+}
+
 void main(void) {
     if ( v_clipDistance < 0.0 )
         discard;
@@ -98,6 +128,31 @@ void main(void) {
     vec3 normal;
 
     gl_FragColor = texture2D(u_baseTexture, v_texCoord0);
+
+    #ifdef heightLayer
+    for (int i = 0 ; i < maxLayers; i++) {
+        if (i >= u_activeHeightLayers){break;}
+
+        float blend = normalizeRange(v_localPos.y, u_heightLayers[i].minMaxHeight.x /*+ noises*/, u_heightLayers[i].minMaxHeight.y /*+ noises*/);
+        gl_FragColor = mix(gl_FragColor, texture2D(u_heightLayers[i].texture, v_texCoord0), blend);
+    }
+    #endif
+
+    #ifdef slopeLayer
+    // Perform Slope Layers after Height layers so that they end up on top
+    for (int i = 0 ; i < maxLayers; i++) {
+        if (i >= u_activeSlopeLayers) continue;
+
+        // Slope blending
+        float blendHeight = normalizeRange(v_localPos.y, u_slopeLayers[i].minMaxHeight.x, u_slopeLayers[i].minMaxHeight.y);
+
+        // Take the surface normal, factor in the blend height and strength.
+        float slopeBlend =  (1.0 - abs(v_normal.y)) * blendHeight * u_slopeLayers[i].slopeStrength;
+        slopeBlend = clamp(slopeBlend, 0.0, 1.0);
+
+        gl_FragColor = mix(gl_FragColor, texture2D(u_slopeLayers[i].texture, v_texCoord0), slopeBlend);
+    }
+    #endif
 
     #ifdef baseNormalFlag
         normal = texture2D(u_texture_base_normal, v_texCoord0).rgb;

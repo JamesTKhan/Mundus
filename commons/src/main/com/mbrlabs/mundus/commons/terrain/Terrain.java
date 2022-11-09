@@ -54,6 +54,8 @@ public class Terrain implements Disposable {
     private static final Vector2 tmpV2 = new Vector2();
 
     public float[] heightData;
+    public float maxHeight = 0f; // Stores highest Y Vertices height value
+    public float minHeight = 0f; // Stores lowest Y Vertices height value
     public int terrainWidth = 1200;
     public int terrainDepth = 1200;
     public int vertexResolution;
@@ -260,6 +262,12 @@ public class Terrain implements Disposable {
         out.position.set(dx * this.terrainWidth, height, dz * this.terrainDepth);
         out.uv.set(dx, dz).scl(uvScale);
 
+        if (height > maxHeight) {
+            maxHeight = height;
+        } else if (height < minHeight) {
+            minHeight = height;
+        }
+
         return out;
     }
 
@@ -391,7 +399,7 @@ public class Terrain implements Disposable {
             }
         }
         // Get tangents added to terrains vertices array for normal mapping
-        MeshTangentSpaceGenerator.computeTangentSpace(vertices, buildIndices(), attribs, false, true, normalMapUVs);
+        MeshTangentSpaceGenerator.computeTangentSpace(vertices, buildIndices(), attribs, true, true, normalMapUVs);
 
         mesh.setVertices(vertices);
     }

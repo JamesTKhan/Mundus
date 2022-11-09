@@ -16,7 +16,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
+import com.mbrlabs.mundus.commons.terrain.layers.TerrainLayer;
 import com.mbrlabs.mundus.commons.terrain.TerrainMaterial;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainLayerAttribute;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
@@ -29,6 +31,7 @@ public class TerrainUberShader extends LightShader {
     protected static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/terrain.uber.vert.glsl";
     protected static final String FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/terrain.uber.frag.glsl";
     public static final TextureDescriptor<Texture> textureDescription = new TextureDescriptor<>();
+    public static final int MAX_LAYERS = 4;
 
     public static Vector3 terrainClippingPlane = new Vector3(0.0f,0.0f, 0.0f);
     public static float terrainClippingHeight = 0f;
@@ -156,6 +159,16 @@ public class TerrainUberShader extends LightShader {
     public final int u_splatBNormal;
     public final int u_splatANormal;
 
+    // Terrain Layers
+    public final int u_activeHeightLayers = register(new Uniform("u_activeHeightLayers"));
+    public final int u_activeSlopeLayers = register(new Uniform("u_activeSlopeLayers"));
+    public int[] u_heightTextureLayers = new int[MAX_LAYERS];
+    public int[] u_heightFloatLayers = new int[MAX_LAYERS];
+
+    public int[] u_slopeTextureLayers = new int[MAX_LAYERS];
+    public int[] u_slopeHeightLayers = new int[MAX_LAYERS];
+    public int[] u_slopeStrengthLayers = new int[MAX_LAYERS];
+
     /** The renderable used to create this shader, invalid after the call to init */
     private Renderable renderable;
 
@@ -209,11 +222,23 @@ public class TerrainUberShader extends LightShader {
     protected String createPrefixForRenderable(Renderable renderable) {
         String prefix = "";
 
+        prefix += "#define maxLayers " + MAX_LAYERS + "\n";
+
         if (renderable.environment.has(ColorAttribute.Fog)) {
             prefix += "#define fogFlag\n";
         }
 
         TerrainMaterial terrainMaterial = getTerrainMaterial(renderable);
+
+        TerrainLayerAttribute attr = (TerrainLayerAttribute) terrainMaterial.get(TerrainLayerAttribute.HeightLayer);
+        if (attr != null) {
+            prefix += "#define " + TerrainLayerAttribute.HeightLayerAlias + "\n";
+        }
+
+        attr = (TerrainLayerAttribute) terrainMaterial.get(TerrainLayerAttribute.SlopeLayer);
+        if (attr != null) {
+            prefix += "#define " + TerrainLayerAttribute.SlopeLayerAlias + "\n";
+        }
 
         if (terrainMaterial.getSplatmap() != null && terrainMaterial.getSplatmap().getTexture() != null) {
             prefix += "#define splatFlag\n";
@@ -265,6 +290,16 @@ public class TerrainUberShader extends LightShader {
 
     @Override
     public void init() {
+
+        for (int i = 0; i < MAX_LAYERS; i++) {
+            u_heightTextureLayers[i] = register(new Uniform("u_heightLayers["+ i +"].texture"));
+            u_heightFloatLayers[i] = register(new Uniform("u_heightLayers["+ i +"].minMaxHeight"));
+
+            u_slopeTextureLayers[i] = register(new Uniform("u_slopeLayers["+ i +"].texture"));
+            u_slopeHeightLayers[i] = register(new Uniform("u_slopeLayers["+ i +"].minMaxHeight"));
+            u_slopeStrengthLayers[i] = register(new Uniform("u_slopeLayers["+ i +"].slopeStrength"));
+        }
+
         final ShaderProgram program = this.program;
         this.program = null;
         this.init(program, renderable);
@@ -286,6 +321,13 @@ public class TerrainUberShader extends LightShader {
         final MundusEnvironment env = (MundusEnvironment) renderable.environment;
         setLights(env);
         setShadows(env);
+
+        TerrainMaterial terrainMaterial = getTerrainMaterial(renderable);
+        TerrainLayerAttribute attr = (TerrainLayerAttribute) terrainMaterial.get(TerrainLayerAttribute.HeightLayer);
+        setLayers(attr, u_activeHeightLayers);
+
+        attr = (TerrainLayerAttribute) terrainMaterial.get(TerrainLayerAttribute.SlopeLayer);
+        setLayers(attr, u_activeSlopeLayers);
 
         super.render(renderable);
     }
@@ -314,6 +356,20 @@ public class TerrainUberShader extends LightShader {
 
         TerrainMaterial terrainMaterial = getTerrainMaterial(instance);
         return terrainMaterialMask == terrainMaterial.getMask();
+    }
+
+    /**
+     * Iterate through and set uniforms for terrain layers
+     */
+    private void setLayers(TerrainLayerAttribute attr, int u_activeLayerLoc) {
+        if (attr != null) {
+            set(u_activeLayerLoc, attr.terrainLayers.size);
+
+            for (int i = 0; i < attr.terrainLayers.size; i++) {
+                TerrainLayer layer = attr.terrainLayers.get(i);
+                layer.setUniforms(this, i);
+            }
+        }
     }
 
     private static TerrainMaterial getTerrainMaterial(Renderable renderable) {

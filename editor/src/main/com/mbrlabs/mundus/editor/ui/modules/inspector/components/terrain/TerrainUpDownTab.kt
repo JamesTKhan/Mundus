@@ -32,6 +32,7 @@ class TerrainUpDownTab(private val parent: TerrainComponentWidget) : Tab(false, 
 
     init {
         table.align(Align.left)
+        table.add(VisLabel("Use CTRL+Scroll Wheel to adjust brush size")).center().padBottom(4f).row()
         table.add(VisLabel("Hold shift to lower")).center().row()
         table.add(TerrainBrushGrid(this.parent, TerrainBrush.BrushMode.RAISE_LOWER)).expandX().fillX().row()
     }

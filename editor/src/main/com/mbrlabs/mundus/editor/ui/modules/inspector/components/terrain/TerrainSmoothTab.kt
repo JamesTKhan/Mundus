@@ -2,6 +2,7 @@ package com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Align
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
@@ -17,7 +18,7 @@ class TerrainSmoothTab(parent: TerrainComponentWidget) : Tab(false, false) {
 
     init {
         table.align(Align.left)
-
+        table.add(VisLabel("Use CTRL+Scroll Wheel to adjust brush size")).center().padBottom(4f).row()
         brushGrid = TerrainBrushGrid(parent, TerrainBrush.BrushMode.SMOOTH)
         table.add(brushGrid).expand().fill().row()
     }

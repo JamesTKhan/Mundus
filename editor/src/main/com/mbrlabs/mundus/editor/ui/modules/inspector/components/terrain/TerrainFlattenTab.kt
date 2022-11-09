@@ -34,6 +34,7 @@ class TerrainFlattenTab(parent: TerrainComponentWidget) : Tab(false, false) {
 
     init {
         table.align(Align.left)
+        table.add(VisLabel("Use CTRL+Scroll Wheel to adjust brush size")).center().padBottom(4f).row()
         table.add(VisLabel("Hold shift to sample a height")).center().row()
 
         brushGrid = TerrainBrushGrid(parent, TerrainBrush.BrushMode.FLATTEN)
