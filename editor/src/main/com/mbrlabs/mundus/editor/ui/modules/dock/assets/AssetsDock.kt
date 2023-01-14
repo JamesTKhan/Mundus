@@ -57,7 +57,8 @@ class AssetsDock : Tab(false, false),
         AssetImportEvent.AssetImportListener,
         AssetDeletedEvent.AssetDeletedListener,
         GameObjectSelectedEvent.GameObjectSelectedListener,
-        FullScreenEvent.FullScreenEventListener {
+        FullScreenEvent.FullScreenEventListener,
+        MaterialDuplicatedEvent.MaterialDuplicatedEventListener {
 
     private val root = VisTable()
     private val filesViewContextContainer = VisTable(false)
@@ -231,6 +232,10 @@ class AssetsDock : Tab(false, false),
     override fun onFullScreenEvent(event: FullScreenEvent) {
         if (!event.isFullScreen)
             reloadAssets()
+    }
+
+    override fun onMaterialDuplicated(event: MaterialDuplicatedEvent) {
+        reloadAssets()
     }
 
     /**
