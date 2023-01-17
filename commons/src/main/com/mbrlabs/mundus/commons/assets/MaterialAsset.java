@@ -459,4 +459,29 @@ public class MaterialAsset extends Asset {
     private boolean fileMatch(Asset childAsset, Asset assetToCheck) {
         return childAsset != null && childAsset.getFile().path().equals(assetToCheck.getFile().path());
     }
+
+    public void duplicateMaterialAsset(MaterialAsset materialAsset) {
+        this.setRoughness(materialAsset.getRoughness());
+        this.setOpacity(materialAsset.getOpacity());
+        this.setMetallic(materialAsset.getMetallic());
+        this.setAlphaTest(materialAsset.getAlphaTest());
+        this.setNormalScale(materialAsset.getNormalScale());
+        this.setShadowBias(materialAsset.getShadowBias());
+        this.setCullFace(materialAsset.getCullFace());
+
+        this.diffuseTexCoord = materialAsset.diffuseTexCoord.deepCopy();
+        this.normalTexCoord = materialAsset.normalTexCoord.deepCopy();
+        this.emissiveTexCoord = materialAsset.emissiveTexCoord.deepCopy();
+        this.metallicRoughnessTexCoord = materialAsset.metallicRoughnessTexCoord.deepCopy();
+        this.occlusionTexCoord = materialAsset.occlusionTexCoord.deepCopy();
+
+        this.diffuseColor = materialAsset.getDiffuseColor();
+        this.emissiveColor = materialAsset.getEmissiveColor();
+
+        this.setDiffuseTexture(materialAsset.getDiffuseTexture());
+        this.setNormalMap(materialAsset.getNormalMap());
+        this.setMetallicRoughnessTexture(materialAsset.getMetallicRoughnessTexture());
+        this.setEmissiveTexture(materialAsset.getEmissiveTexture());
+        this.setOcclusionTexture(materialAsset.getOcclusionTexture());
+    }
 }

@@ -54,6 +54,7 @@ import org.apache.commons.io.FilenameUtils
 import java.io.BufferedOutputStream
 import java.io.DataOutputStream
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
@@ -421,6 +422,10 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      */
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createMaterialAsset(name: String): MaterialAsset {
+        if (name.contains(File.separator)) {
+            throw FileNotFoundException("Material names cannot contain file separator")
+        }
+
         // create empty material file
         val path = FilenameUtils.concat(rootFolder.path(), name) + MaterialAsset.EXTENSION
         val matFile = Gdx.files.absolute(path)

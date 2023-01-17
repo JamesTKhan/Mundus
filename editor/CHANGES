@@ -8,6 +8,7 @@
 - Update gdx-gltf to 2.1.0
 - Fix import of models with spaces in dependencies name
 - Fix selection after model delete
+- Duplicate materials from inspector
 
 [0.4.2] ~ 10/24/2022
 - Fix shader compilation error for Terrain when using normal maps

@@ -25,6 +25,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
+import com.kotcrab.vis.ui.util.dialog.Dialogs
+import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
@@ -36,12 +38,15 @@ import com.mbrlabs.mundus.commons.assets.TexCoordInfo
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.utils.ModelUtils
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.assets.AssetMaterialFilter
 import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.MaterialDuplicatedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.utils.Colors
+import java.io.FileNotFoundException
 
 /**
  * Displays all properties of a material.
@@ -54,6 +59,7 @@ import com.mbrlabs.mundus.editor.utils.Colors
 class MaterialWidget : VisTable() {
 
     private val matFilter: AssetMaterialFilter = AssetMaterialFilter()
+    private val matDuplicatedBtn: VisTextButton = VisTextButton("duplicate")
     private val matChangedBtn: VisTextButton = VisTextButton("change")
     private val matPickerListener: AssetPickerDialog.AssetPickerListener
 
@@ -149,6 +155,7 @@ class MaterialWidget : VisTable() {
         val table = VisTable()
         table.add(matNameLabel).grow()
         matNameLabel.color = Colors.TEAL
+        table.add<VisTextButton>(matDuplicatedBtn)
         table.add<VisTextButton>(matChangedBtn).padLeft(4f).right().row()
         add(table).grow().row()
 
@@ -230,6 +237,29 @@ class MaterialWidget : VisTable() {
         add(scaleUField).growX().row()
         add(scaleVField).growX().row()
 
+        matDuplicatedBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                Dialogs.showInputDialog(UI, "Name:", "", object : InputDialogAdapter() {
+                    override fun finished(input: String?) {
+                        if (input != null) {
+                            try {
+                                val newMaterial = projectManager.current().assetManager.createMaterialAsset(input)
+                                if (material != null) {
+                                    newMaterial.duplicateMaterialAsset(material)
+                                }
+                                material = newMaterial
+                                matChangedListener?.materialChanged(material!!)
+                                Mundus.postEvent(MaterialDuplicatedEvent())
+                            } catch (e: AssetAlreadyExistsException) {
+                                Dialogs.showErrorDialog(UI, "That material already exists. Try a different name.")
+                            } catch (e: FileNotFoundException) {
+                                Dialogs.showErrorDialog(UI, "Invalid material name.")
+                            }
+                        }
+                    }
+                })
+            }
+        })
 
         matChangedBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
