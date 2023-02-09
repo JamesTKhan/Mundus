@@ -21,7 +21,9 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
+import com.mbrlabs.mundus.commons.event.Event;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
 import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
@@ -51,6 +53,7 @@ public abstract class CullableComponent extends AbstractComponent {
 
     // Is it offscreen?
     protected boolean isCulled = false;
+    private Array<Event> events;
     private ModelInstance modelInstance = null;
 
     public CullableComponent(GameObject go) {
@@ -101,6 +104,20 @@ public abstract class CullableComponent extends AbstractComponent {
         }
     }
 
+    public void addEvent(final Event event) {
+        if (events == null) {
+            events = new Array<>(1);
+        }
+        events.add(event);
+    }
+
+    public void removeEvent(final Event event) {
+        if (events == null) {
+            events = new Array<>(1);
+        }
+        events.removeValue(event, true);
+    }
+
     protected void setDimensions(ModelInstance modelInstance) {
         if (modelInstance == null) {
             Gdx.app.error("CullableComponent", "setDimensions called with null modelInstance");
@@ -114,6 +131,18 @@ public abstract class CullableComponent extends AbstractComponent {
         center.scl(tmpScale);
         dimensions.scl(tmpScale);
         radius = dimensions.len() / 2f;
+    }
+
+    protected void triggerEvent(final Class<? extends Event> clazz) {
+        if (events == null) {
+            return;
+        }
+
+        for (int i = 0; i < events.size; ++i) {
+            if (clazz.isInstance(events.get(i))) {
+                events.get(i).action();
+            }
+        }
     }
 
     public Vector3 getCenter() {

@@ -23,6 +23,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
+import com.mbrlabs.mundus.commons.event.AfterRenderTerrainEvent;
+import com.mbrlabs.mundus.commons.event.BeforeRenderTerrainEvent;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.shaders.ClippableShader;
 import com.mbrlabs.mundus.commons.shaders.TerrainUberShader;
@@ -74,7 +76,9 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
     public void render(float delta) {
         super.render(delta);
         if (isCulled) return;
+        triggerEvent(BeforeRenderTerrainEvent.class);
         gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment);
+        triggerEvent(AfterRenderTerrainEvent.class);
     }
 
     @Override
