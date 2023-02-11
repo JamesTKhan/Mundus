@@ -25,8 +25,6 @@ import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.MaterialAsset;
 import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.TextureAsset;
-import com.mbrlabs.mundus.commons.event.AfterRenderModelObjectEvent;
-import com.mbrlabs.mundus.commons.event.BeforeRenderModelObjectEvent;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
 import com.mbrlabs.mundus.commons.shaders.ClippableShader;
@@ -132,13 +130,13 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
 
         if (isCulled || useModelCache) return;
 
-        triggerEvent(BeforeRenderModelObjectEvent.class);
+        triggerBeforeRenderEvent();
         if (shader != null) {
             gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
         } else {
             gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment);
         }
-        triggerEvent(AfterRenderModelObjectEvent.class);
+        triggerAfterRenderEvent();
     }
 
     @Override

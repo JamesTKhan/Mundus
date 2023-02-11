@@ -21,8 +21,6 @@ import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.WaterAsset;
-import com.mbrlabs.mundus.commons.event.AfterRenderWaterEvent;
-import com.mbrlabs.mundus.commons.event.BeforeRenderWaterEvent;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute;
 
@@ -65,9 +63,9 @@ public class WaterComponent extends CullableComponent implements AssetUsage {
     public void render(float delta) {
         super.render(delta);
         if (isCulled) return;
-        triggerEvent(BeforeRenderWaterEvent.class);
+        triggerBeforeRenderEvent();
         gameObject.sceneGraph.scene.batch.render(waterAsset.water, gameObject.sceneGraph.scene.environment);
-        triggerEvent(AfterRenderWaterEvent.class);
+        triggerAfterRenderEvent();
     }
 
     @Override

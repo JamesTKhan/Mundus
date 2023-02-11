@@ -23,9 +23,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
+import com.mbrlabs.mundus.commons.event.AfterRenderEvent;
+import com.mbrlabs.mundus.commons.event.BeforeRenderEvent;
 import com.mbrlabs.mundus.commons.event.Event;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
+import com.mbrlabs.mundus.commons.scene3d.ModelEventable;
 import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
 
@@ -42,7 +45,7 @@ import static com.mbrlabs.mundus.commons.utils.ModelUtils.isVisible;
  * @author JamesTKhan
  * @version July 18, 2022
  */
-public abstract class CullableComponent extends AbstractComponent {
+public abstract class CullableComponent extends AbstractComponent implements ModelEventable {
     private final static BoundingBox tmpBounds = new BoundingBox();
     private final static Vector3 tmpScale = new Vector3();
     private static DirectionalLight directionalLight;
@@ -104,6 +107,7 @@ public abstract class CullableComponent extends AbstractComponent {
         }
     }
 
+    @Override
     public void addEvent(final Event event) {
         if (events == null) {
             events = new Array<>(1);
@@ -111,11 +115,22 @@ public abstract class CullableComponent extends AbstractComponent {
         events.add(event);
     }
 
+    @Override
     public void removeEvent(final Event event) {
         if (events == null) {
             events = new Array<>(1);
         }
         events.removeValue(event, true);
+    }
+
+    @Override
+    public void triggerBeforeRenderEvent() {
+        triggerEvent(BeforeRenderEvent.class);
+    }
+
+    @Override
+    public void triggerAfterRenderEvent() {
+        triggerEvent(AfterRenderEvent.class);
     }
 
     protected void setDimensions(ModelInstance modelInstance) {
@@ -133,7 +148,7 @@ public abstract class CullableComponent extends AbstractComponent {
         radius = dimensions.len() / 2f;
     }
 
-    protected void triggerEvent(final Class<? extends Event> clazz) {
+    private void triggerEvent(final Class<? extends Event> clazz) {
         if (events == null) {
             return;
         }

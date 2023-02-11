@@ -168,7 +168,9 @@ public class Scene implements Disposable {
         // Render objects
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneDisable, 0);
+        modelCacheManager.triggerBeforeRenderEvent();
         batch.render(modelCacheManager.modelCache, environment);
+        modelCacheManager.triggerAfterRenderEvent();
         batch.end();
     }
 
