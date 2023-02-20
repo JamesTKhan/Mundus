@@ -9,6 +9,7 @@
 - Fix import of models with spaces in dependencies name
 - Fix selection after model delete
 - Fix temporary files not deleted on model import
+- Fix reset import model dialog on close
 - Duplicate materials from inspector
 
 [0.4.2] ~ 10/24/2022
