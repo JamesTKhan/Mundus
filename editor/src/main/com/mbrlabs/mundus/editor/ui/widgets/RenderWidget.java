@@ -17,7 +17,6 @@
 package com.mbrlabs.mundus.editor.ui.widgets;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
@@ -37,7 +36,7 @@ public class RenderWidget extends Widget {
     private Camera cam;
     private Renderer renderer;
 
-    public RenderWidget(PerspectiveCamera cam) {
+    public RenderWidget(Camera cam) {
         super();
         this.cam = cam;
         viewport = new ScreenViewport(this.cam);
