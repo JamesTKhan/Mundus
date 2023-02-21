@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.core.converter;
 
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
@@ -79,7 +80,9 @@ public class SceneConverter {
         dto.setCamDirZ(scene.cam.direction.z);
         dto.setCamNearPlane(scene.cam.near);
         dto.setCamFarPlane(scene.cam.far);
-        dto.setCamFieldOfView(scene.cam.fieldOfView);
+        if (scene.cam instanceof PerspectiveCamera) {
+            dto.setCamFieldOfView(((PerspectiveCamera) scene.cam).fieldOfView);
+        }
         return dto;
     }
 
@@ -131,7 +134,9 @@ public class SceneConverter {
         scene.cam.direction.set(dto.getCamDirX(), dto.getCamDirY(), dto.getCamDirZ());
         scene.cam.near = dto.getCamNearPlane() > 0 ? dto.getCamNearPlane() : CameraSettings.DEFAULT_NEAR_PLANE;
         scene.cam.far = dto.getCamFarPlane() > 0 ? dto.getCamFarPlane() : CameraSettings.DEFAULT_FAR_PLANE;
-        scene.cam.fieldOfView = dto.getCamFieldOfView() > 0 ? dto.getCamFieldOfView() : CameraSettings.DEFAULT_FOV;
+        if (scene.cam instanceof PerspectiveCamera) {
+            ((PerspectiveCamera) scene.cam).fieldOfView = dto.getCamFieldOfView() > 0 ? dto.getCamFieldOfView() : CameraSettings.DEFAULT_FOV;
+        }
         scene.cam.update();
 
         return scene;

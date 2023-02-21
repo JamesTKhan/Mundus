@@ -34,7 +34,7 @@ public class RenderWidget extends Widget {
     private static Vector2 vec = new Vector2();
 
     private ScreenViewport viewport;
-    private PerspectiveCamera cam;
+    private Camera cam;
     private Renderer renderer;
 
     public RenderWidget(PerspectiveCamera cam) {
@@ -52,7 +52,7 @@ public class RenderWidget extends Widget {
         return viewport;
     }
 
-    public void setCam(PerspectiveCamera cam) {
+    public void setCam(Camera cam) {
         this.cam = cam;
         viewport.setCamera(cam);
     }

@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
@@ -64,7 +65,7 @@ public class Scene implements Disposable {
     public Skybox skybox;
     public String skyboxAssetId;
 
-    public PerspectiveCamera cam;
+    public Camera cam;
     public ModelBatch batch;
     public ModelBatch depthBatch;
     public ModelCacheManager modelCacheManager;

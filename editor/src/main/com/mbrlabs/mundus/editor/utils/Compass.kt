@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.utils
 
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
@@ -34,7 +35,7 @@ import com.badlogic.gdx.utils.Disposable
  * @author Marcus Brummer
  * @version 05-12-2015
  */
-class Compass(private var worldCam: PerspectiveCamera?) : Disposable {
+class Compass(private var worldCam: Camera?) : Disposable {
 
     private val ARROW_LENGTH = 0.05f
     private val ARROW_THIKNESS = 0.4f
@@ -67,7 +68,7 @@ class Compass(private var worldCam: PerspectiveCamera?) : Disposable {
         compassInstance.transform.translate(0.93f, 0.94f, 0f)
     }
 
-    fun setWorldCam(cam: PerspectiveCamera) {
+    fun setWorldCam(cam: Camera) {
         this.worldCam = cam
     }
 
