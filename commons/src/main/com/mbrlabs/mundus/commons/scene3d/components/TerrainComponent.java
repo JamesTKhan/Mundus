@@ -76,7 +76,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
         if (isCulled) return;
         triggerBeforeRenderEvent();
         gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment);
-        triggerAfterRenderEvent();
     }
 
     @Override
@@ -94,6 +93,8 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
             ((ClippableShader) shader).setClippingPlane(clippingPlane);
             ((ClippableShader) shader).setClippingHeight(clipHeight);
         }
+
+        triggerBeforeDeptRenderEvent();
 
         gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
     }

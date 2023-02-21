@@ -170,7 +170,6 @@ public class Scene implements Disposable {
         sceneGraph.render(delta, clippingPlaneDisable, 0);
         modelCacheManager.triggerBeforeRenderEvent();
         batch.render(modelCacheManager.modelCache, environment);
-        modelCacheManager.triggerAfterRenderEvent();
         batch.end();
     }
 
@@ -204,6 +203,7 @@ public class Scene implements Disposable {
         shadowMapper.begin(light.direction);
         depthBatch.begin(shadowMapper.getCam());
         sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
+        modelCacheManager.triggerBeforeDeptRenderEvent();
         depthBatch.render(modelCacheManager.modelCache, environment, shadowMapShader);
         depthBatch.end();
         shadowMapper.end();

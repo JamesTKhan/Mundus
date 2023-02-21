@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.commons.scene3d;
 
+import com.mbrlabs.mundus.commons.event.BeforeDeptRenderEvent;
 import com.mbrlabs.mundus.commons.event.Event;
 
 /**
@@ -20,12 +21,13 @@ public interface ModelEventable {
     void removeEvent(Event event);
 
     /**
+     * Triggers all {@link BeforeDeptRenderEvent}.
+     */
+    void triggerBeforeDeptRenderEvent();
+
+    /**
      * Triggers all {@link com.mbrlabs.mundus.commons.event.BeforeRenderEvent}.
      */
     void triggerBeforeRenderEvent();
 
-    /**
-     * Triggers all {@link com.mbrlabs.mundus.commons.event.AfterRenderEvent}.
-     */
-    void triggerAfterRenderEvent();
 }

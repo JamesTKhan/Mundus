@@ -23,7 +23,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
-import com.mbrlabs.mundus.commons.event.AfterRenderEvent;
+import com.mbrlabs.mundus.commons.event.BeforeDeptRenderEvent;
 import com.mbrlabs.mundus.commons.event.BeforeRenderEvent;
 import com.mbrlabs.mundus.commons.event.Event;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -124,13 +124,13 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
     }
 
     @Override
-    public void triggerBeforeRenderEvent() {
-        triggerEvent(BeforeRenderEvent.class);
+    public void triggerBeforeDeptRenderEvent() {
+        triggerEvent(BeforeDeptRenderEvent.class);
     }
 
     @Override
-    public void triggerAfterRenderEvent() {
-        triggerEvent(AfterRenderEvent.class);
+    public void triggerBeforeRenderEvent() {
+        triggerEvent(BeforeRenderEvent.class);
     }
 
     protected void setDimensions(ModelInstance modelInstance) {

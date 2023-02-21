@@ -65,7 +65,6 @@ public class WaterComponent extends CullableComponent implements AssetUsage {
         if (isCulled) return;
         triggerBeforeRenderEvent();
         gameObject.sceneGraph.scene.batch.render(waterAsset.water, gameObject.sceneGraph.scene.environment);
-        triggerAfterRenderEvent();
     }
 
     @Override
