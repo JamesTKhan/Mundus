@@ -23,9 +23,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
-import com.mbrlabs.mundus.commons.event.BeforeDeptRenderEvent;
-import com.mbrlabs.mundus.commons.event.BeforeRenderEvent;
 import com.mbrlabs.mundus.commons.event.Event;
+import com.mbrlabs.mundus.commons.event.EventType;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
 import com.mbrlabs.mundus.commons.scene3d.ModelEventable;
@@ -125,12 +124,12 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
     @Override
     public void triggerBeforeDeptRenderEvent() {
-        triggerEvent(BeforeDeptRenderEvent.class);
+        triggerEvent(EventType.BEFORE_DEPT_RENDER);
     }
 
     @Override
     public void triggerBeforeRenderEvent() {
-        triggerEvent(BeforeRenderEvent.class);
+        triggerEvent(EventType.BEFORE_RENDER);
     }
 
     protected void setDimensions(ModelInstance modelInstance) {
@@ -148,13 +147,13 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         radius = dimensions.len() / 2f;
     }
 
-    private void triggerEvent(final Class<? extends Event> clazz) {
+    private void triggerEvent(final EventType eventType) {
         if (events == null) {
             return;
         }
 
         for (int i = 0; i < events.size; ++i) {
-            if (clazz.isInstance(events.get(i))) {
+            if (eventType == events.get(i).getType()) {
                 events.get(i).action();
             }
         }
