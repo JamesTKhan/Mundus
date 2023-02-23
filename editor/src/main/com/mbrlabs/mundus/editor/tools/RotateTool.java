@@ -200,8 +200,6 @@ public class RotateTool extends TransformTool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        super.touchDown(screenX, screenY, pointer, button);
-
         ProjectContext projectContext = getProjectManager().current();
         if (button == Input.Buttons.LEFT && projectContext.currScene.currentSelection != null) {
             lastRot = getCurrentAngle();
@@ -212,6 +210,7 @@ public class RotateTool extends TransformTool {
             RotateHandle handle = (RotateHandle) handlePicker.pick(handles, projectContext.currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
+                super.touchDown(screenX, screenY, pointer, button);
                 return false;
             }
 
@@ -228,6 +227,8 @@ public class RotateTool extends TransformTool {
             default:
                 break;
             }
+        } else {
+            super.touchDown(screenX, screenY, pointer, button);
         }
 
         return false;

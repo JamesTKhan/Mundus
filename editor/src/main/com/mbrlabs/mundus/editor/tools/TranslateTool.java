@@ -251,13 +251,12 @@ public class TranslateTool extends TransformTool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        super.touchDown(screenX, screenY, pointer, button);
-
         if (button == Input.Buttons.LEFT && getProjectManager().current().currScene.currentSelection != null) {
             TranslateHandle handle = (TranslateHandle) handlePicker.pick(handles,
                     getProjectManager().current().currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
+                super.touchDown(screenX, screenY, pointer, button);
                 return false;
             }
 
@@ -283,6 +282,8 @@ public class TranslateTool extends TransformTool {
         if (state != TransformState.IDLE) {
             command = new TranslateCommand(getProjectManager().current().currScene.currentSelection);
             command.setBefore(getProjectManager().current().currScene.currentSelection.getLocalPosition(temp0));
+        } else {
+            super.touchDown(screenX, screenY, pointer, button);
         }
 
         return false;

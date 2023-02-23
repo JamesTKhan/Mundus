@@ -99,7 +99,7 @@ public class SelectionTool extends Tool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (button == Input.Buttons.RIGHT) {
+        if (button == Input.Buttons.LEFT) {
             GameObject selection = goPicker.pick(getProjectManager().current().currScene, screenX, screenY);
             if (selection != null && !selection.equals(getProjectManager().current().currScene.currentSelection)) {
                 gameObjectSelected(selection);

@@ -238,9 +238,9 @@ public class ScaleTool extends TransformTool {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         ProjectContext projectContext = getProjectManager().current();
         final GameObject selection = projectContext.currScene.currentSelection;
-        super.touchDown(screenX, screenY, pointer, button);
 
         if(!isScalable(selection)) {
+            super.touchDown(screenX, screenY, pointer, button);
             return false;
         }
 
@@ -248,6 +248,7 @@ public class ScaleTool extends TransformTool {
             ScaleHandle handle = (ScaleHandle) handlePicker.pick(handles, projectContext.currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
+                super.touchDown(screenX, screenY, pointer, button);
                 return false;
             }
             // current scale
@@ -284,7 +285,11 @@ public class ScaleTool extends TransformTool {
         if (state != TransformState.IDLE) {
             command = new ScaleCommand(selection);
             command.setBefore(tempScale);
+        } else {
+            super.touchDown(screenX, screenY, pointer, button);
         }
+
+
         return false;
     }
 
