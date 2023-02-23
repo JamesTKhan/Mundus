@@ -2,6 +2,7 @@
 - [Breaking Change] Terrain API modified to closer reflect Models
 - Add 'addGameObject(ModelInstance, Vector3)' and 'addGameObject(Model, Vector3)' methods to SceneGraph to add external model to scene graph
 - Add render event handling
+- Change scene camera to be base camera class
 
 [0.4.0] ~ 10/12/2022
 - [BREAKING CHANGE] The loadScene method for the runtime has changed. A ModelBatch is no longer required to be passed in.

@@ -10,6 +10,7 @@
 - Fix selection after model delete
 - Fix temporary files not deleted on model import
 - Fix reset import model dialog on close
+- Change scene camera to be base camera class
 - Duplicate materials from inspector
 
 [0.4.2] ~ 10/24/2022
