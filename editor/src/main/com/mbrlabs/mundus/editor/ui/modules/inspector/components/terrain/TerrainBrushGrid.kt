@@ -45,6 +45,7 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget,
     private val strengthSlider = ImprovedSlider(0f, 1f, 0.1f)
 
     private val toolManager: ToolManager = Mundus.inject()
+    private val buttons: ArrayList<FaTextButton> = arrayListOf()
 
     init {
         Mundus.registerEventListener(this)
@@ -75,6 +76,11 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget,
         add(settingsTable).expand().fill().padLeft(5f).padRight(5f).padTop(5f).row()
     }
 
+    fun clearSelection() {
+        toolManager.deactivateTool()
+        buttons.forEach { it.style = FaTextButton.styleNoBg }
+    }
+
     fun activateBrush(brush: TerrainBrush) {
         try {
             brush.mode = brushMode
@@ -95,10 +101,14 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget,
      */
     private inner class BrushItem(brush: TerrainBrush) : VisTable() {
         init {
-            add(FaTextButton(brush.iconFont))
+            val button = FaTextButton(brush.iconFont)
+            add(button)
+            buttons.add(button)
             addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    clearSelection()
                     activateBrush(brush)
+                    button.style = FaTextButton.styleActive
                 }
             })
         }
