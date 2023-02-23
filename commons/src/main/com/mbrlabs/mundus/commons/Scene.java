@@ -203,7 +203,7 @@ public class Scene implements Disposable {
         shadowMapper.begin(light.direction);
         depthBatch.begin(shadowMapper.getCam());
         sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
-        modelCacheManager.triggerBeforeDeptRenderEvent();
+        modelCacheManager.triggerBeforeDepthRenderEvent();
         depthBatch.render(modelCacheManager.modelCache, environment, shadowMapShader);
         depthBatch.end();
         shadowMapper.end();

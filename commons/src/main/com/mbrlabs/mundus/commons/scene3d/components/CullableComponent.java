@@ -123,8 +123,8 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
     }
 
     @Override
-    public void triggerBeforeDeptRenderEvent() {
-        triggerEvent(EventType.BEFORE_DEPT_RENDER);
+    public void triggerBeforeDepthRenderEvent() {
+        triggerEvent(EventType.BEFORE_DEPTH_RENDER);
     }
 
     @Override

@@ -147,7 +147,7 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
             ((ClippableShader) depthShader).setClippingHeight(clipHeight);
         }
 
-        triggerBeforeDeptRenderEvent();
+        triggerBeforeDepthRenderEvent();
 
         if (depthShader instanceof ShadowMapShader)
             // Shadow Mapper will use default (PBR's depth shader) for animation support

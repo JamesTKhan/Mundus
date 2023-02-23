@@ -94,7 +94,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
             ((ClippableShader) shader).setClippingHeight(clipHeight);
         }
 
-        triggerBeforeDeptRenderEvent();
+        triggerBeforeDepthRenderEvent();
 
         gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
     }

@@ -104,9 +104,9 @@ public class ModelCacheManager implements Disposable {
         modelCacheUpdateInterval = interval;
     }
 
-    public void triggerBeforeDeptRenderEvent() {
+    public void triggerBeforeDepthRenderEvent() {
         for (final ModelEventable me : modelEventables) {
-            me.triggerBeforeDeptRenderEvent();
+            me.triggerBeforeDepthRenderEvent();
         }
     }
 
