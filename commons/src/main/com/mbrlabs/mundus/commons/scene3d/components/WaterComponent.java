@@ -63,6 +63,7 @@ public class WaterComponent extends CullableComponent implements AssetUsage {
     public void render(float delta) {
         super.render(delta);
         if (isCulled) return;
+        triggerBeforeRenderEvent();
         gameObject.sceneGraph.scene.batch.render(waterAsset.water, gameObject.sceneGraph.scene.environment);
     }
 

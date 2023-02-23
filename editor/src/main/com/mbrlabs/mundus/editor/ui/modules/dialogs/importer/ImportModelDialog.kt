@@ -77,6 +77,7 @@ import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider
 import net.mgsx.gltf.scene3d.utils.IBLBuilder
 import java.io.IOException
+import java.nio.file.Paths
 
 /**
  * @author Marcus Brummer
@@ -106,6 +107,12 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
 
     override fun dispose() {
         importMeshTable.dispose()
+    }
+
+    override fun close() {
+        importMeshTable.deleteTempModel()
+        importMeshTable.resetDialog()
+        super.close()
     }
 
     /**
@@ -353,6 +360,29 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
                 previewInstance = null
             }
             modelBatch?.dispose()
+            modelInput.clear()
+        }
+
+        fun deleteTempModel() {
+            if (importedModel == null) return
+
+            val parentDirectory = importedModel?.file?.parent()
+            val isDir = parentDirectory?.isDirectory
+            if (isDir == true) {
+                val path = Paths.get("mundus", "temp")
+                val tempModelDirPath = parentDirectory.file().absolutePath
+                // A defensive check, just to make sure the directory we are deleting is in the temp directory
+                if (tempModelDirPath.contains(path.toString())) {
+                    parentDirectory.deleteDirectory()
+                    Mundus.postEvent(LogEvent("Deleted temporary model directory at $tempModelDirPath"))
+                }
+            }
+
+            importedModel = null
+        }
+
+        fun resetDialog() {
+            previewInstance = null
             modelInput.clear()
         }
     }

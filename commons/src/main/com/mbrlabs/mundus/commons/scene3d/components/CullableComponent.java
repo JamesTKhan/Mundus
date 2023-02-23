@@ -21,9 +21,13 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
+import com.mbrlabs.mundus.commons.event.Event;
+import com.mbrlabs.mundus.commons.event.EventType;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
+import com.mbrlabs.mundus.commons.scene3d.ModelEventable;
 import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
 
@@ -40,7 +44,7 @@ import static com.mbrlabs.mundus.commons.utils.ModelUtils.isVisible;
  * @author JamesTKhan
  * @version July 18, 2022
  */
-public abstract class CullableComponent extends AbstractComponent {
+public abstract class CullableComponent extends AbstractComponent implements ModelEventable {
     private final static BoundingBox tmpBounds = new BoundingBox();
     private final static Vector3 tmpScale = new Vector3();
     private static DirectionalLight directionalLight;
@@ -51,6 +55,7 @@ public abstract class CullableComponent extends AbstractComponent {
 
     // Is it offscreen?
     protected boolean isCulled = false;
+    private Array<Event> events;
     private ModelInstance modelInstance = null;
 
     public CullableComponent(GameObject go) {
@@ -101,6 +106,32 @@ public abstract class CullableComponent extends AbstractComponent {
         }
     }
 
+    @Override
+    public void addEvent(final Event event) {
+        if (events == null) {
+            events = new Array<>(1);
+        }
+        events.add(event);
+    }
+
+    @Override
+    public void removeEvent(final Event event) {
+        if (events == null) {
+            events = new Array<>(1);
+        }
+        events.removeValue(event, true);
+    }
+
+    @Override
+    public void triggerBeforeDepthRenderEvent() {
+        triggerEvent(EventType.BEFORE_DEPTH_RENDER);
+    }
+
+    @Override
+    public void triggerBeforeRenderEvent() {
+        triggerEvent(EventType.BEFORE_RENDER);
+    }
+
     protected void setDimensions(ModelInstance modelInstance) {
         if (modelInstance == null) {
             Gdx.app.error("CullableComponent", "setDimensions called with null modelInstance");
@@ -114,6 +145,18 @@ public abstract class CullableComponent extends AbstractComponent {
         center.scl(tmpScale);
         dimensions.scl(tmpScale);
         radius = dimensions.len() / 2f;
+    }
+
+    private void triggerEvent(final EventType eventType) {
+        if (events == null) {
+            return;
+        }
+
+        for (int i = 0; i < events.size; ++i) {
+            if (eventType == events.get(i).getType()) {
+                events.get(i).action();
+            }
+        }
     }
 
     public Vector3 getCenter() {
