@@ -9,12 +9,16 @@ abstract class BaseBrushTab(private val parent: TerrainComponentWidget,
 
     protected val terrainBrushGrid: TerrainBrushGrid = TerrainBrushGrid(parent, mode);
 
+    override fun onShow() {
+        terrainBrushGrid.setupButtonStyleForSelectedBrush()
+    }
+
     /**
      * Clears selection.
      */
     override fun onHide() {
         super.onHide()
-        terrainBrushGrid.clearSelection()
+        terrainBrushGrid.clearSelectedButtonStyle()
     }
 
 }
