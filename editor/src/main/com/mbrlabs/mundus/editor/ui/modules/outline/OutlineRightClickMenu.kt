@@ -82,8 +82,8 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 if (selectedGO != null) {
                     outline.removeGo(selectedGO!!)
-                    if (toolManager.isSelected(selectedGO)) {
-                        toolManager.activeTool.onDisabled()
+                    if (toolManager.isSelected(selectedGO!!)) {
+                        toolManager.activeTool!!.onDisabled()
                     }
                 }
             }
