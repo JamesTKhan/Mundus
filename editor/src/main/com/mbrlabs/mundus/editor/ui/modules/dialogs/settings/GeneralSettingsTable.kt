@@ -29,6 +29,7 @@ import com.mbrlabs.mundus.editor.events.SettingsChangedEvent
 import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FileChooserField
+import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 
 /**
  * @author Marcus Brummer
@@ -59,7 +60,8 @@ class GeneralSettingsTable : BaseSettingsTable() {
         add(VisLabel("Keyboard Layout")).growX().row()
         add(keyboardLayouts).growX().row()
 
-        add(VisLabel("Right button select")).left().row()
+        val rightButtonSelectToolTip = ToolTipLabel("Right button select", "The object picker switchable to right or left mouse button")
+        add(rightButtonSelectToolTip).left().row()
         add(rightButtonSelectCheckBox).left()
 
         addHandlers()
