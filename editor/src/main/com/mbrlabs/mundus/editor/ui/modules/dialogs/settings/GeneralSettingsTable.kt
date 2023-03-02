@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.editor.ui.modules.dialogs.settings
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
+import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.mbrlabs.mundus.editor.Mundus
@@ -25,6 +26,7 @@ import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.registry.KeyboardLayout
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.SettingsChangedEvent
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FileChooserField
 
@@ -36,9 +38,11 @@ class GeneralSettingsTable : BaseSettingsTable() {
 
     private val fbxBinary = FileChooserField(500)
     private val keyboardLayouts = VisSelectBox<KeyboardLayout>()
+    private val rightButtonSelectCheckBox = VisCheckBox("")
 
     private val kryoManager: KryoManager = Mundus.inject()
     private val registry: Registry = Mundus.inject()
+    private val globalPreferencesManager : MundusPreferencesManager = Mundus.inject()
 
     init {
         top().left()
@@ -55,6 +59,9 @@ class GeneralSettingsTable : BaseSettingsTable() {
         add(VisLabel("Keyboard Layout")).growX().row()
         add(keyboardLayouts).growX().row()
 
+        add(VisLabel("Right button select")).left().row()
+        add(rightButtonSelectCheckBox).left()
+
         addHandlers()
         reloadSettings()
     }
@@ -63,6 +70,7 @@ class GeneralSettingsTable : BaseSettingsTable() {
 
     fun reloadSettings() {
         fbxBinary.setText(registry.settings.fbxConvBinary)
+        rightButtonSelectCheckBox.isChecked = globalPreferencesManager.getBoolean(MundusPreferencesManager.GLOB_RIGHT_BUTTON_SELECT, MundusPreferencesManager.GLOB_RIGHT_SELECT_BUTTON_DEFAULT_VALUE)
     }
 
     private fun addHandlers() {
@@ -78,6 +86,9 @@ class GeneralSettingsTable : BaseSettingsTable() {
         val fbxPath = fbxBinary.path
         registry.settings.fbxConvBinary = fbxPath
         kryoManager.saveRegistry(registry)
+
+        globalPreferencesManager.set(MundusPreferencesManager.GLOB_RIGHT_BUTTON_SELECT, rightButtonSelectCheckBox.isChecked)
+
         Mundus.postEvent(SettingsChangedEvent(registry.settings))
         UI.toaster.success("Settings saved")
     }

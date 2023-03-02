@@ -15,7 +15,7 @@ class MundusPreferencesManager(preferencesKey: String) : PreferencesManager {
 
         // Keys for global prefs
         const val GLOB_MUNDUS_VERSION = "version"
-        const val GLOB_RIGHT_BUTTON_SELECT = "rightButtonSelect"
+        const val GLOB_RIGHT_BUTTON_SELECT = "right-button-select"
 
         // Default values for global prefs
         const val GLOB_RIGHT_SELECT_BUTTON_DEFAULT_VALUE = true
