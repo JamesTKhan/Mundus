@@ -27,6 +27,7 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.GlobalBrushSettingsChangedEvent
+import com.mbrlabs.mundus.editor.events.ToolDeactivatedEvent
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
 import com.mbrlabs.mundus.editor.ui.UI
@@ -39,12 +40,13 @@ import com.mbrlabs.mundus.editor.ui.widgets.ImprovedSlider
  */
 class TerrainBrushGrid(private val parent: TerrainComponentWidget,
                        private val brushMode: TerrainBrush.BrushMode)
-    : VisTable(), GlobalBrushSettingsChangedEvent.GlobalBrushSettingsChangedListener {
+    : VisTable(), GlobalBrushSettingsChangedEvent.GlobalBrushSettingsChangedListener, ToolDeactivatedEvent.ToolDeactivatedEventListener {
 
     private val grid = GridGroup(40f, 0f)
     private val strengthSlider = ImprovedSlider(0f, 1f, 0.1f)
 
     private val toolManager: ToolManager = Mundus.inject()
+    private val buttons: ArrayList<FaTextButton> = arrayListOf()
 
     init {
         Mundus.registerEventListener(this)
@@ -75,6 +77,22 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget,
         add(settingsTable).expand().fill().padLeft(5f).padRight(5f).padTop(5f).row()
     }
 
+    fun setupButtonStyleForSelectedBrush() {
+        val activeTool = toolManager.activeTool
+
+        if (activeTool is TerrainBrush && activeTool.mode.equals(brushMode)) {
+            for (button in buttons) {
+                if (button.name == activeTool.name) {
+                    button.style = FaTextButton.styleActive
+                }
+            }
+        }
+    }
+
+    fun clearSelectedButtonStyle() {
+        buttons.forEach { it.style = FaTextButton.styleNoBg }
+    }
+
     fun activateBrush(brush: TerrainBrush) {
         try {
             brush.mode = brushMode
@@ -91,14 +109,23 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget,
         strengthSlider.value = TerrainBrush.getStrength()
     }
 
+    override fun onToolDeactivatedEvent(event: ToolDeactivatedEvent) {
+        clearSelectedButtonStyle()
+    }
+
     /**
      */
     private inner class BrushItem(brush: TerrainBrush) : VisTable() {
         init {
-            add(FaTextButton(brush.iconFont))
+            val button = FaTextButton(brush.iconFont)
+            button.name = brush.name
+            add(button)
+            buttons.add(button)
             addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    clearSelectedButtonStyle()
                     activateBrush(brush)
+                    button.style = FaTextButton.styleActive
                 }
             })
         }

@@ -29,7 +29,7 @@ import com.mbrlabs.mundus.editor.shader.Shaders
  * @author Marcus Brummer
  * @version 25-12-2015
  */
-abstract class Tool(protected var projectManager: ProjectManager,
+abstract class Tool(var projectManager: ProjectManager,
                     protected var history: CommandHistory) : InputAdapter(), Disposable {
 
     protected var shader: Shader = Shaders.wireframeShader
