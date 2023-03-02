@@ -37,6 +37,7 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.history.commands.TranslateCommand;
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager;
 import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
@@ -73,9 +74,12 @@ public class TranslateTool extends TransformTool {
 
     private TranslateCommand command;
 
-    public TranslateTool(ProjectManager projectManager, GameObjectPicker goPicker, ToolHandlePicker handlePicker, CommandHistory history) {
-
-        super(projectManager, goPicker, handlePicker, history);
+    public TranslateTool(final ProjectManager projectManager,
+                         final GameObjectPicker goPicker,
+                         final ToolHandlePicker handlePicker,
+                         final CommandHistory history,
+                         final MundusPreferencesManager globalPreferencesManager) {
+        super(projectManager, goPicker, handlePicker, history, globalPreferencesManager);
 
         ModelBuilder modelBuilder = new ModelBuilder();
 
@@ -251,12 +255,18 @@ public class TranslateTool extends TransformTool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if (isSelectWithRightButton()) {
+            super.touchDown(screenX, screenY, pointer, button);
+        }
+
         if (button == Input.Buttons.LEFT && getProjectManager().current().currScene.currentSelection != null) {
             TranslateHandle handle = (TranslateHandle) handlePicker.pick(handles,
                     getProjectManager().current().currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
-                super.touchDown(screenX, screenY, pointer, button);
+                if (!isSelectWithRightButton()) {
+                    super.touchDown(screenX, screenY, pointer, button);
+                }
                 return false;
             }
 
@@ -282,7 +292,7 @@ public class TranslateTool extends TransformTool {
         if (state != TransformState.IDLE) {
             command = new TranslateCommand(getProjectManager().current().currScene.currentSelection);
             command.setBefore(getProjectManager().current().currScene.currentSelection.getLocalPosition(temp0));
-        } else {
+        } else if (!isSelectWithRightButton()) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 

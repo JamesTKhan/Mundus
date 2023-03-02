@@ -110,12 +110,12 @@ object Mundus {
         commandHistory = CommandHistory(CommandHistory.DEFAULT_LIMIT)
         modelImporter = ModelImporter(registry)
         projectManager = ProjectManager(kryoManager, registry, modelBatch)
+        globalPrefManager = MundusPreferencesManager("global")
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
-                commandHistory)
+                commandHistory, globalPrefManager)
         gizmoManager = GizmoManager()
         shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager)
         json = Json()
-        globalPrefManager = MundusPreferencesManager("global")
         glProfiler = MundusGLProfiler(Gdx.graphics)
 
         // add to DI container

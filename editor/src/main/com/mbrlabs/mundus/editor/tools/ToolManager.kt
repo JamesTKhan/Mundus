@@ -22,10 +22,12 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ToolDeactivatedEvent
 import com.mbrlabs.mundus.editor.history.CommandHistory
 import com.mbrlabs.mundus.editor.input.InputManager
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.tools.brushes.*
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker
@@ -34,9 +36,14 @@ import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker
  * @author Marcus Brummer
  * @version 25-12-2015
  */
-class ToolManager(private val inputManager: InputManager, projectManager: ProjectManager?, goPicker: GameObjectPicker?,
-                  toolHandlePicker: ToolHandlePicker?, shapeRenderer: ShapeRenderer?,
-                  history: CommandHistory?) : InputAdapter(), Disposable {
+class ToolManager(private val inputManager: InputManager,
+                  projectManager: ProjectManager,
+                  goPicker: GameObjectPicker,
+                  toolHandlePicker: ToolHandlePicker,
+                  shapeRenderer: ShapeRenderer,
+                  history: CommandHistory,
+                  globalPreferencesManager: MundusPreferencesManager)
+    : InputAdapter(), Disposable {
     var activeTool: Tool? = null
         private set
     var terrainBrushes: Array<TerrainBrush>
@@ -53,10 +60,10 @@ class ToolManager(private val inputManager: InputManager, projectManager: Projec
         terrainBrushes.add(StarBrush(projectManager, history))
         terrainBrushes.add(ConfettiBrush(projectManager, history))
         modelPlacementTool = ModelPlacementTool(projectManager, history)
-        selectionTool = SelectionTool(projectManager, goPicker, history)
-        translateTool = TranslateTool(projectManager, goPicker, toolHandlePicker, history)
-        rotateTool = RotateTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, history)
-        scaleTool = ScaleTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, history)
+        selectionTool = SelectionTool(projectManager, goPicker, history, globalPreferencesManager)
+        translateTool = TranslateTool(projectManager, goPicker, toolHandlePicker, history, globalPreferencesManager)
+        rotateTool = RotateTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, history, globalPreferencesManager)
+        scaleTool = ScaleTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, history, globalPreferencesManager)
     }
 
     fun activateTool(tool: Tool?) {
