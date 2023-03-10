@@ -16,7 +16,6 @@
 package com.mbrlabs.mundus.editor.tools;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
@@ -27,6 +26,7 @@ import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager;
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
 import com.mbrlabs.mundus.editor.utils.Fa;
 
@@ -38,12 +38,16 @@ public class SelectionTool extends Tool {
 
     public static final String NAME = "Selection Tool";
 
-    private GameObjectPicker goPicker;
+    private final GameObjectPicker goPicker;
+    private final MundusPreferencesManager globalPreferencesManager;
 
-    public SelectionTool(ProjectManager projectManager, GameObjectPicker goPicker,
-            CommandHistory history) {
+    public SelectionTool(final ProjectManager projectManager,
+                         final GameObjectPicker goPicker,
+                         final CommandHistory history,
+                         final MundusPreferencesManager globalPreferencesManager) {
         super(projectManager, history);
         this.goPicker = goPicker;
+        this.globalPreferencesManager = globalPreferencesManager;
     }
 
     public void gameObjectSelected(GameObject selection) {
@@ -99,7 +103,7 @@ public class SelectionTool extends Tool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (button == Input.Buttons.RIGHT) {
+        if (button == getSelectButtonId()) {
             GameObject selection = goPicker.pick(getProjectManager().current().currScene, screenX, screenY);
             if (selection != null && !selection.equals(getProjectManager().current().currScene.currentSelection)) {
                 gameObjectSelected(selection);
@@ -133,6 +137,14 @@ public class SelectionTool extends Tool {
     @Override
     public void onDisabled() {
         getProjectManager().current().currScene.currentSelection = null;
+    }
+
+    protected boolean isSelectWithRightButton() {
+        return globalPreferencesManager.getBoolean(MundusPreferencesManager.GLOB_RIGHT_BUTTON_SELECT, MundusPreferencesManager.GLOB_RIGHT_SELECT_BUTTON_DEFAULT_VALUE);
+    }
+
+    private int getSelectButtonId() {
+        return isSelectWithRightButton() ? Input.Buttons.RIGHT : Input.Buttons.LEFT;
     }
 
 }

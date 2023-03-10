@@ -13,6 +13,7 @@
 - Change scene camera to be base camera class
 - Duplicate materials from inspector
 - Show brush selection
+- Object picker can use with left mouse button. Switchable in the settings
 
 [0.4.2] ~ 10/24/2022
 - Fix shader compilation error for Terrain when using normal maps

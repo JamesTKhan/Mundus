@@ -36,6 +36,7 @@ import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.history.commands.RotateCommand;
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager;
 import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
@@ -70,9 +71,12 @@ public class RotateTool extends TransformTool {
     private RotateCommand currentRotateCommand;
     private float lastRot = 0;
 
-    public RotateTool(ProjectManager projectManager, GameObjectPicker goPicker, ToolHandlePicker handlePicker,
-            ShapeRenderer shapeRenderer, CommandHistory history) {
-        super(projectManager, goPicker, handlePicker, history);
+    public RotateTool(final ProjectManager projectManager,
+                      final GameObjectPicker goPicker,
+                      final ToolHandlePicker handlePicker,
+                      final ShapeRenderer shapeRenderer, CommandHistory history,
+                      final MundusPreferencesManager globalPreferencesManager) {
+        super(projectManager, goPicker, handlePicker, history, globalPreferencesManager);
         this.shapeRenderer = shapeRenderer;
         xHandle = new RotateHandle(X_HANDLE_ID, COLOR_X);
         yHandle = new RotateHandle(Y_HANDLE_ID, COLOR_Y);
@@ -200,7 +204,9 @@ public class RotateTool extends TransformTool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        super.touchDown(screenX, screenY, pointer, button);
+        if (isSelectWithRightButton()) {
+            super.touchDown(screenX, screenY, pointer, button);
+        }
 
         ProjectContext projectContext = getProjectManager().current();
         if (button == Input.Buttons.LEFT && projectContext.currScene.currentSelection != null) {
@@ -212,6 +218,9 @@ public class RotateTool extends TransformTool {
             RotateHandle handle = (RotateHandle) handlePicker.pick(handles, projectContext.currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
+                if (!isSelectWithRightButton()) {
+                    super.touchDown(screenX, screenY, pointer, button);
+                }
                 return false;
             }
 
@@ -228,6 +237,8 @@ public class RotateTool extends TransformTool {
             default:
                 break;
             }
+        } else if (!isSelectWithRightButton()) {
+            super.touchDown(screenX, screenY, pointer, button);
         }
 
         return false;
