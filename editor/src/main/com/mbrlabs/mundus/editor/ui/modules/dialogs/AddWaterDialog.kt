@@ -9,6 +9,7 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.assets.WaterAsset
+import com.mbrlabs.mundus.commons.water.Water
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
@@ -16,6 +17,8 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.ui.widgets.FloatFieldWithLabel
+import com.mbrlabs.mundus.editor.ui.widgets.IntegerFieldWithLabel
+import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.createWaterGO
 
@@ -26,6 +29,7 @@ class AddWaterDialog : BaseDialog("Add Water") {
     }
 
     private val name = VisTextField("Water")
+    private val waterWidth = IntegerFieldWithLabel("", -1, false)
     private val positionX = FloatFieldWithLabel("", -1, true)
     private val positionY = FloatFieldWithLabel("", -1, true)
     private val positionZ = FloatFieldWithLabel("", -1, true)
@@ -58,7 +62,8 @@ class AddWaterDialog : BaseDialog("Add Water") {
         content.left().top()
         content.add(VisLabel("Name: ")).left().padBottom(10f)
         content.add(name).fillX().expandX().row()
-        // TODO width
+        content.add(ToolTipLabel("Water width: ", "Size of the water, in meters.")).left().padBottom(10f)
+        content.add(waterWidth).fillX().expandX().row()
         content.add(VisLabel("Position on x-axis:")).left().padBottom(10f)
         content.add(positionX).fillX().expandX().row()
         content.add(VisLabel("Position on y-axis:")).left().padBottom(10f)
@@ -71,6 +76,7 @@ class AddWaterDialog : BaseDialog("Add Water") {
     }
 
     private fun setDefaults() {
+        waterWidth.text = Water.DEFAULT_SIZE.toString()
         positionX.text = "0"
         positionY.text = "0"
         positionZ.text = "0"
@@ -88,6 +94,7 @@ class AddWaterDialog : BaseDialog("Add Water") {
     private fun createWater() {
         try {
             val waterName: String = name.text
+            val width: Int = waterWidth.int
             val posX: Float = positionX.float
             val posY: Float = positionY.float
             val posZ: Float = positionZ.float
@@ -104,7 +111,7 @@ class AddWaterDialog : BaseDialog("Add Water") {
                 val asset: WaterAsset
                 try {
                     // create asset
-                    asset = context.assetManager.createWaterAsset(waterName)
+                    asset = context.assetManager.createWaterAsset(waterName, width)
                 } catch (ex: AssetAlreadyExistsException) {
                     Dialogs.showErrorDialog(stage, "An asset with that name already exists.")
                     return
