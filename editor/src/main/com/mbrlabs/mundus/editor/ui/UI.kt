@@ -35,18 +35,7 @@ import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.ui.modules.MundusToolbar
 import com.mbrlabs.mundus.editor.ui.modules.outline.Outline
 import com.mbrlabs.mundus.editor.ui.modules.StatusBar
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.AddComponentDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.AddTerrainDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.AmbientLightDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.DirectionalLightsDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExitDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.ExportDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.FogDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.KeyboardShortcutsDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.NewProjectDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.ShadowSettingsDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.SkyboxDialog
-import com.mbrlabs.mundus.editor.ui.modules.dialogs.VersionDialog
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.*
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportModelDialog
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.importer.ImportTextureDialog
@@ -107,6 +96,7 @@ object UI : Stage(ScreenViewport()) {
     var shadowSettingsDialog: ShadowSettingsDialog = ShadowSettingsDialog()
     var addComponentDialog: AddComponentDialog = AddComponentDialog()
     var addTerrainDialog: AddTerrainDialog = AddTerrainDialog()
+    val addWaterDialog: AddWaterDialog = AddWaterDialog()
     val versionDialog: VersionDialog = VersionDialog()
     val keyboardShortcuts: KeyboardShortcutsDialog = KeyboardShortcutsDialog()
     val debugRenderDialog: DebugRenderDialog = DebugRenderDialog()
