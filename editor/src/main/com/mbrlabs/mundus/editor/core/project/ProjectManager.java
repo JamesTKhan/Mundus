@@ -478,6 +478,7 @@ public class ProjectManager implements Disposable {
                 scene.terrains.add(((TerrainComponent) c));
             }
         }
+        context.helperLines.build(scene.terrains);
 
         return scene;
     }
