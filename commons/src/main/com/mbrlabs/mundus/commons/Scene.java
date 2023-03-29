@@ -55,6 +55,7 @@ import net.mgsx.gltf.scene3d.utils.IBLBuilder;
  */
 public class Scene implements Disposable {
     public static boolean isRuntime = true;
+    public static boolean renderSkybox = true;
 
     private String name;
     private long id;
@@ -259,7 +260,7 @@ public class Scene implements Disposable {
     }
 
     protected void renderSkybox() {
-        if (skybox != null) {
+        if (renderSkybox && skybox != null) {
             batch.begin(cam);
             batch.render(skybox.getSkyboxInstance(), environment, skybox.shader);
             batch.end();
