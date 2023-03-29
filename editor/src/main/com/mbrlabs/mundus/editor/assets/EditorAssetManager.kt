@@ -822,7 +822,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         return copy
     }
 
-    fun createWaterAsset(name: String): WaterAsset {
+    fun createWaterAsset(name: String, width: Int): WaterAsset {
         val waterFileName = "$name.water"
         val metaFilename = "$waterFileName.meta"
 
@@ -842,6 +842,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         val asset = WaterAsset(meta, FileHandle(file))
         asset.load()
+        asset.water.waterWidth = width
 
         // set base textures
         asset.applyDependencies()

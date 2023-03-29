@@ -12,12 +12,10 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
-import com.mbrlabs.mundus.editor.utils.createWaterGO
 
 /**
  * Holds code for Outlines right click menu. Separated from Outline class
@@ -299,35 +297,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
             // add waterAsset
             addWater.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                    try {
-                        Log.trace(TAG, "Add water game object in root node.")
-                        val context = projectManager.current()
-                        val sceneGraph = context.currScene.sceneGraph
-                        val goID = projectManager.current().obtainID()
-
-                        // Save context here so that the ID above is persisted in .pro file
-                        kryoManager.saveProjectContext(projectManager.current())
-
-                        val name = "Water $goID"
-                        // create asset
-                        val asset = context.assetManager.createWaterAsset(name)
-                        asset.load()
-                        asset.applyDependencies()
-
-                        val waterGO = createWaterGO(sceneGraph,
-                            null, goID, name, asset)
-                        // update sceneGraph
-                        sceneGraph.addGameObject(waterGO)
-                        // update outline
-                        outline.addGoToTree(null, waterGO)
-
-                        projectManager.current().assetManager.addNewAsset(asset)
-                        Mundus.postEvent(AssetImportEvent(asset))
-                        Mundus.postEvent(SceneGraphChangedEvent())
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-
+                    UI.showDialog(UI.addWaterDialog)
                 }
             })
         }
