@@ -49,7 +49,7 @@ class HelperLineObject(terrainComponent: TerrainComponent) {
     private fun calculateIndicesNum(terrain: Terrain): Int {
         val vertexResolution = terrain.vertexResolution - 1
 
-        return (2 * vertexResolution - 2) * (2 * vertexResolution - 2)
+        return (2 * vertexResolution - 2) * (2 * vertexResolution - 2) * 2
     }
 
     private fun buildIndices(numIndices: Int, terrain: Terrain): ShortArray {
@@ -61,6 +61,15 @@ class HelperLineObject(terrainComponent: TerrainComponent) {
             for (x in 0 until  vertexResolution - 2) {
                 val current = y * vertexResolution + x
                 val next = current + 1
+
+                indices[++i] = current.toShort()
+                indices[++i] = next.toShort()
+            }
+        }
+        for (y in 0 until vertexResolution - 2) {
+            for (x in 0 until  vertexResolution - 2) {
+                val current = y + vertexResolution * x
+                val next = current + vertexResolution
 
                 indices[++i] = current.toShort()
                 indices[++i] = next.toShort()
