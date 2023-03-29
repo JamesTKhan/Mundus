@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.model.MeshPart
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.commons.terrain.Terrain
 
 class HelperLineObject(terrainComponent: TerrainComponent) {
 
@@ -24,17 +25,11 @@ class HelperLineObject(terrainComponent: TerrainComponent) {
         val terrain = terrainComponent.terrainAsset.terrain
 
         val numVertices = terrain.vertexResolution * terrain.vertexResolution
-        val numIndices = 6
+        val numIndices = calculateIndicesNum(terrain)
 
         val mesh = Mesh(true, numVertices, numIndices, attribs)
 
-        val indices = ShortArray(numIndices)
-        indices[0] = 0
-        indices[1] = 1
-        indices[2] = 2
-        indices[3] = 3
-        indices[4] = 4
-        indices[5] = 5
+        val indices = buildIndices(numIndices, terrain)
 
         val material = Material(ColorAttribute.createDiffuse(Color.RED))
 
@@ -49,6 +44,30 @@ class HelperLineObject(terrainComponent: TerrainComponent) {
         mb.part(meshPart, material)
         val model = mb.end()
         modelInstance = ModelInstance(model)
+    }
+
+    private fun calculateIndicesNum(terrain: Terrain): Int {
+        val vertexResolution = terrain.vertexResolution - 1
+
+        return (2 * vertexResolution - 2) * (2 * vertexResolution - 2)
+    }
+
+    private fun buildIndices(numIndices: Int, terrain: Terrain): ShortArray {
+        val indices = ShortArray(numIndices)
+        val vertexResolution = terrain.vertexResolution
+
+        var i = -1
+        for (y in 0 until vertexResolution - 2) {
+            for (x in 0 until  vertexResolution - 2) {
+                val current = y * vertexResolution + x
+                val next = current + 1
+
+                indices[++i] = current.toShort()
+                indices[++i] = next.toShort()
+            }
+        }
+
+        return indices
     }
 
 }
