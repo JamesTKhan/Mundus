@@ -7,10 +7,11 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.model.MeshPart
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
+import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-class HelperLineObject(terrainComponent: TerrainComponent) {
+class HelperLineObject(terrainComponent: TerrainComponent) : Disposable {
 
     var modelInstance: ModelInstance?
 
@@ -77,6 +78,10 @@ class HelperLineObject(terrainComponent: TerrainComponent) {
         }
 
         return indices
+    }
+
+    override fun dispose() {
+        modelInstance?.model!!.dispose()
     }
 
 }

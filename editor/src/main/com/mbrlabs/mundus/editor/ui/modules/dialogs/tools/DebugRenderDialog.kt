@@ -1,9 +1,12 @@
 package com.mbrlabs.mundus.editor.ui.modules.dialogs.tools
 
+import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.kotcrab.vis.ui.widget.VisCheckBox
+import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisRadioButton
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel
@@ -32,19 +35,28 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         setupListeners()
     }
 
+    override fun show(stage: Stage?): VisDialog {
+        if ((projectManager.current().helperLines.hasHelperLines() && !helperLines.isChecked) ||
+                (!projectManager.current().helperLines.hasHelperLines() && helperLines.isChecked)) {
+            toggle(helperLines)
+        }
+
+        return super.show(stage)
+    }
+
+    override fun show(stage: Stage?, action: Action?): VisDialog {
+        return super.show(stage, action)
+    }
+
     override fun act(delta: Float) {
         super.act(delta)
 
         if (projectManager.current().renderWireframe != wireFrameMode.isChecked) {
-            wireFrameMode.setProgrammaticChangeEvents(false)
-            wireFrameMode.toggle()
-            wireFrameMode.setProgrammaticChangeEvents(true)
+            toggle(wireFrameMode)
         }
 
         if (projectManager.current().renderDebug != showBoundingBoxes.isChecked) {
-            showBoundingBoxes.setProgrammaticChangeEvents(false)
-            showBoundingBoxes.toggle()
-            showBoundingBoxes.setProgrammaticChangeEvents(true)
+            toggle(showBoundingBoxes)
         }
     }
 
@@ -86,18 +98,30 @@ class DebugRenderDialog : BaseDialog(TITLE) {
                 rectangleRadio.touchable = touchable
                 hexagonRadio.touchable = touchable
                 columnSpinner.touchable = touchable
+
+                if (helperLines.isChecked) {
+                    createHelperLines()
+                } else {
+                    clearHelperLines()
+                }
             }
         })
 
         rectangleRadio.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 hexagonRadio.isChecked = !rectangleRadio.isChecked
+
+                clearHelperLines()
+                createHelperLines()
             }
         })
 
         hexagonRadio.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 rectangleRadio.isChecked = !hexagonRadio.isChecked
+
+                clearHelperLines()
+                createHelperLines()
             }
         })
     }
@@ -118,4 +142,14 @@ class DebugRenderDialog : BaseDialog(TITLE) {
 
         return helperLinesTable
     }
+
+    private fun toggle(checkBox: VisCheckBox) {
+        checkBox.setProgrammaticChangeEvents(false)
+        checkBox.toggle()
+        checkBox.setProgrammaticChangeEvents(true)
+    }
+
+    private fun clearHelperLines() = projectManager.current().helperLines.dispose()
+
+    private fun createHelperLines() = projectManager.current().helperLines.build(projectManager.current().currScene.terrains)
 }
