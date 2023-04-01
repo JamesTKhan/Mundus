@@ -10,10 +10,10 @@ class HelperLines : Disposable {
     private val helperLineObjects = Array<HelperLineObject>()
 
 
-    fun build(terrainComponents: Array<TerrainComponent>) {
+    fun build(width: Int, terrainComponents: Array<TerrainComponent>) {
 
         for (terrainComponent in terrainComponents) {
-            helperLineObjects.add(HelperLineObject(terrainComponent))
+            helperLineObjects.add(HelperLineObject(width, terrainComponent))
         }
     }
 

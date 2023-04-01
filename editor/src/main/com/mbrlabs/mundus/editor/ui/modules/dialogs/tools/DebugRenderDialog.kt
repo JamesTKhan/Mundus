@@ -1,6 +1,5 @@
 package com.mbrlabs.mundus.editor.ui.modules.dialogs.tools
 
-import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.Touchable
@@ -27,7 +26,8 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     private val helperLines = VisCheckBox(null)
     private val rectangleRadio = VisRadioButton("Rectangle")
     private val hexagonRadio = VisRadioButton("Hexagon")
-    private val columnSpinner = Spinner("Column:", IntSpinnerModel(2, 2, 10))
+    private val columnSpinnerModel = IntSpinnerModel(2, 2, 10)
+    private val columnSpinner = Spinner("Column:", columnSpinnerModel)
     private val projectManager: ProjectManager = Mundus.inject()
 
     init {
@@ -36,16 +36,16 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     }
 
     override fun show(stage: Stage?): VisDialog {
-        if ((projectManager.current().helperLines.hasHelperLines() && !helperLines.isChecked) ||
-                (!projectManager.current().helperLines.hasHelperLines() && helperLines.isChecked)) {
+        val hasHelperLines = projectManager.current().helperLines.hasHelperLines()
+        if ((hasHelperLines && !helperLines.isChecked) || (!hasHelperLines && helperLines.isChecked)) {
             toggle(helperLines)
         }
+        val touchable = if (hasHelperLines) Touchable.enabled else Touchable.disabled
+        rectangleRadio.touchable = touchable
+        hexagonRadio.touchable = touchable
+        columnSpinner.touchable = touchable
 
         return super.show(stage)
-    }
-
-    override fun show(stage: Stage?, action: Action?): VisDialog {
-        return super.show(stage, action)
     }
 
     override fun act(delta: Float) {
@@ -124,6 +124,13 @@ class DebugRenderDialog : BaseDialog(TITLE) {
                 createHelperLines()
             }
         })
+
+        columnSpinner.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                clearHelperLines()
+                createHelperLines()
+            }
+        })
     }
 
     private fun createHelperLinesTable(): VisTable {
@@ -151,5 +158,5 @@ class DebugRenderDialog : BaseDialog(TITLE) {
 
     private fun clearHelperLines() = projectManager.current().helperLines.dispose()
 
-    private fun createHelperLines() = projectManager.current().helperLines.build(projectManager.current().currScene.terrains)
+    private fun createHelperLines() = projectManager.current().helperLines.build(columnSpinnerModel.value, projectManager.current().currScene.terrains)
 }

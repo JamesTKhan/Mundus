@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-class HelperLineObject(terrainComponent: TerrainComponent) : Disposable {
+class HelperLineObject(private val width: Int, terrainComponent: TerrainComponent) : Disposable {
 
     var modelInstance: ModelInstance?
 
@@ -50,7 +50,7 @@ class HelperLineObject(terrainComponent: TerrainComponent) : Disposable {
     private fun calculateIndicesNum(terrain: Terrain): Int {
         val vertexResolution = terrain.vertexResolution
 
-        return vertexResolution * 2 * (vertexResolution + 1) * 2
+        return (vertexResolution - vertexResolution % width) * 2 * ((vertexResolution / width) + 1) * 2
     }
 
     private fun buildIndices(numIndices: Int, terrain: Terrain): ShortArray {
@@ -58,7 +58,7 @@ class HelperLineObject(terrainComponent: TerrainComponent) : Disposable {
         val vertexResolution = terrain.vertexResolution
 
         var i = -1
-        for (y in 0 until vertexResolution) {
+        for (y in 0 until vertexResolution step width) {
             for (x in 0 until  vertexResolution - 1) {
                 val current = y * vertexResolution + x
                 val next = current + 1
@@ -67,7 +67,7 @@ class HelperLineObject(terrainComponent: TerrainComponent) : Disposable {
                 indices[++i] = next.toShort()
             }
         }
-        for (y in 0 until vertexResolution) {
+        for (y in 0 until vertexResolution step width) {
             for (x in 0 until  vertexResolution - 1) {
                 val current = y + vertexResolution * x
                 val next = current + vertexResolution
