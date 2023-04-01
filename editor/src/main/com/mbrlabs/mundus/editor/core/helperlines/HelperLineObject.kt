@@ -50,7 +50,7 @@ class HelperLineObject(private val width: Int, terrainComponent: TerrainComponen
     private fun calculateIndicesNum(terrain: Terrain): Int {
         val vertexResolution = terrain.vertexResolution
 
-        return (vertexResolution - vertexResolution % width) * 2 * ((vertexResolution / width) + 1) * 2
+        return vertexResolution * 2 * ((vertexResolution / width) + 1) * 2
     }
 
     private fun buildIndices(numIndices: Int, terrain: Terrain): ShortArray {
