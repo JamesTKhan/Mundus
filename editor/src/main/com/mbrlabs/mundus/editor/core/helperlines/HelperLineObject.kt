@@ -49,6 +49,7 @@ class HelperLineObject(private val width: Int,
         mb.part(meshPart, material)
         val model = mb.end()
         modelInstance = ModelInstance(model)
+        modelInstance.transform = terrainComponent.modelInstance.transform
     }
 
     fun updateVertices() {
