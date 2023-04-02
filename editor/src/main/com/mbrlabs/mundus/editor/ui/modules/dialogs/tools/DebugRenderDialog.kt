@@ -109,7 +109,15 @@ class DebugRenderDialog : BaseDialog(TITLE) {
 
         rectangleRadio.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                hexagonRadio.isChecked = !rectangleRadio.isChecked
+                rectangleRadio.setProgrammaticChangeEvents(false)
+                hexagonRadio.setProgrammaticChangeEvents(false)
+                if (rectangleRadio.isChecked) {
+                    hexagonRadio.isChecked = false
+                } else {
+                    rectangleRadio.isChecked = true
+                }
+                rectangleRadio.setProgrammaticChangeEvents(true)
+                hexagonRadio.setProgrammaticChangeEvents(true)
 
                 clearHelperLines()
                 createHelperLines()
@@ -118,7 +126,15 @@ class DebugRenderDialog : BaseDialog(TITLE) {
 
         hexagonRadio.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                rectangleRadio.isChecked = !hexagonRadio.isChecked
+                rectangleRadio.setProgrammaticChangeEvents(false)
+                hexagonRadio.setProgrammaticChangeEvents(false)
+                if (hexagonRadio.isChecked) {
+                    rectangleRadio.isChecked = false
+                } else {
+                    hexagonRadio.isChecked = true
+                }
+                rectangleRadio.setProgrammaticChangeEvents(true)
+                hexagonRadio.setProgrammaticChangeEvents(true)
 
                 clearHelperLines()
                 createHelperLines()
