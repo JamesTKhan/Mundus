@@ -19,6 +19,7 @@ package com.mbrlabs.mundus.editor.core.project;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
 import com.mbrlabs.mundus.editor.core.EditorScene;
 import com.mbrlabs.mundus.editor.core.helperlines.HelperLines;
@@ -68,6 +69,8 @@ public class ProjectContext implements Disposable {
         currScene = new EditorScene();
         helperLines = new HelperLines();
         this.idProvider = idProvider;
+
+        Mundus.INSTANCE.registerEventListener(helperLines);
     }
 
     public synchronized int obtainID() {
@@ -85,6 +88,7 @@ public class ProjectContext implements Disposable {
         if (assetManager != null) {
             assetManager.dispose();
         }
+        Mundus.INSTANCE.unregisterEventListener(helperLines);
     }
 
     /**
