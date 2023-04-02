@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.commons.terrain.Terrain;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GlobalBrushSettingsChangedEvent;
+import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.history.commands.TerrainHeightCommand;
 import com.mbrlabs.mundus.editor.history.commands.TerrainPaintCommand;
@@ -253,6 +254,7 @@ public abstract class TerrainBrush extends Tool {
         terrain.update();
         terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainAsset);
+        Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
     private void flatten() {
@@ -295,6 +297,7 @@ public abstract class TerrainBrush extends Tool {
         terrain.update();
         terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainAsset);
+        Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
     private void raiseLower(BrushAction action) {
@@ -323,6 +326,7 @@ public abstract class TerrainBrush extends Tool {
         terrain.update();
         terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainAsset);
+        Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
     /**

@@ -11,9 +11,13 @@ import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-class HelperLineObject(private val width: Int, terrainComponent: TerrainComponent) : Disposable {
+class HelperLineObject(private val width: Int,
+                       val terrainComponent: TerrainComponent) : Disposable {
 
-    var modelInstance: ModelInstance?
+    val mesh: Mesh
+    val modelInstance: ModelInstance
+
+
 
     init {
         val attribs = VertexAttributes(
@@ -28,7 +32,7 @@ class HelperLineObject(private val width: Int, terrainComponent: TerrainComponen
         val numVertices = terrain.vertexResolution * terrain.vertexResolution
         val numIndices = calculateIndicesNum(terrain)
 
-        val mesh = Mesh(true, numVertices, numIndices, attribs)
+        mesh = Mesh(true, numVertices, numIndices, attribs)
 
         val indices = buildIndices(numIndices, terrain)
 
@@ -45,6 +49,10 @@ class HelperLineObject(private val width: Int, terrainComponent: TerrainComponen
         mb.part(meshPart, material)
         val model = mb.end()
         modelInstance = ModelInstance(model)
+    }
+
+    fun updateVertices() {
+        mesh.setVertices(terrainComponent.terrainAsset.terrain.vertices)
     }
 
     private fun calculateIndicesNum(terrain: Terrain): Int {
@@ -81,7 +89,7 @@ class HelperLineObject(private val width: Int, terrainComponent: TerrainComponen
     }
 
     override fun dispose() {
-        modelInstance?.model!!.dispose()
+        modelInstance.model!!.dispose()
     }
 
 }

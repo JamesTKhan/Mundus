@@ -19,7 +19,9 @@ package com.mbrlabs.mundus.editor.terrain;
 import java.util.Random;
 
 import com.badlogic.gdx.math.Interpolation;
-import com.mbrlabs.mundus.commons.terrain.Terrain;
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
+import com.mbrlabs.mundus.editor.Mundus;
+import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
 
 /**
  *
@@ -28,15 +30,18 @@ import com.mbrlabs.mundus.commons.terrain.Terrain;
  */
 public class PerlinNoiseGenerator extends Generator<PerlinNoiseGenerator> {
 
-    private Random rand = new Random();
+    private final Random rand = new Random();
+    private final TerrainComponent terrainComponent;
+
     private long seed = 0;
     // number of noise functions
     private int octaves = 1;
     // decrease of amplitude per octave
     private float roughness = 0;
 
-    PerlinNoiseGenerator(Terrain terrain) {
-        super(terrain);
+    PerlinNoiseGenerator(TerrainComponent terrainComponent) {
+        super(terrainComponent.getTerrainAsset().getTerrain());
+        this.terrainComponent = terrainComponent;
     }
 
     public PerlinNoiseGenerator seed(long seed) {
@@ -71,6 +76,7 @@ public class PerlinNoiseGenerator extends Generator<PerlinNoiseGenerator> {
         }
 
         terrain.update();
+        Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
     private float interpolate(float a, float b, float blend) {
