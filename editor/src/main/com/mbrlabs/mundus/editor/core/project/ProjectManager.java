@@ -44,6 +44,7 @@ import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
 import com.mbrlabs.mundus.editor.core.EditorScene;
 import com.mbrlabs.mundus.editor.core.converter.GameObjectConverter;
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter;
+import com.mbrlabs.mundus.editor.core.helperlines.HelperLineType;
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager;
 import com.mbrlabs.mundus.editor.core.registry.ProjectRef;
 import com.mbrlabs.mundus.editor.core.registry.Registry;
@@ -478,7 +479,7 @@ public class ProjectManager implements Disposable {
                 scene.terrains.add(((TerrainComponent) c));
             }
         }
-        context.helperLines.build(2, scene.terrains);
+        context.helperLines.build(HelperLineType.HEXAGON, 2, scene.terrains);
 
         return scene;
     }

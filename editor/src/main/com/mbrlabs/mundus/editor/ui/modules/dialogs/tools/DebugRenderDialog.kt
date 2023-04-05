@@ -11,6 +11,7 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel
 import com.kotcrab.vis.ui.widget.spinner.Spinner
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.helperlines.HelperLineType
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
@@ -172,7 +173,11 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         checkBox.setProgrammaticChangeEvents(true)
     }
 
+    private fun getHelperLineType(): HelperLineType {
+        return if (rectangleRadio.isChecked) HelperLineType.RECTANGLE else HelperLineType.HEXAGON
+    }
+
     private fun clearHelperLines() = projectManager.current().helperLines.dispose()
 
-    private fun createHelperLines() = projectManager.current().helperLines.build(columnSpinnerModel.value, projectManager.current().currScene.terrains)
+    private fun createHelperLines() = projectManager.current().helperLines.build(getHelperLineType(), columnSpinnerModel.value, projectManager.current().currScene.terrains)
 }
