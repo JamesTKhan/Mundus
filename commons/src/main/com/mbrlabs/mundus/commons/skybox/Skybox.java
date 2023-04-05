@@ -37,6 +37,7 @@ public class Skybox implements Disposable {
     public static final float DEFAULT_ROTATE_SPEED = 0.1f;
 
     public Shader shader;
+    public boolean active;
 
     private Model boxModel;
     private ModelInstance boxInstance;
@@ -56,6 +57,7 @@ public class Skybox implements Disposable {
             FileHandle positiveZ, FileHandle negativeZ, Shader shader) {
         set(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ);
 
+        this.active = true;
         this.shader = shader;
         boxModel = createModel();
         boxInstance = new ModelInstance(boxModel);
