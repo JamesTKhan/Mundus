@@ -63,7 +63,7 @@ class HelperLineObject(private val type: HelperLineType,
         if (type == HelperLineType.RECTANGLE) {
             return vertexResolution * 2 * ((vertexResolution / width) + 1) * 2
         } else {
-            return 2 * width + 2 * width + 2 * width
+            return 3 * (2 * width) + 5 * (2 * width)
         }
     }
 
@@ -108,8 +108,9 @@ class HelperLineObject(private val type: HelperLineType,
 //        for (y in 0 until vertexResolution step width) {
 //            for (x in 0 until vertexResolution step 3 * width) {
         for (y in 0 until width step width) {
-            for (x in 0 until width step width) {
-                val leftVertex = y * vertexResolution + x
+            var column = 0
+            for (x in 0 until 4 * width step 2 * width) {
+                val leftVertex = (y + column % 2 * width) * vertexResolution + x
 
                 // Bottom left side
                 for (j in 0 until width) {
@@ -144,6 +145,33 @@ class HelperLineObject(private val type: HelperLineType,
                     }
                 }
 
+                // Top right side
+                for (j in 0 until width) {
+                    val current = leftVertex + 3 * width - (j * vertexResolution) - j
+                    val next = current - vertexResolution - 1
+
+                    val currentRow = getRow(current, vertexResolution)
+                    val nextRow = getRow(next, vertexResolution)
+                    if (nextRow >= 0 && currentRow - 1 == nextRow) {
+                        indices[++i] = current.toShort()
+                        indices[++i] = next.toShort()
+                    }
+                }
+
+                // Top side
+                for (j in width until 2 * width) {
+                    val current = leftVertex - width * vertexResolution + j
+                    val next = current + 1
+
+                    val currentRow = getRow(current, vertexResolution)
+                    val nextRow = getRow(next, vertexResolution)
+                    if (currentRow >= 0 && currentRow == nextRow) {
+                        indices[++i] = current.toShort()
+                        indices[++i] = next.toShort()
+                    }
+                }
+
+                ++column
             }
         }
     }
