@@ -13,19 +13,18 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
 
     companion object {
         val PATTERN = arrayOf(
-                arrayOf(arrayOf(Vector.BOTTOM_RIGHT), arrayOf(),             arrayOf(),                                      arrayOf(Vector.RIGHT)),
-                arrayOf(arrayOf(),                    arrayOf(Vector.RIGHT), arrayOf(Vector.TOP_RIGHT, Vector.BOTTOM_RIGHT), arrayOf()            ),
-                arrayOf(arrayOf(Vector.TOP_RIGHT),    arrayOf(),             arrayOf(),                                      arrayOf(Vector.RIGHT))
+                arrayOf(arrayOf(Vector.TOP_RIGHT, Vector.BOTTOM_RIGHT), arrayOf(),             arrayOf(),                                      arrayOf(Vector.RIGHT)),
+                arrayOf(arrayOf(),                                      arrayOf(Vector.RIGHT), arrayOf(Vector.TOP_RIGHT, Vector.BOTTOM_RIGHT), arrayOf()            )
         )
     }
 
     override fun calculateIndicesNum(width: Int, terrain: Terrain): Int {
-        return 28 // TODO calculate
+        return Short.MAX_VALUE.toInt() // TODO calculate
     }
 
     override fun fillIndices(width: Int, indices: ShortArray, vertexResolution: Int) {
         val vertexResolutionWidth = 8
-        val vertexResolutionHeight = 5
+        val vertexResolutionHeight = 10
 
         var patternX = 0
         var patternY = 0
