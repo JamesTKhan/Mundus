@@ -11,14 +11,10 @@ import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-class HelperLineObject(private val type: HelperLineType,
-                       private val width: Int,
-                       val terrainComponent: TerrainComponent) : Disposable {
+abstract class HelperLineObject(width: Int, val terrainComponent: TerrainComponent) : Disposable {
 
     val mesh: Mesh
     val modelInstance: ModelInstance
-
-
 
     init {
         val attribs = VertexAttributes(
@@ -31,11 +27,11 @@ class HelperLineObject(private val type: HelperLineType,
         val terrain = terrainComponent.terrainAsset.terrain
 
         val numVertices = terrain.vertexResolution * terrain.vertexResolution
-        val numIndices = calculateIndicesNum(terrain)
+        val numIndices = calculateIndicesNum(width, terrain)
 
         mesh = Mesh(true, numVertices, numIndices, attribs)
 
-        val indices = buildIndices(numIndices, terrain)
+        val indices = buildIndices(width, numIndices, terrain)
 
         val material = Material(ColorAttribute.createDiffuse(Color.RED))
 
@@ -57,126 +53,18 @@ class HelperLineObject(private val type: HelperLineType,
         mesh.setVertices(terrainComponent.terrainAsset.terrain.vertices)
     }
 
-    private fun calculateIndicesNum(terrain: Terrain): Int {
-        val vertexResolution = terrain.vertexResolution
+    abstract fun calculateIndicesNum(width: Int, terrain: Terrain): Int
 
-        if (type == HelperLineType.RECTANGLE) {
-            return vertexResolution * 2 * ((vertexResolution / width) + 1) * 2
-        } else {
-            return 3 * (2 * width) + 5 * (2 * width)
-        }
-    }
+    abstract fun fillIndices(width: Int, indices: ShortArray, vertexResolution: Int)
 
-    private fun buildIndices(numIndices: Int, terrain: Terrain): ShortArray {
+    private fun buildIndices(width: Int, numIndices: Int, terrain: Terrain): ShortArray {
         val indices = ShortArray(numIndices)
         val vertexResolution = terrain.vertexResolution
 
-        if (type == HelperLineType.RECTANGLE) {
-            fillRectangleIndices(indices, vertexResolution)
-        } else {
-            fillHexagonIndices(indices, vertexResolution)
-        }
+        fillIndices(width, indices, vertexResolution)
 
         return indices
     }
-
-    private fun fillRectangleIndices(indices: ShortArray, vertexResolution: Int) {
-        var i = -1
-        for (y in 0 until vertexResolution step width) {
-            for (x in 0 until  vertexResolution - 1) {
-                val current = y * vertexResolution + x
-                val next = current + 1
-
-                indices[++i] = current.toShort()
-                indices[++i] = next.toShort()
-            }
-        }
-        for (y in 0 until vertexResolution step width) {
-            for (x in 0 until  vertexResolution - 1) {
-                val current = y + vertexResolution * x
-                val next = current + vertexResolution
-
-                indices[++i] = current.toShort()
-                indices[++i] = next.toShort()
-            }
-        }
-    }
-
-    private fun fillHexagonIndices(indices: ShortArray, vertexResolution: Int) {
-        var i = -1
-
-//        for (y in 0 until vertexResolution step width) {
-//            for (x in 0 until vertexResolution step 3 * width) {
-        for (y in 0 until width step width) {
-            var column = 0
-            for (x in 0 until 4 * width step 2 * width) {
-                val leftVertex = (y + column % 2 * width) * vertexResolution + x
-
-                // Bottom left side
-                for (j in 0 until width) {
-                    val current = leftVertex + j * vertexResolution + j
-                    val next = current + vertexResolution + 1
-
-                    if (getRow(next, vertexResolution) == getRow(current, vertexResolution) + 1) {
-                        indices[++i] = current.toShort()
-                        indices[++i] = next.toShort()
-                    }
-                }
-
-                // Bottom side
-                for (j in width until 2 * width) {
-                    val current = leftVertex + width * vertexResolution + j
-                    val next = current + 1
-
-                    if (getRow(next, vertexResolution) == getRow(current, vertexResolution)) {
-                        indices[++i] = current.toShort()
-                        indices[++i] = next.toShort()
-                    }
-                }
-
-                // Bottom right side
-                for (j in 2 * width until 3 * width) {
-                    val current = leftVertex + (3 * width - j) * vertexResolution + j
-                    val next = current - vertexResolution + 1
-
-                    if (getRow(next, vertexResolution) == getRow(current, vertexResolution) - 1) {
-                        indices[++i] = current.toShort()
-                        indices[++i] = next.toShort()
-                    }
-                }
-
-                // Top right side
-                for (j in 0 until width) {
-                    val current = leftVertex + 3 * width - (j * vertexResolution) - j
-                    val next = current - vertexResolution - 1
-
-                    val currentRow = getRow(current, vertexResolution)
-                    val nextRow = getRow(next, vertexResolution)
-                    if (nextRow >= 0 && currentRow - 1 == nextRow) {
-                        indices[++i] = current.toShort()
-                        indices[++i] = next.toShort()
-                    }
-                }
-
-                // Top side
-                for (j in width until 2 * width) {
-                    val current = leftVertex - width * vertexResolution + j
-                    val next = current + 1
-
-                    val currentRow = getRow(current, vertexResolution)
-                    val nextRow = getRow(next, vertexResolution)
-                    if (currentRow >= 0 && currentRow == nextRow) {
-                        indices[++i] = current.toShort()
-                        indices[++i] = next.toShort()
-                    }
-                }
-
-                ++column
-            }
-        }
-    }
-
-    private fun getRow(cell: Int, vertexResolution: Int) = cell / vertexResolution
 
     override fun dispose() {
         modelInstance.model!!.dispose()

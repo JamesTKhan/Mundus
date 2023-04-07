@@ -23,7 +23,7 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
         this.width = width
 
         for (terrainComponent in terrainComponents) {
-            helperLineObjects.add(HelperLineObject(type, width, terrainComponent))
+            addNewHelperLineObject(terrainComponent)
         }
     }
 
@@ -40,7 +40,7 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
     }
 
     override fun onTerrainAdded(event: TerrainAddedEvent) {
-        helperLineObjects.add(HelperLineObject(type, width, event.terrainComponent))
+        addNewHelperLineObject(event.terrainComponent)
     }
 
     override fun onTerrainRemoved(event: TerrainRemovedEvent) {
@@ -53,6 +53,16 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
     override fun dispose() {
         helperLineObjects.forEach { helperLineObject -> helperLineObject.dispose() }
         helperLineObjects.clear()
+    }
+
+    private fun addNewHelperLineObject(terrainComponent: TerrainComponent) {
+        val helperLineObject : HelperLineObject
+        if (type == HelperLineType.RECTANGLE) {
+            helperLineObject = RectangleHelperLineObject(width, terrainComponent)
+        } else {
+            helperLineObject = HexagonHelperLineObject(width, terrainComponent)
+        }
+        helperLineObjects.add(helperLineObject)
     }
 
 }
