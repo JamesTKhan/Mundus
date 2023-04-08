@@ -27,7 +27,7 @@ class KeyboardShortcutsDialog : BaseDialog("Keyboard Shortcuts") {
         addShortcut("D", "Strafe Right", shortcutTableOne)
         addShortcut("Q", "Move Up", shortcutTableOne)
         addShortcut("E", "Move Down", shortcutTableOne)
-        addShortcut("Hold Right Click", "Look Around", shortcutTableOne)
+        addShortcut("Hold Middle Click", "Look Around", shortcutTableOne)
         addShortcut("Scroll", "Zoom forward/backward", shortcutTableOne)
         addShortcut("Hold Shift", "Camera Panning", shortcutTableOne)
         addShortcut("F8", "Toggle Fullscreen 3d", shortcutTableOne)

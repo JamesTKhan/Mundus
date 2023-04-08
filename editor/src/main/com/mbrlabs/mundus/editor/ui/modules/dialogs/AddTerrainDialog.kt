@@ -161,7 +161,6 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                 // Save context here so that the ID above is persisted in .pro file
                 kryoManager.saveProjectContext(projectManager.current())
 
-                //val name = "Terrain $goID"
                 val asset: TerrainAsset
                 try {
                     // create asset

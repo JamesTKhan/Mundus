@@ -259,7 +259,7 @@ public class Scene implements Disposable {
     }
 
     protected void renderSkybox() {
-        if (skybox != null) {
+        if (skybox != null && skybox.active) {
             batch.begin(cam);
             batch.render(skybox.getSkyboxInstance(), environment, skybox.shader);
             batch.end();

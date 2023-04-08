@@ -4,6 +4,8 @@
 - Skybox rendering performance tweak
 - Added scene delete button
 - Added scene rename button
+- Added dialog for adding water
+- Update gradle to 7.5.1
 - Terrain Assets can now be reused in the same scene and other scenes
 - Update gdx-gltf to 2.1.0
 - Fix import of models with spaces in dependencies name
@@ -14,6 +16,7 @@
 - Duplicate materials from inspector
 - Show brush selection
 - Object picker can use with left mouse button. Switchable in the settings
+- Water creation dialog
 
 [0.4.2] ~ 10/24/2022
 - Fix shader compilation error for Terrain when using normal maps
