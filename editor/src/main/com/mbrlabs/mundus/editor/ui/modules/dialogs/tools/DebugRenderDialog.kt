@@ -70,7 +70,7 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         table.add(ToolTipLabel("Wireframe Mode", "Uses OpenGL glPolygonMode with GL_LINE to show wireframe.  Hotkey: CTRL+F3")).left()
         table.add(wireFrameMode).left().padBottom(10f).row()
 
-        table.add(ToolTipLabel("Helper lines", "TODO")).left()
+        table.add(ToolTipLabel("Helper lines", "Render helper lines on the terrains.")).left()
         table.add(helperLines)
         table.row()
         table.add(createHelperLinesTable()).left()
