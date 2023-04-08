@@ -19,12 +19,19 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
     }
 
     override fun calculateIndicesNum(width: Int, terrain: Terrain): Int {
-        return Short.MAX_VALUE.toInt() // TODO calculate
+        var i = 0
+        calculate(width, terrain.vertexResolution) { ++i }
+
+        return i
     }
 
     override fun fillIndices(width: Int, indices: ShortArray, vertexResolution: Int) {
-        var patternY = 0
         var i = 0
+        calculate(width, vertexResolution) {pos -> indices[i++] = pos}
+    }
+
+    private fun calculate(width: Int, vertexResolution: Int, method: (pos: Short) -> Unit) {
+        var patternY = 0
 
         for (y in 0 until vertexResolution + width step width) {
             var patternX = 0
@@ -37,8 +44,8 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
                         val next = getNext(current, pattern, vertexResolution)
 
                         if (isOnMap(current, vertexResolution) && isOk(current, next, vertexResolution, pattern)) {
-                            indices[i++] = current.toShort()
-                            indices[i++] = next.toShort()
+                            method.invoke(current.toShort())
+                            method.invoke(next.toShort())
                         }
 
                         current = next
@@ -51,8 +58,6 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
 
             patternY = ++patternY % PATTERN.size
         }
-
-        println("i: $i")
     }
 
     private fun getNext(current: Int, vector: Vector, vertexResolution: Int): Int {
