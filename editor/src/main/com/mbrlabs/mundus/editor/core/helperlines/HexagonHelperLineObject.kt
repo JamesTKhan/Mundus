@@ -26,7 +26,7 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
         var patternY = 0
         var i = 0
 
-        for (y in 0 until vertexResolution step width) {
+        for (y in 0 until vertexResolution + width step width) {
             var patternX = 0
             for (x in 0 until vertexResolution step width) {
                 val mainCurrent = y * vertexResolution + x
@@ -36,7 +36,7 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
                     for (w in 0 until  width) {
                         val next = getNext(current, pattern, vertexResolution)
 
-                        if (isOk(current, next, vertexResolution, pattern)) {
+                        if (isOnMap(current, vertexResolution) && isOk(current, next, vertexResolution, pattern)) {
                             indices[i++] = current.toShort()
                             indices[i++] = next.toShort()
                         }
@@ -51,6 +51,8 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
 
             patternY = ++patternY % PATTERN.size
         }
+
+        println("i: $i")
     }
 
     private fun getNext(current: Int, vector: Vector, vertexResolution: Int): Int {
@@ -61,13 +63,15 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
         }
     }
 
+    private fun isOnMap(current: Int, vertexResolution: Int): Boolean  = getRow(current, vertexResolution) in 0 until vertexResolution
+
     private fun isOk(current: Int, next: Int, vertexResolution: Int, pattern: Vector): Boolean {
         val currentRow = getRow(current, vertexResolution)
         val nextRow = getRow(next, vertexResolution)
 
         return when(pattern) {
-            Vector.BOTTOM_RIGHT -> currentRow + 1 == nextRow && nextRow < vertexResolution
-            Vector.TOP_RIGHT -> currentRow == nextRow + 1 && next >= 0
+            Vector.BOTTOM_RIGHT -> currentRow + 1 == nextRow && isOnMap(next, vertexResolution)
+            Vector.TOP_RIGHT -> currentRow == nextRow + 1 && isOnMap(next, vertexResolution)
             Vector.RIGHT -> currentRow == nextRow
         }
     }
