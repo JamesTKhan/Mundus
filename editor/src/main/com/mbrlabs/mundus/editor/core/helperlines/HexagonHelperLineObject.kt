@@ -23,16 +23,12 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
     }
 
     override fun fillIndices(width: Int, indices: ShortArray, vertexResolution: Int) {
-        val vertexResolutionWidth = 8
-        val vertexResolutionHeight = 10
-
-        var patternX = 0
         var patternY = 0
-
         var i = 0
 
-        for (y in 0 until vertexResolutionHeight step width) {
-            for (x in 0 until vertexResolutionWidth step width) {
+        for (y in 0 until vertexResolution step width) {
+            var patternX = 0
+            for (x in 0 until vertexResolution step width) {
                 val mainCurrent = y * vertexResolution + x
 
                 for (pattern in PATTERN.get(patternY).get(patternX)) {
@@ -40,13 +36,7 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
                     for (w in 0 until  width) {
                         val next = getNext(current, pattern, vertexResolution)
 
-                        val ok = when(pattern) {
-                            Vector.BOTTOM_RIGHT -> getRow(current, vertexResolution) + 1 == getRow(next, vertexResolution)
-                            Vector.TOP_RIGHT -> getRow(current, vertexResolution) == getRow(next, vertexResolution) + 1
-                            Vector.RIGHT -> getRow(current, vertexResolution) == getRow(next, vertexResolution)
-                        }
-
-                        if (ok && isOnMap(next, vertexResolution)) {
+                        if (isOk(current, next, vertexResolution, pattern)) {
                             indices[i++] = current.toShort()
                             indices[i++] = next.toShort()
                         }
@@ -71,10 +61,15 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
         }
     }
 
-    private fun isOnMap(current: Int, vertexResolution: Int): Boolean {
-        val row = getRow(current, vertexResolution)
+    private fun isOk(current: Int, next: Int, vertexResolution: Int, pattern: Vector): Boolean {
+        val currentRow = getRow(current, vertexResolution)
+        val nextRow = getRow(next, vertexResolution)
 
-        return row in 0..vertexResolution
+        return when(pattern) {
+            Vector.BOTTOM_RIGHT -> currentRow + 1 == nextRow && nextRow < vertexResolution
+            Vector.TOP_RIGHT -> currentRow == nextRow + 1 && next >= 0
+            Vector.RIGHT -> currentRow == nextRow
+        }
     }
 
     private fun getRow(cell: Int, vertexResolution: Int) = cell / vertexResolution
