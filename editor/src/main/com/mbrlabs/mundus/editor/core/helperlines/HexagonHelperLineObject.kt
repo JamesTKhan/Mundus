@@ -62,6 +62,8 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
                         if (isOnMap(current, vertexResolution) && isOk(current, next, vertexResolution, pattern)) {
                             method.invoke(current.toShort())
                             method.invoke(next.toShort())
+                        } else {
+                            break
                         }
 
                         current = next

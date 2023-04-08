@@ -27,7 +27,7 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     private val helperLines = VisCheckBox(null)
     private val rectangleRadio = VisRadioButton("Rectangle")
     private val hexagonRadio = VisRadioButton("Hexagon")
-    private val columnSpinnerModel = IntSpinnerModel(2, 2, 10)
+    private val columnSpinnerModel = IntSpinnerModel(2, 2, 100)
     private val columnSpinner = Spinner("Column:", columnSpinnerModel)
     private val projectManager: ProjectManager = Mundus.inject()
 
