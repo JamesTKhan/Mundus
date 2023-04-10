@@ -187,6 +187,7 @@ public class SceneGraph {
 
     /**
      * Returns an Array of all scene GameObjects that have the given Tag
+     * Traversing the scene can be expensive, cache these results if you need them often.
      *
      * @param tag the string tag to search for
      * @return Array of all matching GameObjects
