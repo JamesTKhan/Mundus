@@ -4,6 +4,7 @@
 - Add render event handling
 - Change scene camera to be base camera class
 - Add active boolean to Skybox class to toggle rendering
+- Added new convenience methods to SceneGraph and GameObject for searching for GameObjects
 
 [0.4.0] ~ 10/12/2022
 - [BREAKING CHANGE] The loadScene method for the runtime has changed. A ModelBatch is no longer required to be passed in.
