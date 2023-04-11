@@ -451,7 +451,9 @@ class Outline : VisTable(),
         tree.selection.add(node)
         node.expandTo()
 
-        toolManager.setDefaultTool()
+        if (toolManager.activeTool !== toolManager.translateTool) {
+            toolManager.setDefaultTool()
+        }
     }
 
     /**
