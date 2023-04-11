@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
+import com.badlogic.gdx.utils.Array
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
@@ -44,6 +45,10 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
     override fun fillIndices(width: Int, indices: ShortArray, vertexResolution: Int) {
         var i = 0
         calculate(width, vertexResolution) {pos -> indices[i++] = pos}
+    }
+
+    override fun calculateCenterOfHelperObjects(): Array<HelperLineCenterObject> {
+        TODO("Not yet implemented")
     }
 
     private fun calculate(width: Int, vertexResolution: Int, method: (pos: Short) -> Unit) {

@@ -16,6 +16,8 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.Array
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
@@ -48,5 +50,25 @@ class RectangleHelperLineObject(width: Int,
                 indices[++i] = next.toShort()
             }
         }
+    }
+
+    override fun calculateCenterOfHelperObjects(): Array<HelperLineCenterObject> {
+        val centerOfHelperObjects = Array<HelperLineCenterObject>()
+        val terrain = terrainComponent.terrainAsset.terrain
+        val vertexResolution = terrain.vertexResolution
+
+        val widthOffset = terrain.terrainWidth.toFloat() / (vertexResolution - 1).toFloat()
+        val depthOffset = terrain.terrainDepth.toFloat() / (vertexResolution - 1).toFloat()
+
+        for (y in 0 until vertexResolution / width) {
+            for (x in 0 until vertexResolution / width) {
+                val terrainX = width * (x * widthOffset + widthOffset / 2)
+                val terrainY = width * (y * depthOffset + depthOffset / 2)
+
+                centerOfHelperObjects.add(HelperLineCenterObject(x, y, Vector2(terrainX, terrainY)))
+            }
+        }
+
+        return centerOfHelperObjects
     }
 }

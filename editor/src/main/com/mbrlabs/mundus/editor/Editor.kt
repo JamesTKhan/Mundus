@@ -163,6 +163,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             scene.batch.begin(scene.cam)
             context.helperLines.render(scene.batch)
             scene.batch.end()
+            context.helperLines.debugDraw(scene.cam) // TODO temporary
 
 
             toolManager.render()

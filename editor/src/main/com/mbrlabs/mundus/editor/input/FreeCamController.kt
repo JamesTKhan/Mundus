@@ -22,6 +22,9 @@ import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.IntIntMap
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.utils.getRayIntersection
 
 /**
  * @author Marcus Brummer
@@ -50,6 +53,7 @@ class FreeCamController : InputAdapter() {
     private val tmp2 = Vector3()
     private val tmp3 = Vector3()
     private var pan = true
+    private val projectManager = Mundus.inject<ProjectManager>()
 
     fun setCamera(camera: Camera) {
         this.camera = camera
@@ -165,5 +169,28 @@ class FreeCamController : InputAdapter() {
             }
         }
         camera!!.update(true)
+    }
+
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        if (camera == null) {
+            return false
+        }
+
+        val currentProject = projectManager.current()
+        val currentScene = currentProject.currScene
+
+        val ray = currentScene.viewport.getPickRay(screenX.toFloat(), screenY.toFloat())
+
+        for (terrain in currentScene.terrains) {
+            val result = getRayIntersection(terrain, ray, Vector3())
+
+            if (result != null) {
+                val a = currentProject.helperLines.findHelperLineCenterObject(terrain, result)
+
+                println("${a.x} ${a.y}")
+            }
+        }
+
+        return true
     }
 }

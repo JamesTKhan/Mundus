@@ -16,7 +16,9 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g3d.ModelBatch
+import com.badlogic.gdx.math.Vector3
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
@@ -50,6 +52,22 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
     }
 
     fun hasHelperLines() = helperLineObjects.notEmpty()
+
+    fun debugDraw(camera: Camera) {
+        for (helperLineObject in helperLineObjects) {
+            helperLineObject.debugDraw(camera)
+        }
+    }
+
+    fun findHelperLineCenterObject(terrainComponent: TerrainComponent, pos: Vector3): HelperLineCenterObject {
+        for (helperLineObject in helperLineObjects) {
+            if (helperLineObject.terrainComponent === terrainComponent) {
+                return helperLineObject.findNearestCenterObject(pos)
+            }
+        }
+
+        throw UnsupportedOperationException() // TODO
+    }
 
     override fun onTerrainVerticesChanged(event: TerrainVerticesChangedEvent) {
         helperLineObjects.filter { it.terrainComponent == event.terrainComponent }.forEach { it.updateVertices() }

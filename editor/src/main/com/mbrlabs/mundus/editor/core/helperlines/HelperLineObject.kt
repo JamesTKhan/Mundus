@@ -23,14 +23,21 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.model.MeshPart
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-abstract class HelperLineObject(width: Int, val terrainComponent: TerrainComponent) : Disposable {
+abstract class HelperLineObject(val width: Int, val terrainComponent: TerrainComponent) : Disposable {
 
     val mesh: Mesh
     val modelInstance: ModelInstance
+
+    val centerOfHelperObjects: Array<HelperLineCenterObject>
+
+    val shapeRenderer = ShapeRenderer()
 
     init {
         val attribs = VertexAttributes(
@@ -63,15 +70,47 @@ abstract class HelperLineObject(width: Int, val terrainComponent: TerrainCompone
         val model = mb.end()
         modelInstance = ModelInstance(model)
         modelInstance.transform = terrainComponent.modelInstance.transform
-    }
 
-    fun updateVertices() {
-        mesh.setVertices(terrainComponent.terrainAsset.terrain.vertices)
+        centerOfHelperObjects = calculateCenterOfHelperObjects()
     }
 
     abstract fun calculateIndicesNum(width: Int, terrain: Terrain): Int
 
     abstract fun fillIndices(width: Int, indices: ShortArray, vertexResolution: Int)
+
+    abstract fun calculateCenterOfHelperObjects(): Array<HelperLineCenterObject>
+
+    fun updateVertices() {
+        mesh.setVertices(terrainComponent.terrainAsset.terrain.vertices)
+    }
+
+    fun debugDraw(camera: Camera) {
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+        shapeRenderer.color = Color.CYAN
+        shapeRenderer.projectionMatrix = camera.combined
+
+        for (helperLineCenterObject in centerOfHelperObjects) {
+            shapeRenderer.box(helperLineCenterObject.position.x - 0.5f, 0f - 0.5f, helperLineCenterObject.position.y - 0.5f, 1f, 1f, 1f)
+        }
+
+        shapeRenderer.end()
+    }
+
+    fun findNearestCenterObject(pos: Vector3): HelperLineCenterObject {
+        var nearest = centerOfHelperObjects.first()
+        var nearestDistance = pos.dst(nearest.position.x, 0f, nearest.position.y)
+
+        for (helperLineCenterObject in centerOfHelperObjects) {
+            val distance = pos.dst(helperLineCenterObject.position.x, 0f, helperLineCenterObject.position.y)
+
+            if (distance < nearestDistance) {
+                nearest = helperLineCenterObject
+                nearestDistance = distance
+            }
+        }
+
+        return nearest
+    }
 
     private fun buildIndices(width: Int, numIndices: Int, terrain: Terrain): ShortArray {
         val indices = ShortArray(numIndices)
