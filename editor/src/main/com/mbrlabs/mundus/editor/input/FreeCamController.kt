@@ -30,7 +30,7 @@ import com.mbrlabs.mundus.editor.utils.getRayIntersection
  * @author Marcus Brummer
  * @version 24-11-2015
  */
-class FreeCamController : InputAdapter() {
+class FreeCamController(private val projectManager: ProjectManager) : InputAdapter() {
 
     val SPEED_01 = 10f
     val SPEED_1 = 150f
@@ -53,7 +53,6 @@ class FreeCamController : InputAdapter() {
     private val tmp2 = Vector3()
     private val tmp3 = Vector3()
     private var pan = true
-    private val projectManager = Mundus.inject<ProjectManager>()
 
     fun setCamera(camera: Camera) {
         this.camera = camera
