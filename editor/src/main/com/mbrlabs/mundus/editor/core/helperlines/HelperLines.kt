@@ -59,14 +59,14 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
         }
     }
 
-    fun findHelperLineCenterObject(terrainComponent: TerrainComponent, pos: Vector3): HelperLineCenterObject {
+    fun findHelperLineCenterObject(terrainComponent: TerrainComponent, pos: Vector3): HelperLineCenterObject? {
         for (helperLineObject in helperLineObjects) {
             if (helperLineObject.terrainComponent === terrainComponent) {
                 return helperLineObject.findNearestCenterObject(pos)
             }
         }
 
-        throw UnsupportedOperationException() // TODO
+        return null
     }
 
     override fun onTerrainVerticesChanged(event: TerrainVerticesChangedEvent) {
