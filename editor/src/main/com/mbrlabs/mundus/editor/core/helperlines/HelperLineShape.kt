@@ -27,7 +27,7 @@ import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-abstract class HelperLineObject(width: Int, val terrainComponent: TerrainComponent) : Disposable {
+abstract class HelperLineShape(width: Int, val terrainComponent: TerrainComponent) : Disposable {
 
     val mesh: Mesh
     val modelInstance: ModelInstance

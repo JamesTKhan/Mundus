@@ -19,7 +19,7 @@ package com.mbrlabs.mundus.editor.core.helperlines
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : HelperLineObject(width, terrainComponent) {
+class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : HelperLineShape(width, terrainComponent) {
 
     enum class Vector {
         BOTTOM_RIGHT,
