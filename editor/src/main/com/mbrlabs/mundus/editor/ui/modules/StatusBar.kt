@@ -40,6 +40,7 @@ class StatusBar : VisTable() {
     private val left = VisTable()
     private val right = VisTable()
 
+    private val helperCell = VisLabel()
     private val fpsLabel = VisLabel()
     private val camPos = VisLabel()
 
@@ -69,6 +70,8 @@ class StatusBar : VisTable() {
         left.add(speed10)
 
         // right
+        right.add(helperCell).right()
+        right.addSeparator(true).padLeft(5f).padRight(5f)
         right.add(camPos).right()
         right.addSeparator(true).padLeft(5f).padRight(5f)
         right.add(fpsLabel).right()
@@ -100,6 +103,14 @@ class StatusBar : VisTable() {
         setFps(Gdx.graphics.framesPerSecond)
         setCamPos(projectManager.current().currScene.cam.position)
         super.act(delta)
+    }
+
+    fun setSelectedHelperCell(x: Int, y: Int) {
+        helperCell.setText("$x x $y")
+    }
+
+    fun clearSelectedHelperCell() {
+        helperCell.setText("")
     }
 
     private fun setFps(fps: Int) {

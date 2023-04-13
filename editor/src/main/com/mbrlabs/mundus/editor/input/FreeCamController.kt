@@ -23,7 +23,9 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.IntIntMap
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.helperlines.HelperLineCenterObject
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.getRayIntersection
 
 /**
@@ -180,14 +182,20 @@ class FreeCamController(private val projectManager: ProjectManager) : InputAdapt
 
         val ray = currentScene.viewport.getPickRay(screenX.toFloat(), screenY.toFloat())
 
+        var helperCell: HelperLineCenterObject? = null
+
         for (terrain in currentScene.terrains) {
             val result = getRayIntersection(terrain, ray, Vector3())
 
             if (result != null) {
-                val a = currentProject.helperLines.findHelperLineCenterObject(terrain, result)
-
-                println("${a.x} ${a.y}")
+                helperCell = currentProject.helperLines.findHelperLineCenterObject(terrain, result)
             }
+        }
+
+        if (helperCell != null) {
+            UI.statusBar.setSelectedHelperCell(helperCell.x, helperCell.y)
+        } else {
+            UI.statusBar.clearSelectedHelperCell()
         }
 
         return true
