@@ -21,5 +21,6 @@ import com.badlogic.gdx.math.Vector2
 data class HelperLineCenterObject(
         val x: Int,
         val y: Int,
-        val position: Vector2
+        val position: Vector2,
+        val full: Boolean
         )

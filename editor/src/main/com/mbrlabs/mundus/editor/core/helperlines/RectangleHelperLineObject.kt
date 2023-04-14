@@ -60,13 +60,23 @@ class RectangleHelperLineObject(width: Int,
         val widthOffset = terrain.terrainWidth.toFloat() / (vertexResolution - 1).toFloat()
         val depthOffset = terrain.terrainDepth.toFloat() / (vertexResolution - 1).toFloat()
 
-        for (y in 0 until vertexResolution / width) {
-            for (x in 0 until vertexResolution / width) {
-                val terrainX = width * (x * widthOffset + widthOffset / 2)
-                val terrainY = width * (y * depthOffset + depthOffset / 2)
+        var terrainY = 0f
+        var y = 0
+        while (terrainY + 1 < terrain.terrainDepth) {
+            var terrainX = 0f
+            var x = 0
 
-                centerOfHelperObjects.add(HelperLineCenterObject(x, y, Vector2(terrainX, terrainY)))
+            while (terrainX + 1 < terrain.terrainWidth) {
+                val fullCell = terrainX + width * widthOffset <= terrain.terrainWidth && terrainY + width * depthOffset <= terrain.terrainDepth
+
+                centerOfHelperObjects.add(HelperLineCenterObject(x, y, Vector2(terrainX + width * widthOffset / 2, terrainY + width * depthOffset / 2), fullCell))
+
+                ++x
+                terrainX += width * widthOffset
             }
+
+            ++y
+            terrainY += width * depthOffset
         }
 
         return centerOfHelperObjects

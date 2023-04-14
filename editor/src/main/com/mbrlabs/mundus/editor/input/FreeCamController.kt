@@ -192,7 +192,7 @@ class FreeCamController(private val projectManager: ProjectManager) : InputAdapt
             }
         }
 
-        if (helperCell != null) {
+        if (helperCell != null && helperCell.full) {
             UI.statusBar.setSelectedHelperCell(helperCell.x, helperCell.y)
         } else {
             UI.statusBar.clearSelectedHelperCell()

@@ -86,10 +86,10 @@ abstract class HelperLineObject(val width: Int, val terrainComponent: TerrainCom
 
     fun debugDraw(camera: Camera) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-        shapeRenderer.color = Color.CYAN
         shapeRenderer.projectionMatrix = camera.combined
 
         for (helperLineCenterObject in centerOfHelperObjects) {
+            shapeRenderer.color = if (helperLineCenterObject.full) Color.CYAN else Color.RED
             shapeRenderer.box(helperLineCenterObject.position.x - 0.5f, 0f - 0.5f, helperLineCenterObject.position.y - 0.5f, 1f, 1f, 1f)
         }
 
