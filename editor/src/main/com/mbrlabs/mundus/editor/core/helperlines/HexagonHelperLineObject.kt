@@ -63,7 +63,7 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
         var terrainY = 2 * depthOffset
         var cellY = 0
 
-        while (terrainY + 1 <= terrain.terrainDepth) {
+        while (terrainY - depthOffset <= terrain.terrainDepth) {
             var terrainX = 0f
             var cellX = 0
 
