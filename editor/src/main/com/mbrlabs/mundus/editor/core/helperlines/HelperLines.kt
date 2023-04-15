@@ -54,15 +54,15 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
     fun hasHelperLines() = helperLineShapes.notEmpty()
 
     fun debugDraw(camera: Camera) {
-        for (helperLineObject in helperLineObjects) {
-            helperLineObject.debugDraw(camera)
+        for (helperLineShape in helperLineShapes) {
+            helperLineShape.debugDraw(camera)
         }
     }
 
     fun findHelperLineCenterObject(terrainComponent: TerrainComponent, pos: Vector3): HelperLineCenterObject? {
-        for (helperLineObject in helperLineObjects) {
-            if (helperLineObject.terrainComponent === terrainComponent) {
-                return helperLineObject.findNearestCenterObject(pos)
+        for (helperLineShape in helperLineShapes) {
+            if (helperLineShape.terrainComponent === terrainComponent) {
+                return helperLineShape.findNearestCenterObject(pos)
             }
         }
 
