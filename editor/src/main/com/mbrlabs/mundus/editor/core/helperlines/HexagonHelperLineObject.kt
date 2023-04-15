@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
@@ -48,7 +49,36 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
     }
 
     override fun calculateCenterOfHelperObjects(): Array<HelperLineCenterObject> {
-        TODO("Not yet implemented")
+        val centerOfHelperObjects = Array<HelperLineCenterObject>()
+
+        val terrain = terrainComponent.terrainAsset.terrain
+        val vertexResolution = terrain.vertexResolution
+
+        val widthOffset = terrain.terrainWidth.toFloat() / (vertexResolution - 1).toFloat()
+        val depthOffset = terrain.terrainDepth.toFloat() / (vertexResolution - 1).toFloat()
+
+        var terrainY = 2 * width * depthOffset
+        var cellY = 0
+
+        while (terrainY + 1 <= terrain.terrainDepth) {
+            var terrainX = 0f
+            var cellX = 0
+
+            while (terrainX + 1 <= terrain.terrainWidth) {
+                val y = if (cellX % 2 == 1) terrainY - width * depthOffset else terrainY
+                val fullCell = terrainY + width * depthOffset <= terrain.terrainWidth && terrainX + 3 * width * widthOffset <= terrain.terrainWidth
+
+                centerOfHelperObjects.add(HelperLineCenterObject(cellX, cellY, Vector2(terrainX + 1.5f * width * widthOffset, y), fullCell))
+
+                ++cellX
+                terrainX += 2 * width * widthOffset
+            }
+
+            ++cellY
+            terrainY += 2 * width * depthOffset
+        }
+
+        return centerOfHelperObjects
     }
 
     private fun calculate(width: Int, vertexResolution: Int, method: (pos: Short) -> Unit) {
