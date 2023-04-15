@@ -57,7 +57,8 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
         val widthOffset = width * terrain.terrainWidth.toFloat() / (vertexResolution - 1).toFloat()
         val depthOffset = width * terrain.terrainDepth.toFloat() / (vertexResolution - 1).toFloat()
 
-        addTopHalfHexagonsHelperLineObjects(centerOfHelperObjects, widthOffset)
+        addTopHalfHexagonHelperLineObjects(centerOfHelperObjects, widthOffset)
+        addLeftHalfHexagonHelperLineObjects(centerOfHelperObjects, widthOffset, depthOffset)
 
         var terrainY = 2 * depthOffset
         var cellY = 0
@@ -83,7 +84,7 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
         return centerOfHelperObjects
     }
 
-    private fun addTopHalfHexagonsHelperLineObjects(centerOfHelperObjects: Array<HelperLineCenterObject>, widthOffset: Float) {
+    private fun addTopHalfHexagonHelperLineObjects(centerOfHelperObjects: Array<HelperLineCenterObject>, widthOffset: Float) {
         val terrain = terrainComponent.terrainAsset.terrain
 
         var terrainX = 0f
@@ -94,6 +95,20 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
 
             cellX += 2
             terrainX += 4 * widthOffset
+        }
+    }
+
+    private fun addLeftHalfHexagonHelperLineObjects(centerOfHelperObjects: Array<HelperLineCenterObject>, widthOffset: Float, depthOffset: Float) {
+        val terrain = terrainComponent.terrainAsset.terrain
+
+        var terrainY = depthOffset
+        var cellY = 0
+
+        while (terrainY +1 <= terrain.terrainDepth) {
+            centerOfHelperObjects.add(HelperLineCenterObject(-1, cellY, Vector2(-.5f * widthOffset, terrainY), false))
+
+            cellY += 2
+            terrainY += 2 * depthOffset
         }
     }
 
