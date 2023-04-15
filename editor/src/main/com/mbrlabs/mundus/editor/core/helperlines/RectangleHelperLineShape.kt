@@ -21,8 +21,8 @@ import com.badlogic.gdx.utils.Array
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-class RectangleHelperLineObject(width: Int,
-                                terrainComponent: TerrainComponent) : HelperLineObject(width, terrainComponent) {
+class RectangleHelperLineShape(width: Int,
+                               terrainComponent: TerrainComponent) : HelperLineShape(width, terrainComponent) {
 
     override fun calculateIndicesNum(width: Int, terrain: Terrain): Int {
         val vertexResolution = terrain.vertexResolution

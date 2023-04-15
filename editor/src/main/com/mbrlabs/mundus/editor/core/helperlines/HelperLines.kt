@@ -31,7 +31,7 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
         TerrainRemovedEvent.TerrainRemovedEventListener,
         Disposable {
 
-    private val helperLineObjects = Array<HelperLineObject>()
+    private val helperLineShapes = Array<HelperLineShape>()
     private var width = -1
     private var type = HelperLineType.RECTANGLE
 
@@ -41,17 +41,17 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
         this.width = width
 
         for (terrainComponent in terrainComponents) {
-            addNewHelperLineObject(terrainComponent)
+            addNewHelperLineShape(terrainComponent)
         }
     }
 
     fun render(batch: ModelBatch) {
-        for (helperLineObject in helperLineObjects) {
+        for (helperLineObject in helperLineShapes) {
             batch.render(helperLineObject.modelInstance)
         }
     }
 
-    fun hasHelperLines() = helperLineObjects.notEmpty()
+    fun hasHelperLines() = helperLineShapes.notEmpty()
 
     fun debugDraw(camera: Camera) {
         for (helperLineObject in helperLineObjects) {
@@ -70,33 +70,33 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
     }
 
     override fun onTerrainVerticesChanged(event: TerrainVerticesChangedEvent) {
-        helperLineObjects.filter { it.terrainComponent == event.terrainComponent }.forEach { it.updateVertices() }
+        helperLineShapes.filter { it.terrainComponent == event.terrainComponent }.forEach { it.updateVertices() }
     }
 
     override fun onTerrainAdded(event: TerrainAddedEvent) {
-        addNewHelperLineObject(event.terrainComponent)
+        addNewHelperLineShape(event.terrainComponent)
     }
 
     override fun onTerrainRemoved(event: TerrainRemovedEvent) {
-        helperLineObjects.filter { it.terrainComponent == event.terrainComponent }.forEach {
+        helperLineShapes.filter { it.terrainComponent == event.terrainComponent }.forEach {
             it.dispose()
-            helperLineObjects.removeValue(it, true)
+            helperLineShapes.removeValue(it, true)
         }
     }
 
     override fun dispose() {
-        helperLineObjects.forEach { helperLineObject -> helperLineObject.dispose() }
-        helperLineObjects.clear()
+        helperLineShapes.forEach { helperLineObject -> helperLineObject.dispose() }
+        helperLineShapes.clear()
     }
 
-    private fun addNewHelperLineObject(terrainComponent: TerrainComponent) {
-        val helperLineObject : HelperLineObject
+    private fun addNewHelperLineShape(terrainComponent: TerrainComponent) {
+        val helperLineShape : HelperLineShape
         if (type == HelperLineType.RECTANGLE) {
-            helperLineObject = RectangleHelperLineObject(width, terrainComponent)
+            helperLineShape = RectangleHelperLineShape(width, terrainComponent)
         } else {
-            helperLineObject = HexagonHelperLineObject(width, terrainComponent)
+            helperLineShape = HexagonHelperLineShape(width, terrainComponent)
         }
-        helperLineObjects.add(helperLineObject)
+        helperLineShapes.add(helperLineShape)
     }
 
 }

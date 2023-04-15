@@ -21,7 +21,7 @@ import com.badlogic.gdx.utils.Array
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : HelperLineObject(width, terrainComponent) {
+class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : HelperLineShape(width, terrainComponent) {
 
     enum class Vector {
         BOTTOM_RIGHT,
@@ -125,10 +125,10 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
                     for (w in 0 until  width) {
                         val next = getNext(current, pattern, vertexResolution)
 
-                        if (isOnMap(current, vertexResolution) && isOk(current, next, vertexResolution, pattern)) {
+                        if (isOnMap(current, vertexResolution) && isOk(current, next, vertexResolution, pattern) && isOnMap(next, vertexResolution)) {
                             method.invoke(current.toShort())
                             method.invoke(next.toShort())
-                        } else {
+                        } else if (!isOk(current, next, vertexResolution, pattern)) {
                             break
                         }
 
@@ -159,8 +159,8 @@ class HexagonHelperLineObject(width: Int, terrainComponent: TerrainComponent) : 
         val nextRow = getRow(next, vertexResolution)
 
         return when(pattern) {
-            Vector.BOTTOM_RIGHT -> currentRow + 1 == nextRow && isOnMap(next, vertexResolution)
-            Vector.TOP_RIGHT -> currentRow == nextRow + 1 && isOnMap(next, vertexResolution)
+            Vector.BOTTOM_RIGHT -> currentRow + 1 == nextRow
+            Vector.TOP_RIGHT -> currentRow == nextRow + 1
             Vector.RIGHT -> currentRow == nextRow
         }
     }
