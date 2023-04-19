@@ -300,6 +300,74 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         }
     }
 
+    /**
+     * Returns the first child GameObject matching the name.
+     *
+     * @param name the GameObject name to search for
+     * @return the first GameObject found or null if not found
+     */
+    public GameObject findChildByName(String name) {
+        for (GameObject go : this) {
+            if (go.name.equals(name)) {
+                return go;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns an Array of all child GameObjects matching the name.
+     *
+     * @param name the GameObject name to search for
+     * @return Array of all matching GameObjects
+     */
+    public Array<GameObject> findChildrenByName(String name) {
+        Array<GameObject> objects = new Array<>();
+        for (GameObject go : this) {
+            if (go.name.equals(name)) {
+                objects.add(go);
+            }
+        }
+
+        return objects;
+    }
+
+    /**
+     * Returns an Array of all child GameObjects that have the given Component.Type
+     *
+     * @param type the Component Type to search for
+     * @return Array of all matching GameObjects
+     */
+    public Array<GameObject> findChildrenByComponent(Component.Type type) {
+        Array<GameObject> objects = new Array<>();
+        for (GameObject go : this) {
+            Component component = go.findComponentByType(type);
+            if (component != null) {
+                objects.add(go);
+            }
+        }
+
+        return objects;
+    }
+
+    /**
+     * Returns an Array of all child GameObjects that have the given Tag
+     *
+     * @param tag the string tag to search for
+     * @return Array of all matching GameObjects
+     */
+    public Array<GameObject> findChildrenByTag(String tag) {
+        Array<GameObject> objects = new Array<>();
+        for (GameObject go : this) {
+            if (go.tags != null && go.tags.contains(tag, false)) {
+                objects.add(go);
+            }
+        }
+
+        return objects;
+    }
+
     @Override
     public void addChild(GameObject child) {
         super.addChild(child);

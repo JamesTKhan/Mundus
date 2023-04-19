@@ -21,6 +21,8 @@ public class LightUtils {
      */
     public static DirectionalLight getDirectionalLight(Environment env) {
         DirectionalLightsAttribute dirLightAttribs = env.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
+        if (dirLightAttribs == null) return null;
+
         Array<DirectionalLight> dirLights = dirLightAttribs.lights;
         if (dirLights != null && dirLights.size > 0) {
             return dirLights.first();
