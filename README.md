@@ -39,7 +39,12 @@ Below are some of the more interesting features, that already work
 ### Latest Release Video
 
 [![Release video](https://img.youtube.com/vi/Txc-uwf6gEM/0.jpg)](https://www.youtube.com/watch?v=Txc-uwf6gEM)
-  
+
+## LibGDX discord channel for Mundus
+
+If you need help with Mundus go to the libGDX discord at: https://libgdx.com/community/discord/ 
+and then go to **libraries/Mundus** thread under the **SPECIFIC TOPICS** section.
+
 ## Things to consider
 - Mundus is constantly changing. Especially the internal representation of save files. At this stage of the project backwards compatability
 is kept between minor changes, and I keep backwards compatability in mind for major version changes, but it is not guaranteed as the APIs are still
@@ -53,6 +58,22 @@ for an example.
 Runtimes for other engines/frameworks are not planned in the near futures.
 
 ## Made with Mundus
+
+Listed from newest to oldest:
+
+### [ShotGun Wedding](https://antzgames.itch.io/shotgun-wedding)
+
+Created by: [AntzGames](https://github.com/antzGames)
+
+![gif](https://user-images.githubusercontent.com/10563814/231760688-38814007-9a6d-41a7-9ed7-296de8b2d6d9.gif)
+
+---
+
+### [Santa is Coming](https://wjamesfl.itch.io/santa-is-coming)
+
+Created by: [JamesTKhan](https://github.com/JamesTKhan)
+![santa](https://user-images.githubusercontent.com/10563814/231762608-5427fd2b-4368-43e2-93ef-52ef484bc473.PNG)
+
 
 ### [Raid on Bungeling Bay](https://antzgames.itch.io/raid3d)
 
