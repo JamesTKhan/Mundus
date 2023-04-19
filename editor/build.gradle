@@ -19,6 +19,7 @@ task run(dependsOn: classes, type: JavaExec) {
         jvmArgs "-XstartOnFirstThread"
         jvmArgs "-Djava.awt.headless=true"
     }
+    args = ["useGL30"]
 }
 
 task distEditor(type: Jar) {

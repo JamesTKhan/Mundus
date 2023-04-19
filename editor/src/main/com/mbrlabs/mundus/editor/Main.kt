@@ -35,10 +35,13 @@ fun main(arg: Array<String>) {
     //  gdx-lwjgl3-glfw-awt-macos extension instead https://libgdx.com/news/2022/05/gdx-1-11
     StartOnFirstThreadHelper.startNewJvmIfRequired()
     Log.init()
-    launchEditor()
+
+    var useGL30 = arg.contains("useGL30");
+
+    launchEditor(useGL30)
 }
 
-private fun launchEditor() {
+private fun launchEditor(useGL30: Boolean) {
     val config = Lwjgl3ApplicationConfiguration()
     val editor = Editor()
     config.setWindowListener(editor)
@@ -55,6 +58,10 @@ private fun launchEditor() {
     config.setWindowSizeLimits(1350, 1, 9999, 9999)
     config.setWindowPosition(-1, -1)
     config.setWindowIcon("icon/logo.png")
+
+    if (useGL30) {
+        config.useOpenGL3(true, 3, 2)
+    }
 
     Lwjgl3Application(editor, config)
     Log.info(TAG, "Shutting down [{}]", TITLE)
