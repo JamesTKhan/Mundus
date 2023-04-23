@@ -302,8 +302,8 @@ public class Terrain implements Disposable {
         // Translates word coordinates to local coordinates
         tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
 
-        float terrainX = worldX - tmp.x;
-        float terrainZ = worldZ - tmp.z;
+        float terrainX = tmp.x;
+        float terrainZ = tmp.z;
 
         float gridSquareSize = terrainWidth / ((float) vertexResolution - 1);
         int gridX = (int) Math.floor(terrainX / gridSquareSize);
