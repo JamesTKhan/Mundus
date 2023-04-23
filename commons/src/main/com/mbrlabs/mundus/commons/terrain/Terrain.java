@@ -142,7 +142,7 @@ public class Terrain implements Disposable {
      * @return
      */
     public float getHeightAtWorldCoord(float worldX, float worldZ, Matrix4 terrainTransform) {
-        // Translates word coordinates to local coordinates
+        // Translates world coordinates to local coordinates
         tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
 
         float terrainX = tmp.x;
@@ -299,7 +299,7 @@ public class Terrain implements Disposable {
      *         returns default <code>Vector.Y<code> normal.
      */
     public Vector3 getNormalAtWordCoordinate(Vector3 out, float worldX, float worldZ, Matrix4 terrainTransform) {
-        // Translates word coordinates to local coordinates
+        // Translates world coordinates to local coordinates
         tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
 
         float terrainX = tmp.x;
@@ -365,7 +365,7 @@ public class Terrain implements Disposable {
      * @return boolean true if within the terrains boundary, else false
      */
     public boolean isOnTerrain(float worldX, float worldZ, Matrix4 terrainTransform) {
-        // Translates word coordinates to local coordinates
+        // Translates world coordinates to local coordinates
         tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
         return 0 <= tmp.x && tmp.x <= terrainWidth && 0 <= tmp.z && tmp.z <= terrainDepth;
     }
