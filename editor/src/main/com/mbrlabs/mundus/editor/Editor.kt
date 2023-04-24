@@ -160,6 +160,11 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
                 debugRenderer.end()
             }
 
+            scene.batch.begin(scene.cam)
+            context.helperLines.render(scene.batch)
+            scene.batch.end()
+
+
             toolManager.render()
             gizmoManager.render()
             compass.render(projectManager.modelBatch, scene.environment)

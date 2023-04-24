@@ -19,8 +19,10 @@ package com.mbrlabs.mundus.editor.core.project;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
 import com.mbrlabs.mundus.editor.core.EditorScene;
+import com.mbrlabs.mundus.editor.core.helperlines.HelperLines;
 import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager;
 import com.mbrlabs.mundus.editor.utils.Log;
 import org.apache.commons.lang3.StringUtils;
@@ -54,6 +56,8 @@ public class ProjectContext implements Disposable {
     public boolean renderDebug = false;
     public boolean renderWireframe = false;
 
+    public HelperLines helperLines;
+
     private int idProvider;
 
     /** set by kryo when project is loaded. do not use this */
@@ -63,7 +67,10 @@ public class ProjectContext implements Disposable {
         scenes = new Array<>();
         settings = new ProjectSettings();
         currScene = new EditorScene();
+        helperLines = new HelperLines();
         this.idProvider = idProvider;
+
+        Mundus.INSTANCE.registerEventListener(helperLines);
     }
 
     public synchronized int obtainID() {
@@ -81,6 +88,7 @@ public class ProjectContext implements Disposable {
         if (assetManager != null) {
             assetManager.dispose();
         }
+        Mundus.INSTANCE.unregisterEventListener(helperLines);
     }
 
     /**
