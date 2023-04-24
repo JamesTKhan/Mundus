@@ -55,6 +55,7 @@ private fun launchEditor() {
     config.setWindowSizeLimits(1350, 1, 9999, 9999)
     config.setWindowPosition(-1, -1)
     config.setWindowIcon("icon/logo.png")
+    config.setBackBufferConfig(8, 8, 8, 8, 24, 0, 4);
 
     Lwjgl3Application(editor, config)
     Log.info(TAG, "Shutting down [{}]", TITLE)
