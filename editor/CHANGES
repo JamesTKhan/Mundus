@@ -6,6 +6,7 @@
 - Added scene rename button
 - Added dialog for adding water
 - Update gradle to 7.5.1
+- Updated editor to use MSAA by default, disable by command line
 - Terrain Assets can now be reused in the same scene and other scenes
 - Update gdx-gltf to 2.1.0
 - Fix import of models with spaces in dependencies name
