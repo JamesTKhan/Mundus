@@ -253,7 +253,7 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
      * Refresh the active button in UI with the currently active tool.
      */
     fun updateActiveToolButton() {
-        when (toolManager.activeTool.name) {
+        when (toolManager.activeTool?.name) {
             SelectionTool.NAME -> setActive(selectBtn)
             TranslateTool.NAME -> setActive(translateBtn)
             RotateTool.NAME -> setActive(rotateBtn)

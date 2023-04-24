@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
@@ -64,7 +65,7 @@ public class Scene implements Disposable {
     public Skybox skybox;
     public String skyboxAssetId;
 
-    public PerspectiveCamera cam;
+    public Camera cam;
     public ModelBatch batch;
     public ModelBatch depthBatch;
     public ModelCacheManager modelCacheManager;
@@ -168,6 +169,7 @@ public class Scene implements Disposable {
         // Render objects
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneDisable, 0);
+        modelCacheManager.triggerBeforeRenderEvent();
         batch.render(modelCacheManager.modelCache, environment);
         batch.end();
     }
@@ -202,6 +204,7 @@ public class Scene implements Disposable {
         shadowMapper.begin(light.direction);
         depthBatch.begin(shadowMapper.getCam());
         sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
+        modelCacheManager.triggerBeforeDepthRenderEvent();
         depthBatch.render(modelCacheManager.modelCache, environment, shadowMapShader);
         depthBatch.end();
         shadowMapper.end();
@@ -256,7 +259,7 @@ public class Scene implements Disposable {
     }
 
     protected void renderSkybox() {
-        if (skybox != null) {
+        if (skybox != null && skybox.active) {
             batch.begin(cam);
             batch.render(skybox.getSkyboxInstance(), environment, skybox.shader);
             batch.end();

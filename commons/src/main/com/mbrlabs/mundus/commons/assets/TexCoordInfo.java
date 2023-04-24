@@ -33,4 +33,15 @@ public class TexCoordInfo {
         PROP_SCALE_V = property + ".scaleV";
         PROP_ROTATION_UV = property + ".rotationUV";
     }
+
+    public TexCoordInfo deepCopy() {
+        TexCoordInfo copied = new TexCoordInfo(this.property);
+        copied.uvIndex = this.uvIndex;
+        copied.offsetU = this.offsetU;
+        copied.offsetV = this.offsetV;
+        copied.scaleU = this.scaleU;
+        copied.scaleV = this.scaleV;
+        copied.rotationUV = this.rotationUV;
+        return copied;
+    }
 }

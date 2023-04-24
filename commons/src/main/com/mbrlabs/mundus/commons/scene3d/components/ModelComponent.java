@@ -130,6 +130,7 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
 
         if (isCulled || useModelCache) return;
 
+        triggerBeforeRenderEvent();
         if (shader != null) {
             gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
         } else {
@@ -145,6 +146,8 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
             ((ClippableShader) depthShader).setClippingPlane(clippingPlane);
             ((ClippableShader) depthShader).setClippingHeight(clipHeight);
         }
+
+        triggerBeforeDepthRenderEvent();
 
         if (depthShader instanceof ShadowMapShader)
             // Shadow Mapper will use default (PBR's depth shader) for animation support
@@ -175,7 +178,7 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
         mc.modelAsset = this.modelAsset;
         mc.modelInstance = new ModelInstance(modelAsset.getModel());
         mc.shader = this.shader;
-        mc.materials = this.materials;
+        mc.materials.putAll(this.materials);
         mc.setDimensions(mc.modelInstance);
         mc.setUseModelCache(useModelCache);
         gameObject.sceneGraph.scene.modelCacheManager.requestModelCacheRebuild();

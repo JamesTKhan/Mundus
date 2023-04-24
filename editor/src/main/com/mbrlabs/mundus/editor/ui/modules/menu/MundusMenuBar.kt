@@ -54,7 +54,7 @@ class MundusMenuBar : MenuBar() {
         val menuTable = super.getTable()
 
         val icon = VisImage(Texture(Gdx.files.internal("ui/menu_icon.png")))
-        root.add(icon).center().left().pad(5f)
+        root.add(icon).center().left().pad(5f).height(icon.height)
         root.add(menuTable).expand().fill().left().center().row()
         val sep = VisTable()
         sep.background = VisUI.getSkin().getDrawable("mundus-separator-green")

@@ -450,6 +450,10 @@ class Outline : VisTable(),
         tree.selection.clear()
         tree.selection.add(node)
         node.expandTo()
+
+        if (toolManager.activeTool !== toolManager.translateTool) {
+            toolManager.setDefaultTool()
+        }
     }
 
     /**

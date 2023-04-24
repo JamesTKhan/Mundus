@@ -20,25 +20,22 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
-import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
 
 /**
  * @author Marcus Brummer
  * @version 30-01-2016
  */
-class TerrainFlattenTab(parent: TerrainComponentWidget) : Tab(false, false) {
+class TerrainFlattenTab(parent: TerrainComponentWidget) : BaseBrushTab(parent, TerrainBrush.BrushMode.FLATTEN) {
 
     private val table = VisTable()
-    private val brushGrid: TerrainBrushGrid
 
     init {
         table.align(Align.left)
         table.add(VisLabel("Use CTRL+Scroll Wheel to adjust brush size")).center().padBottom(4f).row()
         table.add(VisLabel("Hold shift to sample a height")).center().row()
 
-        brushGrid = TerrainBrushGrid(parent, TerrainBrush.BrushMode.FLATTEN)
-        table.add(brushGrid).expand().fill().row()
+        table.add(terrainBrushGrid).expand().fill().row()
     }
 
     override fun getTabTitle(): String {

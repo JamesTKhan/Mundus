@@ -20,7 +20,9 @@ import java.nio.ByteBuffer;
 
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.mbrlabs.mundus.commons.terrain.Terrain;
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
+import com.mbrlabs.mundus.editor.Mundus;
+import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
 
 /**
  *
@@ -29,10 +31,13 @@ import com.mbrlabs.mundus.commons.terrain.Terrain;
  */
 public class HeightMapGenerator extends Generator<HeightMapGenerator> {
 
+    private final TerrainComponent terrainComponent;
+
     private Pixmap map;
 
-    HeightMapGenerator(Terrain terrain) {
-        super(terrain);
+    HeightMapGenerator(final TerrainComponent terrainComponent) {
+        super(terrainComponent.getTerrainAsset().getTerrain());
+        this.terrainComponent = terrainComponent;
     }
 
     public HeightMapGenerator map(Pixmap map) {
@@ -48,6 +53,7 @@ public class HeightMapGenerator extends Generator<HeightMapGenerator> {
         terrain.heightData = heightColorsToMap(map.getPixels(), map.getFormat(), terrain.vertexResolution,
                 terrain.vertexResolution, maxHeight);
         terrain.update();
+        Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
     // Simply creates an array containing only all the red components of the

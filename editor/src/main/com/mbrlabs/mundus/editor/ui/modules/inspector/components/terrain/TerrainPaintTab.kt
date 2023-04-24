@@ -24,7 +24,6 @@ import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.widget.*
-import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.terrain.SplatTexture
@@ -45,7 +44,7 @@ import java.io.IOException
  * @author Marcus Brummer
  * @version 30-01-2016
  */
-class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(false, false) {
+class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBrushTab(parentWidget, TerrainBrush.BrushMode.PAINT) {
 
     companion object {
         private val TAG = TerrainPaintTab::class.java.simpleName
@@ -64,7 +63,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : Tab(fa
         root.add(VisLabel("Use CTRL+Scroll Wheel to adjust brush size")).center().padBottom(4f).row()
 
         // brushes
-        root.add(TerrainBrushGrid(parentWidget, TerrainBrush.BrushMode.PAINT)).expand().fill().padBottom(5f).row()
+        root.add(terrainBrushGrid).expand().fill().padBottom(5f).row()
 
         // textures
         root.add(VisLabel("Textures:")).padLeft(5f).left().row()

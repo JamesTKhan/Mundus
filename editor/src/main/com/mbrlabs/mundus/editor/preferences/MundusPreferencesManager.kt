@@ -14,10 +14,14 @@ class MundusPreferencesManager(preferencesKey: String) : PreferencesManager {
         private val TAG = MundusPreferencesManager::class.java.simpleName
 
         // Keys for global prefs
-        var GLOB_MUNDUS_VERSION = "version"
+        const val GLOB_MUNDUS_VERSION = "version"
+        const val GLOB_RIGHT_BUTTON_SELECT = "right-button-select"
+
+        // Default values for global prefs
+        const val GLOB_RIGHT_SELECT_BUTTON_DEFAULT_VALUE = true
 
         // Keys for project specific prefs
-        var PROJ_LAST_DIR = "lastDirectoryOpened"
+        const val PROJ_LAST_DIR = "lastDirectoryOpened"
     }
 
     private var preferences: Preferences

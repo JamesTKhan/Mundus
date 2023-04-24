@@ -35,6 +35,7 @@ import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
+import com.mbrlabs.mundus.editor.events.TerrainAddedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FloatFieldWithLabel
 import com.mbrlabs.mundus.editor.ui.widgets.IntegerFieldWithLabel
@@ -128,12 +129,17 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         generateBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
                 super.clicked(event, x, y)
-                createTerrain()
+                val terrainComponent = createTerrain()
+                if (terrainComponent != null) {
+                    Mundus.postEvent(TerrainAddedEvent(terrainComponent))
+                }
             }
         })
     }
 
-    private fun createTerrain() {
+    private fun createTerrain(): TerrainComponent? {
+        var terrainComponent: TerrainComponent? = null
+
         try {
             val terrainName: String = name.text
             val res: Int = vertexResolution.int
@@ -144,7 +150,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
             val posZ: Float = positionZ.float
             val splatMapResolution = SplatMapResolution.valueFromString(splatMapSelectBox.selected).resolutionValues
 
-            if (res == 0 || width == 0) return
+            if (res == 0 || width == 0) return terrainComponent
 
             try {
                 Log.trace(TAG, "Add terrain game object in root node.")
@@ -155,7 +161,6 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                 // Save context here so that the ID above is persisted in .pro file
                 kryoManager.saveProjectContext(projectManager.current())
 
-                //val name = "Terrain $goID"
                 val asset: TerrainAsset
                 try {
                     // create asset
@@ -165,7 +170,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                     )
                 } catch (ex: AssetAlreadyExistsException) {
                     Dialogs.showErrorDialog(stage, "An asset with that name already exists.")
-                    return
+                    return terrainComponent
                 }
 
                 asset.load()
@@ -177,8 +182,8 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                 sceneGraph.addGameObject(terrainGO)
                 terrainGO.setLocalPosition(posX, posY, posZ)
 
-                val terrainComponent = terrainGO.findComponentByType(Component.Type.TERRAIN)
-                context.currScene.terrains.add(terrainComponent as TerrainComponent?)
+                terrainComponent = terrainGO.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
+                context.currScene.terrains.add(terrainComponent)
                 projectManager.current().assetManager.addNewAsset(asset)
                 Mundus.postEvent(AssetImportEvent(asset))
                 Mundus.postEvent(SceneGraphChangedEvent())
@@ -191,5 +196,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         } catch (nfe: NumberFormatException) {
             Log.error(TAG, nfe.message)
         }
+
+        return terrainComponent
     }
 }

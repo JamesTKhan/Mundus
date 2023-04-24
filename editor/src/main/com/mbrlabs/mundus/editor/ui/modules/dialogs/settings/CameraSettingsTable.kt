@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.dialogs.settings
 
+import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
@@ -81,7 +82,9 @@ class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChan
     private fun updateValues() {
         nearPlane.text = projectManager.current().currScene.cam.near.toString()
         farPlane.text = projectManager.current().currScene.cam.far.toString()
-        fov.text = projectManager.current().currScene.cam.fieldOfView.toString()
+        if (projectManager.current().currScene.cam is PerspectiveCamera) {
+            fov.text = (projectManager.current().currScene.cam as PerspectiveCamera).fieldOfView.toString()
+        }
     }
 
     override fun onProjectChanged(event: ProjectChangedEvent) {
@@ -126,7 +129,9 @@ class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChan
             override fun changed(event: ChangeEvent, actor: Actor) {
                 if(fov.isInputValid && !fov.isEmpty) {
                     try {
-                        projectManager.current().currScene.cam.fieldOfView = fov.text.toFloat()
+                        if (projectManager.current().currScene.cam is PerspectiveCamera) {
+                            (projectManager.current().currScene.cam as PerspectiveCamera).fieldOfView = fov.text.toFloat()
+                        }
                     }
                     catch (ex : NumberFormatException) {
                         Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + fov.name))
@@ -139,7 +144,9 @@ class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChan
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 projectManager.current().currScene.cam.near = CameraSettings.DEFAULT_NEAR_PLANE
                 projectManager.current().currScene.cam.far = CameraSettings.DEFAULT_FAR_PLANE
-                projectManager.current().currScene.cam.fieldOfView = CameraSettings.DEFAULT_FOV
+                if (projectManager.current().currScene.cam is PerspectiveCamera) {
+                    (projectManager.current().currScene.cam as PerspectiveCamera).fieldOfView = CameraSettings.DEFAULT_FOV
+                }
                 updateValues()
             }
         })

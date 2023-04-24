@@ -22,10 +22,12 @@ public class ModelCacheManager implements Disposable {
     protected float modelCacheUpdateInterval = 0.5f;
     protected float lastModelCacheRebuild = modelCacheUpdateInterval;
     protected boolean modelCacheRebuildRequested = true;
+    private final Array<ModelEventable> modelEventables;
 
     public ModelCacheManager(Scene scene) {
         modelCache = new ModelCache();
         this.scene = scene;
+        this.modelEventables = new Array<>();
     }
 
     public void update(float delta) {
@@ -45,6 +47,7 @@ public class ModelCacheManager implements Disposable {
      * depending on the size of the scene and should only be rebuilt when needed.
      */
     public void rebuildModelCache() {
+        modelEventables.clear();
         modelCache.begin(scene.cam);
         addModelsToCache(scene.sceneGraph.getGameObjects());
         modelCache.end();
@@ -72,6 +75,10 @@ public class ModelCacheManager implements Disposable {
                     }
 
                     modelCache.add(((ModelCacheable) comp).getModelInstance());
+
+                    if (comp instanceof ModelEventable) {
+                        modelEventables.add((ModelEventable) comp);
+                    }
                 }
             }
 
@@ -95,6 +102,18 @@ public class ModelCacheManager implements Disposable {
      */
     public void setModelCacheUpdateInterval(float interval) {
         modelCacheUpdateInterval = interval;
+    }
+
+    public void triggerBeforeDepthRenderEvent() {
+        for (final ModelEventable me : modelEventables) {
+            me.triggerBeforeDepthRenderEvent();
+        }
+    }
+
+    public void triggerBeforeRenderEvent() {
+        for (final ModelEventable me : modelEventables) {
+            me.triggerBeforeRenderEvent();
+        }
     }
 
     /**

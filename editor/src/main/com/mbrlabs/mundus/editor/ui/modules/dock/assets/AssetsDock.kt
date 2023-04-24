@@ -44,6 +44,7 @@ import com.mbrlabs.mundus.editor.events.*
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.AutoFocusScrollPane
 import com.mbrlabs.mundus.editor.utils.ObjExporter
+import java.awt.Desktop
 import java.lang.RuntimeException
 
 
@@ -56,7 +57,8 @@ class AssetsDock : Tab(false, false),
         AssetImportEvent.AssetImportListener,
         AssetDeletedEvent.AssetDeletedListener,
         GameObjectSelectedEvent.GameObjectSelectedListener,
-        FullScreenEvent.FullScreenEventListener {
+        FullScreenEvent.FullScreenEventListener,
+        MaterialDuplicatedEvent.MaterialDuplicatedEventListener {
 
     private val root = VisTable()
     private val filesViewContextContainer = VisTable(false)
@@ -69,6 +71,7 @@ class AssetsDock : Tab(false, false),
 
     private val assetOpsMenu = PopupMenu()
     private val renameAsset = MenuItem("Rename Asset")
+    private val openDirectoryAsset = MenuItem("Open Directory")
     private val deleteAsset = MenuItem("Delete Asset")
     private val exportTerrainAsset = MenuItem("Export to OBJ")
 
@@ -122,6 +125,9 @@ class AssetsDock : Tab(false, false),
 
         // asset ops right click menu
         assetOpsMenu.addItem(renameAsset)
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+            assetOpsMenu.addItem(openDirectoryAsset)
+        }
         assetOpsMenu.addItem(deleteAsset)
 
         registerListeners()
@@ -133,6 +139,14 @@ class AssetsDock : Tab(false, false),
                 currentSelection?.asset?.let {
                     projectManager.current().assetManager.deleteAssetSafe(it, projectManager)
                     reloadAssets()
+                }
+            }
+        })
+
+        openDirectoryAsset.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent, x: Float, y: Float) {
+                currentSelection?.asset?.let {
+                    Desktop.getDesktop().open(it.file.file().parentFile)
                 }
             }
         })
@@ -218,6 +232,10 @@ class AssetsDock : Tab(false, false),
     override fun onFullScreenEvent(event: FullScreenEvent) {
         if (!event.isFullScreen)
             reloadAssets()
+    }
+
+    override fun onMaterialDuplicated(event: MaterialDuplicatedEvent) {
+        reloadAssets()
     }
 
     /**

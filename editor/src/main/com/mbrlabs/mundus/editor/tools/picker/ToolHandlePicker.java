@@ -17,7 +17,7 @@
 package com.mbrlabs.mundus.editor.tools.picker;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.mbrlabs.mundus.editor.core.EditorScene;
@@ -54,7 +54,7 @@ public class ToolHandlePicker extends BasePicker {
         return null;
     }
 
-    private void renderPickableScene(ToolHandle[] handles, ModelBatch batch, PerspectiveCamera cam) {
+    private void renderPickableScene(ToolHandle[] handles, ModelBatch batch, Camera cam) {
         batch.begin(cam);
         for (ToolHandle handle : handles) {
             handle.renderPick(batch);
