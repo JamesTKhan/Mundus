@@ -29,16 +29,17 @@ const private val TAG = "Main"
 const val VERSION = "v0.4.2"
 const val TITLE = "Mundus $VERSION"
 
-@Suppress("UNUSED_PARAMETER")
 fun main(arg: Array<String>) {
     // Temporary fix for MacOS, we should be able to remove when we update libGDX to 1.11.0 and use
     //  gdx-lwjgl3-glfw-awt-macos extension instead https://libgdx.com/news/2022/05/gdx-1-11
     StartOnFirstThreadHelper.startNewJvmIfRequired()
     Log.init()
-    launchEditor()
+
+    val noMSAA = arg.contains("noMSAA")
+    launchEditor(noMSAA)
 }
 
-private fun launchEditor() {
+private fun launchEditor(noMSAA: Boolean = false) {
     val config = Lwjgl3ApplicationConfiguration()
     val editor = Editor()
     config.setWindowListener(editor)
@@ -55,6 +56,9 @@ private fun launchEditor() {
     config.setWindowSizeLimits(1350, 1, 9999, 9999)
     config.setWindowPosition(-1, -1)
     config.setWindowIcon("icon/logo.png")
+
+    val aaSamples = if (noMSAA) 0 else 8
+    config.setBackBufferConfig(8, 8, 8, 8, 24, 0, aaSamples)
 
     Lwjgl3Application(editor, config)
     Log.info(TAG, "Shutting down [{}]", TITLE)
