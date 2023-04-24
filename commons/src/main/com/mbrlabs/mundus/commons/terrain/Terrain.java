@@ -52,6 +52,7 @@ public class Terrain implements Disposable {
     private static final Vector3 c11 = new Vector3();
     private static final Vector3 tmp = new Vector3();
     private static final Vector2 tmpV2 = new Vector2();
+    private static final Matrix4 tmpMatrix = new Matrix4();
 
     public float[] heightData;
     public int terrainWidth = 1200;
@@ -141,9 +142,11 @@ public class Terrain implements Disposable {
      * @return
      */
     public float getHeightAtWorldCoord(float worldX, float worldZ, Matrix4 terrainTransform) {
-        terrainTransform.getTranslation(c00);
-        float terrainX = worldX - c00.x;
-        float terrainZ = worldZ - c00.z;
+        // Translates world coordinates to local coordinates
+        tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
+
+        float terrainX = tmp.x;
+        float terrainZ = tmp.z;
 
         float gridSquareSize = terrainWidth / ((float) vertexResolution - 1);
         int gridX = (int) Math.floor(terrainX / gridSquareSize);
@@ -296,9 +299,11 @@ public class Terrain implements Disposable {
      *         returns default <code>Vector.Y<code> normal.
      */
     public Vector3 getNormalAtWordCoordinate(Vector3 out, float worldX, float worldZ, Matrix4 terrainTransform) {
-        terrainTransform.getTranslation(c00);
-        float terrainX = worldX - c00.x;
-        float terrainZ = worldZ - c00.z;
+        // Translates world coordinates to local coordinates
+        tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
+
+        float terrainX = tmp.x;
+        float terrainZ = tmp.z;
 
         float gridSquareSize = terrainWidth / ((float) vertexResolution - 1);
         int gridX = (int) Math.floor(terrainX / gridSquareSize);
@@ -360,8 +365,9 @@ public class Terrain implements Disposable {
      * @return boolean true if within the terrains boundary, else false
      */
     public boolean isOnTerrain(float worldX, float worldZ, Matrix4 terrainTransform) {
-        terrainTransform.getTranslation(c00);
-        return worldX >= c00.x && worldX <= c00.x + terrainWidth && worldZ >= c00.z && worldZ <= c00.z + terrainDepth;
+        // Translates world coordinates to local coordinates
+        tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
+        return 0 <= tmp.x && tmp.x <= terrainWidth && 0 <= tmp.z && tmp.z <= terrainDepth;
     }
 
     public TerrainMaterial getTerrainTexture() {
