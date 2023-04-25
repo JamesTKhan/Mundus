@@ -162,14 +162,18 @@ public class Terrain implements Disposable {
         c01.set(1, heightData[(gridZ + 1) * vertexResolution + gridX], 0);
         c10.set(0, heightData[gridZ * vertexResolution + gridX + 1], 1);
 
-        // we are in upper left triangle of the square
-        if (xCoord <= (1 - zCoord)) {
+        float height;
+        if (xCoord <= (1 - zCoord)) { // we are in upper left triangle of the square
             c00.set(0, heightData[gridZ * vertexResolution + gridX], 0);
-            return MathUtils.barryCentric(c00, c10, c01, tmpV2.set(zCoord, xCoord));
+            height = MathUtils.barryCentric(c00, c10, c01, tmpV2.set(zCoord, xCoord));
+        } else { // bottom right triangle
+            c11.set(1, heightData[(gridZ + 1) * vertexResolution + gridX + 1], 1);
+            height = MathUtils.barryCentric(c10, c11, c01, tmpV2.set(zCoord, xCoord));
         }
-        // bottom right triangle
-        c11.set(1, heightData[(gridZ + 1) * vertexResolution + gridX + 1], 1);
-        return MathUtils.barryCentric(c10, c11, c01, tmpV2.set(zCoord, xCoord));
+
+        // Translates to world coordinate
+        height *= terrainTransform.getScale(tmp).y;
+        return height;
     }
 
     /**
