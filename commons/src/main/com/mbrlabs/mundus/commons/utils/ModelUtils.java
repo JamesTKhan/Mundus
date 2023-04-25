@@ -91,8 +91,7 @@ public class ModelUtils {
      * Checks if visible to camera using sphereInFrustum and radius
      */
     public static boolean isVisible(final Camera cam, final ModelInstance modelInstance, Vector3 center, float radius) {
-        modelInstance.transform.getTranslation(tmpVec0);
-        tmpVec0.add(center);
+        tmpVec0.set(center).mul(modelInstance.transform);
         return cam.frustum.sphereInFrustum(tmpVec0, radius);
     }
 
