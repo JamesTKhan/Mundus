@@ -142,7 +142,6 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         tmpBounds.getCenter(center);
         tmpBounds.getDimensions(dimensions);
         gameObject.getScale(tmpScale);
-        center.scl(tmpScale);
         dimensions.scl(tmpScale);
         radius = dimensions.len() / 2f;
     }
