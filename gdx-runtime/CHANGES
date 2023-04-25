@@ -12,6 +12,7 @@
 - [BREAKING CHANGE] The loadScene method for the runtime has changed. A ModelBatch is no longer required to be passed in.
 - Added config parameter to Mundus constructor
 - Add converter for Light Components
+- Updated libGDX to 1.11.0
 
 [0.3.1] ~ 07/06/2022
 - Set Source Compatibility to 1.7, PR #47

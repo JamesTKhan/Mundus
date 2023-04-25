@@ -53,6 +53,7 @@
 - Fix File Choosers stored favorites under the wrong key name
 - Fix bug with not being able to paint on terrains != 0 height.
 - Fix toast messages not displaying
+- Updated libGDX to 1.11.0
 
 [0.3.1] ~ 07/06/2022
 - Added functionality to the editor to generate the assets.txt file, PR #45
