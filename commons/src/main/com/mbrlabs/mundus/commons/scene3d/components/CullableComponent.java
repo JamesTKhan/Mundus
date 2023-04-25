@@ -47,7 +47,7 @@ import static com.mbrlabs.mundus.commons.utils.ModelUtils.isVisible;
 public abstract class CullableComponent extends AbstractComponent implements ModelEventable {
     private final static BoundingBox tmpBounds = new BoundingBox();
     private final static Vector3 tmpScale = new Vector3();
-    private final static short frameCullCheckInterval = 30;
+    private final static short frameCullCheckInterval = 15;
     private static DirectionalLight directionalLight;
 
     protected final Vector3 center = new Vector3();
