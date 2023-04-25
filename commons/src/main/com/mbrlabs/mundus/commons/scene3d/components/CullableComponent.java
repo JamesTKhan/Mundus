@@ -55,7 +55,7 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
     protected float radius;
 
     // Render calls since last cull check
-    protected short lastCullCheck = 0;
+    protected short framesSinceLastCullCheck = 0;
 
     // Is it offscreen?
     protected boolean isCulled = false;
@@ -88,8 +88,8 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
         // If object is not culled, don't perform a cull check every frame, just in intervals
         // to reduce matrix calculations
-        if (!isCulled && lastCullCheck++ < frameCullCheckInterval) return;
-        lastCullCheck = 0;
+        if (!isCulled && framesSinceLastCullCheck++ < frameCullCheckInterval) return;
+        framesSinceLastCullCheck = 0;
 
         boolean visibleToPerspective;
         boolean visibleToShadowMap = false;
