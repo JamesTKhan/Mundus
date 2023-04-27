@@ -206,7 +206,6 @@ class MundusToolbar(private val outline: Outline) : Toolbar(),
                     val selectedGameObject = outline.getSelectedGameObject()
                     projectManager.current().currScene.currentSelection = selectedGameObject
                     projectManager.current().currScene.sceneGraph.selected = selectedGameObject
-//                }
             }
         })
 
@@ -217,7 +216,6 @@ class MundusToolbar(private val outline: Outline) : Toolbar(),
                     val selectedGameObject = outline.getSelectedGameObject()
                     projectManager.current().currScene.currentSelection = selectedGameObject
                     projectManager.current().currScene.sceneGraph.selected = selectedGameObject
-//                }
             }
         })
 
