@@ -80,7 +80,7 @@ object UI : Stage(ScreenViewport()) {
     lateinit var statusBar: StatusBar
     val inspector: Inspector
     val outline: Outline
-    private lateinit var docker: DockBar
+    lateinit var docker: DockBar
     var sceneWidget: RenderWidget
 
     // dialogs

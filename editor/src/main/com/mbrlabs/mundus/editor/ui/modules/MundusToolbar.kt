@@ -25,10 +25,7 @@ import com.kotcrab.vis.ui.widget.PopupMenu
 import com.kotcrab.vis.ui.widget.Tooltip
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.events.AssetImportEvent
-import com.mbrlabs.mundus.editor.events.FullScreenEvent
-import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent
-import com.mbrlabs.mundus.editor.events.ToolActivatedEvent
+import com.mbrlabs.mundus.editor.events.*
 import com.mbrlabs.mundus.editor.tools.*
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.gizmos.GizmoManager
@@ -44,7 +41,12 @@ import com.mbrlabs.mundus.editor.utils.Log
  * *
  * @version 24-11-2015
  */
-class MundusToolbar(private val outline: Outline) : Toolbar(), FullScreenEvent.FullScreenEventListener, ToolActivatedEvent.ToolActivatedEventListener, GameObjectSelectedEvent.GameObjectSelectedListener {
+class MundusToolbar(private val outline: Outline) : Toolbar(),
+        FullScreenEvent.FullScreenEventListener,
+        ToolActivatedEvent.ToolActivatedEventListener,
+        GameObjectSelectedEvent.GameObjectSelectedListener,
+        AssetSelectedEvent.AssetSelectedListener
+{
 
     companion object {
         private val TAG = MundusToolbar::class.java.simpleName
@@ -285,6 +287,10 @@ class MundusToolbar(private val outline: Outline) : Toolbar(), FullScreenEvent.F
         }
         toolManager.translateTool.gameObjectSelected(event.gameObject)
         Mundus.postEvent(ToolActivatedEvent())
+    }
+
+    override fun onAssetSelected(event: AssetSelectedEvent) {
+        toolManager.setDefaultTool()
     }
 
     private fun clearButtonsStyle() {

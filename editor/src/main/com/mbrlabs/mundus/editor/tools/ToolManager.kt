@@ -127,6 +127,7 @@ class ToolManager(private val inputManager: InputManager,
                 Mundus.postEvent(ToolDeactivatedEvent())
             }
             setDefaultTool()
+            UI.docker.assetsDock.clearSelection()
             return true
         }
         return false
