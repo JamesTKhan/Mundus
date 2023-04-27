@@ -57,7 +57,8 @@ class Outline : VisTable(),
     ProjectChangedEvent.ProjectChangedListener,
     SceneChangedEvent.SceneChangedListener,
     SceneGraphChangedEvent.SceneGraphChangedListener,
-    GameObjectSelectedEvent.GameObjectSelectedListener {
+    GameObjectSelectedEvent.GameObjectSelectedListener,
+    AssetSelectedEvent.AssetSelectedListener {
 
     companion object {
         private val TITLE = "Outline"
@@ -107,6 +108,8 @@ class Outline : VisTable(),
 
     fun clearSelection() {
         tree.selection.clear()
+        projectManager.current().currScene.sceneGraph.selected = null
+        projectManager.current().currScene.currentSelection = null
     }
 
     override fun onProjectChanged(event: ProjectChangedEvent) {
@@ -455,10 +458,10 @@ class Outline : VisTable(),
         tree.selection.clear()
         tree.selection.add(node)
         node.expandTo()
+    }
 
-//        if (toolManager.activeTool !== toolManager.translateTool) {
-//            toolManager.setDefaultTool()
-//        }
+    override fun onAssetSelected(event: AssetSelectedEvent) {
+        clearSelection()
     }
 
     /**
