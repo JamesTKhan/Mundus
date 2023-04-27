@@ -103,6 +103,12 @@ class Outline : VisTable(),
         setupListeners()
     }
 
+    fun getSelectedGameObject(): GameObject? = tree.selectedValue
+
+    fun clearSelection() {
+        tree.selection.clear()
+    }
+
     override fun onProjectChanged(event: ProjectChangedEvent) {
         // update to new sceneGraph
         Log.trace(TAG, "Project changed. Building scene graph.")
@@ -295,7 +301,6 @@ class Outline : VisTable(),
                 if (selection != null && selection.size() > 0) {
                     val go = selection.first().value
                     projectManager.current().currScene.sceneGraph.selected = go
-                    toolManager.translateTool.gameObjectSelected(go)
                     Mundus.postEvent(GameObjectSelectedEvent(go))
                 }
             }
@@ -451,9 +456,9 @@ class Outline : VisTable(),
         tree.selection.add(node)
         node.expandTo()
 
-        if (toolManager.activeTool !== toolManager.translateTool) {
-            toolManager.setDefaultTool()
-        }
+//        if (toolManager.activeTool !== toolManager.translateTool) {
+//            toolManager.setDefaultTool()
+//        }
     }
 
     /**

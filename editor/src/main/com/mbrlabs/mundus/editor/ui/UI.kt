@@ -78,7 +78,7 @@ object UI : Stage(ScreenViewport()) {
     var menuBar: MundusMenuBar
     var toolbar: MundusToolbar
     lateinit var statusBar: StatusBar
-    private val inspector: Inspector
+    val inspector: Inspector
     val outline: Outline
     private lateinit var docker: DockBar
     var sceneWidget: RenderWidget
@@ -128,8 +128,8 @@ object UI : Stage(ScreenViewport()) {
 
         mainContainer = VisTable()
         menuBar = MundusMenuBar()
-        toolbar = MundusToolbar()
         outline = Outline()
+        toolbar = MundusToolbar(outline)
         inspector = Inspector()
         sceneWidget = RenderWidget()
 

@@ -22,8 +22,9 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent
+import com.mbrlabs.mundus.editor.events.ToolActivatedEvent
 import com.mbrlabs.mundus.editor.events.ToolDeactivatedEvent
 import com.mbrlabs.mundus.editor.history.CommandHistory
 import com.mbrlabs.mundus.editor.input.InputManager
@@ -31,6 +32,7 @@ import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.tools.brushes.*
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker
+import com.mbrlabs.mundus.editor.ui.UI
 
 /**
  * @author Marcus Brummer
@@ -76,6 +78,7 @@ class ToolManager(private val inputManager: InputManager,
         if (shouldKeepSelection && selected != null) {
             (activeTool as SelectionTool?)!!.gameObjectSelected(selected)
         }
+        Mundus.postEvent(ToolActivatedEvent())
     }
 
     fun deactivateTool() {
@@ -87,7 +90,18 @@ class ToolManager(private val inputManager: InputManager,
     }
 
     fun setDefaultTool() {
-        if (activeTool == null || activeTool === modelPlacementTool || activeTool is TerrainBrush) activateTool(translateTool) else activeTool!!.onDisabled()
+        if (activeTool == null || activeTool === modelPlacementTool || activeTool is TerrainBrush) {
+            val selectedGO = UI.outline.getSelectedGameObject()
+            activateTool(translateTool)
+            if (selectedGO != null) {
+                activateTool(translateTool)
+                Mundus.postEvent(GameObjectSelectedEvent(UI.outline.getSelectedGameObject()))
+            }
+        } else {
+            activeTool!!.onDisabled()
+            UI.outline.clearSelection()
+            UI.inspector.clearWidgets()
+        }
     }
 
     fun render() {
