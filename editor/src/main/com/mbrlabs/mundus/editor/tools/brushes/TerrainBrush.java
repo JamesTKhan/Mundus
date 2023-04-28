@@ -201,7 +201,6 @@ public abstract class TerrainBrush extends Tool {
      */
     private void smooth() {
         Terrain terrain = terrainAsset.getTerrain();
-        final Vector3 terPos = getTerrainPosition(tVec1);
 
         int weights = 0;
         float totalHeights = 0;
@@ -210,10 +209,10 @@ public abstract class TerrainBrush extends Tool {
         for (int x = 0; x < terrain.vertexResolution; x++) {
             for (int z = 0; z < terrain.vertexResolution; z++) {
                 final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
-                vertexPos.x += terPos.x;
-                vertexPos.z += terPos.z;
 
+                // should convert world position to terrain local position
                 tVec2.set(brushPos);
+                tVec2.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv());
                 tVec2.y = vertexPos.y;
                 float distance = vertexPos.dst(tVec2);
 
@@ -230,11 +229,10 @@ public abstract class TerrainBrush extends Tool {
         for (int x = 0; x < terrain.vertexResolution; x++) {
             for (int z = 0; z < terrain.vertexResolution; z++) {
                 final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
-                vertexPos.x += terPos.x;
-                vertexPos.z += terPos.z;
-                vertexPos.y += terPos.y;
 
+                // should convert world position to terrain local position
                 tVec2.set(brushPos);
+                tVec2.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv());
                 tVec2.y = vertexPos.y;
                 float distance = vertexPos.dst(tVec2);
 
