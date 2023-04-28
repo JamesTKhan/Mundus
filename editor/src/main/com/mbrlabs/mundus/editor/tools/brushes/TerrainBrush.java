@@ -21,10 +21,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.math.collision.Ray;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
@@ -104,6 +101,7 @@ public abstract class TerrainBrush extends Tool {
     protected static final Vector3 tVec0 = new Vector3();
     protected static final Vector3 tVec1 = new Vector3();
     protected static final Vector3 tVec2 = new Vector3();
+    private static final Matrix4 tmpMatrix = new Matrix4();
 
     // all brushes share the some common settings
     private static final GlobalBrushSettingsChangedEvent brushSettingsChangedEvent = new GlobalBrushSettingsChangedEvent();
@@ -302,22 +300,21 @@ public abstract class TerrainBrush extends Tool {
 
     private void raiseLower(BrushAction action) {
         Terrain terrain = terrainAsset.getTerrain();
-        final Vector3 terPos = getTerrainPosition(tVec1);
         float dir = (action == BrushAction.PRIMARY) ? 1 : -1;
         for (int x = 0; x < terrain.vertexResolution; x++) {
             for (int z = 0; z < terrain.vertexResolution; z++) {
                 final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
-                vertexPos.x += terPos.x;
-                vertexPos.z += terPos.z;
 
-                // for the dist calc, we do not want to factor in global Y height
+                // should convert world position to terrain local position
                 tVec2.set(brushPos);
+                tVec2.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv());
+                // for the dist calc, we do not want to factor in global Y height
                 tVec2.y = vertexPos.y;
 
                 float distance = vertexPos.dst(tVec2);
 
                 if (distance <= radius) {
-                    float elevation = getValueOfBrushPixmap(brushPos.x, brushPos.z, vertexPos.x, vertexPos.z, radius);
+                    float elevation = getValueOfBrushPixmap(tVec2.x, tVec2.z, vertexPos.x, vertexPos.z, radius);
                     terrain.heightData[z * terrain.vertexResolution + x] += dir * elevation * strength;
                 }
             }
@@ -422,6 +419,7 @@ public abstract class TerrainBrush extends Tool {
 
     private Vector3 getTerrainPosition(Vector3 vector3) {
         terrainComponent.getModelInstance().transform.getTranslation(vector3);
+//        tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
         return vector3;
     }
 
