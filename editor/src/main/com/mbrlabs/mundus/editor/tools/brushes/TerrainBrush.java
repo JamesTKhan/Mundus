@@ -173,9 +173,12 @@ public abstract class TerrainBrush extends Tool {
         SplatMap sm = terrain.getTerrainTexture().getSplatmap();
         if (sm == null) return;
 
-        Vector3 terrainPos = getTerrainPosition(tVec1);
-        final float splatX = ((brushPos.x - terrainPos.x) / (float) terrain.terrainWidth) * sm.getWidth();
-        final float splatY = ((brushPos.z - terrainPos.z) / (float) terrain.terrainDepth) * sm.getHeight();
+        // should convert world position to terrain local position
+        tVec1.set(brushPos);
+        tVec1.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv());
+
+        final float splatX = (tVec1.x / (float) terrain.terrainWidth) * sm.getWidth();
+        final float splatY = (tVec1.z / (float) terrain.terrainDepth) * sm.getHeight();
         final float splatRad = (radius / terrain.terrainWidth) * sm.getWidth();
         final Pixmap pixmap = sm.getPixmap();
 
