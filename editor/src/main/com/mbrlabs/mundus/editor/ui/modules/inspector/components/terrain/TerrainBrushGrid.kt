@@ -78,18 +78,6 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget,
         add(settingsTable).expand().fill().padLeft(5f).padRight(5f).padTop(5f).row()
     }
 
-    fun setupButtonStyleForSelectedBrush() {
-        val activeTool = toolManager.activeTool
-
-        if (activeTool is TerrainBrush && activeTool.mode.equals(brushMode)) {
-            for (button in buttons) {
-                if (button.name == activeTool.name) {
-                    button.style = FaTextButton.styleActive
-                }
-            }
-        }
-    }
-
     fun clearSelectedButtonStyle() {
         buttons.forEach { it.style = FaTextButton.styleNoBg }
     }
