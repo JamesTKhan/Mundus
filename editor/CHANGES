@@ -19,6 +19,7 @@
 - Object picker can use with left mouse button. Switchable in the settings
 - Water creation dialog
 - Helper lines
+- Show renamed game object's new name after rename in Inspector
 
 [0.4.2] ~ 10/24/2022
 - Fix shader compilation error for Terrain when using normal maps
@@ -53,6 +54,7 @@
 - Fix File Choosers stored favorites under the wrong key name
 - Fix bug with not being able to paint on terrains != 0 height.
 - Fix toast messages not displaying
+- Updated libGDX to 1.11.0
 
 [0.3.1] ~ 07/06/2022
 - Added functionality to the editor to generate the assets.txt file, PR #45

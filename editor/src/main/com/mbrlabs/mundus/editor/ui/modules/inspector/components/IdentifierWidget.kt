@@ -66,8 +66,9 @@ class IdentifierWidget : VisTable() {
         name.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 val projectContext = projectManager.current()
-                if (projectContext.currScene.currentSelection == null) return
-                projectContext.currScene.currentSelection.name = name.text
+                val selectedGO = projectContext.currScene.currentSelection ?: return
+                selectedGO.name = name.text
+                Mundus.postEvent(SceneGraphChangedEvent())
             }
         })
 
