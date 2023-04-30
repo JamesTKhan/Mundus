@@ -16,13 +16,11 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.inspector
 
-import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
 import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
 import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
@@ -47,8 +45,6 @@ class Inspector : VisTable(),
     enum class InspectorMode {
         GAME_OBJECT, ASSET, EMPTY
     }
-
-    private val projectManager: ProjectManager = Mundus.inject()
 
     private var mode = InspectorMode.EMPTY
     private val root = VisTable()
@@ -76,16 +72,6 @@ class Inspector : VisTable(),
         scrollPane.setFadeScrollBars(false)
 
         add<ScrollPane>(scrollPane).expand().fill().top()
-    }
-
-    override fun act(delta: Float) {
-        super.act(delta)
-
-        // If this widget is visible and the currentSelection variable is null (for example a brush tool selected) then
-        // disable this widget
-        val projectContext = projectManager.current()
-        val touchable = if (projectContext.currScene.currentSelection != null) Touchable.enabled else Touchable.disabled
-        this.touchable = touchable
     }
 
     fun clearWidgets() {
