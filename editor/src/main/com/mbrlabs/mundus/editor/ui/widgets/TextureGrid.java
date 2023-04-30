@@ -19,7 +19,10 @@ package com.mbrlabs.mundus.editor.ui.widgets;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.utils.Array;
+import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.layout.GridGroup;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -34,10 +37,15 @@ public class TextureGrid<T extends TextureProvider> extends VisTable {
     private final GridGroup grid;
     private OnTextureClickedListener listener;
 
+    private final Image selectedOverlay;
+
     public TextureGrid(int imgSize, int spacing) {
         super();
         this.grid = new GridGroup(imgSize, spacing);
         add(grid).expand().fill().row();
+
+        selectedOverlay = new Image(VisUI.getSkin().getDrawable("default-select-selection"));
+        selectedOverlay.getColor().a = 0.6f;
     }
 
     public TextureGrid(int imgSize, int spacing, Array<T> textures) {
@@ -64,6 +72,11 @@ public class TextureGrid<T extends TextureProvider> extends VisTable {
         grid.clearChildren();
     }
 
+    public void highlightFirst() {
+        final TextureItem<T> first = (TextureItem<T>) grid.getChildren().first();
+        first.highlight();
+    }
+
     /**
      *
      */
@@ -75,9 +88,14 @@ public class TextureGrid<T extends TextureProvider> extends VisTable {
      *
      */
     private class TextureItem<T extends TextureProvider> extends VisTable {
+
+        private final Stack stack;
+
         public TextureItem(final T tex) {
             super();
-            add(new VisImage(tex.getTexture()));
+            stack = new Stack();
+            stack.add(new VisImage(tex.getTexture()));
+            add(stack);
 
             addListener(new InputListener() {
                 @Override
@@ -88,11 +106,17 @@ public class TextureGrid<T extends TextureProvider> extends VisTable {
                 @Override
                 public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                     if (listener == null) return;
+                    highlight();
                     listener.onTextureSelected(tex, button == Input.Buttons.LEFT);
                 }
             });
 
         }
+
+        public void highlight() {
+            stack.add(selectedOverlay);
+        }
+
     }
 
 }
