@@ -7,6 +7,7 @@
 - Added new convenience methods to SceneGraph and GameObject for searching for GameObjects
 - Fix isOnTerrain, getNormalAtWordCoordinate and getHeightAtWorldCoord methods for rotated and scaled terrain
 - Fix frustum culling not handling rotations
+- Fix water reflections when camera is rotated
 
 [0.4.0] ~ 10/12/2022
 - [BREAKING CHANGE] The loadScene method for the runtime has changed. A ModelBatch is no longer required to be passed in.
