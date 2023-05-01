@@ -17,22 +17,28 @@
 package com.mbrlabs.mundus.editor.ui.widgets;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
-import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.layout.GridGroup;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.mbrlabs.mundus.commons.utils.TextureProvider;
+import com.mbrlabs.mundus.editor.utils.Colors;
 
 /**
  * @author Marcus Brummer
  * @version 30-01-2016
  */
 public class TextureGrid<T extends TextureProvider> extends VisTable {
+
+    private static final int HIGHLIGHT_LINE_WIDTH = 3;
 
     private final GridGroup grid;
     private OnTextureClickedListener listener;
@@ -44,8 +50,7 @@ public class TextureGrid<T extends TextureProvider> extends VisTable {
         this.grid = new GridGroup(imgSize, spacing);
         add(grid).expand().fill().row();
 
-        selectedOverlay = new Image(VisUI.getSkin().getDrawable("default-select-selection"));
-        selectedOverlay.getColor().a = 0.6f;
+        selectedOverlay = createSelectedOverlayImage(imgSize);
     }
 
     public TextureGrid(int imgSize, int spacing, Array<T> textures) {
@@ -82,6 +87,25 @@ public class TextureGrid<T extends TextureProvider> extends VisTable {
      */
     public interface OnTextureClickedListener {
         void onTextureSelected(TextureProvider textureProvider, boolean leftClick);
+    }
+
+    private Image createSelectedOverlayImage(final int imgSize) {
+        final Pixmap pixmap = new Pixmap(imgSize, imgSize, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Colors.INSTANCE.getTEAL());
+
+        // Fill top line
+        pixmap.fillRectangle(0, 0, imgSize, HIGHLIGHT_LINE_WIDTH);
+
+        //Fill left line
+        pixmap.fillRectangle(0, 0, HIGHLIGHT_LINE_WIDTH, imgSize);
+
+        // Fill right line
+        pixmap.fillRectangle(imgSize - HIGHLIGHT_LINE_WIDTH, 0, HIGHLIGHT_LINE_WIDTH, imgSize);
+
+        // Fill bottom line
+        pixmap.fillRectangle(0, imgSize - HIGHLIGHT_LINE_WIDTH, imgSize, HIGHLIGHT_LINE_WIDTH);
+
+        return new Image(new TextureRegionDrawable(new TextureRegion(new Texture(pixmap))));
     }
 
     /**
