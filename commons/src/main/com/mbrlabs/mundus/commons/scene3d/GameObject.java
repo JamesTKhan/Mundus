@@ -19,6 +19,7 @@ package com.mbrlabs.mundus.commons.scene3d;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.mbrlabs.mundus.commons.scene3d.components.ClippableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
@@ -42,6 +43,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
     public boolean hasWaterComponent = false;
     private Array<String> tags;
     private Array<Component> components;
+    private ObjectMap<String, String> customProperties;
 
     public final SceneGraph sceneGraph;
 
@@ -60,6 +62,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         this.active = true;
         this.tags = null;
         this.components = new Array<Component>(3);
+        this.customProperties = null;
     }
 
     /**
@@ -198,6 +201,14 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         }
 
         this.tags.add(tag);
+    }
+
+    public ObjectMap<String, String> getCustomProperties() {
+        if (customProperties == null) {
+            customProperties = new ObjectMap<>();
+        }
+
+        return this.customProperties;
     }
 
     /**
