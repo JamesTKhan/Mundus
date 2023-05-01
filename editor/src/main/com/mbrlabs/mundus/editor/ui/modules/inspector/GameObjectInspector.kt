@@ -30,6 +30,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
+import com.mbrlabs.mundus.editor.ui.modules.inspector.components.CustomPropertiesWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.IdentifierWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.LightComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ModelComponentWidget
@@ -48,6 +49,7 @@ class GameObjectInspector : VisTable() {
     private val componentWidgets: Array<ComponentWidget<*>> = Array()
     private val addComponentBtn = VisTextButton("Add Component")
     private val componentTable = VisTable()
+    private val customPropertiesWidget = CustomPropertiesWidget()
 
     private var gameObject: GameObject? = null
 
@@ -66,6 +68,8 @@ class GameObjectInspector : VisTable() {
                 UI.showDialog(UI.addComponentDialog)
             }
         })
+
+        add(customPropertiesWidget).growX().pad(7f).row()
     }
 
     fun setGameObject(gameObject: GameObject) {
@@ -90,6 +94,8 @@ class GameObjectInspector : VisTable() {
             for (cw in componentWidgets) {
                 cw.setValues(gameObject!!)
             }
+
+            customPropertiesWidget.setValues(gameObject!!)
         }
     }
 
