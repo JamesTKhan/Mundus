@@ -50,8 +50,11 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 val key = ""
                 val value = ""
-                component.customProperties.put(key, value)
-                addCustomProperty(key, value)
+
+                if (!component.customProperties.containsKey(key)) {
+                    component.customProperties.put(key, value)
+                    addCustomProperty(key, value)
+                }
             }
         })
     }
