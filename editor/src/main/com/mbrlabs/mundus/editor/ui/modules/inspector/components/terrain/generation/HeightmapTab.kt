@@ -10,7 +10,7 @@ import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
-import com.mbrlabs.mundus.commons.assets.TerrainAsset
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.history.CommandHistory
@@ -20,7 +20,7 @@ import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FileChooserField
 import com.mbrlabs.mundus.editor.utils.isImage
 
-class HeightmapTab(private val terrainAsset: TerrainAsset) : Tab(false, false) {
+class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, false) {
 
     private val root = VisTable()
 
@@ -49,7 +49,7 @@ class HeightmapTab(private val terrainAsset: TerrainAsset) : Tab(false, false) {
                 val hm = hmInput.file
                 if (hm != null && hm.exists() && isImage(hm)) {
                     loadHeightMap(hm)
-                    projectManager.current().assetManager.addModifiedAsset(terrainAsset)
+                    projectManager.current().assetManager.addModifiedAsset(terrainComponent.terrainAsset)
                 } else {
                     Dialogs.showErrorDialog(UI, "Please select a heightmap image")
                 }
@@ -58,7 +58,7 @@ class HeightmapTab(private val terrainAsset: TerrainAsset) : Tab(false, false) {
     }
 
     private fun loadHeightMap(heightMap: FileHandle) {
-        val terrain = terrainAsset.terrain
+        val terrain = terrainComponent.terrainAsset.terrain
         val command = TerrainHeightCommand(terrain)
         command.setHeightDataBefore(terrain.heightData)
 
@@ -72,10 +72,10 @@ class HeightmapTab(private val terrainAsset: TerrainAsset) : Tab(false, false) {
                     scaledPixmap.width, scaledPixmap.height)
 
             originalMap.dispose()
-            Terraformer.heightMap(terrain).maxHeight(terrain.terrainWidth * 0.17f).map(scaledPixmap).terraform()
+            Terraformer.heightMap(terrainComponent).maxHeight(terrain.terrainWidth * 0.17f).map(scaledPixmap).terraform()
             scaledPixmap.dispose()
         } else {
-            Terraformer.heightMap(terrain).maxHeight(terrain.terrainWidth * 0.17f).map(originalMap).terraform()
+            Terraformer.heightMap(terrainComponent).maxHeight(terrain.terrainWidth * 0.17f).map(originalMap).terraform()
             originalMap.dispose()
         }
 

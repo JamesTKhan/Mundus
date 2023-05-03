@@ -9,10 +9,12 @@ import com.kotcrab.vis.ui.widget.MenuItem
 import com.kotcrab.vis.ui.widget.PopupMenu
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
+import com.mbrlabs.mundus.editor.events.TerrainRemovedEvent
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
@@ -82,6 +84,11 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
                     outline.removeGo(selectedGO!!)
                     if (toolManager.isSelected(selectedGO!!)) {
                         toolManager.activeTool!!.onDisabled()
+                    }
+
+                    val terrainComponent = selectedGO!!.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
+                    if (terrainComponent != null) {
+                        Mundus.postEvent(TerrainRemovedEvent(terrainComponent))
                     }
                 }
             }

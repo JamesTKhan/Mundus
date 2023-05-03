@@ -153,6 +153,49 @@ public class SceneGraph {
         return maxId + 1;
     }
 
+    /**
+     * Returns the first GameObject in the scene matching the name.
+     *
+     * @param name the GameObject name to search for
+     * @return the first GameObject found or null if not found
+     */
+    public GameObject findByName(String name) {
+        return root.findChildByName(name);
+    }
+
+    /**
+     * Returns an Array of all GameObjects in the scene matching the name.
+     * Traversing the scene can be expensive, cache these results if you need them often.
+     *
+     * @param name the GameObject name to search for
+     * @return Array of all matching GameObjects
+     */
+    public Array<GameObject> findAllByName(String name) {
+        return root.findChildrenByName(name);
+    }
+
+    /**
+     * Returns an Array of all GameObjects in the scene that have the given Component.Type
+     * Traversing the scene can be expensive, cache these results if you need them often.
+     *
+     * @param type the Component Type to search for
+     * @return Array of all matching GameObjects
+     */
+    public Array<GameObject> findAllByComponent(Component.Type type) {
+        return root.findChildrenByComponent(type);
+    }
+
+    /**
+     * Returns an Array of all scene GameObjects that have the given Tag
+     * Traversing the scene can be expensive, cache these results if you need them often.
+     *
+     * @param tag the string tag to search for
+     * @return Array of all matching GameObjects
+     */
+    public Array<GameObject> findAllByTag(String tag) {
+        return root.findChildrenByTag(tag);
+    }
+
     public GameObject getRoot() {
         return root;
     }
