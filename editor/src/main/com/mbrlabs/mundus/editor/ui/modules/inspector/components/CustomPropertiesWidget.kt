@@ -90,5 +90,14 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
                 customProperties.put(currentKey, currentValue)
             }
         })
+
+        deleteButton.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                val currentKey = keyTextField.text
+
+                component.customProperties.remove(currentKey)
+                setValues(component.gameObject)
+            }
+        })
     }
 }
