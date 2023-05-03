@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.scenes.scene2d.utils.FocusListener
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
@@ -76,10 +77,30 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
 
                 val customProperties = component.customProperties
 
-                customProperties.remove(previousKey)
-                customProperties.put(currentKey, valueTextField.text)
+                if (previousKey == currentKey) {
+                    keyTextField.isInputValid = true
+                } else {
+                    if (customProperties.containsKey(currentKey)) {
+                        keyTextField.isInputValid = false
+                    } else {
+                        keyTextField.isInputValid = true
 
-                previousKey = currentKey
+                        customProperties.remove(previousKey)
+                        customProperties.put(currentKey, valueTextField.text)
+
+                        previousKey = currentKey
+                    }
+                }
+            }
+        })
+
+        keyTextField.addListener(object : FocusListener() {
+            override fun keyboardFocusChanged(event: FocusEvent?, actor: Actor?, focused: Boolean) {
+                // If the key value is invalid then change text to the previous valid value
+                if (!focused && !keyTextField.isInputValid) {
+                    keyTextField.text = previousKey
+                    keyTextField.isInputValid = true
+                }
             }
         })
 
