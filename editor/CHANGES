@@ -5,6 +5,9 @@
 - Added scene delete button
 - Added scene rename button
 - Added dialog for adding water
+- Added args4j for command line parsing
+- Added command line option to enable GL30
+- Added command line option to enable fullscreen
 - Update gradle to 7.5.1
 - Updated editor to use MSAA by default, disable by command line
 - Terrain Assets can now be reused in the same scene and other scenes

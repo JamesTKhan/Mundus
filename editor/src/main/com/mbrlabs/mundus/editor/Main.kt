@@ -32,6 +32,9 @@ const private val TAG = "Main"
 const val VERSION = "v0.4.2"
 const val TITLE = "Mundus $VERSION"
 
+/**
+ * args4j options for command line parsing.
+ */
 class LaunchOptions {
     @Option(name="-noMSAA",usage="If present, disables MSAA")
     var noMSAA = false
@@ -39,7 +42,7 @@ class LaunchOptions {
     @Option(name="-useGL30",usage="If present, enables GL30")
     var useGL30 = false
 
-    @Option(name="-fullscreen",usage="If present, enables GL30")
+    @Option(name="-fullscreen",usage="Enables fullscreen mode")
     var fullscreen = false
 }
 
@@ -50,11 +53,11 @@ fun main(arg: Array<String>) {
     Log.init()
 
     // Parse command line arguments via args4j
-    val myOptions = LaunchOptions()
-    val cmdLineParser = CmdLineParser(myOptions)
+    val options = LaunchOptions()
+    val cmdLineParser = CmdLineParser(options)
     cmdLineParser.parseArgument(arg.toList())
 
-    launchEditor(myOptions)
+    launchEditor(options)
 }
 
 private fun launchEditor(options: LaunchOptions) {

@@ -138,6 +138,12 @@ public class ShaderUtils {
         return depthConfig;
     }
 
+    /**
+     * Originally from gdx-gltf library
+     * Returns the GLSL version string for the current platform. Use this
+     * in shader prefixes (first line) to define the GLSL version when using GL30 features
+     * @return GLSL version string
+     */
     public static String getGLVersionString() {
         String version = "";
         if (GLUtils.isGL3()) {
