@@ -108,7 +108,6 @@ class Outline : VisTable(),
 
     fun clearSelection() {
         tree.selection.clear()
-        projectManager.current().currScene.sceneGraph.selected = null
         projectManager.current().currScene.currentSelection = null
     }
 
@@ -303,7 +302,6 @@ class Outline : VisTable(),
                 val selection = tree.getSelection()
                 if (selection != null && selection.size() > 0) {
                     val go = selection.first().value
-                    projectManager.current().currScene.sceneGraph.selected = go
                     Mundus.postEvent(GameObjectSelectedEvent(go))
                 }
             }

@@ -195,7 +195,6 @@ class MundusToolbar(private val outline: Outline) : Toolbar(),
                     toolManager.activateTool(toolManager.selectionTool)
                     val selectedGameObject = outline.getSelectedGameObject()
                     projectManager.current().currScene.currentSelection = selectedGameObject
-                    projectManager.current().currScene.sceneGraph.selected = selectedGameObject
             }
         })
 
@@ -205,7 +204,6 @@ class MundusToolbar(private val outline: Outline) : Toolbar(),
                     toolManager.activateTool(toolManager.translateTool)
                     val selectedGameObject = outline.getSelectedGameObject()
                     projectManager.current().currScene.currentSelection = selectedGameObject
-                    projectManager.current().currScene.sceneGraph.selected = selectedGameObject
             }
         })
 
@@ -215,7 +213,6 @@ class MundusToolbar(private val outline: Outline) : Toolbar(),
                     toolManager.activateTool(toolManager.rotateTool)
                     val selectedGameObject = outline.getSelectedGameObject()
                     projectManager.current().currScene.currentSelection = selectedGameObject
-                    projectManager.current().currScene.sceneGraph.selected = selectedGameObject
             }
         })
 
@@ -225,7 +222,6 @@ class MundusToolbar(private val outline: Outline) : Toolbar(),
                     toolManager.activateTool(toolManager.scaleTool)
                     val selectedGameObject = outline.getSelectedGameObject()
                     projectManager.current().currScene.currentSelection = selectedGameObject
-                    projectManager.current().currScene.sceneGraph.selected = selectedGameObject
             }
         })
 
