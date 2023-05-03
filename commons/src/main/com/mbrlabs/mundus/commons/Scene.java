@@ -82,6 +82,10 @@ public class Scene implements Disposable {
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
 
+    private final Vector3 tmpCamUp = new Vector3();
+    private final Vector3 tmpCamDir = new Vector3();
+    private final Vector3 tmpCamPos = new Vector3();
+
     /**
      * The default way to instantiate a scene. Use this constructor if you
      * are using the runtime.
@@ -222,12 +226,16 @@ public class Scene implements Disposable {
         // Calc vertical distance for camera for reflection FBO
         float camReflectionDistance = 2 * (cam.position.y - settings.waterHeight);
 
-        // Save current cam positions
-        Vector3 camPos = cam.position.cpy();
-        Vector3 camDir = cam.direction.cpy();
+        // Save current cam data
+        tmpCamUp.set(cam.up);
+        tmpCamPos.set(cam.position);
+        tmpCamDir.set(cam.direction);
 
-        // Position camera for reflection capture
+        // Retains reflections on different camera orientations
+        cam.up.scl(-1, 1f, -1);
+        // Invert the pitch of the camera as it will be looking "up" from below current cam position
         cam.direction.scl(1, -1, 1).nor();
+        // Position the camera below the water plane, looking "up"
         cam.position.sub(0, camReflectionDistance, 0);
         cam.update();
 
@@ -241,9 +249,10 @@ public class Scene implements Disposable {
         renderSkybox();
         fboWaterReflection.end();
 
-        // Restore camera positions
-        cam.direction.set(camDir);
-        cam.position.set(camPos);
+        // Restore camera data
+        cam.direction.set(tmpCamDir);
+        cam.position.set(tmpCamPos);
+        cam.up.set(tmpCamUp);
         cam.update();
     }
 
