@@ -8,31 +8,34 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.scene3d.GameObject
-import com.mbrlabs.mundus.editor.ui.modules.inspector.BaseInspectorWidget
+import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent
 import com.mbrlabs.mundus.editor.ui.widgets.FaTextButton
 import com.mbrlabs.mundus.editor.utils.Fa
 
-class CustomPropertiesWidget : BaseInspectorWidget("Custom Properties") {
+class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponent)
+    : ComponentWidget<CustomPropertiesComponent>("Custom Properties Component", customPropertiesComponent) {
 
     private val customProperties = VisTable()
-    private var gameObject: GameObject? = null
 
     init {
-        isDeletable = false
+        component = customPropertiesComponent
 
         setupUI()
     }
     override fun onDelete() {
-        // The custom properties component can't be deleted.
+
     }
 
     override fun setValues(go: GameObject) {
-        this.gameObject = go
-        val goCustomProperties = go.customProperties
+        val c = go.findComponentByType(Component.Type.CUSTOM_PROPERTIES)
+        if (c != null) {
+            component = c as CustomPropertiesComponent
+        }
 
         customProperties.clearChildren()
 
-        for (entry in goCustomProperties) {
+        for (entry in component.customProperties) {
             addCustomProperty(entry.key, entry.value)
         }
     }
@@ -47,7 +50,7 @@ class CustomPropertiesWidget : BaseInspectorWidget("Custom Properties") {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 val key = ""
                 val value = ""
-                gameObject!!.customProperties.put(key, value)
+                component.customProperties.put(key, value)
                 addCustomProperty(key, value)
             }
         })
@@ -68,10 +71,10 @@ class CustomPropertiesWidget : BaseInspectorWidget("Custom Properties") {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 val currentKey = keyTextField.text
 
-                val goCustomProperties = gameObject!!.customProperties
+                val customProperties = component.customProperties
 
-                goCustomProperties.remove(previousKey)
-                goCustomProperties.put(currentKey, valueTextField.text)
+                customProperties.remove(previousKey)
+                customProperties.put(currentKey, valueTextField.text)
 
                 previousKey = currentKey
             }
@@ -82,9 +85,9 @@ class CustomPropertiesWidget : BaseInspectorWidget("Custom Properties") {
                 val currentKey = keyTextField.text
                 val currentValue = valueTextField.text
 
-                val goCustomProperties = gameObject!!.customProperties
+                val customProperties = component.customProperties
 
-                goCustomProperties.put(currentKey, currentValue)
+                customProperties.put(currentKey, currentValue)
             }
         })
     }
