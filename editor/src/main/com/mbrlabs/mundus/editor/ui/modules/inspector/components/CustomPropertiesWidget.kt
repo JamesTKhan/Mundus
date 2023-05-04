@@ -5,6 +5,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener
+import com.badlogic.gdx.utils.Align
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
@@ -33,6 +35,10 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
 
         customProperties.clearChildren()
 
+        if (component.customProperties.notEmpty()) {
+            addHeader()
+        }
+
         for (entry in component.customProperties) {
             addCustomProperty(entry.key, entry.value)
         }
@@ -51,10 +57,20 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
 
                 if (!component.customProperties.containsKey(key)) {
                     component.customProperties.put(key, value)
+
+                    if (component.customProperties.size == 1) {
+                        addHeader()
+                    }
+
                     addCustomProperty(key, value)
                 }
             }
         })
+    }
+
+    private fun addHeader() {
+        customProperties.add(VisLabel("Key")).expandX().align(Align.center).padBottom(3f).padRight(3f)
+        customProperties.add(VisLabel("Value")).expandX().align(Align.center).padBottom(3f).padRight(3f).row()
     }
 
     private fun addCustomProperty(key: String, value: String) {
