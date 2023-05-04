@@ -47,11 +47,15 @@ import static com.mbrlabs.mundus.commons.utils.ModelUtils.isVisible;
 public abstract class CullableComponent extends AbstractComponent implements ModelEventable {
     private final static BoundingBox tmpBounds = new BoundingBox();
     private final static Vector3 tmpScale = new Vector3();
+    private final static short frameCullCheckInterval = 15;
     private static DirectionalLight directionalLight;
 
     protected final Vector3 center = new Vector3();
     protected final Vector3 dimensions = new Vector3();
     protected float radius;
+
+    // Render calls since last cull check
+    protected short framesSinceLastCullCheck = 0;
 
     // Is it offscreen?
     protected boolean isCulled = false;
@@ -78,8 +82,14 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         if (this instanceof ModelCacheable) {
             if (((ModelCacheable) this).shouldCache()) {
                 isCulled = false;
+                return;
             }
         }
+
+        // If object is not culled, don't perform a cull check every frame, just in intervals
+        // to reduce matrix calculations
+        if (!isCulled && framesSinceLastCullCheck++ < frameCullCheckInterval) return;
+        framesSinceLastCullCheck = 0;
 
         boolean visibleToPerspective;
         boolean visibleToShadowMap = false;
