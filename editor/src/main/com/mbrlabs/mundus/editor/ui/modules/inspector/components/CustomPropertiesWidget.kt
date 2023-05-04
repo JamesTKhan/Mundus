@@ -24,9 +24,6 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
 
         setupUI()
     }
-    override fun onDelete() {
-
-    }
 
     override fun setValues(go: GameObject) {
         val c = go.findComponentByType(Component.Type.CUSTOM_PROPERTIES)
