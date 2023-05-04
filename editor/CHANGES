@@ -20,6 +20,7 @@
 - Water creation dialog
 - Helper lines
 - Show renamed game object's new name after rename in Inspector
+- Custom properties component addable to game objects
 
 [0.4.2] ~ 10/24/2022
 - Fix shader compilation error for Terrain when using normal maps
