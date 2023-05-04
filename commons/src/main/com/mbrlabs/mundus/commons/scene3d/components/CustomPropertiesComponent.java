@@ -44,7 +44,45 @@ public class CustomPropertiesComponent extends AbstractComponent {
         return null;
     }
 
-    public OrderedMap<String, String> getCustomProperties() {
+    /**
+     * See {@link OrderedMap#containsKey(Object)}.
+     */
+    public boolean containsKey(String key) {
+        return customProperties.containsKey(key);
+    }
+
+    /**
+     * See {@link OrderedMap#get(Object)}.
+     */
+    public String get(String key) {
+        return customProperties.get(key);
+    }
+
+    /**
+     * See {@link OrderedMap#put(Object, Object)}.
+     */
+    public String put(String key, String value) {
+        return customProperties.put(key, value);
+    }
+
+    /**
+     * See {@link OrderedMap#remove(Object)}.
+     */
+    public String remove(String key) {
+        return customProperties.remove(key);
+    }
+
+    /**
+     * @return Size of custom properties map.
+     */
+    public int getSize() {
+        return customProperties.size;
+    }
+
+    /**
+     * @return The whole custom properties map.
+     */
+    public OrderedMap<String, String> getMap() {
         return customProperties;
     }
 }

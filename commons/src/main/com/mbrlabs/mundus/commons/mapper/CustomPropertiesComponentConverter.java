@@ -25,14 +25,14 @@ public class CustomPropertiesComponentConverter {
 
     public static CustomPropertiesComponent convert(final CustomPropertiesComponentDTO dto, final GameObject go) {
         final CustomPropertiesComponent component = new CustomPropertiesComponent(go);
-        component.getCustomProperties().putAll((ObjectMap<? extends String, ? extends String>) dto.getCustomProperties());
+        component.getMap().putAll((ObjectMap<? extends String, ? extends String>) dto.getCustomProperties());
 
         return component;
     }
 
     public static CustomPropertiesComponentDTO convert(final CustomPropertiesComponent component) {
         final CustomPropertiesComponentDTO dto = new CustomPropertiesComponentDTO();
-        dto.setCustomProperties(component.getCustomProperties());
+        dto.setCustomProperties(component.getMap());
 
         return dto;
     }

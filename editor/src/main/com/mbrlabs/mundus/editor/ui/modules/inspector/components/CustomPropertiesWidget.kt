@@ -51,11 +51,11 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
 
         customProperties.clearChildren()
 
-        if (component.customProperties.notEmpty()) {
+        if (component.map.notEmpty()) {
             addHeader()
         }
 
-        for (entry in component.customProperties) {
+        for (entry in component.map) {
             addCustomProperty(entry.key, entry.value)
         }
     }
@@ -71,10 +71,10 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
                 val key = ""
                 val value = ""
 
-                if (!component.customProperties.containsKey(key)) {
-                    component.customProperties.put(key, value)
+                if (!component.containsKey(key)) {
+                    component.put(key, value)
 
-                    if (component.customProperties.size == 1) {
+                    if (component.size == 1) {
                         addHeader()
                     }
 
@@ -104,18 +104,16 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
             override fun changed(event: ChangeEvent, actor: Actor) {
                 val currentKey = keyTextField.text
 
-                val customProperties = component.customProperties
-
                 if (previousKey == currentKey) {
                     keyTextField.isInputValid = true
                 } else {
-                    if (customProperties.containsKey(currentKey)) {
+                    if (component.containsKey(currentKey)) {
                         keyTextField.isInputValid = false
                     } else {
                         keyTextField.isInputValid = true
 
-                        customProperties.remove(previousKey)
-                        customProperties.put(currentKey, valueTextField.text)
+                        component.remove(previousKey)
+                        component.put(currentKey, valueTextField.text)
 
                         previousKey = currentKey
                     }
@@ -138,9 +136,7 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
                 val currentKey = keyTextField.text
                 val currentValue = valueTextField.text
 
-                val customProperties = component.customProperties
-
-                customProperties.put(currentKey, currentValue)
+                component.put(currentKey, currentValue)
             }
         })
 
@@ -148,7 +144,7 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 val currentKey = keyTextField.text
 
-                component.customProperties.remove(currentKey)
+                component.remove(currentKey)
                 setValues(component.gameObject)
             }
         })
