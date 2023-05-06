@@ -16,7 +16,7 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
-import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Array
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
@@ -68,8 +68,9 @@ class RectangleHelperLineShape(width: Int,
 
             while (terrainX + 1 < terrain.terrainWidth) {
                 val fullCell = terrainX + width * widthOffset <= terrain.terrainWidth && terrainY + width * depthOffset <= terrain.terrainDepth
+                val pos = Vector3(terrainX + width * widthOffset / 2, 0f, terrainY + width * depthOffset / 2)
 
-                centerOfHelperObjects.add(HelperLineCenterObject(x, y, Vector2(terrainX + width * widthOffset / 2, terrainY + width * depthOffset / 2), fullCell))
+                centerOfHelperObjects.add(HelperLineCenterObject(x, y, pos, fullCell))
 
                 ++x
                 terrainX += width * widthOffset

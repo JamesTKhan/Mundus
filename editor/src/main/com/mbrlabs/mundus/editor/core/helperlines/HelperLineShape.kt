@@ -32,6 +32,10 @@ import com.mbrlabs.mundus.commons.terrain.Terrain
 
 abstract class HelperLineShape(val width: Int, val terrainComponent: TerrainComponent) : Disposable {
 
+    companion object {
+        val tmpV3 = Vector3()
+    }
+
     val mesh: Mesh
     val modelInstance: ModelInstance
 
@@ -89,8 +93,10 @@ abstract class HelperLineShape(val width: Int, val terrainComponent: TerrainComp
         shapeRenderer.projectionMatrix = camera.combined
 
         for (helperLineCenterObject in centerOfHelperObjects) {
+            tmpV3.set(helperLineCenterObject.position).sub(0.5f)
+
             shapeRenderer.color = if (helperLineCenterObject.full) Color.CYAN else Color.RED
-            shapeRenderer.box(helperLineCenterObject.position.x - 0.5f, 0f - 0.5f, helperLineCenterObject.position.y - 0.5f, 1f, 1f, 1f)
+            shapeRenderer.box(tmpV3.x, tmpV3.y, tmpV3.z, 1f, 1f, 1f)
         }
 
         shapeRenderer.end()

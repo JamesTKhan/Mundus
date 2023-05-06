@@ -16,7 +16,7 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
-import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Array
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
@@ -68,10 +68,11 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
             var cellX = 0
 
             while (terrainX + 1 <= terrain.terrainWidth) {
-                val y = if (cellX % 2 == 1) terrainY - depthOffset else terrainY
+                val x = terrainX + 1.5f * widthOffset
+                val z = if (cellX % 2 == 1) terrainY - depthOffset else terrainY
                 val fullCell = terrainY + depthOffset <= terrain.terrainWidth && terrainX + 3 * widthOffset <= terrain.terrainWidth
 
-                centerOfHelperObjects.add(HelperLineCenterObject(cellX, cellY, Vector2(terrainX + 1.5f * widthOffset, y), fullCell))
+                centerOfHelperObjects.add(HelperLineCenterObject(cellX, cellY, Vector3(x, 0f, z), fullCell))
 
                 ++cellX
                 terrainX += 2 * widthOffset
@@ -91,7 +92,9 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
         var cellX = 0
 
         while (terrainX +1 <= terrain.terrainWidth) {
-            centerOfHelperObjects.add(HelperLineCenterObject(cellX, 0, Vector2(terrainX + 1.5f * widthOffset, 0f), false))
+            val x = terrainX + 1.5f * widthOffset
+
+            centerOfHelperObjects.add(HelperLineCenterObject(cellX, 0, Vector3(x, 0f, 0f), false))
 
             cellX += 2
             terrainX += 4 * widthOffset
@@ -105,7 +108,10 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
         var cellY = 0
 
         while (terrainY +1 <= terrain.terrainDepth) {
-            centerOfHelperObjects.add(HelperLineCenterObject(-1, cellY, Vector2(-.5f * widthOffset, terrainY), false))
+            val x = -.5f * widthOffset
+            val z = terrainY
+
+            centerOfHelperObjects.add(HelperLineCenterObject(-1, cellY, Vector3(x, 0f, z), false))
 
             cellY += 2
             terrainY += 2 * depthOffset

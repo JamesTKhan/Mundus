@@ -16,11 +16,11 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
-import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
 
 data class HelperLineCenterObject(
         val x: Int,
         val y: Int,
-        val position: Vector2,
+        val position: Vector3,
         val full: Boolean
         )
