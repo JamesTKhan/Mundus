@@ -114,11 +114,7 @@ class AddComponentDialog : BaseDialog("Add Component") {
     }
 
     private fun getNewCustomPropertiesComponent(go: GameObject): Component? {
-        if (go.findComponentByType(Component.Type.CUSTOM_PROPERTIES) == null) {
-            return CustomPropertiesComponent(go)
-        }
-
-        return null
+        return CustomPropertiesComponent(go)
     }
 
 }
