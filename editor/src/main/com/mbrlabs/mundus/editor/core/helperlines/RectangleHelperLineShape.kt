@@ -70,6 +70,9 @@ class RectangleHelperLineShape(width: Int,
                 val fullCell = terrainX + width * widthOffset <= terrain.terrainWidth && terrainY + width * depthOffset <= terrain.terrainDepth
                 val pos = Vector3(terrainX + width * widthOffset / 2, 0f, terrainY + width * depthOffset / 2)
 
+                // Convert to world position
+                pos.mul(terrainComponent.modelInstance.transform)
+
                 centerOfHelperObjects.add(HelperLineCenterObject(x, y, pos, fullCell))
 
                 ++x
