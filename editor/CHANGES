@@ -6,6 +6,7 @@
 - Added scene rename button
 - Added dialog for adding water
 - Update gradle to 7.5.1
+- Updated editor to use MSAA by default, disable by command line
 - Terrain Assets can now be reused in the same scene and other scenes
 - Update gdx-gltf to 2.1.0
 - Fix import of models with spaces in dependencies name
@@ -18,6 +19,8 @@
 - Object picker can use with left mouse button. Switchable in the settings
 - Water creation dialog
 - Helper lines
+- Show renamed game object's new name after rename in Inspector
+- Fix terrain brush tools for rotated and scaled terrain
 
 [0.4.2] ~ 10/24/2022
 - Fix shader compilation error for Terrain when using normal maps
@@ -52,6 +55,7 @@
 - Fix File Choosers stored favorites under the wrong key name
 - Fix bug with not being able to paint on terrains != 0 height.
 - Fix toast messages not displaying
+- Updated libGDX to 1.11.0
 
 [0.3.1] ~ 07/06/2022
 - Added functionality to the editor to generate the assets.txt file, PR #45
