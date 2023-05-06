@@ -68,8 +68,11 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
             var cellX = 0
 
             while (terrainX + 1 <= terrain.terrainWidth) {
-                val fullCell = terrainY + depthOffset <= terrain.terrainWidth && terrainX + 3 * widthOffset <= terrain.terrainWidth
-                val pos = Vector3(terrainX + 1.5f * widthOffset, 0f, if (cellX % 2 == 1) terrainY - depthOffset else terrainY)
+                val posX = terrainX + 1.5f * widthOffset
+                val posY = 0f
+                val posZ = if (cellX % 2 == 1) terrainY - depthOffset else terrainY
+                val fullCell = posZ + depthOffset <= terrain.terrainWidth && posX + 1.5f * widthOffset <= terrain.terrainWidth
+                val pos = Vector3(posX, posY, posZ)
                 // Convert to world position
                 pos.mul(terrainComponent.modelInstance.transform)
 
