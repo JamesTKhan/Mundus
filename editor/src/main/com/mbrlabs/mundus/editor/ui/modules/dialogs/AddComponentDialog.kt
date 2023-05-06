@@ -60,7 +60,7 @@ class AddComponentDialog : BaseDialog("Add Component") {
         addBtn.addListener(object : ClickListener () {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 // Add component to current game object
-                val go = projectManager.current().currScene.currentSelection
+                val go = UI.outline.getSelectedGameObject()!!
 
                 val component = getNewComponent(selectBox.selected, go)
                 if (component != null) {

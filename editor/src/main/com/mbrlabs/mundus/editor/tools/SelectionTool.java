@@ -86,7 +86,7 @@ public class SelectionTool extends Tool {
                     getProjectManager().getModelBatch().render(tc.getModelInstance(), getShader());
                 }
 
-                // terrainAsset component
+                // waterAsset component
                 WaterComponent wc = (WaterComponent) go.findComponentByType(Component.Type.WATER);
                 if (wc != null) {
                     getProjectManager().getModelBatch().render(wc.getWaterAsset().water, getShader());

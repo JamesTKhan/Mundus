@@ -74,6 +74,11 @@ class Inspector : VisTable(),
         add<ScrollPane>(scrollPane).expand().fill().top()
     }
 
+    fun clearWidgets() {
+        root.clear()
+        mode = InspectorMode.EMPTY
+    }
+
     override fun onGameObjectSelected(event: GameObjectSelectedEvent) {
         if (mode != InspectorMode.GAME_OBJECT) {
             mode = InspectorMode.GAME_OBJECT
