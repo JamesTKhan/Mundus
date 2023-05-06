@@ -69,5 +69,15 @@ public final class GLUtils {
                 intBuf.get(3) };
     }
 
+    /**
+     * Originally gdx-gltf library PBRShaderProvider
+     *
+     * @return if target platform is running with at least OpenGL ES 3 (GLSL 300 es), WebGL 2.0 (GLSL 300 es)
+     *  or desktop OpenGL 3.0 (GLSL 130).
+     */
+    public static boolean isGL3(){
+        return Gdx.graphics.getGLVersion().isVersionEqualToOrHigher(3, 0);
+    }
+
 }
 
