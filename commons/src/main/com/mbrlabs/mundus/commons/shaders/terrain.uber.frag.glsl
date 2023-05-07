@@ -125,25 +125,31 @@ void main(void) {
         #endif
 
         #ifdef normalTextureFlag
+            vec3 splatNormal = vec3(0.0);
             // Splat normals
             #ifdef splatRNormalFlag
-                normal = mix(normal, unpackNormal(texture2D(u_texture_r_normal, v_texCoord0).rgb), splat.r);
+                splatNormal += unpackNormal(texture2D(u_texture_r_normal, v_texCoord0).rgb) * splat.r;
             #endif
             #ifdef splatGNormalFlag
-                normal = mix(normal, unpackNormal(texture2D(u_texture_g_normal, v_texCoord0).rgb), splat.g);
+                splatNormal += unpackNormal(texture2D(u_texture_g_normal, v_texCoord0).rgb) * splat.g;
             #endif
             #ifdef splatBNormalFlag
-                normal = mix(normal, unpackNormal(texture2D(u_texture_b_normal, v_texCoord0).rgb), splat.b);
+                splatNormal += unpackNormal(texture2D(u_texture_b_normal, v_texCoord0).rgb) * splat.b;
             #endif
             #ifdef splatANormalFlag
-                normal = mix(normal, unpackNormal(texture2D(u_texture_a_normal, v_texCoord0).rgb), splat.a);
+                splatNormal += unpackNormal(texture2D(u_texture_a_normal, v_texCoord0).rgb) * splat.a;
             #endif
+
+            // The base normal should only be visible when the sum of the splat weights is less than 1.0
+            float normalBlendFactor = (1.0 - splat.r - splat.g - splat.b - splat.a);
+            normal = normalize((normal * normalBlendFactor) + splatNormal);
 
         #endif
 
     #endif
 
     #ifdef normalTextureFlag
+        // Apply TBN matrix to tangent space normal to get world space normal
         normal = normalize(v_TBN * normal);
     #else
         normal = normalize(v_TBN[2].xyz);
