@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 
@@ -43,7 +42,11 @@ public class CustomPropertiesComponent extends AbstractComponent {
     @Override
     public Component clone(final GameObject go) {
         final CustomPropertiesComponent component = new CustomPropertiesComponent(go);
-        component.customProperties.putAll((ObjectMap<? extends String, ? extends String>) this.customProperties);
+
+        for (final OrderedMap.Entry<String, String> entry : this.customProperties.iterator()) {
+            component.put(entry.key, entry.value);
+        }
+
         return component;
     }
 
