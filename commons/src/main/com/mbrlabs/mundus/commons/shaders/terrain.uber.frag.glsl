@@ -91,6 +91,7 @@ varying mat3 v_TBN;
 varying MED vec2 v_texCoord0;
 varying float v_clipDistance;
 
+// Brings the normal from [0, 1] to [-1, 1]
 vec3 unpackNormal(vec3 normal)
 {
     return normalize(normal * 2.0 - 1.0);
@@ -143,7 +144,6 @@ void main(void) {
             // The base normal should only be visible when the sum of the splat weights is less than 1.0
             float normalBlendFactor = (1.0 - splat.r - splat.g - splat.b - splat.a);
             normal = normalize((normal * normalBlendFactor) + splatNormal);
-
         #endif
 
     #endif
