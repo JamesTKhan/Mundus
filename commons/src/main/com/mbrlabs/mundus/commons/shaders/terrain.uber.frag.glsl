@@ -91,6 +91,11 @@ varying mat3 v_TBN;
 varying MED vec2 v_texCoord0;
 varying float v_clipDistance;
 
+vec3 unpackNormal(vec3 normal)
+{
+    return normalize(normal * 2.0 - 1.0);
+}
+
 void main(void) {
     if ( v_clipDistance < 0.0 )
         discard;
@@ -100,7 +105,7 @@ void main(void) {
     gl_FragColor = texture2D(u_baseTexture, v_texCoord0);
 
     #ifdef baseNormalFlag
-        normal = texture2D(u_texture_base_normal, v_texCoord0).rgb;
+        normal = unpackNormal(texture2D(u_texture_base_normal, v_texCoord0).rgb);
     #endif
 
     // Mix splat textures
@@ -122,16 +127,16 @@ void main(void) {
         #ifdef normalTextureFlag
             // Splat normals
             #ifdef splatRNormalFlag
-                normal = mix(normal, texture2D(u_texture_r_normal, v_texCoord0).rgb, splat.r);
+                normal = mix(normal, unpackNormal(texture2D(u_texture_r_normal, v_texCoord0).rgb), splat.r);
             #endif
             #ifdef splatGNormalFlag
-                normal = mix(normal, texture2D(u_texture_g_normal, v_texCoord0).rgb, splat.g);
+                normal = mix(normal, unpackNormal(texture2D(u_texture_g_normal, v_texCoord0).rgb), splat.g);
             #endif
             #ifdef splatBNormalFlag
-                normal = mix(normal, texture2D(u_texture_b_normal, v_texCoord0).rgb, splat.b);
+                normal = mix(normal, unpackNormal(texture2D(u_texture_b_normal, v_texCoord0).rgb), splat.b);
             #endif
             #ifdef splatANormalFlag
-                normal = mix(normal, texture2D(u_texture_a_normal, v_texCoord0).rgb, splat.a);
+                normal = mix(normal, unpackNormal(texture2D(u_texture_a_normal, v_texCoord0).rgb), splat.a);
             #endif
 
         #endif
@@ -139,7 +144,7 @@ void main(void) {
     #endif
 
     #ifdef normalTextureFlag
-        normal = normalize(v_TBN * ((2.0 * normal - 1.0)));
+        normal = normalize(v_TBN * normal);
     #else
         normal = normalize(v_TBN[2].xyz);
     #endif
