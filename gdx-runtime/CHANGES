@@ -8,6 +8,7 @@
 - Fix isOnTerrain, getNormalAtWordCoordinate and getHeightAtWorldCoord methods for rotated and scaled terrain
 - Fix frustum culling not handling rotations
 - Fix water reflections when camera is rotated
+- Removed selected field from SceneGraph class
 - Added custom properties option to game objects
 
 [0.4.0] ~ 10/12/2022

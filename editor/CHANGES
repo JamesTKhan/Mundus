@@ -5,6 +5,9 @@
 - Added scene delete button
 - Added scene rename button
 - Added dialog for adding water
+- Added args4j for command line parsing
+- Added command line option to enable GL30
+- Added command line option to enable fullscreen
 - Update gradle to 7.5.1
 - Updated editor to use MSAA by default, disable by command line
 - Terrain Assets can now be reused in the same scene and other scenes
@@ -21,6 +24,7 @@
 - Helper lines
 - Show renamed game object's new name after rename in Inspector
 - Fix terrain brush tools for rotated and scaled terrain
+- Refactor tool selection
 - Custom properties component addable to game objects
 
 [0.4.2] ~ 10/24/2022

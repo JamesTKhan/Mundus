@@ -38,8 +38,6 @@ public class SceneGraph {
 
     public Scene scene;
 
-    private GameObject selected;
-
     private boolean containsWater = false;
 
     public SceneGraph(Scene scene) {
@@ -198,14 +196,6 @@ public class SceneGraph {
 
     public GameObject getRoot() {
         return root;
-    }
-
-    public GameObject getSelected() {
-        return selected;
-    }
-
-    public void setSelected(GameObject selected) {
-        this.selected = selected;
     }
 
     public boolean isContainsWater() {

@@ -62,7 +62,7 @@ public class ShaderUtils {
             frag = Gdx.files.classpath(fragmentShader).readString();
         }
 
-        ShaderProgram program = new ShaderProgram(customPrefix + vert,  getShaderPrefix(shader) + customPrefix + frag);
+        ShaderProgram program = new ShaderProgram(customPrefix + vert, customPrefix + getShaderPrefix(shader) + frag);
         if (!program.isCompiled()) {
             throw new GdxRuntimeException(program.getLog());
         }
@@ -136,6 +136,26 @@ public class ShaderUtils {
         depthConfig.numBones = numBones;
         depthConfig.defaultCullFace = GL20.GL_BACK;
         return depthConfig;
+    }
+
+    /**
+     * Originally from gdx-gltf library
+     * Returns the GLSL version string for the current platform. Use this
+     * in shader prefixes (first line) to define the GLSL version when using GL30 features
+     * @return GLSL version string
+     */
+    public static String getGLVersionString() {
+        String version = "";
+        if (GLUtils.isGL3()) {
+            if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+                version = "#version 130\n" + "#define GLSL3\n";
+            } else if (Gdx.app.getType() == Application.ApplicationType.Android ||
+                    Gdx.app.getType() == Application.ApplicationType.iOS ||
+                    Gdx.app.getType() == Application.ApplicationType.WebGL) {
+                version = "#version 300 es\n" + "#define GLSL3\n";
+            }
+        }
+        return version;
     }
 
     /**
