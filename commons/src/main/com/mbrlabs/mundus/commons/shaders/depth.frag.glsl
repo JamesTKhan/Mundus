@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#ifdef GL_ES
-precision highp float;
-#endif
+#include "compat.glsl"
 
 varying float v_clipDistance;
 
