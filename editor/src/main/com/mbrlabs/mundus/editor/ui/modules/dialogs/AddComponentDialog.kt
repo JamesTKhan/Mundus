@@ -12,6 +12,7 @@ import com.mbrlabs.mundus.commons.env.lights.LightType
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.InvalidComponentException
 import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent
 import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -48,8 +49,9 @@ class AddComponentDialog : BaseDialog("Add Component") {
         // Load types into select box
         val addableTypes = Array<Component.Type>()
 
-        // At the moment, only light components are supported for dynamically adding
+        // At the moment, only light and custom properties components are supported for dynamically adding
         addableTypes.add(Component.Type.LIGHT)
+        addableTypes.add(Component.Type.CUSTOM_PROPERTIES)
 
         selectBox.items = addableTypes
 
@@ -87,6 +89,7 @@ class AddComponentDialog : BaseDialog("Add Component") {
             Component.Type.LIGHT -> return getNewLightComponent(go)
             Component.Type.PARTICLE_SYSTEM -> TODO()
             Component.Type.WATER -> TODO()
+            Component.Type.CUSTOM_PROPERTIES -> return getNewCustomPropertiesComponent(go)
         }
     }
 
@@ -108,6 +111,10 @@ class AddComponentDialog : BaseDialog("Add Component") {
             Dialogs.showOKDialog(UI, "Info", str)
             return null
         }
+    }
+
+    private fun getNewCustomPropertiesComponent(go: GameObject): Component? {
+        return CustomPropertiesComponent(go)
     }
 
 }
