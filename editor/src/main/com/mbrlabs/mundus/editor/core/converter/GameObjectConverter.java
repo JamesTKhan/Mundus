@@ -24,8 +24,6 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
-import com.mbrlabs.mundus.editor.Mundus;
-import com.mbrlabs.mundus.editor.events.ComponentAddedEvent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableWaterComponent;
@@ -74,7 +72,6 @@ public class GameObjectConverter {
         if (dto.getLightComponent() != null) {
             LightComponent component = PickableLightComponentConverter.convert(dto.getLightComponent(), go);
             go.getComponents().add(component);
-            Mundus.INSTANCE.postEvent(new ComponentAddedEvent(component));
         }
 
         // recursively convert children

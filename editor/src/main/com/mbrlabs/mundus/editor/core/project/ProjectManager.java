@@ -409,6 +409,7 @@ public class ProjectManager implements Disposable {
 
         Gdx.graphics.setTitle(constructWindowTitle());
         Mundus.INSTANCE.postEvent(new ProjectChangedEvent(context));
+        currentProject.currScene.onLoaded();
     }
 
     /**
@@ -518,6 +519,7 @@ public class ProjectManager implements Disposable {
 
             Gdx.graphics.setTitle(constructWindowTitle());
             Mundus.INSTANCE.postEvent(new SceneChangedEvent());
+            projectContext.currScene.onLoaded();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Log.error(TAG, e.getMessage());

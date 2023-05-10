@@ -21,8 +21,11 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
+import com.mbrlabs.mundus.editor.Mundus;
+import com.mbrlabs.mundus.editor.events.ComponentAddedEvent;
 
 /**
  * @author Marcus Brummer
@@ -46,5 +49,14 @@ public class EditorScene extends Scene {
         fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
         fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
         fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+    }
+
+    public void onLoaded() {
+        // Post component added events for all components in the scene now that it is loaded
+        for (GameObject gameObject : sceneGraph.getGameObjects()) {
+            for (Component component : gameObject.getComponents()) {
+                Mundus.INSTANCE.postEvent(new ComponentAddedEvent(component));
+            }
+        }
     }
 }
