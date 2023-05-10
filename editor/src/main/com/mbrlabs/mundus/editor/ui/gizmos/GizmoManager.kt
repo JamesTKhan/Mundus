@@ -9,6 +9,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
 import com.mbrlabs.mundus.editor.events.ComponentRemovedEvent
+import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 
@@ -21,7 +22,10 @@ import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 class GizmoManager : ComponentAddedEvent.ComponentAddedListener,
         ComponentRemovedEvent.ComponentRemovedListener,
         SceneGraphChangedEvent.SceneGraphChangedListener,
-        SceneChangedEvent.SceneChangedListener {
+        SceneChangedEvent.SceneChangedListener,
+        ProjectChangedEvent.ProjectChangedListener {
+
+
     private lateinit var camera: Camera
     private lateinit var decalBatch: DecalBatch
 
@@ -85,6 +89,14 @@ class GizmoManager : ComponentAddedEvent.ComponentAddedListener,
     }
 
     override fun onSceneChanged(event: SceneChangedEvent) {
+        clearGizmos()
+    }
+
+    override fun onProjectChanged(event: ProjectChangedEvent) {
+        clearGizmos()
+    }
+
+    private fun clearGizmos() {
         for (gizmo in gizmos) {
             gizmo.dispose()
         }
