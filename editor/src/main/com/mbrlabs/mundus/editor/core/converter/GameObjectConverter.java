@@ -20,9 +20,11 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
+import com.mbrlabs.mundus.commons.mapper.CustomPropertiesComponentConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
+import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
@@ -66,6 +68,11 @@ public class GameObjectConverter {
             go.getComponents().add(TerrainComponentConverter.convert(dto.getTerrainComponent(), go, assets));
         } else if (dto.getWaterComponent() != null) {
             go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, assets));
+        }
+
+        // Convert custom properties component
+        if (dto.getCustomPropertiesComponent() != null) {
+            go.getComponents().add(CustomPropertiesComponentConverter.convert(dto.getCustomPropertiesComponent(), go));
         }
 
         // Convert light component
@@ -124,6 +131,8 @@ public class GameObjectConverter {
                 descriptor.setWaterComponent(WaterComponentConverter.convert((PickableWaterComponent) c));
             } else if (c.getType() == Component.Type.LIGHT) {
                 descriptor.setLightComponent(PickableLightComponentConverter.convert((LightComponent) c));
+            } else if (c.getType() == Component.Type.CUSTOM_PROPERTIES) {
+                descriptor.setCustomPropertiesComponent(CustomPropertiesComponentConverter.convert((CustomPropertiesComponent) c));
             }
         }
 
