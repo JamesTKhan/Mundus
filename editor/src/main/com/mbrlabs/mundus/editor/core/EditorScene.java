@@ -51,6 +51,9 @@ public class EditorScene extends Scene {
         fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
     }
 
+    /**
+     * Call this when the scene is loaded and is now the current active scene.
+     */
     public void onLoaded() {
         // Post component added events for all components in the scene now that it is loaded
         for (GameObject gameObject : sceneGraph.getGameObjects()) {

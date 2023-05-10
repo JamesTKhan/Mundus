@@ -16,6 +16,7 @@
 - Fix selection after model delete
 - Fix temporary files not deleted on model import
 - Fix reset import model dialog on close
+- Fix Gizmos not adding and removing on Project/Scene changes
 - Change scene camera to be base camera class
 - Duplicate materials from inspector
 - Show brush selection
