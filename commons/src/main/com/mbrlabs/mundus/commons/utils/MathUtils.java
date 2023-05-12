@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.commons.utils;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Pool;
 
 /**
  * @author Marcus Brummer
@@ -25,6 +26,40 @@ import com.badlogic.gdx.math.Vector3;
  */
 public class MathUtils {
     private static final Vector3 tmp = new Vector3();
+
+    public final static Pool<Vector2> vector2Pool = new Pool<Vector2>() {
+        @Override
+        protected Vector2 newObject () {
+            return new Vector2();
+        }
+
+        @Override
+        protected void reset(Vector2 object) {
+            object.set(0, 0);
+        }
+    };
+
+    public final static Pool<Vector3> vector3Pool = new Pool<Vector3>() {
+        @Override
+        protected Vector3 newObject () {
+            return new Vector3();
+        }
+
+        @Override
+        protected void reset(Vector3 object) {
+            object.set(0,0,0);
+        }
+    };
+
+    /**
+     * Convenience method, free array of objects
+     * @param objects
+     */
+    public static void free(Vector2... objects ) {
+        for (Vector2 object : objects) {
+            vector2Pool.free(object);
+        }
+    }
 
     public static float barryCentric(Vector3 p1, Vector3 p2, Vector3 p3, Vector2 pos) {
         float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
@@ -84,6 +119,42 @@ public class MathUtils {
 
     public static boolean isPowerOfTwo(int number) {
         return (number & (number - 1)) == 0;
+    }
+
+    /**
+     * Find the nearest point on a line to a given point.
+     * @param lineStart start of the line
+     * @param lineEnd end of the line
+     * @param point the point
+     * @param out populated with the nearest point on the line
+     */
+    public static void findNearestPointOnLine(Vector2 lineStart, Vector2 lineEnd, Vector2 point, Vector2 out) {
+        Vector2 lineDirection = vector2Pool.obtain().set(lineEnd).sub(lineStart);
+
+        // Calculate the length of the line.
+        float lineLength = lineDirection.len();
+        lineDirection.nor();
+
+        // lineStart to point
+        Vector2 toPoint = vector2Pool.obtain().set(point).sub(lineStart);
+        float projectedLength = lineDirection.dot(toPoint);
+
+        // Calculate the coordinates of the projected point.
+        Vector2 projectedPoint = new Vector2(lineDirection).scl(toPoint.dot(lineDirection));
+
+        vector2Pool.free(lineDirection);
+        vector2Pool.free(toPoint);
+
+        if (projectedLength < 0) {
+            out.set(lineStart);
+        }
+        else if (projectedLength > lineLength) {
+            out.set(lineEnd);
+        }
+        else {
+            // If the projected point lies on the line segment, return the projected point.
+            out.set(lineStart).add(projectedPoint);
+        }
     }
 
 }

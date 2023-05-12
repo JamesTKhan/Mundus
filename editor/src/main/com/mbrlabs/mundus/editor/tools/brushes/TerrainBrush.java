@@ -22,7 +22,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -32,6 +31,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
+import com.mbrlabs.mundus.commons.utils.MathUtils;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GlobalBrushSettingsChangedEvent;
@@ -45,7 +45,7 @@ import com.mbrlabs.mundus.editor.ui.UI;
 
 /**
  * A Terrain Brush can modify the terrainAsset in various ways (BrushMode).
- *
+ * <p>
  * This includes the height of every vertex in the terrainAsset grid & according
  * splatmap.
  *
@@ -65,7 +65,9 @@ public abstract class TerrainBrush extends Tool {
         /** Smooths terrain based on average height within radius */
         SMOOTH,
         /** Paints on the splatmap of the terrainAsset. */
-        PAINT
+        PAINT,
+        /** Create a ramp between two points. */
+        RAMP
     }
 
     /**
@@ -98,6 +100,7 @@ public abstract class TerrainBrush extends Tool {
     }
 
     // used for calculations
+    protected static final Vector3 rampEndPoint = new Vector3();
     protected static final Vector2 c = new Vector2();
     protected static final Vector2 p = new Vector2();
     protected static final Vector2 v = new Vector2();
@@ -110,7 +113,6 @@ public abstract class TerrainBrush extends Tool {
     // all brushes share the some common settings
     private static final GlobalBrushSettingsChangedEvent brushSettingsChangedEvent = new GlobalBrushSettingsChangedEvent();
     private static float strength = 0.5f;
-    private static float smoothingFactor = 0.005f;
     private static float heightSample = 0f;
     private static SplatTexture.Channel paintChannel;
 
@@ -148,10 +150,19 @@ public abstract class TerrainBrush extends Tool {
         if (terrainAsset == null) return;
 
         // sample height
-        if (action == BrushAction.SECONDARY && mode == BrushMode.FLATTEN) {
+        if (action == BrushAction.SECONDARY && (mode == BrushMode.FLATTEN)) {
             // brushPos is in world coords, convert to terrains local height by negating world height
             heightSample = brushPos.y - getTerrainPosition(tVec0).y;
             UI.INSTANCE.getToaster().success("Height Sampled: " + heightSample);
+            action = null;
+            return;
+        }
+
+        // Sample end point for ramp
+        if (action == BrushAction.SECONDARY && (mode == BrushMode.RAMP)) {
+            // brushPos is in world coords, convert to terrains local height by negating world height
+            rampEndPoint.set(brushPos.x, brushPos.y - getTerrainPosition(tVec0).y, brushPos.z);
+            UI.INSTANCE.getToaster().success("End Point Sampled: " + rampEndPoint);
             action = null;
             return;
         }
@@ -168,6 +179,8 @@ public abstract class TerrainBrush extends Tool {
             flatten();
         } else if (mode == BrushMode.SMOOTH) {
             smooth();
+        } else if (mode == BrushMode.RAMP) {
+            createRamp();
         }
 
     }
@@ -178,8 +191,7 @@ public abstract class TerrainBrush extends Tool {
         if (sm == null) return;
 
         // should convert world position to terrain local position
-        tVec1.set(brushPos);
-        tVec1.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv());
+        getBrushLocalPosition(tVec1);
 
         final float splatX = (tVec1.x / (float) terrain.terrainWidth) * sm.getWidth();
         final float splatY = (tVec1.z / (float) terrain.terrainDepth) * sm.getHeight();
@@ -209,6 +221,9 @@ public abstract class TerrainBrush extends Tool {
     private void smooth() {
         Terrain terrain = terrainAsset.getTerrain();
 
+        // should convert world position to terrain local position
+        getBrushLocalPosition(tVec2);
+
         int weights = 0;
         float totalHeights = 0;
 
@@ -216,13 +231,9 @@ public abstract class TerrainBrush extends Tool {
         for (int x = 0; x < terrain.vertexResolution; x++) {
             for (int z = 0; z < terrain.vertexResolution; z++) {
                 final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
-
-                // should convert world position to terrain local position
-                tVec2.set(brushPos);
-                tVec2.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv());
-                tVec2.y = vertexPos.y;
                 float distance = vertexPos.dst(tVec2);
 
+                tVec2.y = vertexPos.y;
                 if (distance <= radius) {
                     totalHeights += vertexPos.y;
                     weights++;
@@ -236,19 +247,15 @@ public abstract class TerrainBrush extends Tool {
         for (int x = 0; x < terrain.vertexResolution; x++) {
             for (int z = 0; z < terrain.vertexResolution; z++) {
                 final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
-
-                // should convert world position to terrain local position
-                tVec2.set(brushPos);
-                tVec2.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv());
                 tVec2.y = vertexPos.y;
                 float distance = vertexPos.dst(tVec2);
 
                 if (distance <= radius) {
                     final int index = z * terrain.vertexResolution + x;
                     float heightAtIndex = terrain.heightData[index];
-                    // Take radius - distance to get a falloff effect
-                    float lerpProgress = MathUtils.clamp((radius - distance) * (strength * smoothingFactor), 0.0f, 1.0f);
-                    float smoothedHeight = Interpolation.smooth2.apply(heightAtIndex, averageHeight, lerpProgress);
+                    // Determine how much to interpolate based on distance from radius
+                    float elevation = getValueOfBrushPixmap(tVec2.x, tVec2.z, vertexPos.x, vertexPos.z, radius);
+                    float smoothedHeight = Interpolation.smooth2.apply(heightAtIndex, averageHeight, elevation * strength);
                     terrain.heightData[index] = smoothedHeight;
                 }
             }
@@ -260,15 +267,76 @@ public abstract class TerrainBrush extends Tool {
         Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
+    private void createRamp() {
+        Terrain terrain = terrainAsset.getTerrain();
+
+        // tvec2 represents the start (brush) point of the ramp
+        getBrushLocalPosition(tVec2);
+        tVec2.y = brushPos.y - getTerrainPosition(tVec0).y;
+        Vector3 startPoint = tVec2;
+
+        // Calculate the direction and length of the ramp
+        Vector3 rampDirection = tVec1.set(startPoint).sub(rampEndPoint).nor();
+        float rampLength = startPoint.dst(rampEndPoint);
+
+        // Half width for distance checking
+        float rampWidth = radius * 2f;
+        float halfWidth = rampWidth * 0.5f;
+
+        Vector3 toVertex = MathUtils.vector3Pool.obtain();
+        Vector2 nearestPoint = MathUtils.vector2Pool.obtain();
+        Vector2 vertexPos2 = MathUtils.vector2Pool.obtain();
+        Vector2 startPoint2 = MathUtils.vector2Pool.obtain().set(startPoint.x, startPoint.z);
+        Vector2 rampEnd2 = MathUtils.vector2Pool.obtain().set(rampEndPoint.x, rampEndPoint.z);;
+
+        for (int i = 0; i < 1; i++) {
+
+            for (int x = 0; x < terrain.vertexResolution; x++) {
+                for (int z = 0; z < terrain.vertexResolution; z++) {
+                    final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
+                    toVertex.set(vertexPos).sub(TerrainBrush.rampEndPoint);
+
+                    vertexPos2.set(vertexPos.x, vertexPos.z);
+                    MathUtils.findNearestPointOnLine(rampEnd2, startPoint2, vertexPos2, nearestPoint);
+
+                    float distanceToRampLine = vertexPos2.sub(nearestPoint).len();
+
+                    if (distanceToRampLine <= halfWidth) {
+                        // Calculate the height from the ramp line
+                        float projectedLength = rampDirection.dot(toVertex);
+                        float slope = (startPoint.y - TerrainBrush.rampEndPoint.y) / rampLength;
+                        float rampHeight = TerrainBrush.rampEndPoint.y + projectedLength * slope;
+
+                        // Interpolate the height based on the distance from the center of the ramp
+                        float interpolationFactor = 1.0f - (distanceToRampLine / halfWidth);
+                        float interpolatedHeight = Interpolation.smooth2.apply(vertexPos.y, rampHeight, interpolationFactor * strength);
+
+                        // Set the height of the vertex
+                        final int index = z * terrain.vertexResolution + x;
+                        terrain.heightData[index] = interpolatedHeight;
+                    }
+                }
+            }
+        }
+
+        MathUtils.free(nearestPoint, vertexPos2, startPoint2, rampEnd2);
+        MathUtils.vector3Pool.free(toVertex);
+
+        terrain.update();
+        terrainHeightModified = true;
+        getProjectManager().current().assetManager.addModifiedAsset(terrainAsset);
+        Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
+    }
+
     private void flatten() {
         Terrain terrain = terrainAsset.getTerrain();
+
+        // should convert world position to terrain local position
+        getBrushLocalPosition(tVec2);
+
         for (int x = 0; x < terrain.vertexResolution; x++) {
             for (int z = 0; z < terrain.vertexResolution; z++) {
                 final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
-
-                // should convert world position to terrain local position
-                tVec2.set(brushPos);
-                tVec2.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv());
                 tVec2.y = vertexPos.y;
                 float distance = vertexPos.dst(tVec2);
 
@@ -281,11 +349,11 @@ public abstract class TerrainBrush extends Tool {
                         final float elevation = getValueOfBrushPixmap(tVec2.x, tVec2.z, vertexPos.x, vertexPos.z,
                                 radius);
                         // current height is lower than sample
-                        if(heightSample > terrain.heightData[index]) {
+                        if (heightSample > terrain.heightData[index]) {
                             terrain.heightData[index] += elevation * strength;
                         } else {
                             float newHeight = terrain.heightData[index] - elevation * strength;
-                            if(diff > Math.abs(newHeight) || terrain.heightData[index] > heightSample) {
+                            if (diff > Math.abs(newHeight) || terrain.heightData[index] > heightSample) {
                                 terrain.heightData[index] = newHeight;
                             }
 
@@ -303,15 +371,14 @@ public abstract class TerrainBrush extends Tool {
 
     private void raiseLower(BrushAction action) {
         Terrain terrain = terrainAsset.getTerrain();
+
+        // should convert world position to terrain local position
+        getBrushLocalPosition(tVec2);
+
         float dir = (action == BrushAction.PRIMARY) ? 1 : -1;
         for (int x = 0; x < terrain.vertexResolution; x++) {
             for (int z = 0; z < terrain.vertexResolution; z++) {
                 final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
-
-                // should convert world position to terrain local position
-                tVec2.set(brushPos);
-                tVec2.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv());
-                // for the dist calc, we do not want to factor in global Y height
                 tVec2.y = vertexPos.y;
 
                 float distance = vertexPos.dst(tVec2);
@@ -414,6 +481,7 @@ public abstract class TerrainBrush extends Tool {
             case FLATTEN:
             case PAINT:
             case SMOOTH:
+            case RAMP:
                 return true;
         }
 
@@ -423,6 +491,11 @@ public abstract class TerrainBrush extends Tool {
     private Vector3 getTerrainPosition(Vector3 vector3) {
         terrainComponent.getModelInstance().transform.getTranslation(vector3);
         return vector3;
+    }
+
+    private void getBrushLocalPosition(Vector3 value) {
+        value.set(brushPos);
+        value.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv());
     }
 
     @Override
@@ -483,7 +556,7 @@ public abstract class TerrainBrush extends Tool {
             action = null;
         }
 
-        if (mode == BrushMode.FLATTEN || mode == BrushMode.RAISE_LOWER || mode == BrushMode.SMOOTH) {
+        if (mode == BrushMode.FLATTEN || mode == BrushMode.RAISE_LOWER || mode == BrushMode.SMOOTH || mode == BrushMode.RAMP) {
             heightCommand = new TerrainHeightCommand(terrainAsset.getTerrain());
             heightCommand.setHeightDataBefore(terrainAsset.getTerrain().heightData);
         } else if (mode == BrushMode.PAINT) {
