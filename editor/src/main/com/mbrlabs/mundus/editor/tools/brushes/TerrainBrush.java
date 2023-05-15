@@ -32,6 +32,7 @@ import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
+import com.mbrlabs.mundus.commons.utils.Pools;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GlobalBrushSettingsChangedEvent;
@@ -283,11 +284,11 @@ public abstract class TerrainBrush extends Tool {
         float rampWidth = radius * 2f;
         float halfWidth = rampWidth * 0.5f;
 
-        Vector3 toVertex = MathUtils.vector3Pool.obtain();
-        Vector2 nearestPoint = MathUtils.vector2Pool.obtain();
-        Vector2 vertexPos2 = MathUtils.vector2Pool.obtain();
-        Vector2 startPoint2 = MathUtils.vector2Pool.obtain().set(startPoint.x, startPoint.z);
-        Vector2 rampEnd2 = MathUtils.vector2Pool.obtain().set(rampEndPoint.x, rampEndPoint.z);;
+        Vector3 toVertex = Pools.vector3Pool.obtain();
+        Vector2 nearestPoint = Pools.vector2Pool.obtain();
+        Vector2 vertexPos2 = Pools.vector2Pool.obtain();
+        Vector2 startPoint2 = Pools.vector2Pool.obtain().set(startPoint.x, startPoint.z);
+        Vector2 rampEnd2 = Pools.vector2Pool.obtain().set(rampEndPoint.x, rampEndPoint.z);;
 
         for (int i = 0; i < 1; i++) {
 
@@ -319,8 +320,8 @@ public abstract class TerrainBrush extends Tool {
             }
         }
 
-        MathUtils.free(nearestPoint, vertexPos2, startPoint2, rampEnd2);
-        MathUtils.vector3Pool.free(toVertex);
+        Pools.free(nearestPoint, vertexPos2, startPoint2, rampEnd2);
+        Pools.vector3Pool.free(toVertex);
 
         terrain.update();
         terrainHeightModified = true;

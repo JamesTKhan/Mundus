@@ -8,6 +8,7 @@
 - Added args4j for command line parsing
 - Added command line option to enable GL30
 - Added command line option to enable fullscreen
+- Added Pools.java class to manage object pools
 - Update gradle to 7.5.1
 - Updated editor to use MSAA by default, disable by command line
 - Terrain Assets can now be reused in the same scene and other scenes
