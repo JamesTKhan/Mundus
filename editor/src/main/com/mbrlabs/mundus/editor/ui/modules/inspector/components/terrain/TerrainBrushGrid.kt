@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.layout.GridGroup
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.widget.VisLabel
@@ -30,6 +31,7 @@ import com.mbrlabs.mundus.editor.events.GlobalBrushSettingsChangedEvent
 import com.mbrlabs.mundus.editor.events.ToolActivatedEvent
 import com.mbrlabs.mundus.editor.events.ToolDeactivatedEvent
 import com.mbrlabs.mundus.editor.tools.ToolManager
+import com.mbrlabs.mundus.editor.tools.brushes.CircleBrush
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FaTextButton
@@ -43,6 +45,7 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget,
                        private val brushMode: TerrainBrush.BrushMode)
     : VisTable(), GlobalBrushSettingsChangedEvent.GlobalBrushSettingsChangedListener, ToolDeactivatedEvent.ToolDeactivatedEventListener, ToolActivatedEvent.ToolActivatedEventListener {
 
+    private val brushItems = Array<BrushItem>()
     private val grid = GridGroup(40f, 0f)
     private val strengthSlider = ImprovedSlider(0f, 1f, 0.1f)
 
@@ -59,7 +62,9 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget,
 
         // grid
         for (brush in toolManager.terrainBrushes) {
-            grid.addActor(BrushItem(brush))
+            val brushItem = BrushItem(brush)
+            brushItems.add(brushItem)
+            grid.addActor(brushItem)
         }
         brushGridContainerTable.add(grid).expand().fill().row()
 
@@ -94,6 +99,22 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget,
 
     }
 
+    fun hideBrushes() {
+        for (brushItem in brushItems) {
+            if (brushItem.brush is CircleBrush) continue
+            brushItem.isVisible = false
+        }
+    }
+
+    fun showCircleBrush() {
+        for (brushItem in brushItems) {
+            if (brushItem.brush is CircleBrush) {
+                brushItem.isVisible = true
+                break
+            }
+        }
+    }
+
     override fun onSettingsChanged(event: GlobalBrushSettingsChangedEvent) {
         strengthSlider.value = TerrainBrush.getStrength()
     }
@@ -108,7 +129,7 @@ class TerrainBrushGrid(private val parent: TerrainComponentWidget,
 
     /**
      */
-    private inner class BrushItem(brush: TerrainBrush) : VisTable() {
+    private inner class BrushItem(val brush: TerrainBrush) : VisTable() {
         init {
             val button = FaTextButton(brush.iconFont)
             button.name = brush.name
