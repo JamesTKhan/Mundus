@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-#ifdef GL_ES
-precision highp float;
-#endif
-
+#include "compat.glsl"
 
 uniform samplerCube u_texture;
 uniform int u_fog;

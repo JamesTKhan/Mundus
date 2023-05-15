@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-#ifdef GL_ES
-#define LOW lowp
-#define MED mediump
-#define HIGH highp
-precision highp float;
-#else
+#include "compat.glsl"
+#include "light.glsl"
+
+// Just stops the static analysis from complaining
+#ifndef MED
 #define MED
-#define LOW
-#define HIGH
 #endif
 
 #define PI 3.1415926535897932384626433832795
@@ -88,7 +85,7 @@ varying vec3 v_pos;
 // light
 varying mat3 v_TBN;
 
-varying MED vec2 v_texCoord0;
+varying vec2 v_texCoord0;
 varying float v_clipDistance;
 
 // Brings the normal from [0, 1] to [-1, 1]

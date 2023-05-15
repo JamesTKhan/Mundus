@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#ifdef GL_ES
-precision highp float;
-#endif
+#include "compat.glsl"
 
 varying vec2 v_texCoords0;
 
