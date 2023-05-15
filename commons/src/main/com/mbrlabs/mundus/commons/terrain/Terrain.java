@@ -30,10 +30,15 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
+import com.mbrlabs.mundus.commons.utils.Pools;
 import net.mgsx.gltf.loaders.shared.geometry.MeshTangentSpaceGenerator;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Marcus Brummer
@@ -63,6 +68,7 @@ public class Terrain implements Disposable {
     private final VertexAttributes attribs;
     private Vector2 uvScale = new Vector2(DEFAULT_UV_SCALE, DEFAULT_UV_SCALE);
     private float[] vertices;
+    private short[] indices;
     private final int stride;
     private final int posPos;
     private final int norPos;
@@ -75,6 +81,7 @@ public class Terrain implements Disposable {
     // Mesh
     private Model model;
     private Mesh mesh;
+    private Map<Integer, Array<Integer>> vertexToTriangleMap;
 
     private Terrain(int vertexResolution) {
         this.attribs = new VertexAttributes(
@@ -113,16 +120,140 @@ public class Terrain implements Disposable {
 
         mesh = new Mesh(true, numVertices, numIndices, attribs);
         this.vertices = new float[numVertices * stride];
-        mesh.setIndices(buildIndices());
+        indices = buildIndices();
+        mesh.setIndices(indices);
+        buildVertexToTriangleMap();
         buildVertices();
         mesh.setVertices(vertices);
-
         MeshPart meshPart = new MeshPart(null, mesh, 0, numIndices, GL20.GL_TRIANGLES);
         meshPart.update();
         ModelBuilder mb = new ModelBuilder();
         mb.begin();
         mb.part(meshPart, material);
         model = mb.end();
+    }
+
+    /**
+     * This method builds a map that associates each vertex index with a list of indices
+     * of triangles that the vertex is part of. This map is used for efficient lookup
+     * of adjacent triangles when calculating vertex normals.
+     *
+     * The map is stored in the instance variable vertexToTriangleMap, where the key is
+     * the vertex index and the value is a list of triangle indices.
+     *
+     * Note: This method is to be called during the mesh building process, after the
+     * indices array has been populated.
+     */
+    private void buildVertexToTriangleMap() {
+        vertexToTriangleMap = new HashMap<>();
+        for (int i = 0; i < indices.length; i += 3) {
+            int triangleIndex = i / 3;
+            for (int j = 0; j < 3; j++) {
+                int vertexIndex = (indices[i + j] & 0xFFFF);
+                Array<Integer> triangleIndices = vertexToTriangleMap.get(vertexIndex);
+                if (triangleIndices == null) {
+                    triangleIndices = new Array<>();
+                    vertexToTriangleMap.put(vertexIndex, triangleIndices);
+                }
+                triangleIndices.add(triangleIndex);
+            }
+        }
+    }
+
+    /**
+     * This method calculates and sets the average normal for each vertex in the terrain mesh.
+     * It first calculates the normal of each face (triangle) in the mesh, then for each vertex,
+     * it calculates the average normal from the normals of all faces that include this vertex.
+     *
+     * @param numIndices   The total number of indices in the index buffer, representing the total number of vertices in the mesh.
+     * @param numVertices  The total number of unique vertices in the vertex buffer.
+     *
+     * Note: This method should be called after the vertices and indices of the mesh have been defined and set.
+     * It directly modifies the vertices array to set the normal for each vertex.
+     */
+    private void calculateAverageNormals(int numIndices, int numVertices) {
+        Vector3 v1 = Pools.vector3Pool.obtain();
+        Vector3 v2 = Pools.vector3Pool.obtain();
+        Vector3 v3 = Pools.vector3Pool.obtain();
+
+        // Calculate face normals for each triangle and store them in an array
+        Vector3[] faceNormals = new Vector3[numIndices / 3];
+        for (int i = 0; i < numIndices; i += 3) {
+            getVertexPos(v1, indices[i] & 0xFFFF);
+            getVertexPos(v2, indices[i + 1] & 0xFFFF);
+            getVertexPos(v3, indices[i + 2] & 0xFFFF);
+            Vector3 normal = calculateFaceNormal(new Vector3(), v1, v2, v3);
+            faceNormals[i / 3] = normal;
+        }
+
+        // Calculate and set vertex normals
+        for (int i = 0; i < numVertices; i++) {
+            calculateVertexNormal(v1, i, faceNormals);
+            setVertexNormal(i, v1);
+        }
+
+        Pools.vector3Pool.free(v1);
+        Pools.vector3Pool.free(v2);
+        Pools.vector3Pool.free(v3);
+    }
+
+    /**
+     * Retrieve the vertex x,y,z position from the vertices array for the given vertex index.
+     */
+    private void getVertexPos(Vector3 out, int index) {
+        int start = index * stride;
+        out.set(vertices[start + posPos], vertices[start + posPos + 1], vertices[start + posPos + 2]);
+    }
+
+    /**
+     * Set the vertex x,y,z normal in the vertices array for the given vertex index.
+     */
+    private void setVertexNormal(int vertexIndex, Vector3 normal) {
+        int start = vertexIndex * stride;
+        vertices[start + norPos] = normal.x;
+        vertices[start + norPos + 1] = normal.y;
+        vertices[start + norPos + 2] = normal.z;
+    }
+
+    /**
+     * This method calculates the normal of a face in 3D space given its three vertices.
+     * The face is assumed to be a triangle.
+     *
+     * @param out The Vector3 to store the result in.
+     * @param vertex1 The first vertex of the triangle.
+     * @param vertex2 The second vertex of the triangle.
+     * @param vertex3 The third vertex of the triangle.
+     *
+     * @return A normalized Vector3 representing the normal of the face.
+     */
+    private Vector3 calculateFaceNormal(Vector3 out, Vector3 vertex1, Vector3 vertex2, Vector3 vertex3) {
+        Vector3 edge1 = vertex2.sub(vertex1); // Vector from vertex1 to vertex2
+        Vector3 edge2 = vertex3.sub(vertex1); // Vector from vertex1 to vertex3
+        out.set(edge1).crs(edge2); // Cross product of edge1 and edge2
+        return out.nor(); // Return the normalized normal vector
+    }
+
+    /**
+     * This method calculates the average normal of a vertex by averaging the normals
+     * of all the faces that the vertex is part of.
+     *
+     * @param vertexIndex The index of the vertex for which the normal is to be calculated.
+     * @param faceNormals An array containing the normals of all faces in the mesh.
+     *
+     * @return A normalized Vector3 representing the average normal of the vertex.
+     */
+    private Vector3 calculateVertexNormal(Vector3 out, int vertexIndex, Vector3[] faceNormals) {
+        Vector3 vertexNormal = out.set(0,0,0);
+        Array<Integer> triangleIndices = vertexToTriangleMap.get(vertexIndex);
+        if (triangleIndices != null) {
+            for (int triangleIndex : triangleIndices) {
+                Vector3 faceNormal = faceNormals[triangleIndex];
+                if (faceNormal != null) {
+                    vertexNormal.add(faceNormal);
+                }
+            }
+        }
+        return vertexNormal.nor();
     }
 
     public Vector3 getVertexPosition(Vector3 out, int x, int z) {
@@ -235,10 +366,13 @@ public class Terrain implements Disposable {
         for (int x = 0; x < vertexResolution; x++) {
             for (int z = 0; z < vertexResolution; z++) {
                 calculateVertexAt(tempVertexInfo, x, z);
-                calculateNormalAt(tempVertexInfo, x, z);
                 setVertex(z * vertexResolution + x, tempVertexInfo);
             }
         }
+
+        final int numVertices = this.vertexResolution * vertexResolution;
+        final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
+        calculateAverageNormals(numIndices, numVertices);
     }
 
     private void setVertex(int index, MeshPartBuilder.VertexInfo info) {
@@ -253,9 +387,10 @@ public class Terrain implements Disposable {
             vertices[index + uvPos + 1] = info.uv.y;
         }
         if (norPos >= 0) {
-            vertices[index + norPos] = info.normal.x;
-            vertices[index + norPos + 1] = info.normal.y;
-            vertices[index + norPos + 2] = info.normal.z;
+            // The final normal is calculated after vertices are built in calculateAverageNormals
+            vertices[index + norPos] = 0f;
+            vertices[index + norPos + 1] = 1f;
+            vertices[index + norPos + 2] = 0f;
         }
     }
 
@@ -276,15 +411,6 @@ public class Terrain implements Disposable {
 
     public Vector2 getUvScale() {
         return uvScale;
-    }
-
-    /**
-     * Calculates normal of a vertex at x,y based on the verticesOnZ of the
-     * surrounding vertices
-     */
-    private MeshPartBuilder.VertexInfo calculateNormalAt(MeshPartBuilder.VertexInfo out, int x, int y) {
-        getNormalAt(out.normal, x, y);
-        return out;
     }
 
     /**
@@ -321,32 +447,20 @@ public class Terrain implements Disposable {
     }
 
     /**
-     * Get Normal at x,y point of terrain
+     * Get Vertex Normal at x,z point of terrain
      *
      * @param out
      *            Output vector
      * @param x
      *            the x coord on terrain
-     * @param y
-     *            the y coord on terrain( actual z)
+     * @param z
+     *            the z coord on terrain
      * @return the normal at the point of terrain
      */
-    public Vector3 getNormalAt(Vector3 out, int x, int y) {
-        // handle edges of terrain
-        int xP1 = (x + 1 >= vertexResolution) ? vertexResolution - 1 : x + 1;
-        int yP1 = (y + 1 >= vertexResolution) ? vertexResolution - 1 : y + 1;
-        int xM1 = (x - 1 < 0) ? 0 : x - 1;
-        int yM1 = (y - 1 < 0) ? 0 : y - 1;
-
-        float hL = heightData[y * vertexResolution + xM1];
-        float hR = heightData[y * vertexResolution + xP1];
-        float hD = heightData[yM1 * vertexResolution + x];
-        float hU = heightData[yP1 * vertexResolution + x];
-        out.x = hL - hR;
-        out.y = 2;
-        out.z = hD - hU;
-        out.nor();
-        return out;
+    public Vector3 getNormalAt(Vector3 out, int x, int z) {
+        int vertexIndex = z * vertexResolution + x;
+        int start = vertexIndex * stride;
+        return out.set(vertices[start + norPos], vertices[start + norPos + 1], vertices[start + norPos + 2]);
     }
 
     /**
@@ -401,7 +515,7 @@ public class Terrain implements Disposable {
             }
         }
         // Get tangents added to terrains vertices array for normal mapping
-        MeshTangentSpaceGenerator.computeTangentSpace(vertices, buildIndices(), attribs, false, true, normalMapUVs);
+        MeshTangentSpaceGenerator.computeTangentSpace(vertices, indices, attribs, false, true, normalMapUVs);
 
         mesh.setVertices(vertices);
     }
@@ -412,7 +526,8 @@ public class Terrain implements Disposable {
 
     @Override
     public void dispose() {
-
+        model.dispose();
+        mesh.dispose();
     }
 
 }

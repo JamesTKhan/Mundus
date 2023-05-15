@@ -38,6 +38,8 @@ public class TerrainUberShader extends LightShader {
     public static class TerrainInputs {
         public final static Uniform terrainSize = new Uniform("u_terrainSize");
         public final static Uniform clipPlane = new Uniform("u_clipPlane");
+
+        public final static Uniform uvScale = new Uniform("u_uvScale");
         public final static Uniform baseTexture = new Uniform("u_baseTexture");
         public final static Uniform baseNormal = new Uniform("u_texture_base_normal");
 
@@ -70,6 +72,14 @@ public class TerrainUberShader extends LightShader {
             @Override
             public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
                 shader.set(inputID, terrainClippingPlane.x, terrainClippingPlane.y, terrainClippingPlane.z, terrainClippingHeight);
+            }
+        };
+
+        public final static Setter uvScale = new LocalSetter() {
+            @Override
+            public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+                TerrainMaterialAttribute terrainMaterialAttribute = (TerrainMaterialAttribute) combinedAttributes.get(TerrainMaterialAttribute.TerrainMaterial);
+                shader.set(inputID, terrainMaterialAttribute.terrainMaterial.getTerrain().getUvScale());
             }
         };
 
@@ -143,6 +153,7 @@ public class TerrainUberShader extends LightShader {
     // Terrain uniforms
     public final int u_terrainSize;
     public final int u_clipPlane;
+    public final int u_uvScale;
     public final int u_baseTexture;
     public final int u_baseNormal;
     public final int u_splatTexture;
@@ -184,6 +195,7 @@ public class TerrainUberShader extends LightShader {
         // Custom setters
         u_terrainSize = register(TerrainInputs.terrainSize, TerrainSetters.terrainSize);
         u_clipPlane = register(TerrainInputs.clipPlane, TerrainSetters.clipPlane);
+        u_uvScale = register(TerrainInputs.uvScale, TerrainSetters.uvScale);
 
         // Splat map
         u_splatTexture = register(TerrainInputs.splatTexture, TerrainSetters.splatTexture);
@@ -214,6 +226,10 @@ public class TerrainUberShader extends LightShader {
         }
 
         TerrainMaterial terrainMaterial = getTerrainMaterial(renderable);
+
+        if (terrainMaterial.isTriplanar()) {
+            prefix += "#define triplanarFlag\n";
+        }
 
         if (terrainMaterial.getSplatmap() != null && terrainMaterial.getSplatmap().getTexture() != null) {
             prefix += "#define splatFlag\n";

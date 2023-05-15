@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Align
+import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
@@ -36,11 +37,12 @@ class TerrainSettingsTab(private val parentWidget: TerrainComponentWidget) : Tab
 
     private val table = VisTable()
     private val uvSlider = ImprovedSlider(.5f, 120f, .5f)
+    private val triplanar = VisCheckBox("Triplanar")
 
     private val projectManager: ProjectManager = Mundus.inject()
 
     init {
-        table.align(Align.left)
+        table.defaults().padLeft(10f).padBottom(5f).align(Align.left)
         table.add(VisLabel("Settings")).row()
 
         table.add(VisLabel("UV scale")).left().row()
@@ -51,6 +53,16 @@ class TerrainSettingsTab(private val parentWidget: TerrainComponentWidget) : Tab
                 val assetManager = projectManager.current().assetManager
                 assetManager.addModifiedAsset(parentWidget.component.terrainAsset)
                 parentWidget.component.updateUVs(Vector2(uvSlider.value, uvSlider.value))
+            }
+        })
+
+        table.add(triplanar).left().row()
+        triplanar.isChecked = parentWidget.component.terrainAsset.terrain.terrainTexture.isTriplanar
+        triplanar.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                val assetManager = projectManager.current().assetManager
+                assetManager.addModifiedAsset(parentWidget.component.terrainAsset)
+                parentWidget.component.terrainAsset.terrain.terrainTexture.isTriplanar = triplanar.isChecked
             }
         })
     }
