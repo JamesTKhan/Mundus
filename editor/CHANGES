@@ -2,6 +2,7 @@
 - Convert Water Shader to an Uber Shader
 - Water Shader Enhancements (visible depth, toggle reflection/refraction)
 - Skybox rendering performance tweak
+- Added Triplanar Shader options for Terrains
 - Added scene delete button
 - Added scene rename button
 - Added dialog for adding water
@@ -28,6 +29,7 @@
 - Fix terrain brush tools for rotated and scaled terrain
 - Refactor tool selection
 - Custom properties component addable to game objects
+- Improved Terrain normal calculations
 
 [0.4.2] ~ 10/24/2022
 - Fix shader compilation error for Terrain when using normal maps
