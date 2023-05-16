@@ -86,4 +86,40 @@ public class MathUtils {
         return (number & (number - 1)) == 0;
     }
 
+    /**
+     * Find the nearest point on a line to a given point.
+     * @param lineStart start of the line
+     * @param lineEnd end of the line
+     * @param point the point
+     * @param out populated with the nearest point on the line
+     */
+    public static void findNearestPointOnLine(Vector2 lineStart, Vector2 lineEnd, Vector2 point, Vector2 out) {
+        Vector2 lineDirection = Pools.vector2Pool.obtain().set(lineEnd).sub(lineStart);
+
+        // Calculate the length of the line.
+        float lineLength = lineDirection.len();
+        lineDirection.nor();
+
+        // lineStart to point
+        Vector2 toPoint = Pools.vector2Pool.obtain().set(point).sub(lineStart);
+        float projectedLength = lineDirection.dot(toPoint);
+
+        // Calculate the coordinates of the projected point.
+        Vector2 projectedPoint = new Vector2(lineDirection).scl(toPoint.dot(lineDirection));
+
+        Pools.vector2Pool.free(lineDirection);
+        Pools.vector2Pool.free(toPoint);
+
+        if (projectedLength < 0) {
+            out.set(lineStart);
+        }
+        else if (projectedLength > lineLength) {
+            out.set(lineEnd);
+        }
+        else {
+            // If the projected point lies on the line segment, return the projected point.
+            out.set(lineStart).add(projectedPoint);
+        }
+    }
+
 }
