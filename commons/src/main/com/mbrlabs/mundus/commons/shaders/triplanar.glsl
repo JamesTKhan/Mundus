@@ -8,9 +8,9 @@ vec3 triplanarNormal(sampler2D normalTex, vec3 worldPos, vec3 triblend)
     vec2 uvZ = worldPos.xy * u_uvScale * scaleAdjust;
 
     // project+fetch
-    vec3 x = unpackNormal(texture2D(normalTex, uvX));
-    vec3 y = unpackNormal(texture2D(normalTex, uvY));
-    vec3 z = unpackNormal(texture2D(normalTex, uvZ));
+    vec3 x = unpackNormal(texture2D(normalTex, uvX).rgb);
+    vec3 y = unpackNormal(texture2D(normalTex, uvY).rgb);
+    vec3 z = unpackNormal(texture2D(normalTex, uvZ).rgb);
     vec3 nrm = x * triblend.x + y * triblend.y + z * triblend.z;
 
     return nrm;

@@ -62,7 +62,7 @@ class TerrainSettingsTab(private val parentWidget: TerrainComponentWidget) : Tab
             override fun changed(event: ChangeEvent, actor: Actor) {
                 val assetManager = projectManager.current().assetManager
                 assetManager.addModifiedAsset(parentWidget.component.terrainAsset)
-                parentWidget.component.terrainAsset.terrain.terrainTexture.isTriplanar = triplanar.isChecked
+                parentWidget.component.terrainAsset.setTriplanar(triplanar.isChecked)
             }
         })
     }

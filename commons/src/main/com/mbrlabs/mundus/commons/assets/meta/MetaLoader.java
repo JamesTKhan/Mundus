@@ -61,6 +61,7 @@ public class MetaLoader {
         terrain.setSize(jsonTerrain.getInt(MetaTerrain.JSON_SIZE));
         terrain.setSplatMapResolution(jsonTerrain.getInt(MetaTerrain.JSON_SPLATMAP_RESOLUTION, SplatMapResolution.DEFAULT_RESOLUTION.getResolutionValues()));
         terrain.setUv(jsonTerrain.getFloat(MetaTerrain.JSON_UV_SCALE, Terrain.DEFAULT_UV_SCALE));
+        terrain.setTriplanar(jsonTerrain.getBoolean(MetaTerrain.JSON_TRIPLANAR, false));
         terrain.setSplatmap(jsonTerrain.getString(MetaTerrain.JSON_SPLATMAP, null));
         terrain.setSplatBase64(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_BASE64, null));
         terrain.setSplatBase(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_BASE, null));

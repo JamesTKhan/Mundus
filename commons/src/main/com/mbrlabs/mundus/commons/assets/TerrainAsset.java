@@ -74,6 +74,11 @@ public class TerrainAsset extends Asset {
         }
     }
 
+    public void setTriplanar(boolean value) {
+        meta.getTerrain().setTriplanar(value);
+        terrain.getTerrainTexture().setTriplanar(value);
+    }
+
     public TextureAsset getSplatBase() {
         return splatBase;
     }
@@ -223,11 +228,13 @@ public class TerrainAsset extends Asset {
         TerrainLoader terrainLoader = new TerrainLoader(null);
         terrainLoader.loadAsync(null, null, terraFile, param);
         terrain = terrainLoader.loadSync(null, null, terraFile, param);
+        setTriplanar(meta.getTerrain().isTriplanar());
     }
 
     @Override
     public void load(AssetManager assetManager) {
         terrain = assetManager.get(meta.getFile().pathWithoutExtension());
+        setTriplanar(meta.getTerrain().isTriplanar());
         data = terrain.heightData;
     }
 
