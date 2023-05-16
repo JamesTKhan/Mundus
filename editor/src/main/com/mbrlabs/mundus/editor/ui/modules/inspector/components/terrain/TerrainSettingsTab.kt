@@ -28,6 +28,7 @@ import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.widgets.ImprovedSlider
+import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 
 /**
  * @author Marcus Brummer
@@ -37,7 +38,7 @@ class TerrainSettingsTab(private val parentWidget: TerrainComponentWidget) : Tab
 
     private val table = VisTable()
     private val uvSlider = ImprovedSlider(.5f, 120f, .5f)
-    private val triplanar = VisCheckBox("Triplanar")
+    private val triplanar = VisCheckBox(null)
 
     private val projectManager: ProjectManager = Mundus.inject()
 
@@ -56,7 +57,11 @@ class TerrainSettingsTab(private val parentWidget: TerrainComponentWidget) : Tab
             }
         })
 
-        table.add(triplanar).left().row()
+        val triplanarTable = VisTable()
+        triplanarTable.add(ToolTipLabel("Triplanar", "Enables Triplanar texturing which calculates UV coordinates\n" +
+                "in the shader instead of using Vertex coordinates.")).left()
+        triplanarTable.add(triplanar).left().row()
+        table.add(triplanarTable).left().row()
         triplanar.isChecked = parentWidget.component.terrainAsset.terrain.terrainTexture.isTriplanar
         triplanar.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {

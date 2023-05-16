@@ -1,5 +1,5 @@
 uniform vec2 u_uvScale;
-const float scaleAdjust = 0.0008;
+const float scaleAdjust = 0.001;
 
 vec3 triplanarNormal(sampler2D normalTex, vec3 worldPos, vec3 triblend)
 {
