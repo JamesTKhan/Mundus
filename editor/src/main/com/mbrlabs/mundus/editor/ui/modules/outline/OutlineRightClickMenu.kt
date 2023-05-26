@@ -11,7 +11,6 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.events.TerrainRemovedEvent
@@ -33,7 +32,6 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
 
     private val outline: Outline
     private val projectManager: ProjectManager = Mundus.inject()
-    private val kryoManager: KryoManager = Mundus.inject()
     private val toolManager: ToolManager = Mundus.inject()
 
     init {
@@ -83,7 +81,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
                 if (selectedGO != null) {
                     outline.removeGo(selectedGO!!)
                     if (toolManager.isSelected(selectedGO!!)) {
-                        toolManager.activeTool!!.onDisabled()
+                        toolManager.setDefaultTool()
                     }
 
                     val terrainComponent = selectedGO!!.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
