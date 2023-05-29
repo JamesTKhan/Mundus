@@ -18,6 +18,7 @@ import com.mbrlabs.mundus.editor.history.commands.TerrainHeightCommand
 import com.mbrlabs.mundus.editor.terrain.Terraformer
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FileChooserField
+import com.mbrlabs.mundus.editor.ui.widgets.FloatFieldWithLabel
 import com.mbrlabs.mundus.editor.utils.isImage
 
 class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, false) {
@@ -26,6 +27,7 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
 
     private val hmInput = FileChooserField()
     private val loadHeightMapBtn = VisTextButton("Load heightmap")
+    private val loadHeightMapMaxHeight = FloatFieldWithLabel("Min/Max height", -1, true)
 
     private val history: CommandHistory = Mundus.inject()
     private val projectManager: ProjectManager = Mundus.inject()
@@ -33,6 +35,7 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
     init {
         root.align(Align.left)
 
+        root.add(loadHeightMapMaxHeight).pad(5f).left().fillX().expandX().row()
         root.add(hmInput).pad(5f).left().expandX().fillX().row()
         root.add(loadHeightMapBtn).pad(5f).right().row()
 
@@ -47,6 +50,10 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
         loadHeightMapBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 val hm = hmInput.file
+                val max = loadHeightMapMaxHeight.float
+
+                if (max == 0f) loadHeightMapMaxHeight.text = "100" // if min/max left blank, set to 100
+
                 if (hm != null && hm.exists() && isImage(hm)) {
                     loadHeightMap(hm)
                     projectManager.current().assetManager.addModifiedAsset(terrainComponent.terrainAsset)
@@ -62,6 +69,8 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
         val command = TerrainHeightCommand(terrain)
         command.setHeightDataBefore(terrain.heightData)
 
+        val minMax = loadHeightMapMaxHeight.float
+
         val originalMap = Pixmap(heightMap)
 
         // scale pixmap if it doesn't fit the terrainAsset
@@ -70,12 +79,11 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
                     originalMap.format)
             scaledPixmap.drawPixmap(originalMap, 0, 0, originalMap.width, originalMap.height, 0, 0,
                     scaledPixmap.width, scaledPixmap.height)
-
             originalMap.dispose()
-            Terraformer.heightMap(terrainComponent).maxHeight(terrain.terrainWidth * 0.17f).map(scaledPixmap).terraform()
+            Terraformer.heightMap(terrainComponent).maxHeight(minMax).map(scaledPixmap).terraform()
             scaledPixmap.dispose()
         } else {
-            Terraformer.heightMap(terrainComponent).maxHeight(terrain.terrainWidth * 0.17f).map(originalMap).terraform()
+            Terraformer.heightMap(terrainComponent).maxHeight(minMax).map(originalMap).terraform()
             originalMap.dispose()
         }
 
