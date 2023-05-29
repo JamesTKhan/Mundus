@@ -52,7 +52,7 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
                 val hm = hmInput.file
                 val max = loadHeightMapMaxHeight.float
 
-                if (max == 0f) loadHeightMapMaxHeight.text = "100" // if min/max left blank, set to 100
+                if (max == 0f) loadHeightMapMaxHeight.text = "100" // if minMax left blank or zero, set to 100
 
                 if (hm != null && hm.exists() && isImage(hm)) {
                     loadHeightMap(hm)
@@ -69,6 +69,7 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
         val command = TerrainHeightCommand(terrain)
         command.setHeightDataBefore(terrain.heightData)
 
+        // Note: if user sets to negative, then height map is inverted
         val minMax = loadHeightMapMaxHeight.float
 
         val originalMap = Pixmap(heightMap)
