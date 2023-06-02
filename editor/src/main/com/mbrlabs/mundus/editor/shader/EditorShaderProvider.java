@@ -26,8 +26,6 @@ public class EditorShaderProvider extends MundusPBRShaderProvider {
         prefix += "#define PICKER\n";
         prefix += getTerrainPrefix(terrainMaterial);
 
-        PBRShader shader = new EditorPBRTerrainShader(renderable, config, prefix);
-        shaders.add(shader);
-        return shader;
+        return new EditorPBRTerrainShader(renderable, config, prefix);
     }
 }
