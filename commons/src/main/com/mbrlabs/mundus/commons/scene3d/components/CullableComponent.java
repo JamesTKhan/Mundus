@@ -22,14 +22,12 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.event.Event;
 import com.mbrlabs.mundus.commons.event.EventType;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
 import com.mbrlabs.mundus.commons.scene3d.ModelEventable;
-import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
-import com.mbrlabs.mundus.commons.utils.LightUtils;
+import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight;
 
 import static com.mbrlabs.mundus.commons.utils.ModelUtils.isVisible;
 
@@ -37,7 +35,6 @@ import static com.mbrlabs.mundus.commons.utils.ModelUtils.isVisible;
  * Components that can be Culled via Frustum Culling should extend
  * this class and call setDimensions once they have access to a modelInstance as well as super
  * for render() and update()
- *
  * The isCulled value will be set accordingly and components can check if is isCulled == true
  * before rendering.
  *
@@ -48,7 +45,6 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
     private final static BoundingBox tmpBounds = new BoundingBox();
     private final static Vector3 tmpScale = new Vector3();
     private final static short frameCullCheckInterval = 15;
-    private static DirectionalLight directionalLight;
 
     protected final Vector3 center = new Vector3();
     protected final Vector3 dimensions = new Vector3();
@@ -64,9 +60,6 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
     public CullableComponent(GameObject go) {
         super(go);
-
-        // Update out reference on creation of new component
-        directionalLight = LightUtils.getDirectionalLight(go.sceneGraph.scene.environment);
     }
 
     @Override
@@ -100,9 +93,9 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
         // If not visible to main cam, check if it's visible to shadow map (to prevent shadows popping out)
         if (!visibleToPerspective) {
-            if (directionalLight.castsShadows && gameObject.sceneGraph.scene.environment.shadowMap instanceof ShadowMapper) {
-                ShadowMapper shadowMapper = (ShadowMapper) gameObject.sceneGraph.scene.environment.shadowMap;
-                visibleToShadowMap = isVisible(shadowMapper.getCam(), modelInstance, center, radius);
+            if (gameObject.sceneGraph.scene.environment.shadowMap instanceof MundusDirectionalShadowLight) {
+                MundusDirectionalShadowLight shadowLight = (MundusDirectionalShadowLight) gameObject.sceneGraph.scene.environment.shadowMap;
+                visibleToShadowMap = isVisible(shadowLight.getCamera(), modelInstance, center, radius);
             }
         }
 

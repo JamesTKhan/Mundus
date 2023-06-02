@@ -6,23 +6,21 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Align
-import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
-import com.mbrlabs.mundus.commons.env.lights.AttenuationPreset
 import com.mbrlabs.mundus.commons.env.lights.LightType
-import com.mbrlabs.mundus.commons.env.lights.SpotLight
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.commons.utils.MathUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
+import net.mgsx.gltf.scene3d.lights.PointLightEx
+import net.mgsx.gltf.scene3d.lights.SpotLightEx
 import kotlin.math.roundToInt
 
 class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
@@ -42,11 +40,9 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
     private var currentLeftRightValue = 0f
     private var currentUpDownValue = 90f
 
-    private lateinit var selectBox: VisSelectBox<String>
-
     init {
         upDownSlider.value = 90f
-        spotlightCheckbox.isChecked = lightComponent.light.lightType == LightType.SPOT_LIGHT
+        spotlightCheckbox.isChecked = lightComponent.lightType == LightType.SPOT_LIGHT
 
         align(Align.topLeft)
         setupWidgets()
@@ -61,7 +57,6 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
         defaults().padBottom(5f)
 
         addBaseSettings()
-        addAttenuationSection()
         addSpotLightSection()
 
         spotlightCheckbox.addListener(object : ChangeListener() {
@@ -76,19 +71,14 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 if (diffuseIntensityField.isInputValid && !diffuseIntensityField.isEmpty) {
                     try {
-                        lightComponent.light.intensity = diffuseIntensityField.text.toFloat()
+                        if (lightComponent.light is SpotLightEx)
+                            (lightComponent.light as SpotLightEx).intensity = diffuseIntensityField.text.toFloat()
+                        else if (lightComponent.light is PointLightEx)
+                            (lightComponent.light as PointLightEx).intensity = diffuseIntensityField.text.toFloat()
                     } catch (ex : NumberFormatException) {
                         Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + diffuseIntensityField.name))
                     }
                 }
-            }
-        })
-
-        selectBox.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent?, actor: Actor?) {
-                val att = AttenuationPreset.valueFromString(selectBox.selected)
-                lightComponent.light.attenuation = att.attenuation
-                setFieldsToCurrentValues()
             }
         })
 
@@ -109,8 +99,8 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
 
         leftRightSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
-                if (lightComponent.light is SpotLight) {
-                    (lightComponent.light as SpotLight).direction.rotate(Vector3.Y, currentLeftRightValue - leftRightSlider.value)
+                if (lightComponent.light is SpotLightEx) {
+                    (lightComponent.light as SpotLightEx).direction.rotate(Vector3.Y, currentLeftRightValue - leftRightSlider.value)
                     currentLeftRightValue = leftRightSlider.value
                 }
             }
@@ -118,8 +108,8 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
 
         upDownSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
-                if (lightComponent.light is SpotLight) {
-                    MathUtils.rotateUpDown((lightComponent.light as SpotLight).direction, currentUpDownValue - upDownSlider.value)
+                if (lightComponent.light is SpotLightEx) {
+                    MathUtils.rotateUpDown((lightComponent.light as SpotLightEx).direction, currentUpDownValue - upDownSlider.value)
                     currentUpDownValue = upDownSlider.value
                 }
             }
@@ -127,8 +117,9 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
 
         coneSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
-                if (lightComponent.light is SpotLight) {
-                    (lightComponent.light as SpotLight).cutoff = coneSlider.value
+                if (lightComponent.light is SpotLightEx) {
+                    //TODO new parameters needed inner vs outer angle
+                    (lightComponent.light as SpotLightEx).setConeDeg(coneSlider.value, 10f)
                 }
             }
         })
@@ -153,33 +144,6 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
         add(baseSection).grow().row()
     }
 
-    private fun addAttenuationSection() {
-        addSectionHeader("Attenuation")
-        val attenuationSection = getSectionTable()
-
-        val selectorsTable = VisTable(true)
-        selectBox = VisSelectBox<String>()
-
-        // Build list for distance values
-        val values = Array<String>()
-        for (value in AttenuationPreset.values())
-            values.add(value.value)
-
-        selectBox.items = values
-        selectorsTable.add(selectBox).left()
-
-        attenuationSection.add(VisLabel("Distance:")).growX().row()
-        attenuationSection.add(selectorsTable).left().row()
-
-        attenuationSection.add(VisLabel("Linear:")).growX().row()
-        attenuationSection.add(linearField).growX().row()
-
-        attenuationSection.add(VisLabel("Exponential:")).growX().row()
-        attenuationSection.add(exponentialField).growX()
-
-        add(attenuationSection).grow().row()
-    }
-
     private fun addSpotLightSection() {
         addSectionHeader("SpotLight Settings", spotLightWrapper)
         val spotlightSection = getSectionTable()
@@ -201,10 +165,14 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
 
     private fun setFieldsToCurrentValues() {
         colorPickerField.selectedColor = lightComponent.light.color
-        diffuseIntensityField.text = lightComponent.light.intensity.toString()
-        linearField.text = lightComponent.light.attenuation.linear.toString()
-        exponentialField.text = lightComponent.light.attenuation.exponential.toString()
-        selectBox.selected = AttenuationPreset.valueFromAttenuation(lightComponent.light.attenuation)
+        if (lightComponent.light is SpotLightEx) {
+            val spotLight = lightComponent.light as SpotLightEx
+            exponentialField.text = spotLight.exponent.toString()
+            diffuseIntensityField.text = spotLight.intensity.toString()
+        } else if (lightComponent.light is PointLightEx) {
+            val pointLight = lightComponent.light as PointLightEx
+            diffuseIntensityField.text = pointLight.intensity.toString()
+        }
 
         // Disable spotlight check box if the corresponding light counts are maxed out.
         val env: Environment = lightComponent.gameObject.sceneGraph.scene.environment
@@ -214,15 +182,15 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
             spotlightCheckbox.isDisabled = true
         }
 
-        if (lightComponent.light is SpotLight) {
+        if (lightComponent.light is SpotLightEx) {
             // Convert direction to up/down angle
-            var upDownAngle = MathUtils.getAngleBetween( (lightComponent.light as SpotLight).direction, Vector3.Y)
+            var upDownAngle = MathUtils.getAngleBetween( (lightComponent.light as SpotLightEx).direction, Vector3.Y)
             upDownAngle = upDownAngle.roundToInt().toFloat()
 
             currentUpDownValue = upDownAngle
             upDownSlider.value = upDownAngle
 
-            coneSlider.value = (lightComponent.light as SpotLight).cutoff
+            coneSlider.value = (lightComponent.light as SpotLightEx).cutoffAngle
             spotLightWrapper.isVisible = true
         } else {
             spotLightWrapper.isVisible = false

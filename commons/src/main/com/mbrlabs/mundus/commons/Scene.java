@@ -27,6 +27,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -34,12 +35,11 @@ import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.env.CameraSettings;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheManager;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.shaders.DepthShader;
 import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
-import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
+import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight;
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
@@ -55,6 +55,7 @@ import net.mgsx.gltf.scene3d.utils.IBLBuilder;
  */
 public class Scene implements Disposable {
     public static boolean isRuntime = true;
+    private MundusDirectionalShadowLight dirLight;
 
     private String name;
     private long id;
@@ -76,7 +77,6 @@ public class Scene implements Disposable {
 
     private DepthShader depthShader;
     private ShadowMapShader shadowMapShader;
-    private ShadowMapper shadowMapper = null;
 
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
@@ -110,13 +110,12 @@ public class Scene implements Disposable {
         cam.near = CameraSettings.DEFAULT_NEAR_PLANE;
         cam.far = CameraSettings.DEFAULT_FAR_PLANE;
 
-        DirectionalLight dirLight = new DirectionalLight();
-        dirLight.color.set(DirectionalLight.DEFAULT_COLOR);
-        dirLight.intensity = DirectionalLight.DEFAULT_INTENSITY;
-        dirLight.direction.set(DirectionalLight.DEFAULT_DIRECTION);
+        dirLight = new MundusDirectionalShadowLight();
+        dirLight.color.set(LightUtils.DEFAULT_COLOR);
+        dirLight.intensity = LightUtils.DEFAULT_INTENSITY;
+        dirLight.direction.set(LightUtils.DEFAULT_DIRECTION);
         dirLight.direction.nor();
         environment.add(dirLight);
-        environment.getAmbientLight().intensity = 0.8f;
         environment.set(ColorAttribute.createAmbientLight(Color.WHITE));
 
         if (hasGLContext) {
@@ -127,22 +126,33 @@ public class Scene implements Disposable {
         sceneGraph = new SceneGraph(this);
     }
 
-    protected void initPBR() {
-        DirectionalLightEx directionalLightEx = new DirectionalLightEx();
-        directionalLightEx.intensity = DirectionalLight.DEFAULT_INTENSITY;
-        directionalLightEx.setColor(DirectionalLight.DEFAULT_COLOR);
-        directionalLightEx.direction.set(DirectionalLight.DEFAULT_DIRECTION);
-
-        IBLBuilder iblBuilder = IBLBuilder.createOutdoor(directionalLightEx);
-        Cubemap diffuseCubemap = iblBuilder.buildIrradianceMap(256);
+    public void initPBR() {
+        IBLBuilder iblBuilder = IBLBuilder.createOutdoor(dirLight);
+        Cubemap diffuseCubemap = iblBuilder.buildIrradianceMap(512);
         Cubemap specularCubemap = iblBuilder.buildRadianceMap(10);
         iblBuilder.dispose();
 
-        Texture brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, .3f, .3f, .3f, 1));
-        environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
-        environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
-        environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
+        PBRTextureAttribute tex = (PBRTextureAttribute) environment.get(PBRTextureAttribute.BRDFLUTTexture);
+        if (tex == null) {
+            Texture brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
+            environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
+        }
+
+        PBRCubemapAttribute specularEnv = (PBRCubemapAttribute) environment.get(PBRCubemapAttribute.SpecularEnv);
+        if (specularEnv != null) {
+            specularEnv.textureDescription.texture.dispose();
+            specularEnv.textureDescription.texture = specularCubemap;
+        } else {
+            environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
+        }
+
+        PBRCubemapAttribute diffuseEnv = (PBRCubemapAttribute) environment.get(PBRCubemapAttribute.DiffuseEnv);
+        if (diffuseEnv != null) {
+            diffuseEnv.textureDescription.texture.dispose();
+            diffuseEnv.textureDescription.texture = diffuseCubemap;
+        } else {
+            environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
+        }
     }
 
     public void render() {
@@ -197,21 +207,25 @@ public class Scene implements Disposable {
     }
 
     protected void renderShadowMap(float delta) {
-        if (shadowMapper == null) {
+        if (dirLight == null) {
             setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
         }
 
-        DirectionalLight light = LightUtils.getDirectionalLight(environment);
-        if (light == null || !light.castsShadows) return;
+        if (!dirLight.isCastsShadows()) {
+            environment.shadowMap = null;
+            return;
+        }
 
-        shadowMapper.setCenter(cam.position);
-        shadowMapper.begin(light.direction);
-        depthBatch.begin(shadowMapper.getCam());
+        environment.shadowMap = dirLight;
+
+        dirLight.setCenter(cam.position);
+        dirLight.begin();
+        depthBatch.begin(dirLight.getCamera());
         sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
         modelCacheManager.triggerBeforeDepthRenderEvent();
         depthBatch.render(modelCacheManager.modelCache, environment, shadowMapShader);
         depthBatch.end();
-        shadowMapper.end();
+        dirLight.end();
     }
 
     protected void initFrameBuffers(int width, int height) {
@@ -291,6 +305,17 @@ public class Scene implements Disposable {
         return name;
     }
 
+    public void setDirectionalLight(MundusDirectionalShadowLight light) {
+        this.dirLight = light;
+        environment.remove(DirectionalLightsAttribute.Type);
+        environment.add(light);
+        initPBR();
+    }
+
+    public MundusDirectionalShadowLight getDirectionalLight() {
+        return dirLight;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -301,19 +326,6 @@ public class Scene implements Disposable {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public ShadowMapper getShadowMapper() {
-        return shadowMapper;
-    }
-
-    public void setShadowMapper(ShadowMapper shadowMapperToSet) {
-        if (shadowMapper != null) {
-            shadowMapper.dispose();
-        }
-
-        this.shadowMapper = shadowMapperToSet;
-        environment.shadowMap = shadowMapperToSet;
     }
 
     public void setDepthShader(DepthShader depthShader) {
@@ -341,16 +353,12 @@ public class Scene implements Disposable {
      * @param shadowResolution the shadow resolution to use.
      */
     public void setShadowQuality(ShadowResolution shadowResolution) {
-        DirectionalLight light = LightUtils.getDirectionalLight(environment);
+        MundusDirectionalShadowLight light = LightUtils.getDirectionalLight(environment);
         if (light == null || shadowResolution == null) return;
 
-        if (shadowMapper == null) {
-            shadowMapper = new ShadowMapper(shadowResolution);
-        } else {
-            shadowMapper.setShadowResolution(shadowResolution);
-        }
+        light.setShadowResolution(shadowResolution);
 
-        environment.shadowMap = shadowMapper;
+        environment.shadowMap = light;
     }
 
     /**

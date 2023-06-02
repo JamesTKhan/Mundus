@@ -41,9 +41,9 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLight
 import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
+import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.commons.utils.ModelUtils
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.Mundus
@@ -150,8 +150,8 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             env = Environment()
 
             val directionalLightEx = DirectionalLightEx()
-            directionalLightEx.intensity = DirectionalLight.DEFAULT_INTENSITY
-            directionalLightEx.setColor(DirectionalLight.DEFAULT_COLOR)
+            directionalLightEx.intensity = LightUtils.DEFAULT_INTENSITY
+            directionalLightEx.setColor(LightUtils.DEFAULT_COLOR)
             directionalLightEx.direction.set(-1f, -0.8f, -0.2f)
 
             val iblBuilder = IBLBuilder.createOutdoor(directionalLightEx)

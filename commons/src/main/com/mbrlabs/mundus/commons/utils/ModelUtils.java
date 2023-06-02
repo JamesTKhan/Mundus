@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.Pool;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 
 /**
  * @author JamesTKhan
@@ -77,6 +78,11 @@ public class ModelUtils {
         ModelComponent mc = (ModelComponent) rootGameObject.findComponentByType(Component.Type.MODEL);
         if (mc != null) {
             mc.applyMaterials();
+        }
+
+        TerrainComponent tc = (TerrainComponent) rootGameObject.findComponentByType(Component.Type.TERRAIN);
+        if (tc != null) {
+            tc.applyMaterial();
         }
 
         if (rootGameObject.getChildren() == null) return;

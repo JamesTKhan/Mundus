@@ -56,7 +56,7 @@ import java.io.FileNotFoundException
  * @author Marcus Brummer
  * @version 13-10-2016
  */
-class MaterialWidget : VisTable() {
+class MaterialWidget(var isTerrain: Boolean = false) : VisTable() {
 
     private val matFilter: AssetMaterialFilter = AssetMaterialFilter()
     private val matDuplicatedBtn: VisTextButton = VisTextButton("duplicate")
@@ -166,22 +166,24 @@ class MaterialWidget : VisTable() {
         add(VisLabel("Emissive color")).grow().row()
         add(emissiveColorField).growX().row()
 
-        add(VisLabel("Diffuse texture")).grow().row()
-        add(diffuseAssetField).growX().row()
+        if (!isTerrain) {
+            add(VisLabel("Diffuse texture")).grow().row()
+            add(diffuseAssetField).growX().row()
 
-        add(VisLabel("Normal map")).grow().row()
-        add(normalMapField).growX().row()
+            add(VisLabel("Normal map")).grow().row()
+            add(normalMapField).growX().row()
 
-        add(ToolTipLabel("Emissive texture", "The emissive texture. It controls the color and intensity " +
-                "of the light being emitted by the material.\n This texture contains RGB components encoded with the sRGB transfer function.")).left().row()
-        add(emissiveAssetField).growX().row()
+            add(ToolTipLabel("Emissive texture", "The emissive texture. It controls the color and intensity " +
+                    "of the light being emitted by the material.\n This texture contains RGB components encoded with the sRGB transfer function.")).left().row()
+            add(emissiveAssetField).growX().row()
 
-        add(ToolTipLabel("Metallic/Roughness Texture", "The textures for metalness and roughness properties are packed together in a single texture called\n"+
-                "metallicRoughnessTexture. Its green channel contains roughness values and its blue channel contains metalness values")).left().row()
-        add(metallicRoughnessAssetField).growX().row()
+            add(ToolTipLabel("Metallic/Roughness Texture", "The textures for metalness and roughness properties are packed together in a single texture called\n"+
+                    "metallicRoughnessTexture. Its green channel contains roughness values and its blue channel contains metalness values")).left().row()
+            add(metallicRoughnessAssetField).growX().row()
 
-        add(ToolTipLabel("Occlusion Texture", "The occlusion texture. The occlusion values are linearly sampled from the R channel.")).left().row()
-        add(occlusionAssetField).growX().row()
+            add(ToolTipLabel("Occlusion Texture", "The occlusion texture. The occlusion values are linearly sampled from the R channel.")).left().row()
+            add(occlusionAssetField).growX().row()
+        }
 
         addSeparator().padTop(15f).padBottom(15f).growX().row()
 

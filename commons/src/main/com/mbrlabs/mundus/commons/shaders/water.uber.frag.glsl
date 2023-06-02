@@ -199,37 +199,56 @@ void main() {
     // Calculate specular hightlights for directional light
     vec3 specularHighlights = calcSpecularHighlights(u_directionalLight.Base, u_directionalLight.Direction, normal, viewVector, waterDepth);
 
-    // Calculate specular and lighting for point lights
+    // Calculate specular and lighting for point lights, logic modified from gdx-gltf to closer match PBR Shaders
     for (int i = 0 ; i < numPointLights ; i++) {
         if (i >= u_activeNumPointLights){break;}
-        vec4 lightColor = vec4(u_pointLights[i].Base.Color, 1.0) * u_pointLights[i].Base.DiffuseIntensity;
 
-        vec3 lightDirection = v_worldPos - u_pointLights[i].LocalPos;
-        float dist = length(lightDirection);
-        lightDirection = normalize(lightDirection);
+        // Light distance
+        vec3 d = v_worldPos - u_pointLights[i].LocalPos;
+        float dist2 = dot(d,d);
+        float attenuation = 1.0 + dist2;
 
-        float attenuation =  u_pointLights[i].Atten.Constant +
-        u_pointLights[i].Atten.Linear * dist +
-        u_pointLights[i].Atten.Exp * dist * dist;
+        // Apply point light colors to overall color
+        vec4 lightColor = vec4((u_pointLights[i].Base.Color, 1.0) * u_pointLights[i].Base.DiffuseIntensity) / attenuation;
 
+        // Unlike PBR shaders there is no PBR light contribution so we manually dampen with * 0.2
+        totalLight += 0.2 * lightColor;
+
+        // Point light Specular highlights
         float specularDistanceFactor = length(u_cameraPosition.xyz - u_pointLights[i].LocalPos);
 
         // Limit distance of point lights specular highlights over water by 500 units
         specularDistanceFactor = clamp(1.0 - specularDistanceFactor / 500.0, 0.0, 1.0);
 
         // We want specular to adjust based on attenuation, but not to the same degree otherwise we lose too much
-        float specularAttenuationFactor = 0.1;
+        float specularAttenuationFactor = 0.2;
 
         // Add point light contribution to specular highlights
-        specularHighlights += (calcSpecularHighlights(u_pointLights[i].Base, lightDirection, normal, viewVector, waterDepth) * specularDistanceFactor) / (attenuation * specularAttenuationFactor);
-
-        // Apply point light colors to overall color
-        totalLight += lightColor / attenuation;
+       specularHighlights += (calcSpecularHighlights(u_pointLights[i].Base, normalize(d), normal, viewVector, waterDepth) * specularDistanceFactor) / (attenuation * specularAttenuationFactor);
     }
 
     for (int i = 0; i < numSpotLights; i++) {
         if (i >= u_activeNumSpotLights){break;}
-        totalLight += CalcSpotLight(u_spotLights[i], normal);
+
+        // Light distance
+        vec3 d = v_worldPos - u_spotLights[i].Base.LocalPos;
+        float dist2 = dot(d,d);
+        float attenuation = 1.0 + dist2;
+        d*= inversesqrt(dist2);
+
+        // light direction
+        vec3 l = normalize(u_spotLights[i].Direction);  // Vector from surface point to light
+
+        // from https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#inner-and-outer-cone-angles
+        float lightAngleOffset = u_spotLights[i].Cutoff;
+        float lightAngleScale = u_spotLights[i].Exponent;
+
+        float cd = dot(l, d);
+        float angularAttenuation = clamp(cd * lightAngleScale + lightAngleOffset, 0.0, 1.0);
+        angularAttenuation *= angularAttenuation;
+
+        vec4 lightColor = vec4(u_spotLights[i].Base.Base.Color, 1.0) * u_spotLights[i].Base.Base.DiffuseIntensity;
+        totalLight += lightColor * (angularAttenuation / attenuation);
     }
 
     // Apply all lighting

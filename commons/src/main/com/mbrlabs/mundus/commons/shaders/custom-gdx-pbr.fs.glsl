@@ -64,6 +64,9 @@ varying float v_alphaTest;
 
 #ifdef textureFlag
 varying MED vec2 v_texCoord0;
+#ifdef triplanarFlag
+uniform mat3 u_texCoord0Transform;
+#endif // triplanarFlag
 #endif // textureFlag
 
 #ifdef textureCoord1Flag
@@ -106,6 +109,37 @@ uniform vec4 u_BaseColorFactor;
 
 #ifdef diffuseTextureFlag
 uniform sampler2D u_diffuseTexture;
+#endif
+
+#ifdef splatFlag
+varying vec2 v_splatPosition;
+vec4 splat;
+uniform sampler2D u_texture_splat;
+    #ifdef splatRFlag
+    uniform sampler2D u_texture_r;
+    #endif
+    #ifdef splatGFlag
+    uniform sampler2D u_texture_g;
+    #endif
+    #ifdef splatBFlag
+    uniform sampler2D u_texture_b;
+    #endif
+    #ifdef splatAFlag
+    uniform sampler2D u_texture_a;
+    #endif
+    
+    #ifdef splatRNormalFlag
+    uniform sampler2D u_texture_r_normal;
+    #endif
+    #ifdef splatGNormalFlag
+    uniform sampler2D u_texture_g_normal;
+    #endif
+    #ifdef splatBNormalFlag
+    uniform sampler2D u_texture_b_normal;
+    #endif
+    #ifdef splatANormalFlag
+    uniform sampler2D u_texture_a_normal;
+    #endif
 #endif
 
 #ifdef specularColorFlag
@@ -234,6 +268,34 @@ uniform vec2 u_MetallicRoughnessValues;
 varying vec3 v_position;
 varying float v_clipDistance;
 
+#ifdef triplanarFlag
+    // getColor == triplanar method
+    #define getColor triplanar
+    const float scaleAdjust = 0.001;
+    vec4 triplanar(sampler2D diffuseTexture, vec3 triblend)
+    {
+        vec2 uvX = v_position.zy * scaleAdjust;
+        vec2 uvY = v_position.xz * scaleAdjust;
+        vec2 uvZ = v_position.xy * scaleAdjust;
+
+        // Apply tex coord transforms
+        uvX = (u_texCoord0Transform * vec3(uvX, 1.0)).xy;
+        uvY = (u_texCoord0Transform * vec3(uvY, 1.0)).xy;
+        uvZ = (u_texCoord0Transform * vec3(uvZ, 1.0)).xy;
+
+        // project+fetch
+        vec4 x = texture2D(diffuseTexture, uvX);
+        vec4 y = texture2D(diffuseTexture, uvY);
+        vec4 z = texture2D(diffuseTexture, uvZ);
+        vec4 col = x * triblend.x + y * triblend.y + z * triblend.z;
+
+        return col;
+    }
+#else
+// getColor == texture2D method
+#define getColor texture2D
+#endif
+
 // Encapsulate the various inputs used by the various functions in the shading equation
 // We store values in structs to simplify the integration of alternative implementations
 // PBRSurfaceInfo contains light independant information (surface/material only)
@@ -285,7 +347,34 @@ vec3 getNormal()
 {
 #ifdef tangentFlag
 #ifdef normalTextureFlag
-    vec3 n = texture2D(u_normalTexture, v_normalUV).rgb;
+
+    #ifdef triplanarFlag
+        vec3 colorUv = clamp(pow(abs(v_TBN[2]), vec3(4.0)), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+        colorUv /= dot(colorUv, vec3(1.0,1.0,1.0));
+    #else
+        vec2 colorUv = v_diffuseUV;
+    #endif
+
+    vec3 n = getColor(u_normalTexture, colorUv).rgb;
+
+    #ifdef splatFlag
+    vec3 splatNormal;
+    #ifdef splatRNormalFlag
+        splatNormal += getColor(u_texture_r_normal, colorUv).rgb * splat.r;
+    #endif
+    #ifdef splatGNormalFlag
+        splatNormal += getColor(u_texture_g_normal, colorUv).rgb * splat.g;
+    #endif
+    #ifdef splatBNormalFlag
+        splatNormal += getColor(u_texture_b_normal, colorUv).rgb * splat.b;
+    #endif
+    #ifdef splatANormalFlag
+        splatNormal += getColor(u_texture_a_normal, colorUv).rgb * splat.a;
+    #endif
+    float normalBlendFactor = (1.0 - splat.r - splat.g - splat.b - splat.a);
+    n = (n * normalBlendFactor) + splatNormal;
+    #endif // splatFlag
+
     n = normalize(v_TBN * ((2.0 * n - 1.0) * vec3(u_NormalScale, u_NormalScale, 1.0)));
 #else
     vec3 n = normalize(v_TBN[2].xyz);
@@ -532,8 +621,39 @@ void main() {
 	vec4 baseColorFactor = vec4(1.0, 1.0, 1.0, 1.0);
 #endif
 
+#ifdef triplanarFlag
+    #define getColor triplanar
+    vec3 colorUv = clamp(pow(abs(v_TBN[2]), vec3(4.0)), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+    colorUv /= dot(colorUv, vec3(1.0,1.0,1.0));
+#else
+    #ifdef diffuseTextureFlag
+    vec2 colorUv = v_diffuseUV;
+    #else
+    vec2 colorUv = vec2(0.0);
+    #endif
+    #define getColor texture2D
+#endif
+
 #ifdef diffuseTextureFlag
-    vec4 baseColor = SRGBtoLINEAR(texture2D(u_diffuseTexture, v_diffuseUV)) * baseColorFactor;
+    vec4 baseColor = getColor(u_diffuseTexture, colorUv);
+
+    #ifdef splatFlag
+        splat = texture2D(u_texture_splat, v_splatPosition);
+        #ifdef splatRFlag
+        baseColor = mix(baseColor, getColor(u_texture_r, colorUv), splat.r);
+        #endif
+        #ifdef splatGFlag
+        baseColor = mix(baseColor, getColor(u_texture_g, colorUv), splat.g);
+        #endif
+        #ifdef splatBFlag
+        baseColor = mix(baseColor, getColor(u_texture_b, colorUv), splat.b);
+        #endif
+        #ifdef splatAFlag
+        baseColor = mix(baseColor, getColor(u_texture_a, colorUv), splat.a);
+        #endif
+    #endif // splatFlag
+
+    baseColor = SRGBtoLINEAR(baseColor) * baseColorFactor;
 #else
     vec4 baseColor = baseColorFactor;
 #endif

@@ -16,17 +16,15 @@
 
 package com.mbrlabs.mundus.commons.env;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.math.Vector3;
-import com.mbrlabs.mundus.commons.env.lights.BaseLight;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
-import com.mbrlabs.mundus.commons.env.lights.PointLight;
-import com.mbrlabs.mundus.commons.env.lights.PointLightsAttribute;
-import com.mbrlabs.mundus.commons.env.lights.SpotLight;
-import com.mbrlabs.mundus.commons.env.lights.SpotLightsAttribute;
-import com.mbrlabs.mundus.commons.env.lights.SunLight;
-import com.mbrlabs.mundus.commons.env.lights.SunLightsAttribute;
+import net.mgsx.gltf.scene3d.lights.PointLightEx;
+import net.mgsx.gltf.scene3d.lights.SpotLightEx;
 
 /**
  * @author Marcus Brummer
@@ -37,42 +35,25 @@ public class MundusEnvironment extends Environment {
     private float clippingHeight = 0;
     private Vector3 clippingPlane = new Vector3();
 
-    private BaseLight ambientLight;
-
     public MundusEnvironment() {
         super();
-        ambientLight = new BaseLight();
     }
 
-    public MundusEnvironment add(SunLight light) {
-        SunLightsAttribute sunLights = ((SunLightsAttribute) get(SunLightsAttribute.Type));
-        if (sunLights == null) set(sunLights = new SunLightsAttribute());
-        sunLights.lights.add(light);
-
-        return this;
-    }
-
-    public MundusEnvironment add(DirectionalLight light) {
-        DirectionalLightsAttribute dirLights = ((DirectionalLightsAttribute) get(DirectionalLightsAttribute.Type));
-        if (dirLights == null) set(dirLights = new DirectionalLightsAttribute());
-        dirLights.lights.add(light);
-
-        return this;
-    }
-
-    public MundusEnvironment add(PointLight light) {
-        if (light instanceof SpotLight) {
-            return add((SpotLight) light);
+    public MundusEnvironment add(BaseLight light) {
+        if (light instanceof SpotLightEx) {
+            return add((SpotLightEx) light);
         }
 
-        PointLightsAttribute pointLights = ((PointLightsAttribute) get(PointLightsAttribute.Type));
-        if (pointLights == null) set(pointLights = new PointLightsAttribute());
-        pointLights.lights.add(light);
+        if (light instanceof PointLightEx) {
+            PointLightsAttribute pointLights = ((PointLightsAttribute) get(PointLightsAttribute.Type));
+            if (pointLights == null) set(pointLights = new PointLightsAttribute());
+            pointLights.lights.add((PointLightEx) light);
+        }
 
         return this;
     }
 
-    public MundusEnvironment add(SpotLight light) {
+    public MundusEnvironment add(SpotLightEx light) {
         SpotLightsAttribute spotLights = ((SpotLightsAttribute) get(SpotLightsAttribute.Type));
         if (spotLights == null) set(spotLights = new SpotLightsAttribute());
         spotLights.lights.add(light);
@@ -80,21 +61,21 @@ public class MundusEnvironment extends Environment {
         return this;
     }
 
-    public Environment remove (PointLight light) {
-        if (light instanceof SpotLight) {
-            return remove((SpotLight) light);
+    public Environment remove (BaseLight light) {
+        if (light instanceof SpotLightEx) {
+            return remove((SpotLightEx) light);
         }
 
-        if (has(PointLightsAttribute.Type)) {
+        if (has(PointLightsAttribute.Type) && light instanceof PointLightEx) {
             PointLightsAttribute pointLights = ((PointLightsAttribute)get(PointLightsAttribute.Type));
-            pointLights.lights.removeValue(light, false);
+            pointLights.lights.removeValue((PointLightEx) light, false);
             if (pointLights.lights.size == 0)
                 remove(PointLightsAttribute.Type);
         }
         return this;
     }
 
-    public Environment remove (SpotLight light) {
+    public Environment remove (SpotLightEx light) {
         if (has(SpotLightsAttribute.Type)) {
             SpotLightsAttribute spotLights = ((SpotLightsAttribute)get(SpotLightsAttribute.Type));
             spotLights.lights.removeValue(light, false);
@@ -104,12 +85,12 @@ public class MundusEnvironment extends Environment {
         return this;
     }
 
-    public BaseLight getAmbientLight() {
-        return ambientLight;
+    public ColorAttribute getAmbientLight() {
+        return get(ColorAttribute.class, ColorAttribute.AmbientLight);
     }
 
-    public void setAmbientLight(BaseLight ambientLight) {
-        this.ambientLight = ambientLight;
+    public void setAmbientLight(Color ambientLight) {
+        set(new ColorAttribute(ColorAttribute.AmbientLight, ambientLight));
     }
 
     public float getClippingHeight() {
