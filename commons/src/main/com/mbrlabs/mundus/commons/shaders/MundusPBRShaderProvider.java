@@ -38,10 +38,24 @@ public class MundusPBRShaderProvider extends PBRShaderProvider {
         return new MundusPBRShader(renderable, config, prefix);
     }
 
-    private PBRShader createPBRTerrainShader(Renderable renderable, PBRShaderConfig config, String prefix) {
+    protected PBRShader createPBRTerrainShader(Renderable renderable, PBRShaderConfig config, String prefix) {
         TerrainMaterialAttribute terrainMaterialA = (TerrainMaterialAttribute) renderable.material.get(TerrainMaterialAttribute.TerrainMaterial);
         TerrainMaterial terrainMaterial = terrainMaterialA.terrainMaterial;
 
+         prefix += getTerrainPrefix(terrainMaterial);
+
+        return new PBRTerrainShader(renderable, config, prefix);
+    }
+
+    private Shader createWaterShader(Renderable renderable) {
+        Shader shader = new WaterUberShader(renderable);
+        shaders.add(shader);
+        Gdx.app.log(MundusPBRShader.class.getSimpleName(), "Water Shader Compiled");
+        return shader;
+    }
+
+    protected String getTerrainPrefix(TerrainMaterial terrainMaterial) {
+        String prefix = "";
         if (terrainMaterial.isTriplanar()) {
             prefix += "#define triplanarFlag\n";
         }
@@ -90,14 +104,6 @@ public class MundusPBRShaderProvider extends PBRShaderProvider {
                 prefix += "#define splatANormalFlag\n";
             }
         }
-
-        return new PBRTerrainShader(renderable, config, prefix);
-    }
-
-    private Shader createWaterShader(Renderable renderable) {
-        Shader shader = new WaterUberShader(renderable);
-        shaders.add(shader);
-        Gdx.app.log(MundusPBRShader.class.getSimpleName(), "Water Shader Compiled");
-        return shader;
+        return prefix;
     }
 }

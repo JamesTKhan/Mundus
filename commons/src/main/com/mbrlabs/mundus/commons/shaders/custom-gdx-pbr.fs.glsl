@@ -142,6 +142,15 @@ uniform sampler2D u_texture_splat;
     #endif
 #endif
 
+// mouse picking
+#ifdef PICKER
+#define PI 3.1415926535897932384626433832795
+const MED vec4 COLOR_BRUSH = vec4(0.4,0.4,0.4, 0.4);
+uniform vec3 u_pickerPos;
+uniform float u_pickerRadius;
+uniform int u_pickerActive;
+#endif
+
 #ifdef specularColorFlag
 uniform vec4 u_specularColor;
 #endif
@@ -775,6 +784,17 @@ void main() {
 	float fog = min(1.0, eyeDistance * eyeDistance * u_cameraPosition.w);
 #endif
 	out_FragColor.rgb = mix(out_FragColor.rgb, u_fogColor.rgb, fog * u_fogColor.a);
+#endif
+
+#ifdef PICKER
+    if(u_pickerActive == 1) {
+        float dist = distance(u_pickerPos, v_position);
+        if(dist <= u_pickerRadius) {
+            float gradient = (u_pickerRadius - dist + 0.01) / u_pickerRadius;
+            gradient = 1.0 - clamp(cos(gradient * PI), 0.0, 1.0);
+            out_FragColor += COLOR_BRUSH * gradient;
+        }
+    }
 #endif
 
     // Blending and Alpha Test
