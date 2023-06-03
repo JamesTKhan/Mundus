@@ -55,7 +55,13 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
         this.terrainAsset = terrainAsset;
         modelInstance = new ModelInstance(terrainAsset.getTerrain().getModel());
         modelInstance.transform = gameObject.getTransform();
+        applyMaterial();
         setDimensions(modelInstance);
+    }
+
+    public void applyMaterial() {
+        if (terrainAsset.getMaterialAsset() == null) return;
+        terrainAsset.getMaterialAsset().applyToMaterial(modelInstance.materials.first(), true);
     }
 
     public TerrainAsset getTerrainAsset() {
@@ -108,6 +114,10 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
     public boolean usesAsset(Asset assetToCheck) {
         if (Objects.equals(terrainAsset.getID(), assetToCheck.getID()))
             return true;
+
+        if (assetToCheck == terrainAsset.getMaterialAsset()) {
+            return true;
+        }
 
         return terrainAsset.usesAsset(assetToCheck);
     }

@@ -39,11 +39,13 @@ public class MetaTerrain {
     public static final String JSON_SPLAT_A_NORMAL = "aNorm";
     public static final String JSON_UV_SCALE= "uv";
     public static final String JSON_TRIPLANAR = "triplanar";
+    public static final String JSON_MATERIAL = "material";
 
     private int size;
     private int splatMapResolution;
     private float uv;
     private boolean triplanar;
+    private String materialId;
     private String splatmap;
     private String splatBase;
     private String splatBase64;
@@ -185,12 +187,21 @@ public class MetaTerrain {
         this.splatANormal = splatANormal;
     }
 
+    public String getMaterialId() {
+        return materialId;
+    }
+
+    public void setMaterialId(String materialId) {
+        this.materialId = materialId;
+    }
+
     @Override
     public String toString() {
         return "MetaTerrain{" +
                 "size=" + size +
                 ", uv=" + uv +
                 ", triplanar=" + triplanar +
+                ", material='" + materialId + '\'' +
                 ", splatmap='" + splatmap + '\'' +
                 ", splatBase='" + splatBase + '\'' +
                 ", splatBase64='" + splatBase64 + '\'' +

@@ -21,12 +21,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader;
 import com.mbrlabs.mundus.commons.terrain.TerrainMaterial;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Map;
 
@@ -50,6 +52,7 @@ public class TerrainAsset extends Asset {
     private TextureAsset splatBNormal;
     private TextureAsset splatGNormal;
     private TextureAsset splatANormal;
+    private MaterialAsset materialAsset;
 
     private Terrain terrain;
 
@@ -88,8 +91,8 @@ public class TerrainAsset extends Asset {
         if (splatBase == null) {
             meta.getTerrain().setSplatBase(null);
         } else {
+            terrain.getMaterial().set(PBRTextureAttribute.createBaseColorTexture(splatBase.getTexture()));
             meta.getTerrain().setSplatBase(splatBase.getID());
-
         }
     }
 
@@ -155,6 +158,7 @@ public class TerrainAsset extends Asset {
         if (splatBaseNormal == null) {
             meta.getTerrain().setSplatBaseNormal(null);
         } else {
+            terrain.getMaterial().set(PBRTextureAttribute.createNormalTexture(splatBaseNormal.getTexture()));
             meta.getTerrain().setSplatBaseNormal(splatBaseNormal.getID());
         }
     }
@@ -240,6 +244,21 @@ public class TerrainAsset extends Asset {
 
     @Override
     public void resolveDependencies(Map<String, Asset> assets) {
+
+        // material
+        String materialId = meta.getTerrain().getMaterialId();
+        if (materialId == null || materialId.isEmpty()) {
+            materialId = "terrain_default";
+            meta.getTerrain().setMaterialId(materialId);
+        }
+
+        if (!assets.containsKey(materialId)) {
+            throw new GdxRuntimeException("Terrain material not found: " + materialId + " for terrain: " + meta.getFile().pathWithoutExtension() + ".terra");
+        }
+
+        MaterialAsset asset = (MaterialAsset) assets.get(materialId);
+        setMaterialAsset(asset);
+
         // splatmap
         String id = meta.getTerrain().getSplatmap();
         if (id != null && assets.containsKey(id)) {
@@ -317,6 +336,8 @@ public class TerrainAsset extends Asset {
     public void applyDependencies() {
         TerrainMaterial terrainMaterial = terrain.getTerrainTexture();
 
+       materialAsset.applyToMaterial(terrain.getMaterial(), true);
+
         if (splatmap == null) {
             terrainMaterial.setSplatmap(null);
         } else {
@@ -386,6 +407,15 @@ public class TerrainAsset extends Asset {
         terrain.updateUvScale(uvScale);
         terrain.update();
         meta.getTerrain().setUv(uvScale.x);
+    }
+
+    public MaterialAsset getMaterialAsset() {
+        return materialAsset;
+    }
+
+    public void setMaterialAsset(MaterialAsset materialAsset) {
+        this.materialAsset = materialAsset;
+        meta.getTerrain().setMaterialId(materialAsset.getID());
     }
 
     @Override

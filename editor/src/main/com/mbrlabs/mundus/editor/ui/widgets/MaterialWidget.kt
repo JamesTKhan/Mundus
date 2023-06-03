@@ -19,18 +19,12 @@ package com.mbrlabs.mundus.editor.ui.widgets
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
-import com.kotcrab.vis.ui.util.dialog.Dialogs
-import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
-import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
@@ -38,15 +32,10 @@ import com.mbrlabs.mundus.commons.assets.TexCoordInfo
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.utils.ModelUtils
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
-import com.mbrlabs.mundus.editor.assets.AssetMaterialFilter
 import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.events.MaterialDuplicatedEvent
-import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.utils.Colors
-import java.io.FileNotFoundException
 
 /**
  * Displays all properties of a material.
@@ -57,11 +46,6 @@ import java.io.FileNotFoundException
  * @version 13-10-2016
  */
 class MaterialWidget(var isTerrain: Boolean = false) : VisTable() {
-
-    private val matFilter: AssetMaterialFilter = AssetMaterialFilter()
-    private val matDuplicatedBtn: VisTextButton = VisTextButton("duplicate")
-    private val matChangedBtn: VisTextButton = VisTextButton("change")
-    private val matPickerListener: AssetPickerDialog.AssetPickerListener
 
     private val matNameLabel: VisLabel = VisLabel()
     private val diffuseColorField: ColorPickerField = ColorPickerField()
@@ -127,27 +111,9 @@ class MaterialWidget(var isTerrain: Boolean = false) : VisTable() {
             }
         }
 
-    /**
-     * An optional listener for changing the material. If the property is null
-     * the user will not be able to change the material.
-     */
-    var matChangedListener: MaterialChangedListener? = null
-        set(value) {
-            field = value
-            matChangedBtn.touchable = if(value == null) Touchable.disabled else Touchable.enabled
-        }
-
     init {
         align(Align.topLeft)
-        matNameLabel.setWrap(true)
-
-        matPickerListener = object: AssetPickerDialog.AssetPickerListener {
-            override fun onSelected(asset: Asset?) {
-                material = asset as? MaterialAsset
-                matChangedListener?.materialChanged(material!!)
-            }
-        }
-
+        matNameLabel.wrap = true
     }
 
     fun setupWidgets() {
@@ -155,8 +121,6 @@ class MaterialWidget(var isTerrain: Boolean = false) : VisTable() {
         val table = VisTable()
         table.add(matNameLabel).grow()
         matNameLabel.color = Colors.TEAL
-        table.add<VisTextButton>(matDuplicatedBtn)
-        table.add<VisTextButton>(matChangedBtn).padLeft(4f).right().row()
         add(table).grow().row()
 
         addSeparator().padTop(15f).padBottom(15f).growX().row()
@@ -238,36 +202,6 @@ class MaterialWidget(var isTerrain: Boolean = false) : VisTable() {
 
         add(scaleUField).growX().row()
         add(scaleVField).growX().row()
-
-        matDuplicatedBtn.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                Dialogs.showInputDialog(UI, "Name:", "", object : InputDialogAdapter() {
-                    override fun finished(input: String?) {
-                        if (input != null) {
-                            try {
-                                val newMaterial = projectManager.current().assetManager.createMaterialAsset(input)
-                                if (material != null) {
-                                    newMaterial.duplicateMaterialAsset(material)
-                                }
-                                material = newMaterial
-                                matChangedListener?.materialChanged(material!!)
-                                Mundus.postEvent(MaterialDuplicatedEvent())
-                            } catch (e: AssetAlreadyExistsException) {
-                                Dialogs.showErrorDialog(UI, "That material already exists. Try a different name.")
-                            } catch (e: FileNotFoundException) {
-                                Dialogs.showErrorDialog(UI, "Invalid material name.")
-                            }
-                        }
-                    }
-                })
-            }
-        })
-
-        matChangedBtn.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                UI.assetSelectionDialog.show(false, matFilter, matPickerListener)
-            }
-        })
 
         // diffuse texture
         diffuseAssetField.assetFilter = AssetTextureFilter()

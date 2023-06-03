@@ -190,6 +190,20 @@ class AssetsDock : Tab(false, false),
         }
     }
 
+    /**
+     * Highlights the selected asset item in the dock view.
+     * @param asset
+     */
+    fun setSelected(asset: Asset) {
+        for (item in assetItems) {
+            if (item.asset == asset) {
+                item.toggleSelectOverlay(true)
+            } else {
+                item.toggleSelectOverlay(false)
+            }
+        }
+    }
+
     fun reloadAssets() {
         filesView.clearChildren()
         val projectContext = projectManager.current()
