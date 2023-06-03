@@ -649,16 +649,20 @@ void main() {
     #ifdef splatFlag
         splat = texture2D(u_texture_splat, v_splatPosition);
         #ifdef splatRFlag
-        baseColor = mix(baseColor, getColor(u_texture_r, colorUv), splat.r);
+        vec4 colorR = getColor(u_texture_r, colorUv);
+        baseColor = mix(baseColor, mix(baseColor, colorR, splat.r), colorR.a);
         #endif
         #ifdef splatGFlag
-        baseColor = mix(baseColor, getColor(u_texture_g, colorUv), splat.g);
+        vec4 colorG = getColor(u_texture_g, colorUv);
+        baseColor = mix(baseColor, mix(baseColor, colorG, splat.g), colorG.a);
         #endif
         #ifdef splatBFlag
-        baseColor = mix(baseColor, getColor(u_texture_b, colorUv), splat.b);
+        vec4 colorB = getColor(u_texture_b, colorUv);
+        baseColor = mix(baseColor, mix(baseColor, colorB, splat.b), colorB.a);
         #endif
         #ifdef splatAFlag
-        baseColor = mix(baseColor, getColor(u_texture_a, colorUv), splat.a);
+        vec4 colorA = getColor(u_texture_a, colorUv);
+        baseColor = mix(baseColor, mix(baseColor, colorA, splat.a), colorA.a);
         #endif
     #endif // splatFlag
 
