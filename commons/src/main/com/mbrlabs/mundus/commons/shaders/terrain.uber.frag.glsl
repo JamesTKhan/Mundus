@@ -110,17 +110,21 @@ void main(void) {
     #ifdef splatFlag
     vec4 splat = texture2D(u_texture_splat, v_splatPosition);
         #ifdef splatRFlag
-            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_r, v_texCoord0), splat.r);
+            vec4 colorR = texture2D(u_texture_r, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorR, splat.r), colorR.a);
         #endif
         #ifdef splatGFlag
-            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_g, v_texCoord0), splat.g);
+            vec4 colorG = texture2D(u_texture_g, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorG, splat.g), colorG.a);
         #endif
         #ifdef splatBFlag
-            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_b, v_texCoord0), splat.b);
-        #endif
+            vec4 colorB = texture2D(u_texture_b, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorB, splat.b), colorB.a);
+    #endif
         #ifdef splatAFlag
-            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_a, v_texCoord0), splat.a);
-        #endif
+            vec4 colorA = texture2D(u_texture_a, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorA, splat.a), colorA.a);
+    #endif
 
         #ifdef normalTextureFlag
             vec3 splatNormal = vec3(0.0);
