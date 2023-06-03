@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.TerrainMaterial;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
@@ -136,7 +135,7 @@ public class PBRTerrainShader extends MundusPBRShader {
     public boolean canRender(Renderable renderable) {
         TerrainMaterial terrainMaterial = getTerrainMaterial(renderable);
         if (terrainMaterial != null)
-            return terrainMaterialMask == terrainMaterial.getMask();
+            return terrainMaterialMask == terrainMaterial.getMask() && super.canRender(renderable);
 
         return super.canRender(renderable);
     }

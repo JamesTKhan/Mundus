@@ -280,7 +280,7 @@ varying float v_clipDistance;
 #ifdef triplanarFlag
     // getColor == triplanar method
     #define getColor triplanar
-    const float scaleAdjust = 0.001;
+    const float scaleAdjust = 0.01;
     vec4 triplanar(sampler2D diffuseTexture, vec3 triblend)
     {
         vec2 uvX = v_position.zy * scaleAdjust;
@@ -786,17 +786,6 @@ void main() {
 	out_FragColor.rgb = mix(out_FragColor.rgb, u_fogColor.rgb, fog * u_fogColor.a);
 #endif
 
-#ifdef PICKER
-    if(u_pickerActive == 1) {
-        float dist = distance(u_pickerPos, v_position);
-        if(dist <= u_pickerRadius) {
-            float gradient = (u_pickerRadius - dist + 0.01) / u_pickerRadius;
-            gradient = 1.0 - clamp(cos(gradient * PI), 0.0, 1.0);
-            out_FragColor += COLOR_BRUSH * gradient;
-        }
-    }
-#endif
-
     // Blending and Alpha Test
 #ifdef blendedFlag
 	out_FragColor.a = baseColor.a * v_opacity;
@@ -806,6 +795,17 @@ void main() {
 	#endif
 #else
 	out_FragColor.a = 1.0;
+#endif
+
+#ifdef PICKER
+if(u_pickerActive == 1) {
+    float dist = distance(u_pickerPos, v_position);
+    if(dist <= u_pickerRadius) {
+        float gradient = (u_pickerRadius - dist + 0.01) / u_pickerRadius;
+        gradient = 1.0 - clamp(cos(gradient * PI), 0.0, 1.0);
+        out_FragColor += COLOR_BRUSH * gradient;
+    }
+}
 #endif
 
 }
