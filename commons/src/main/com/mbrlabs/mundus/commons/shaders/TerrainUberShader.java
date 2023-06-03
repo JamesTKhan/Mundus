@@ -24,6 +24,7 @@ import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 /**
  * @author JamesTKhan
  * @version August 12, 2022
+ * @deprecated Use {@link PBRTerrainShader} instead.
  */
 public class TerrainUberShader extends LightShader {
     protected static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/terrain.uber.vert.glsl";
