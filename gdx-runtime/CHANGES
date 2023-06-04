@@ -10,6 +10,7 @@
 - Fix water reflections when camera is rotated
 - Removed selected field from SceneGraph class
 - Added custom properties option to game objects
+- Fix transparent layer in texture splatting for the terrain texture
 
 [0.4.0] ~ 10/12/2022
 - [BREAKING CHANGE] The loadScene method for the runtime has changed. A ModelBatch is no longer required to be passed in.
