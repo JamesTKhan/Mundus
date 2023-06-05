@@ -20,6 +20,7 @@ import com.mbrlabs.mundus.commons.water.attributes.WaterIntAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterMaterialAttribute;
 import com.mbrlabs.mundus.commons.water.attributes.WaterTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 
 /**
  * @author JamesTKhan
@@ -181,13 +182,15 @@ public class WaterUberShader extends LightShader {
 
     /** The renderable used to create this shader, invalid after the call to init */
     private Renderable renderable;
+    private DefaultShader.Config config;
 
     /** The attributes that this shader supports */
     protected final long attributesMask;
     protected final long waterMaterialMask;
 
-    public WaterUberShader(Renderable renderable) {
+    public WaterUberShader(Renderable renderable, DefaultShader.Config config) {
         this.renderable = renderable;
+        this.config = config;
 
         WaterMaterial waterMaterial = getWaterMaterial(renderable);
 
@@ -327,6 +330,15 @@ public class WaterUberShader extends LightShader {
         if (waterMaterial.has(WaterTextureAttribute.Refraction)) {
             prefix += "#define refractionFlag\n";
         }
+
+        if (config instanceof PBRShaderConfig) {
+            PBRShaderConfig pbrShaderConfig = (PBRShaderConfig) config;
+            if(pbrShaderConfig.manualGammaCorrection){
+                prefix += "#define GAMMA_CORRECTION " + pbrShaderConfig.gamma + "\n";
+            }
+        }
+        // Drop reference, no longer needed
+        config = null;
 
         return prefix;
     }

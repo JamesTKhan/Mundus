@@ -48,7 +48,7 @@ public class MundusPBRShaderProvider extends PBRShaderProvider {
     }
 
     private Shader createWaterShader(Renderable renderable) {
-        Shader shader = new WaterUberShader(renderable);
+        Shader shader = new WaterUberShader(renderable, config);
         shaders.add(shader);
         Gdx.app.log(MundusPBRShader.class.getSimpleName(), "Water Shader Compiled");
         return shader;

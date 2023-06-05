@@ -257,6 +257,10 @@ void main() {
     // Apply final specular values
     color += vec4(specularHighlights, 0.0);
 
+    #ifdef GAMMA_CORRECTION
+    color.rgb = pow(color.rgb,vec3(1.0/GAMMA_CORRECTION));
+    #endif
+
     // Fog
     #ifdef fogFlag
     float fog = (waterDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
