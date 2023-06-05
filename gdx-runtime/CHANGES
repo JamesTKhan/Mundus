@@ -1,6 +1,8 @@
 [0.5.0] ~
 - [Breaking Change] Terrain API modified to closer reflect Models
-- Add 'addGameObject(ModelInstance, Vector3)' and 'addGameObject(Model, Vector3)' methods to SceneGraph to add external model to scene graph
+- [Breaking Change] ShadowMapper class removed. Replaced with MundusDirectionalShadowLight
+- Lighting systems updated, visibly different. See PR#184
+- Update water shader lighting code (non-PBR) to more closely match light code from PBR shaders
 - Add render event handling
 - Change scene camera to be base camera class
 - Add active boolean to Skybox class to toggle rendering
