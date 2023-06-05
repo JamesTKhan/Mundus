@@ -42,6 +42,22 @@ uniform vec3 u_fogEquation;
 uniform MED vec4 u_fogColor;
 #endif
 
+// From gdx-gltf library https://github.com/mgsx-dev/gdx-gltf
+vec4 SRGBtoLINEAR(vec4 srgbIn)
+{
+    #ifdef MANUAL_SRGB
+    #ifdef SRGB_FAST_APPROXIMATION
+    vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+    #else //SRGB_FAST_APPROXIMATION
+    vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
+    vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
+    #endif //SRGB_FAST_APPROXIMATION
+    return vec4(linOut,srgbIn.w);;
+    #else //MANUAL_SRGB
+    return srgbIn;
+    #endif //MANUAL_SRGB
+}
+
 //https://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
 float DecodeFloatRGBA( vec4 rgba ) {
     return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );
@@ -105,7 +121,7 @@ void main() {
         reflectTexCoords.x = clamp(reflectTexCoords.x, minTexCoord, maxTexCoord);
         reflectTexCoords.y = clamp(reflectTexCoords.y, minTexCoord, maxTexCoord);
 
-        vec4 reflectColor = texture2D(u_reflectionTexture, reflectTexCoords);
+        vec4 reflectColor = SRGBtoLINEAR(texture2D(u_reflectionTexture, reflectTexCoords));
     #endif
 
     #ifdef refractionFlag
@@ -120,7 +136,7 @@ void main() {
             // (like corners of water)
             refractColor = u_color;
         } else {
-            refractColor = texture2D(u_refractionTexture, refractTexCoords);
+            refractColor = SRGBtoLINEAR(texture2D(u_refractionTexture, refractTexCoords));
             float refractionBlend = normalizeRange(waterDepth, 0.0, u_maxVisibleDepth);
             refractColor = mix(refractColor, u_color, refractionBlend);
         }

@@ -96,7 +96,9 @@ public abstract class LightShader extends BaseShader {
             set(UNIFORM_DIRECTIONAL_LIGHT_COLOR, dirLight.baseColor.r, dirLight.baseColor.g, dirLight.baseColor.b);
             set(UNIFORM_DIRECTIONAL_LIGHT_COLOR_AMBIENT, ambientLight.color.r, ambientLight.color.g, ambientLight.color.b);
             set(UNIFORM_DIRECTIONAL_LIGHT_DIR, dirLight.direction);
-            set(UNIFORM_DIRECTIONAL_LIGHT_INTENSITY, dirLight.intensity);
+            // A bit of a hack, water does not use PBR lighting and thus intensity is scaled down
+            // as PBR shader tends to require higher intensity then the water light calcs
+            set(UNIFORM_DIRECTIONAL_LIGHT_INTENSITY, dirLight.intensity * 0.1f);
         }
 
         // point lights

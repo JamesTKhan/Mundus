@@ -333,6 +333,12 @@ public class WaterUberShader extends LightShader {
 
         if (config instanceof PBRShaderConfig) {
             PBRShaderConfig pbrShaderConfig = (PBRShaderConfig) config;
+            if(pbrShaderConfig.manualSRGB != PBRShaderConfig.SRGB.NONE){
+                prefix += "#define MANUAL_SRGB\n";
+                if(pbrShaderConfig.manualSRGB == PBRShaderConfig.SRGB.FAST){
+                    prefix += "#define SRGB_FAST_APPROXIMATION\n";
+                }
+            }
             if(pbrShaderConfig.manualGammaCorrection){
                 prefix += "#define GAMMA_CORRECTION " + pbrShaderConfig.gamma + "\n";
             }
