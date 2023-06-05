@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector2;
@@ -25,6 +26,7 @@ import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.shaders.ClippableShader;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
 
@@ -61,6 +63,13 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
     public void applyMaterial() {
         if (terrainAsset.getMaterialAsset() == null) return;
         terrainAsset.getMaterialAsset().applyToMaterial(modelInstance.materials.first(), true);
+
+        Material material = modelInstance.materials.first();
+
+        // Apply base textures to this instances material because we use base color/normal for splat base
+        material.set(PBRTextureAttribute.createBaseColorTexture(terrainAsset.getSplatBase().getTexture()));
+        if (terrainAsset.getSplatBaseNormal() != null)
+            material.set(PBRTextureAttribute.createNormalTexture(terrainAsset.getSplatBaseNormal().getTexture()));
     }
 
     public TerrainAsset getTerrainAsset() {
