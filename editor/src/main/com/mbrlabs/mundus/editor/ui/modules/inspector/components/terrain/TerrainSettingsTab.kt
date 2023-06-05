@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain
 
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
@@ -27,7 +26,6 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.ui.widgets.ImprovedSlider
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 
 /**
@@ -37,7 +35,6 @@ import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 class TerrainSettingsTab(private val parentWidget: TerrainComponentWidget) : Tab(false, false) {
 
     private val table = VisTable()
-    private val uvSlider = ImprovedSlider(.5f, 120f, .5f)
     private val triplanar = VisCheckBox(null)
 
     private val projectManager: ProjectManager = Mundus.inject()
@@ -45,17 +42,6 @@ class TerrainSettingsTab(private val parentWidget: TerrainComponentWidget) : Tab
     init {
         table.defaults().padLeft(10f).padBottom(5f).align(Align.left)
         table.add(VisLabel("Settings")).row()
-
-        table.add(VisLabel("UV scale")).left().row()
-        uvSlider.value = parentWidget.component.terrainAsset.terrain.uvScale.x
-        table.add(uvSlider).expandX().fillX().row()
-        uvSlider.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent, actor: Actor) {
-                val assetManager = projectManager.current().assetManager
-                assetManager.addModifiedAsset(parentWidget.component.terrainAsset)
-                parentWidget.component.updateUVs(Vector2(uvSlider.value, uvSlider.value))
-            }
-        })
 
         val triplanarTable = VisTable()
         triplanarTable.add(ToolTipLabel("Triplanar", "Enables Triplanar texturing which calculates UV coordinates\n" +
