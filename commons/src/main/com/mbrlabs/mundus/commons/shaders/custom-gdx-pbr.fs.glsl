@@ -144,7 +144,6 @@ uniform sampler2D u_texture_splat;
 
 // mouse picking
 #ifdef PICKER
-#define PI 3.1415926535897932384626433832795
 const MED vec4 COLOR_BRUSH = vec4(0.4,0.4,0.4, 0.4);
 uniform vec3 u_pickerPos;
 uniform float u_pickerRadius;
@@ -806,7 +805,7 @@ if(u_pickerActive == 1) {
     float dist = distance(u_pickerPos, v_position);
     if(dist <= u_pickerRadius) {
         float gradient = (u_pickerRadius - dist + 0.01) / u_pickerRadius;
-        gradient = 1.0 - clamp(cos(gradient * PI), 0.0, 1.0);
+        gradient = 1.0 - clamp(cos(gradient * M_PI), 0.0, 1.0);
         out_FragColor += COLOR_BRUSH * gradient;
     }
 }

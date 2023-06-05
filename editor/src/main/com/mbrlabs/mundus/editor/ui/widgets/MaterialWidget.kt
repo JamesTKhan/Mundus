@@ -45,7 +45,7 @@ import com.mbrlabs.mundus.editor.utils.Colors
  * @author Marcus Brummer
  * @version 13-10-2016
  */
-class MaterialWidget(var isTerrain: Boolean = false) : VisTable() {
+class MaterialWidget : VisTable() {
 
     private val matNameLabel: VisLabel = VisLabel()
     private val diffuseColorField: ColorPickerField = ColorPickerField()
