@@ -62,7 +62,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
 
     public void applyMaterial() {
         if (terrainAsset.getMaterialAsset() == null) return;
-        terrainAsset.getMaterialAsset().applyToMaterial(modelInstance.materials.first(), true);
 
         Material material = modelInstance.materials.first();
 
@@ -70,6 +69,8 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
         material.set(PBRTextureAttribute.createBaseColorTexture(terrainAsset.getSplatBase().getTexture()));
         if (terrainAsset.getSplatBaseNormal() != null)
             material.set(PBRTextureAttribute.createNormalTexture(terrainAsset.getSplatBaseNormal().getTexture()));
+
+        terrainAsset.getMaterialAsset().applyToMaterial(material, true);
     }
 
     public TerrainAsset getTerrainAsset() {
