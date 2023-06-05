@@ -29,6 +29,7 @@
 - Fix terrain brush tools for rotated and scaled terrain
 - Refactor tool selection
 - Custom properties component addable to game objects
+- Fix transparent layer in texture splatting for the terrain texture
 - Improved Terrain normal calculations
 
 [0.4.2] ~ 10/24/2022

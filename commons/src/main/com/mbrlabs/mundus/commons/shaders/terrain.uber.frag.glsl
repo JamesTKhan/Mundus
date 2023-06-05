@@ -16,10 +16,6 @@
 
 #include "compat.glsl"
 #include "light.glsl"
-#include "utils.glsl"
-#ifdef triplanarFlag
-#include "triplanar.glsl"
-#endif
 
 // Just stops the static analysis from complaining
 #ifndef MED
@@ -86,9 +82,17 @@ uniform int u_pickerActive;
 varying vec3 v_pos;
 #endif
 
+// light
 varying mat3 v_TBN;
+
 varying vec2 v_texCoord0;
 varying float v_clipDistance;
+
+// Brings the normal from [0, 1] to [-1, 1]
+vec3 unpackNormal(vec3 normal)
+{
+    return normalize(normal * 2.0 - 1.0);
+}
 
 void main(void) {
     if ( v_clipDistance < 0.0 )
@@ -96,102 +100,57 @@ void main(void) {
 
     vec3 normal;
 
-    #ifdef triplanarFlag
-        // calculate triplanar blending weights
-        vec3 triblend = clamp(pow(abs(v_TBN[2]), vec3(4.0)), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
-        triblend /= dot(triblend, vec3(1.0,1.0,1.0));
+    gl_FragColor = texture2D(u_baseTexture, v_texCoord0);
 
-        gl_FragColor = triplanar(u_baseTexture, v_worldPos, triblend);
-        #ifdef baseNormalFlag
-            normal = triplanarNormal(u_texture_base_normal, v_worldPos, triblend);
-        #else
-            normal = v_TBN[2].xyz;
-        #endif
-    #else // end triplanarFlag
-        gl_FragColor = texture2D(u_baseTexture, v_texCoord0);
-        #ifdef baseNormalFlag
-            normal = unpackNormal(texture2D(u_texture_base_normal, v_texCoord0).rgb);
-        #endif
+    #ifdef baseNormalFlag
+        normal = unpackNormal(texture2D(u_texture_base_normal, v_texCoord0).rgb);
     #endif
 
     // Mix splat textures
     #ifdef splatFlag
     vec4 splat = texture2D(u_texture_splat, v_splatPosition);
-    vec3 splatNormal;
+        #ifdef splatRFlag
+            vec4 colorR = texture2D(u_texture_r, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorR, splat.r), colorR.a);
+        #endif
+        #ifdef splatGFlag
+            vec4 colorG = texture2D(u_texture_g, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorG, splat.g), colorG.a);
+        #endif
+        #ifdef splatBFlag
+            vec4 colorB = texture2D(u_texture_b, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorB, splat.b), colorB.a);
+    #endif
+        #ifdef splatAFlag
+            vec4 colorA = texture2D(u_texture_a, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorA, splat.a), colorA.a);
+    #endif
 
-        #ifdef triplanarFlag
-            #ifdef splatRFlag
-                gl_FragColor = mix(gl_FragColor, triplanar(u_texture_r, v_worldPos, triblend), splat.r);
-                #ifdef splatRNormalFlag
-                    splatNormal += triplanarNormal(u_texture_r_normal, v_worldPos, triblend) * splat.r;
-                #else
-                    splat.r = 0.0;
-                #endif
+        #ifdef normalTextureFlag
+            vec3 splatNormal = vec3(0.0);
+            // Splat normals
+            #ifdef splatRNormalFlag
+                splatNormal += unpackNormal(texture2D(u_texture_r_normal, v_texCoord0).rgb) * splat.r;
             #endif
-            #ifdef splatGFlag
-                gl_FragColor = mix(gl_FragColor, triplanar(u_texture_g, v_worldPos, triblend), splat.g);
-                #ifdef splatGNormalFlag
-                    splatNormal += triplanarNormal(u_texture_g_normal, v_worldPos, triblend) * splat.g;
-                #else
-                    splat.g = 0.0;
-                #endif
+            #ifdef splatGNormalFlag
+                splatNormal += unpackNormal(texture2D(u_texture_g_normal, v_texCoord0).rgb) * splat.g;
             #endif
-            #ifdef splatBFlag
-                gl_FragColor = mix(gl_FragColor, texture2D(u_texture_b, v_texCoord0), splat.b);
-                #ifdef splatBNormalFlag
-                    splatNormal += triplanarNormal(u_texture_b_normal, v_worldPos, triblend) * splat.b;
-                #else
-                    splat.b = 0.0;
-                #endif
+            #ifdef splatBNormalFlag
+                splatNormal += unpackNormal(texture2D(u_texture_b_normal, v_texCoord0).rgb) * splat.b;
             #endif
-            #ifdef splatAFlag
-                gl_FragColor = mix(gl_FragColor, texture2D(u_texture_a, v_texCoord0), splat.a);
-                #ifdef splatANormalFlag
-                    splatNormal += triplanarNormal(u_texture_a_normal, v_worldPos, triblend) * splat.a;
-                #else
-                    splat.a = 0.0;
-                #endif
+            #ifdef splatANormalFlag
+                splatNormal += unpackNormal(texture2D(u_texture_a_normal, v_texCoord0).rgb) * splat.a;
             #endif
 
-        #else
-            // Standard non-triplanar splatting
-            #ifdef splatRFlag
-                gl_FragColor = mix(gl_FragColor, texture2D(u_texture_r, v_texCoord0), splat.r);
-            #endif
-            #ifdef splatGFlag
-                gl_FragColor = mix(gl_FragColor, texture2D(u_texture_g, v_texCoord0), splat.g);
-            #endif
-            #ifdef splatBFlag
-                gl_FragColor = mix(gl_FragColor, texture2D(u_texture_b, v_texCoord0), splat.b);
-            #endif
-            #ifdef splatAFlag
-                gl_FragColor = mix(gl_FragColor, texture2D(u_texture_a, v_texCoord0), splat.a);
-            #endif
+            // The base normal should only be visible when the sum of the splat weights is less than 1.0
+            float normalBlendFactor = (1.0 - splat.r - splat.g - splat.b - splat.a);
+            normal = normalize((normal * normalBlendFactor) + splatNormal);
+        #endif
 
-            #ifdef normalTextureFlag
-                // Splat normals
-                #ifdef splatRNormalFlag
-                    splatNormal += unpackNormal(texture2D(u_texture_r_normal, v_texCoord0).rgb) * splat.r;
-                #endif
-                #ifdef splatGNormalFlag
-                    splatNormal += unpackNormal(texture2D(u_texture_g_normal, v_texCoord0).rgb) * splat.g;
-                #endif
-                #ifdef splatBNormalFlag
-                    splatNormal += unpackNormal(texture2D(u_texture_b_normal, v_texCoord0).rgb) * splat.b;
-                #endif
-                #ifdef splatANormalFlag
-                    splatNormal += unpackNormal(texture2D(u_texture_a_normal, v_texCoord0).rgb) * splat.a;
-                #endif
-            #endif
-        #endif // end triplanarFlag
-
-        // The base normal should only be visible when the sum of the splat weights is less than 1.0
-        float normalBlendFactor = (1.0 - splat.r - splat.g - splat.b - splat.a);
-        normal = normalize((normal * normalBlendFactor) + splatNormal);
-    #endif // end splatFlag
+    #endif
 
     #ifdef normalTextureFlag
-        // Tangent to world space
+        // Apply TBN matrix to tangent space normal to get world space normal
         normal = normalize(v_TBN * normal);
     #else
         normal = normalize(v_TBN[2].xyz);
