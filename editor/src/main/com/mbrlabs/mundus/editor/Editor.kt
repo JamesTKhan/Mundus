@@ -137,6 +137,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         val sg = scene.sceneGraph
 
         val config = ShaderUtils.buildPBRShaderConfig(projectManager.current().assetManager.maxNumBones)
+        projectManager.modelBatch?.dispose()
         projectManager.modelBatch = ModelBatch(EditorShaderProvider(config), SceneRenderableSorter())
 
         val depthConfig = ShaderUtils.buildPBRShaderDepthConfig(projectManager.current().assetManager.maxNumBones)
