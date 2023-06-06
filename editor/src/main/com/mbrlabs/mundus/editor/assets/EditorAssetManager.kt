@@ -270,6 +270,22 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      */
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createTerraAsset(name: String, vertexResolution: Int, size: Int, splatMapResolution: Int): TerrainAsset {
+        val asset = createTerraAssetAsync(name, vertexResolution, size, splatMapResolution)
+        asset.load()
+
+        // set base texture
+        val chessboard = findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD)
+        if (chessboard != null) {
+            asset.splatBase = chessboard as TextureAsset
+            asset.applyDependencies()
+            metaSaver.save(asset.meta)
+        }
+
+        addAsset(asset)
+        return asset
+    }
+
+    fun createTerraAssetAsync(name: String, vertexResolution: Int, size: Int, splatMapResolution: Int): TerrainAsset {
         val terraFilename = "$name.terra"
         val metaFilename = "$terraFilename.meta"
 
@@ -302,22 +318,18 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         outputStream.close()
 
         // load & apply standard chessboard texture
-        val asset = TerrainAsset(meta, FileHandle(terraFile))
-        asset.load()
-
-        // set base texture
-        val chessboard = findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD)
-        if (chessboard != null) {
-            asset.splatBase = chessboard as TextureAsset
-            asset.applyDependencies()
-            metaSaver.save(asset.meta)
-        }
-
-        addAsset(asset)
-        return asset
+        return TerrainAsset(meta, FileHandle(terraFile))
     }
 
     /**
+     * Determines if a asset file exists
+     */
+    fun assetExists(name: String): Boolean {
+        val path = FilenameUtils.concat(rootFolder.path(), name)
+        return FileHandle(path).exists()
+    }
+
+        /**
      * Creates a new pixmap texture asset.
      *
      * This creates a new pixmap texture and adds it to this asset manager.

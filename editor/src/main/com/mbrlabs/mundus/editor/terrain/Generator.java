@@ -43,6 +43,11 @@ public abstract class Generator<T extends Generator<T>> {
         return (T) this;
     }
 
+    public T setTerrain(Terrain terrain) {
+        this.terrain = terrain;
+        return (T) this;
+    }
+
     public abstract void terraform();
 
 }

@@ -97,6 +97,7 @@ object UI : Stage(ScreenViewport()) {
     var addComponentDialog: AddComponentDialog = AddComponentDialog()
     var addTerrainDialog: AddTerrainDialog = AddTerrainDialog()
     val addWaterDialog: AddWaterDialog = AddWaterDialog()
+    var addTerrainChunksDialog: AddTerrainChunksDialog = AddTerrainChunksDialog()
     val versionDialog: VersionDialog = VersionDialog()
     val keyboardShortcuts: KeyboardShortcutsDialog = KeyboardShortcutsDialog()
     val debugRenderDialog: DebugRenderDialog = DebugRenderDialog()

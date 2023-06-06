@@ -295,7 +295,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
             // add terrainAsset
             addTerrain.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                    UI.showDialog(UI.addTerrainDialog)
+                    UI.showDialog(UI.addTerrainChunksDialog)
                 }
             })
 

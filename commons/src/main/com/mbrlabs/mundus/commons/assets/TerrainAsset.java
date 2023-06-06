@@ -213,16 +213,33 @@ public class TerrainAsset extends Asset {
     @Override
     public void load() {
         // Load a terrain synchronously
+        FileHandle terraFile = getTerraFile();
+        TerrainLoader.TerrainParameter param = new TerrainLoader.TerrainParameter(meta.getTerrain());
+        TerrainLoader terrainLoader = new TerrainLoader(null);
+        terrainLoader.loadAsync(null, null, terraFile, param);
+        terrain = terrainLoader.loadSync(null, null, terraFile, param);
+    }
+
+    public TerrainLoader startAsyncLoad() {
+        TerrainLoader.TerrainParameter param = new TerrainLoader.TerrainParameter(meta.getTerrain());
+        TerrainLoader terrainLoader = new TerrainLoader(null);
+        terrainLoader.loadAsync(null, null, getTerraFile(), param);
+        return terrainLoader;
+    }
+
+    public void finishSyncLoad(TerrainLoader terrainLoader) {
+        TerrainLoader.TerrainParameter param = new TerrainLoader.TerrainParameter(meta.getTerrain());
+        terrain = terrainLoader.loadSync(null, null, getTerraFile(), param);
+    }
+
+    public FileHandle getTerraFile() {
         FileHandle terraFile;
         if (meta.getFile().type() == Files.FileType.Absolute) {
             terraFile = Gdx.files.absolute(meta.getFile().pathWithoutExtension());
         } else {
             terraFile = Gdx.files.internal(meta.getFile().pathWithoutExtension());
         }
-        TerrainLoader.TerrainParameter param = new TerrainLoader.TerrainParameter(meta.getTerrain());
-        TerrainLoader terrainLoader = new TerrainLoader(null);
-        terrainLoader.loadAsync(null, null, terraFile, param);
-        terrain = terrainLoader.loadSync(null, null, terraFile, param);
+        return terraFile;
     }
 
     @Override
