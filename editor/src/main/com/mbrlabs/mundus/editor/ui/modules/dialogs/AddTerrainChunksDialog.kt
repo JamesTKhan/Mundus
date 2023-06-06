@@ -328,6 +328,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
                     Mundus.postEvent(AssetImportEvent(asset))
 
                     parentGO.addChild(terrainGO)
+                    Mundus.postEvent(SceneGraphChangedEvent())
 
                     // Now Queue it up for terraforming
                     assetsToTerraform[Vector2(i.toFloat(), j.toFloat())] = component!!
