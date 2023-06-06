@@ -170,6 +170,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
                 asset.resolveDependencies(assetIndex)
                 asset.applyDependencies()
             }
+
+            // We must reload the assets again, since the missing standard assets are now loaded.
+            super.finalizeLoad()
         }
     }
 

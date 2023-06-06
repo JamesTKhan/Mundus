@@ -21,7 +21,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
@@ -252,12 +251,10 @@ public class TerrainAsset extends Asset {
             meta.getTerrain().setMaterialId(materialId);
         }
 
-        if (!assets.containsKey(materialId)) {
-            throw new GdxRuntimeException("Terrain material not found: " + materialId + " for terrain: " + meta.getFile().pathWithoutExtension() + ".terra");
+        if (assets.containsKey(materialId)) {
+            MaterialAsset asset = (MaterialAsset) assets.get(materialId);
+            setMaterialAsset(asset);
         }
-
-        MaterialAsset asset = (MaterialAsset) assets.get(materialId);
-        setMaterialAsset(asset);
 
         // splatmap
         String id = meta.getTerrain().getSplatmap();
@@ -336,7 +333,9 @@ public class TerrainAsset extends Asset {
     public void applyDependencies() {
         TerrainMaterial terrainMaterial = terrain.getTerrainTexture();
 
-       materialAsset.applyToMaterial(terrain.getMaterial(), true);
+        if (materialAsset != null) {
+            materialAsset.applyToMaterial(terrain.getMaterial(), true);
+        }
 
         if (splatmap == null) {
             terrainMaterial.setSplatmap(null);
