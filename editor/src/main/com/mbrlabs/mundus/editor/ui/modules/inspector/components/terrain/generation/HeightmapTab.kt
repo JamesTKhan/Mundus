@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.util.dialog.Dialogs
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
@@ -27,15 +28,15 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
 
     private val hmInput = FileChooserField()
     private val loadHeightMapBtn = VisTextButton("Load heightmap")
-    private val loadHeightMapMinMaxHeight = FloatFieldWithLabel("Min/Max height", -1, true)
+    private val loadHeightMapMaxHeight = FloatFieldWithLabel("Maximum height:", -1, true)
 
     private val history: CommandHistory = Mundus.inject()
     private val projectManager: ProjectManager = Mundus.inject()
 
     init {
         root.align(Align.left)
-
-        root.add(loadHeightMapMinMaxHeight).pad(5f).left().fillX().expandX().row()
+        root.add(VisLabel("Range is from 0 to maximum height")).right().row()
+        root.add(loadHeightMapMaxHeight).pad(5f).left().fillX().expandX().row()
         root.add(hmInput).pad(5f).left().expandX().fillX().row()
         root.add(loadHeightMapBtn).pad(5f).right().row()
 
@@ -50,9 +51,10 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
         loadHeightMapBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 val hm = hmInput.file
-                val max = loadHeightMapMinMaxHeight.float
+                val max = loadHeightMapMaxHeight.float
 
-                if (max == 0f) loadHeightMapMinMaxHeight.text = "100" // if minMax left blank or zero, set to 100
+                if (max == 0f) loadHeightMapMaxHeight.text = "100" // if max height left blank or zero, set to 100
+                if (max < 0f) loadHeightMapMaxHeight.text = "" + -max // if max is negative, then set to max to positive value
 
                 if (hm != null && hm.exists() && isImage(hm)) {
                     loadHeightMap(hm)
@@ -69,9 +71,7 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
         val command = TerrainHeightCommand(terrain)
         command.setHeightDataBefore(terrain.heightData)
 
-        // Note: if user sets to negative, then height map is inverted
-        val minMax = loadHeightMapMinMaxHeight.float
-
+        val minMax = loadHeightMapMaxHeight.float
         val originalMap = Pixmap(heightMap)
 
         // scale pixmap if it doesn't fit the terrainAsset
