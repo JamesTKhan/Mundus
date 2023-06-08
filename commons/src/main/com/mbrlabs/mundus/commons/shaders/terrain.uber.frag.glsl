@@ -133,9 +133,7 @@ void main(void) {
     // Terrains always have a base texture, so we sample it first
     gl_FragColor = texture2D(u_baseTexture, v_texCoord0);
 
-    #ifdef baseNormalFlag
-        normal = unpackNormal(texture2D(u_texture_base_normal, v_texCoord0).rgb);
-    #endif
+    vec3 normal = unpackNormal(texture2D(u_texture_base_normal, v_texCoord0).rgb);
 
     #ifdef heightLayer
     for (int i = 0 ; i < maxLayers; i++) {
