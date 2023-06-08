@@ -192,11 +192,27 @@ public class Scene implements Disposable {
         TerrainUberShader.terrainClippingPlane.set(plane);
     }
 
-    private void renderComponents(ModelBatch batch, GameObject parent) {
+    /**
+     * Renders all renderable components (except Water) of the given parent game objects children
+     * recursively using default shaders.
+     *
+     * @param batch the model batch to use
+     * @param parent the parent game object
+     */
+    protected void renderComponents(ModelBatch batch, GameObject parent) {
         renderComponents(batch, parent, null, false);
     }
 
-    private void renderComponents(ModelBatch batch, GameObject parent, Shader shader, boolean isDepthPass) {
+    /**
+     * Renders all renderable components (except Water) of the given parent game objects children
+     * recursively.
+     *
+     * @param batch the model batch to use
+     * @param parent the parent game object
+     * @param shader the shader to use
+     * @param isDepthPass whether this is a depth render pass
+     */
+    protected void renderComponents(ModelBatch batch, GameObject parent, Shader shader, boolean isDepthPass) {
         for (GameObject go : parent.getChildren()) {
             if (!go.active) continue;
             if (go.hasWaterComponent) continue;
@@ -217,14 +233,18 @@ public class Scene implements Disposable {
                 }
 
                 if (component instanceof ModelCacheable) {
+                    // Don't render the component here if it's a model cacheable
                     ModelCacheable modelCacheable = (ModelCacheable) component;
                     if (modelCacheable.shouldCache()) continue;
                 }
 
                 if (shader != null) {
+                    // Render the component with the given shader
                     batch.render(((RenderableComponent) component).getRenderableProvider(), environment, shader);
                     continue;
                 }
+
+                // Render with default shaders (Uses Provider)
                 batch.render(((RenderableComponent) component).getRenderableProvider(), environment);
             }
 
@@ -235,6 +255,10 @@ public class Scene implements Disposable {
         }
     }
 
+    /**
+     * Renders all water components of the given parent game objects children recursively.
+     * @param parent the parent game object
+     */
     protected void renderWater(GameObject parent) {
         if (!sceneGraph.isContainsWater()) return;
         for (GameObject go : parent.getChildren()) {
@@ -329,7 +353,6 @@ public class Scene implements Disposable {
         depthBatch.begin(cam);
         setClippingPlane(clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection);
         renderComponents(depthBatch, sceneGraph.getRoot(), depthShader, true);
-        //sceneGraph.renderDepth(delta, clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection, depthShader);
         depthBatch.render(modelCacheManager.modelCache, environment, depthShader);
         depthBatch.end();
         fboDepthRefraction.end();
