@@ -34,9 +34,17 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
     private val projectManager: ProjectManager = Mundus.inject()
 
     init {
+        loadHeightMapMaxHeight.text = "100"
+
         root.align(Align.left)
-        root.add(VisLabel("Range is from 0 to maximum height")).right().row()
+        root.add(VisLabel("Generate terrain using a heightmap image.\n\n" +
+                "Terrain height range is from 0 to the maximum height.\n" +
+                "Maximum height must be a positive value.\n" +
+                "Maximum height must be greater than 0.\n")).pad(5f).left().fillX().row()
         root.add(loadHeightMapMaxHeight).pad(5f).left().fillX().expandX().row()
+
+        root.add(VisLabel("\n\nSelect heightmap image:")).pad(5f).left().fillX().row()
+
         root.add(hmInput).pad(5f).left().expandX().fillX().row()
         root.add(loadHeightMapBtn).pad(5f).right().row()
 
