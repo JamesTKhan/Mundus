@@ -57,7 +57,8 @@ class Outline : VisTable(),
     ProjectChangedEvent.ProjectChangedListener,
     SceneChangedEvent.SceneChangedListener,
     SceneGraphChangedEvent.SceneGraphChangedListener,
-    GameObjectSelectedEvent.GameObjectSelectedListener {
+    GameObjectSelectedEvent.GameObjectSelectedListener,
+    AssetSelectedEvent.AssetSelectedListener {
 
     companion object {
         private val TITLE = "Outline"
@@ -101,6 +102,13 @@ class Outline : VisTable(),
 
         setupDragAndDrop()
         setupListeners()
+    }
+
+    fun getSelectedGameObject(): GameObject? = tree.selectedValue
+
+    fun clearSelection() {
+        tree.selection.clear()
+        projectManager.current().currScene.currentSelection = null
     }
 
     override fun onProjectChanged(event: ProjectChangedEvent) {
@@ -294,8 +302,6 @@ class Outline : VisTable(),
                 val selection = tree.getSelection()
                 if (selection != null && selection.size() > 0) {
                     val go = selection.first().value
-                    projectManager.current().currScene.sceneGraph.selected = go
-                    toolManager.translateTool.gameObjectSelected(go)
                     Mundus.postEvent(GameObjectSelectedEvent(go))
                 }
             }
@@ -450,10 +456,10 @@ class Outline : VisTable(),
         tree.selection.clear()
         tree.selection.add(node)
         node.expandTo()
+    }
 
-        if (toolManager.activeTool !== toolManager.translateTool) {
-            toolManager.setDefaultTool()
-        }
+    override fun onAssetSelected(event: AssetSelectedEvent) {
+        clearSelection()
     }
 
     /**

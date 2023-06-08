@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#ifdef GL_ES
-precision highp float;
-#endif
+#include "compat.glsl"
 
 attribute vec3 a_position;
 attribute vec3 a_normal;

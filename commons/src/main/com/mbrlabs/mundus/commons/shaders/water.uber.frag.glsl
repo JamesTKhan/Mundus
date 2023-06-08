@@ -1,12 +1,9 @@
-#ifdef GL_ES
-#define LOW lowp
-#define MED mediump
-#define HIGH highp
-precision highp float;
-#else
+#include "compat.glsl"
+#include "light.glsl"
+
+// Just stops the static analysis from complaining
+#ifndef MED
 #define MED
-#define LOW
-#define HIGH
 #endif
 
 varying MED vec2 v_texCoord0;

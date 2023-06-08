@@ -25,11 +25,11 @@ import com.kotcrab.vis.ui.widget.PopupMenu
 import com.kotcrab.vis.ui.widget.Tooltip
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.events.AssetImportEvent
-import com.mbrlabs.mundus.editor.events.FullScreenEvent
+import com.mbrlabs.mundus.editor.events.*
 import com.mbrlabs.mundus.editor.tools.*
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.gizmos.GizmoManager
+import com.mbrlabs.mundus.editor.ui.modules.outline.Outline
 import com.mbrlabs.mundus.editor.ui.widgets.FaTextButton
 import com.mbrlabs.mundus.editor.ui.widgets.ToggleButton
 import com.mbrlabs.mundus.editor.ui.widgets.Toolbar
@@ -41,7 +41,12 @@ import com.mbrlabs.mundus.editor.utils.Log
  * *
  * @version 24-11-2015
  */
-class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
+class MundusToolbar(private val outline: Outline) : Toolbar(),
+        FullScreenEvent.FullScreenEventListener,
+        ToolActivatedEvent.ToolActivatedEventListener,
+        GameObjectSelectedEvent.GameObjectSelectedListener,
+        AssetSelectedEvent.AssetSelectedListener
+{
 
     companion object {
         private val TAG = MundusToolbar::class.java.simpleName
@@ -121,7 +126,7 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
         addItem(gizmoBtn, true)
         //addItem(globalLocalSwitch, true);
 
-        setActive(translateBtn)
+        setButtonStyleToActive(translateBtn)
         updateGizmoIcon()
 
         // save btn
@@ -187,32 +192,36 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
         // select tool
         selectBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                toolManager.activateTool(toolManager.selectionTool)
-                setActive(selectBtn)
+                    toolManager.activateTool(toolManager.selectionTool)
+                    val selectedGameObject = outline.getSelectedGameObject()
+                    projectManager.current().currScene.currentSelection = selectedGameObject
             }
         })
 
         // translate tool
         translateBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                toolManager.activateTool(toolManager.translateTool)
-                setActive(translateBtn)
+                    toolManager.activateTool(toolManager.translateTool)
+                    val selectedGameObject = outline.getSelectedGameObject()
+                    projectManager.current().currScene.currentSelection = selectedGameObject
             }
         })
 
         // rotate tool
         rotateBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                toolManager.activateTool(toolManager.rotateTool)
-                setActive(rotateBtn)
+                    toolManager.activateTool(toolManager.rotateTool)
+                    val selectedGameObject = outline.getSelectedGameObject()
+                    projectManager.current().currScene.currentSelection = selectedGameObject
             }
         })
 
         // scale tool
         scaleBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                toolManager.activateTool(toolManager.scaleTool)
-                setActive(scaleBtn)
+                    toolManager.activateTool(toolManager.scaleTool)
+                    val selectedGameObject = outline.getSelectedGameObject()
+                    projectManager.current().currScene.currentSelection = selectedGameObject
             }
         })
 
@@ -241,23 +250,15 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
 
     }
 
-    private fun setActive(btn: FaTextButton) {
-        selectBtn.style = FaTextButton.styleNoBg
-        translateBtn.style = FaTextButton.styleNoBg
-        rotateBtn.style = FaTextButton.styleNoBg
-        scaleBtn.style = FaTextButton.styleNoBg
-        btn.style = FaTextButton.styleActive
-    }
-
     /**
      * Refresh the active button in UI with the currently active tool.
      */
     fun updateActiveToolButton() {
         when (toolManager.activeTool?.name) {
-            SelectionTool.NAME -> setActive(selectBtn)
-            TranslateTool.NAME -> setActive(translateBtn)
-            RotateTool.NAME -> setActive(rotateBtn)
-            ScaleTool.NAME -> setActive(scaleBtn)
+            SelectionTool.NAME -> setButtonStyleToActive(selectBtn)
+            TranslateTool.NAME -> setButtonStyleToActive(translateBtn)
+            RotateTool.NAME -> setButtonStyleToActive(rotateBtn)
+            ScaleTool.NAME -> setButtonStyleToActive(scaleBtn)
         }
     }
 
@@ -267,6 +268,35 @@ class MundusToolbar : Toolbar(), FullScreenEvent.FullScreenEventListener {
         } else {
             fullScreenBtn.style = FaTextButton.styleNoBg
         }
+    }
+
+    override fun onToolActivatedEvent(event: ToolActivatedEvent) {
+        clearButtonsStyle()
+        updateActiveToolButton()
+    }
+
+    override fun onGameObjectSelected(event: GameObjectSelectedEvent) {
+        if (toolManager.activeTool !is SelectionTool) {
+            toolManager.activateTool(toolManager.translateTool)
+        }
+        toolManager.translateTool.gameObjectSelected(event.gameObject)
+        Mundus.postEvent(ToolActivatedEvent())
+    }
+
+    override fun onAssetSelected(event: AssetSelectedEvent) {
+        toolManager.setDefaultTool()
+    }
+
+    private fun clearButtonsStyle() {
+        selectBtn.style = FaTextButton.styleNoBg
+        translateBtn.style = FaTextButton.styleNoBg
+        rotateBtn.style = FaTextButton.styleNoBg
+        scaleBtn.style = FaTextButton.styleNoBg
+    }
+
+    private fun setButtonStyleToActive(btn: FaTextButton) {
+        clearButtonsStyle()
+        btn.style = FaTextButton.styleActive
     }
 
     private fun updateGizmoIcon() {

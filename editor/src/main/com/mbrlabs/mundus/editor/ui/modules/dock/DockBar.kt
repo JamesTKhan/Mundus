@@ -31,7 +31,7 @@ import com.mbrlabs.mundus.editor.ui.widgets.MundusSplitPane
  */
 class DockBar(private val splitPane: MundusSplitPane) : VisTable(), TabbedPaneListener {
 
-    private val assetsDock = AssetsDock()
+    val assetsDock = AssetsDock()
     private val logBar = LogBar()
     private val profilingBar = ProfilingBar()
     private val tabbedPane: TabbedPane

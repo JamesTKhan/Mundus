@@ -1,13 +1,7 @@
 // Lighting adapted from OGLDEV tutorials https://www.youtube.com/c/OGLDEV
-#ifdef GL_ES
-#define LOW lowp
-#define MED mediump
-#define HIGH highp
-precision highp float;
-#else
+// Just stops the static analysis from complaining
+#ifndef MED
 #define MED
-#define LOW
-#define HIGH
 #endif
 
 struct BaseLight

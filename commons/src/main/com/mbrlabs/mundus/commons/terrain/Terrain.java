@@ -52,6 +52,7 @@ public class Terrain implements Disposable {
     private static final Vector3 c11 = new Vector3();
     private static final Vector3 tmp = new Vector3();
     private static final Vector2 tmpV2 = new Vector2();
+    private static final Matrix4 tmpMatrix = new Matrix4();
 
     public float[] heightData;
     public float maxHeight = 0f; // Stores highest Y Vertices height value
@@ -143,9 +144,11 @@ public class Terrain implements Disposable {
      * @return
      */
     public float getHeightAtWorldCoord(float worldX, float worldZ, Matrix4 terrainTransform) {
-        terrainTransform.getTranslation(c00);
-        float terrainX = worldX - c00.x;
-        float terrainZ = worldZ - c00.z;
+        // Translates world coordinates to local coordinates
+        tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
+
+        float terrainX = tmp.x;
+        float terrainZ = tmp.z;
 
         float gridSquareSize = terrainWidth / ((float) vertexResolution - 1);
         int gridX = (int) Math.floor(terrainX / gridSquareSize);
@@ -161,14 +164,18 @@ public class Terrain implements Disposable {
         c01.set(1, heightData[(gridZ + 1) * vertexResolution + gridX], 0);
         c10.set(0, heightData[gridZ * vertexResolution + gridX + 1], 1);
 
-        // we are in upper left triangle of the square
-        if (xCoord <= (1 - zCoord)) {
+        float height;
+        if (xCoord <= (1 - zCoord)) { // we are in upper left triangle of the square
             c00.set(0, heightData[gridZ * vertexResolution + gridX], 0);
-            return MathUtils.barryCentric(c00, c10, c01, tmpV2.set(zCoord, xCoord));
+            height = MathUtils.barryCentric(c00, c10, c01, tmpV2.set(zCoord, xCoord));
+        } else { // bottom right triangle
+            c11.set(1, heightData[(gridZ + 1) * vertexResolution + gridX + 1], 1);
+            height = MathUtils.barryCentric(c10, c11, c01, tmpV2.set(zCoord, xCoord));
         }
-        // bottom right triangle
-        c11.set(1, heightData[(gridZ + 1) * vertexResolution + gridX + 1], 1);
-        return MathUtils.barryCentric(c10, c11, c01, tmpV2.set(zCoord, xCoord));
+
+        // Translates to world coordinate
+        height *= terrainTransform.getScale(tmp).y;
+        return height;
     }
 
     /**
@@ -304,9 +311,11 @@ public class Terrain implements Disposable {
      *         returns default <code>Vector.Y<code> normal.
      */
     public Vector3 getNormalAtWordCoordinate(Vector3 out, float worldX, float worldZ, Matrix4 terrainTransform) {
-        terrainTransform.getTranslation(c00);
-        float terrainX = worldX - c00.x;
-        float terrainZ = worldZ - c00.z;
+        // Translates world coordinates to local coordinates
+        tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
+
+        float terrainX = tmp.x;
+        float terrainZ = tmp.z;
 
         float gridSquareSize = terrainWidth / ((float) vertexResolution - 1);
         int gridX = (int) Math.floor(terrainX / gridSquareSize);
@@ -368,8 +377,9 @@ public class Terrain implements Disposable {
      * @return boolean true if within the terrains boundary, else false
      */
     public boolean isOnTerrain(float worldX, float worldZ, Matrix4 terrainTransform) {
-        terrainTransform.getTranslation(c00);
-        return worldX >= c00.x && worldX <= c00.x + terrainWidth && worldZ >= c00.z && worldZ <= c00.z + terrainDepth;
+        // Translates world coordinates to local coordinates
+        tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
+        return 0 <= tmp.x && tmp.x <= terrainWidth && 0 <= tmp.z && tmp.z <= terrainDepth;
     }
 
     public TerrainMaterial getTerrainTexture() {
