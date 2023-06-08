@@ -70,8 +70,12 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
     }
 
     @Override
-    public void render(float delta) {
+    public void update(float delta) {
         if (modelInstance == null) return;
+
+        if (gameObject.scaleChanged) {
+            setDimensions(modelInstance);
+        }
 
         if (!gameObject.sceneGraph.scene.settings.useFrustumCulling) {
             isCulled = false;
@@ -107,13 +111,6 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         }
 
         isCulled = !visibleToPerspective && !visibleToShadowMap;
-    }
-
-    @Override
-    public void update(float delta) {
-        if (gameObject.scaleChanged) {
-            setDimensions(modelInstance);
-        }
     }
 
     @Override

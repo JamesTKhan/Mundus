@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
-import com.badlogic.gdx.graphics.g3d.Shader;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 
 /**
@@ -30,8 +29,6 @@ public interface Component {
     }
 
     GameObject getGameObject();
-
-    void render(float delta);
 
     void update(float delta);
 

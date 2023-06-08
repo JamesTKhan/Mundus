@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.editor.scene3d.components;
 
-import com.badlogic.gdx.graphics.g3d.Shader;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.editor.shader.Shaders;
@@ -29,8 +28,8 @@ import com.mbrlabs.mundus.editor.tools.picker.PickerIDAttribute;
  */
 public class PickableTerrainComponent extends TerrainComponent implements PickableComponent {
 
-    public PickableTerrainComponent(GameObject go, Shader shader) {
-        super(go, shader);
+    public PickableTerrainComponent(GameObject go) {
+        super(go);
     }
 
     @Override
