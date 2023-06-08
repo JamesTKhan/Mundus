@@ -16,16 +16,12 @@
 
 package com.mbrlabs.mundus.editor.core;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL30;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
-import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent;
 
@@ -44,20 +40,6 @@ public class EditorScene extends Scene {
         currentSelection = null;
         terrains = new Array<>();
         isRuntime = false;
-    }
-
-    @Override
-    protected void initFrameBuffers(int width, int height) {
-        fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-        if (Gdx.gl30 == null) {
-            fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-            fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-        } else {
-            NestableFrameBuffer.NestableFrameBufferBuilder frameBufferBuilder = new NestableFrameBuffer.NestableFrameBufferBuilder(width, height);
-            frameBufferBuilder.addBasicColorTextureAttachment(Pixmap.Format.RGB888);
-            frameBufferBuilder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_UNSIGNED_SHORT);
-            fboWaterRefraction = frameBufferBuilder.build();
-        }
     }
 
     /**
