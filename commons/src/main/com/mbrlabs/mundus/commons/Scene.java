@@ -109,15 +109,15 @@ public class Scene implements Disposable {
         cam.near = CameraSettings.DEFAULT_NEAR_PLANE;
         cam.far = CameraSettings.DEFAULT_FAR_PLANE;
 
-        dirLight = new MundusDirectionalShadowLight();
-        dirLight.color.set(LightUtils.DEFAULT_COLOR);
-        dirLight.intensity = LightUtils.DEFAULT_INTENSITY;
-        dirLight.direction.set(LightUtils.DEFAULT_DIRECTION);
-        dirLight.direction.nor();
-        environment.add(dirLight);
-        environment.set(ColorAttribute.createAmbientLight(Color.WHITE));
-
         if (hasGLContext) {
+            dirLight = new MundusDirectionalShadowLight();
+            dirLight.color.set(LightUtils.DEFAULT_COLOR);
+            dirLight.intensity = LightUtils.DEFAULT_INTENSITY;
+            dirLight.direction.set(LightUtils.DEFAULT_DIRECTION);
+            dirLight.direction.nor();
+            environment.add(dirLight);
+            environment.set(ColorAttribute.createAmbientLight(Color.WHITE));
+
             initPBR();
             setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
         }
