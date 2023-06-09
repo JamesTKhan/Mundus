@@ -18,7 +18,7 @@ package com.mbrlabs.mundus.commons.scene3d.components;
 
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -34,18 +34,21 @@ import java.util.Objects;
  * @author Marcus Brummer
  * @version 18-01-2016
  */
-public class TerrainComponent extends CullableComponent implements AssetUsage, ClippableComponent {
+public class TerrainComponent extends CullableComponent implements AssetUsage, RenderableComponent {
 
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
     protected ModelInstance modelInstance;
     protected TerrainAsset terrainAsset;
-    protected Shader shader;
 
-    public TerrainComponent(GameObject go, Shader shader) {
+    public TerrainComponent(GameObject go) {
         super(go);
-        this.shader = shader;
         type = Component.Type.TERRAIN;
+    }
+
+    @Override
+    public RenderableProvider getRenderableProvider() {
+        return modelInstance;
     }
 
     public void updateUVs(Vector2 uvScale) {
@@ -75,41 +78,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
 
     public TerrainAsset getTerrainAsset() {
         return terrainAsset;
-    }
-
-    public Shader getShader() {
-        return shader;
-    }
-
-    public void setShader(Shader shader) {
-        this.shader = shader;
-    }
-
-    @Override
-    public void render(float delta) {
-        super.render(delta);
-        if (isCulled) return;
-        triggerBeforeRenderEvent();
-        gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment);
-    }
-
-    @Override
-    public void render(float delta, Vector3 clippingPlane, float clipHeight) {
-        render(delta);
-    }
-
-    @Override
-    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader) {
-        if (isCulled) return;
-
-        if (shader instanceof ClippableShader) {
-            ((ClippableShader) shader).setClippingPlane(clippingPlane);
-            ((ClippableShader) shader).setClippingHeight(clipHeight);
-        }
-
-        triggerBeforeDepthRenderEvent();
-
-        gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
     }
 
     @Override

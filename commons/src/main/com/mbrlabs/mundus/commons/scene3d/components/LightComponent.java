@@ -52,11 +52,6 @@ public class LightComponent extends AbstractComponent {
     }
 
     @Override
-    public void render(float delta) {
-
-    }
-
-    @Override
     public void update(float delta) {
         position.set(gameObject.getPosition(tmp));
     }

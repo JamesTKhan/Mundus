@@ -75,7 +75,7 @@ class TerrainAssetInspectorWidget : BaseInspectorWidget(TITLE) {
 
                 projectManager.current().currScene.sceneGraph.addGameObject(modelGo)
 
-                val newComponent = PickableTerrainComponent(modelGo, null)
+                val newComponent = PickableTerrainComponent(modelGo)
                 newComponent.terrainAsset = terrainAsset
                 newComponent.encodeRaypickColorId()
 

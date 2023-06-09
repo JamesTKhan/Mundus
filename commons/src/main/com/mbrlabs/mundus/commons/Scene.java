@@ -35,10 +35,19 @@ import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.env.CameraSettings;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
+import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
+import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheManager;
+import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.commons.scene3d.components.Component;
+import com.mbrlabs.mundus.commons.scene3d.components.CullableComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.RenderableComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.commons.shaders.DepthShader;
 import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
+import com.mbrlabs.mundus.commons.shaders.TerrainUberShader;
+import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
 import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight;
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
@@ -167,45 +176,126 @@ public class Scene implements Disposable {
         modelCacheManager.update(delta);
 
         if (sceneGraph.isContainsWater()) {
-            captureDepth(delta);
-            captureReflectionFBO(delta);
-            captureRefractionFBO(delta);
+            captureDepth();
+            captureReflectionFBO();
+            captureRefractionFBO();
         }
 
-        renderShadowMap(delta);
-        renderWater(delta);
-        renderObjects(delta);
+        renderShadowMap();
+        renderObjects();
         renderSkybox();
     }
 
-    protected void renderObjects(float delta) {
-        // Render objects
+    protected void renderObjects() {
         batch.begin(cam);
-        sceneGraph.render(delta, clippingPlaneDisable, 0);
+        setClippingPlane(clippingPlaneDisable, 0);
+        renderWater(sceneGraph.getRoot());
+        renderComponents(batch, sceneGraph.getRoot());
         modelCacheManager.triggerBeforeRenderEvent();
         batch.render(modelCacheManager.modelCache, environment);
         batch.end();
     }
 
-    protected void renderWater(float delta) {
-        if (sceneGraph.isContainsWater()) {
-            Texture refraction = settings.enableWaterRefractions ? fboWaterRefraction.getColorBufferTexture() : null;
-            Texture reflection = settings.enableWaterReflections ? fboWaterReflection.getColorBufferTexture() : null;
-            Texture refractionDepth = fboDepthRefraction.getColorBufferTexture();
+    private void setClippingPlane(Vector3 plane, float clipHeight) {
+        environment.setClippingHeight(clipHeight);
+        environment.getClippingPlane().set(plane);
+        TerrainUberShader.terrainClippingHeight = clipHeight;
+        TerrainUberShader.terrainClippingPlane.set(plane);
+    }
 
-            Gdx.gl.glEnable(GL20.GL_BLEND);
-            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    /**
+     * Renders all renderable components (except Water) of the given parent game objects children
+     * recursively using default shaders.
+     *
+     * @param batch the model batch to use
+     * @param parent the parent game object
+     */
+    protected void renderComponents(ModelBatch batch, GameObject parent) {
+        renderComponents(batch, parent, null, false);
+    }
 
-            // Render Water
-            batch.begin(cam);
-            sceneGraph.renderWater(delta, reflection, refraction, refractionDepth);
-            batch.end();
+    /**
+     * Renders all renderable components (except Water) of the given parent game objects children
+     * recursively.
+     *
+     * @param batch the model batch to use
+     * @param parent the parent game object
+     * @param shader the shader to use
+     * @param isDepthPass whether this is a depth render pass
+     */
+    protected void renderComponents(ModelBatch batch, GameObject parent, Shader shader, boolean isDepthPass) {
+        for (GameObject go : parent.getChildren()) {
+            if (!go.active) continue;
+            if (go.hasWaterComponent) continue;
 
-            Gdx.gl.glDisable(GL20.GL_BLEND);
+            // Render all renderable components
+            for (Component component : go.getComponents()) {
+                if (!(component instanceof RenderableComponent)) continue;
+
+                if (component instanceof CullableComponent) {
+                    CullableComponent cullableComponent = (CullableComponent) component;
+                    if (cullableComponent.isCulled()) continue;
+
+                    if (isDepthPass) {
+                        cullableComponent.triggerBeforeDepthRenderEvent();
+                    } else {
+                        cullableComponent.triggerBeforeRenderEvent();
+                    }
+                }
+
+                if (component instanceof ModelCacheable) {
+                    // Don't render the component here if it's a model cacheable
+                    ModelCacheable modelCacheable = (ModelCacheable) component;
+                    if (modelCacheable.shouldCache()) continue;
+                }
+
+                if (shader != null) {
+                    // Render the component with the given shader
+                    batch.render(((RenderableComponent) component).getRenderableProvider(), environment, shader);
+                    continue;
+                }
+
+                // Render with default shaders (Uses Provider)
+                batch.render(((RenderableComponent) component).getRenderableProvider(), environment);
+            }
+
+            // Render children recursively
+            if (go.getChildren() != null) {
+                renderComponents(batch, go, shader, isDepthPass);
+            }
         }
     }
 
-    protected void renderShadowMap(float delta) {
+    /**
+     * Renders all water components of the given parent game objects children recursively.
+     * @param parent the parent game object
+     */
+    protected void renderWater(GameObject parent) {
+        if (!sceneGraph.isContainsWater()) return;
+        for (GameObject go : parent.getChildren()) {
+            if (!go.active) continue;
+
+            for (Component component : go.getComponents()) {
+                if (go.hasWaterComponent && component instanceof WaterComponent) {
+                    WaterComponent waterComponent = (WaterComponent) component;
+
+                    if (waterComponent.isCulled()) continue;
+                    waterComponent.triggerBeforeRenderEvent();
+
+                    waterComponent.getWaterAsset().setWaterReflectionTexture(getReflectionTexture());
+                    waterComponent.getWaterAsset().setWaterRefractionTexture(getRefractionTexture());
+                    waterComponent.getWaterAsset().setWaterRefractionDepthTexture(getRefractionDepthTexture());
+                    batch.render(waterComponent.getRenderableProvider(), environment);
+                }
+            }
+
+            if (go.getChildren() != null) {
+                renderWater(go);
+            }
+        }
+    }
+
+    protected void renderShadowMap() {
         if (dirLight == null) {
             setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
         }
@@ -220,7 +310,8 @@ public class Scene implements Disposable {
         dirLight.setCenter(cam.position);
         dirLight.begin();
         depthBatch.begin(dirLight.getCamera());
-        sceneGraph.renderDepth(delta, clippingPlaneDisable, 0, shadowMapShader);
+        setClippingPlane(clippingPlaneDisable, 0);
+        renderComponents(depthBatch, sceneGraph.getRoot(), shadowMapShader, true);
         modelCacheManager.triggerBeforeDepthRenderEvent();
         depthBatch.render(modelCacheManager.modelCache, environment, shadowMapShader);
         depthBatch.end();
@@ -233,7 +324,7 @@ public class Scene implements Disposable {
         fboDepthRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
     }
 
-    protected void captureReflectionFBO(float delta) {
+    protected void captureReflectionFBO() {
         if (!settings.enableWaterReflections) return;
 
         // Calc vertical distance for camera for reflection FBO
@@ -256,7 +347,8 @@ public class Scene implements Disposable {
         fboWaterReflection.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin(cam);
-        sceneGraph.render(delta, clippingPlaneReflection, -settings.waterHeight + settings.distortionEdgeCorrection);
+        setClippingPlane(clippingPlaneReflection, -settings.waterHeight + settings.distortionEdgeCorrection);
+        renderComponents(batch, sceneGraph.getRoot());
         batch.render(modelCacheManager.modelCache, environment);
         batch.end();
         renderSkybox();
@@ -269,12 +361,13 @@ public class Scene implements Disposable {
         cam.update();
     }
 
-    protected void captureDepth(float delta) {
+    protected void captureDepth() {
         // Render depth refractions to FBO
         fboDepthRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         depthBatch.begin(cam);
-        sceneGraph.renderDepth(delta, clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection, depthShader);
+        setClippingPlane(clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection);
+        renderComponents(depthBatch, sceneGraph.getRoot(), depthShader, true);
         depthBatch.render(modelCacheManager.modelCache, environment, depthShader);
         depthBatch.end();
         fboDepthRefraction.end();
@@ -288,13 +381,14 @@ public class Scene implements Disposable {
         }
     }
 
-    protected void captureRefractionFBO(float delta) {
+    protected void captureRefractionFBO() {
         if (!settings.enableWaterRefractions) return;
         // Render refractions to FBO
         fboWaterRefraction.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         batch.begin(cam);
-        sceneGraph.render(delta, clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection);
+        setClippingPlane(clippingPlaneRefraction, settings.waterHeight + settings.distortionEdgeCorrection);
+        renderComponents(batch, sceneGraph.getRoot());
         batch.render(modelCacheManager.modelCache, environment);
         batch.end();
         fboWaterRefraction.end();
@@ -333,6 +427,18 @@ public class Scene implements Disposable {
 
     public void setShadowMapShader(ShadowMapShader shadowMapShader) {
         this.shadowMapShader = shadowMapShader;
+    }
+
+    private Texture getReflectionTexture() {
+        return settings.enableWaterReflections ? fboWaterReflection.getColorBufferTexture() : null;
+    }
+
+    private Texture getRefractionTexture() {
+        return settings.enableWaterRefractions ? fboWaterRefraction.getColorBufferTexture() : null;
+    }
+
+    private Texture getRefractionDepthTexture() {
+        return fboDepthRefraction.getColorBufferTexture();
     }
 
     /**
