@@ -179,12 +179,13 @@ public class Scene implements Disposable {
         }
 
         renderShadowMap();
+        batch.begin(cam);
         renderObjects();
         renderSkybox();
+        batch.end();
     }
 
     protected void renderObjects() {
-        batch.begin(cam);
         setClippingPlane(clippingPlaneDisable, 0);
         renderWater(sceneGraph.getRoot());
         renderComponents(batch, sceneGraph.getRoot());
