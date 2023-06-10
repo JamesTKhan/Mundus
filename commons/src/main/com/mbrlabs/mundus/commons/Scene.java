@@ -45,7 +45,6 @@ import com.mbrlabs.mundus.commons.scene3d.components.RenderableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.commons.shaders.DepthShader;
 import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
-import com.mbrlabs.mundus.commons.shaders.TerrainUberShader;
 import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight;
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
@@ -191,7 +190,6 @@ public class Scene implements Disposable {
         renderComponents(batch, sceneGraph.getRoot());
         modelCacheManager.triggerBeforeRenderEvent();
         batch.render(modelCacheManager.modelCache, environment);
-        batch.end();
     }
 
     private void setClippingPlane(Vector3 plane, float clipHeight) {
@@ -346,8 +344,8 @@ public class Scene implements Disposable {
         setClippingPlane(clippingPlaneReflection, -settings.waterHeight + settings.distortionEdgeCorrection);
         renderComponents(batch, sceneGraph.getRoot());
         batch.render(modelCacheManager.modelCache, environment);
-        batch.end();
         renderSkybox();
+        batch.end();
         fboWaterReflection.end();
 
         // Restore camera data
@@ -371,9 +369,7 @@ public class Scene implements Disposable {
 
     protected void renderSkybox() {
         if (skybox != null && skybox.active) {
-            batch.begin(cam);
             batch.render(skybox.getSkyboxInstance(), environment, skybox.shader);
-            batch.end();
         }
     }
 
