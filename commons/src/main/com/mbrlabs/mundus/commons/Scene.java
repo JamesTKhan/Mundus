@@ -35,7 +35,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.env.CameraSettings;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheManager;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
@@ -47,7 +46,6 @@ import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.commons.shaders.DepthShader;
 import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
 import com.mbrlabs.mundus.commons.shaders.TerrainUberShader;
-import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
 import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight;
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
@@ -199,8 +197,6 @@ public class Scene implements Disposable {
     private void setClippingPlane(Vector3 plane, float clipHeight) {
         environment.setClippingHeight(clipHeight);
         environment.getClippingPlane().set(plane);
-        TerrainUberShader.terrainClippingHeight = clipHeight;
-        TerrainUberShader.terrainClippingPlane.set(plane);
     }
 
     /**
