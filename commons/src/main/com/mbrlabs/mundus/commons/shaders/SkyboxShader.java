@@ -126,6 +126,7 @@ public class SkyboxShader extends BaseShader {
 
     @Override
     public void end() {
+        context.setDepthTest(GL20.GL_LESS);
         context.end();
     }
 
