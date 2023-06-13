@@ -164,18 +164,18 @@ public class Scene implements Disposable {
         }
 
         renderShadowMap(delta);
+        batch.begin(cam);
         renderWater(delta);
         renderObjects(delta);
         renderSkybox();
+        batch.end();
     }
 
     protected void renderObjects(float delta) {
         // Render objects
-        batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneDisable, 0);
         modelCacheManager.triggerBeforeRenderEvent();
         batch.render(modelCacheManager.modelCache, environment);
-        batch.end();
     }
 
     protected void renderWater(float delta) {
@@ -188,9 +188,7 @@ public class Scene implements Disposable {
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
             // Render Water
-            batch.begin(cam);
             sceneGraph.renderWater(delta, reflection, refraction, refractionDepth);
-            batch.end();
 
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
@@ -245,8 +243,8 @@ public class Scene implements Disposable {
         batch.begin(cam);
         sceneGraph.render(delta, clippingPlaneReflection, -settings.waterHeight + settings.distortionEdgeCorrection);
         batch.render(modelCacheManager.modelCache, environment);
-        batch.end();
         renderSkybox();
+        batch.end();
         fboWaterReflection.end();
 
         // Restore camera data
@@ -269,9 +267,7 @@ public class Scene implements Disposable {
 
     protected void renderSkybox() {
         if (skybox != null && skybox.active) {
-            batch.begin(cam);
             batch.render(skybox.getSkyboxInstance(), environment, skybox.shader);
-            batch.end();
         }
     }
 
