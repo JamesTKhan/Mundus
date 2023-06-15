@@ -163,6 +163,11 @@ public class TerrainMaterial extends TerrainAttributes {
 
     public void setSplatmap(SplatMap splatmap) {
         this.splatmap = splatmap;
+        if (splatmap == null) {
+            remove(TerrainAttribute.SplatMap);
+        } else {
+            set(new TerrainAttribute(TerrainAttribute.SplatMap));
+        }
     }
 
     public Terrain getTerrain() {
