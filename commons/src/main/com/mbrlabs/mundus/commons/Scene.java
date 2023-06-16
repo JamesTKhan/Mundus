@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -43,6 +44,7 @@ import com.mbrlabs.mundus.commons.shadows.ShadowMapper;
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
+import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -55,6 +57,9 @@ import net.mgsx.gltf.scene3d.utils.IBLBuilder;
  */
 public class Scene implements Disposable {
     public static boolean isRuntime = true;
+
+    // FBO Depth Attachment index for MRT FBO
+    private static final int DEPTH_ATTACHMENT = 1;
 
     private String name;
     private long id;
@@ -158,7 +163,9 @@ public class Scene implements Disposable {
         modelCacheManager.update(delta);
 
         if (sceneGraph.isContainsWater()) {
-            captureDepth(delta);
+            if (!Gdx.graphics.isGL30Available()) {
+                captureDepth(delta);
+            }
             captureReflectionFBO(delta);
             captureRefractionFBO(delta);
         }
@@ -182,7 +189,13 @@ public class Scene implements Disposable {
         if (sceneGraph.isContainsWater()) {
             Texture refraction = settings.enableWaterRefractions ? fboWaterRefraction.getColorBufferTexture() : null;
             Texture reflection = settings.enableWaterReflections ? fboWaterReflection.getColorBufferTexture() : null;
-            Texture refractionDepth = fboDepthRefraction.getColorBufferTexture();
+
+            Texture refractionDepth;
+            if (Gdx.graphics.isGL30Available()) {
+                refractionDepth = fboWaterRefraction.getTextureAttachments().get(DEPTH_ATTACHMENT);
+            } else {
+                refractionDepth = fboDepthRefraction.getColorBufferTexture();
+            }
 
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -213,9 +226,16 @@ public class Scene implements Disposable {
     }
 
     protected void initFrameBuffers(int width, int height) {
-        fboWaterReflection = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
-        fboWaterRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
-        fboDepthRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        if (Gdx.graphics.isGL30Available()) {
+            NestableFrameBuffer.NestableFrameBufferBuilder frameBufferBuilder = new NestableFrameBuffer.NestableFrameBufferBuilder(width, height);
+            frameBufferBuilder.addBasicColorTextureAttachment(Pixmap.Format.RGB888);
+            frameBufferBuilder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_UNSIGNED_SHORT);
+            fboWaterRefraction = frameBufferBuilder.build();
+        } else {
+            fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+            fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        }
     }
 
     protected void captureReflectionFBO(float delta) {
