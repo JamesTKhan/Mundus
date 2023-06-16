@@ -15,7 +15,6 @@
  */
 package com.mbrlabs.mundus.commons.assets;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
@@ -66,7 +65,7 @@ public class AssetManager implements Disposable {
     // Tracks the highest bone count out of all loaded model assets
     public int maxNumBones = 0;
 
-    public static String mundusAssetFile = "assets.txt";
+    public static String MUNDUS_ASSET_FILE = "assets.txt";
 
     /**
      * Asset manager constructor.
@@ -211,7 +210,7 @@ public class AssetManager implements Disposable {
             // Application will need to provide an assets.txt file listing all Mundus assets
             // in the Mundus root directory.
             // https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
-            fileList = rootFolder.child(mundusAssetFile);
+            fileList = rootFolder.child(MUNDUS_ASSET_FILE);
 
             // Normalize line endings before reading
             files = fileList.readString().replaceAll("\\r\\n?", "\n").split("\\n");
