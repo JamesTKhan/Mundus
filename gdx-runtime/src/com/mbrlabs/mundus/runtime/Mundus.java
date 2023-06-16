@@ -38,7 +38,7 @@ import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
  * @version 27-10-2016
  */
 public class Mundus implements Disposable {
-    public static final String PROJECT_ASSETS_DIR = "assets";
+    public static String PROJECT_ASSETS_DIR = "assets";
     public static final String PROJECT_SCENES_DIR = "scenes";
 
     private static final String TAG = Mundus.class.getSimpleName();
