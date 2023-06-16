@@ -872,7 +872,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      */
     fun createAssetsTextFile() {
         // get path for assets file
-        val path = FilenameUtils.concat(rootFolder.path(), "assets.txt")
+        val path = FilenameUtils.concat(rootFolder.path(), mundusAssetFile)
 
         // Build the String listing all asset files
         val moreDetails = buildString {

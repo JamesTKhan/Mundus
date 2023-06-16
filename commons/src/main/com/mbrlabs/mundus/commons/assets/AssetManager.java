@@ -66,6 +66,9 @@ public class AssetManager implements Disposable {
     // Tracks the highest bone count out of all loaded model assets
     public int maxNumBones = 0;
 
+    public static boolean isTeaVM = false;
+    public static String mundusAssetFile = "assets.txt";
+
     /**
      * Asset manager constructor.
      *
@@ -204,19 +207,19 @@ public class AssetManager implements Disposable {
             gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(new AbsoluteFileHandleResolver());
         }
 
-        if (isRuntime && Gdx.app.getType() == Application.ApplicationType.Desktop) {
+        if ((isRuntime && Gdx.app.getType() == Application.ApplicationType.Desktop) || isTeaVM) {
             // Desktop applications cannot use .list() for internal jar files.
             // Application will need to provide an assets.txt file listing all Mundus assets
             // in the Mundus root directory.
             // https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
-            fileList = rootFolder.child("assets.txt");
+            fileList = rootFolder.child(mundusAssetFile);
 
             // Normalize line endings before reading
             files = fileList.readString().replaceAll("\\r\\n?", "\n").split("\\n");
             metaFiles = getMetaFiles(files);
         } else if (isRuntime && Gdx.app.getType() == Application.ApplicationType.WebGL) {
             // For WebGL we use a native split method for string split
-            fileList = rootFolder.child("assets.txt");
+            fileList = rootFolder.child(mundusAssetFile);
             files = split(fileList.readString().replaceAll("\\r\\n?", "\n"), "\n");
             metaFiles = getMetaFiles(files);
         } else {
