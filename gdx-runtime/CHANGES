@@ -3,6 +3,7 @@
 - [Breaking Change] ShadowMapper class removed. Replaced with MundusDirectionalShadowLight
 - Lighting systems updated, visibly different. See PR#184
 - Update water shader lighting code (non-PBR) to more closely match light code from PBR shaders
+- Add 'addGameObject(ModelInstance, Vector3)' and 'addGameObject(Model, Vector3)' methods to SceneGraph to add external model to scene graph
 - Add render event handling
 - Change scene camera to be base camera class
 - Add active boolean to Skybox class to toggle rendering
@@ -14,6 +15,7 @@
 - Added custom properties option to game objects
 - Fix transparent layer in texture splatting for the terrain texture
 - Rendering logic removed from SceneGraph, GameObjects, and Components
+- Scene class now uses NestableFrameBuffer for water FBOs
 
 [0.4.0] ~ 10/12/2022
 - [BREAKING CHANGE] The loadScene method for the runtime has changed. A ModelBatch is no longer required to be passed in.
