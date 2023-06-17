@@ -428,7 +428,7 @@ class Outline : VisTable(),
 
             // This is a bit of a workaround, since we are in editor here, we replace the duplicated lightComponent
             // with a pickable version instead.
-            val pickableLightComponent = PickableLightComponent(goCopy, lightComponent.light.lightType)
+            val pickableLightComponent = PickableLightComponent(goCopy, lightComponent.lightType)
             LightUtils.copyLightSettings(lightComponent.light, pickableLightComponent.light)
 
             goCopy.addComponent(pickableLightComponent)

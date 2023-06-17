@@ -77,6 +77,18 @@ public class TerrainMaterial extends TerrainAttributes {
         set(new TerrainAttribute(getTerrainAttribute(tex.channel, true)));
     }
 
+    public boolean isTriplanar() {
+        return has(TerrainAttribute.Triplanar);
+    }
+
+    public void setTriplanar(boolean triplanar) {
+        if (triplanar) {
+            set(new TerrainAttribute(TerrainAttribute.Triplanar));
+        } else {
+            remove(TerrainAttribute.Triplanar);
+        }
+    }
+
     private long getTerrainAttribute(SplatTexture.Channel channel, boolean isNormal) {
         switch (channel) {
             case BASE:

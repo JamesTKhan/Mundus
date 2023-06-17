@@ -32,6 +32,7 @@ import java.util.Map;
  * @version May 08, 2023
  */
 public class ShaderPreprocessor {
+    public static boolean cacheEnabled = true;
     private static final String includeDirective = "#include";
 
     // Cache for already parsed files
@@ -48,7 +49,7 @@ public class ShaderPreprocessor {
         String filePath = fileHandle.path();
 
         // Check if the file content is already in the cache
-        if (cache.containsKey(filePath)) {
+        if (cacheEnabled && cache.containsKey(filePath)) {
             return cache.get(filePath);
         }
 
@@ -83,7 +84,9 @@ public class ShaderPreprocessor {
         stringBuffer.append(fileContent.substring(cursor));
 
         String processedFileContent = stringBuffer.toString();
-        cache.put(filePath, processedFileContent);
+        if (cacheEnabled) {
+            cache.put(filePath, processedFileContent);
+        }
         return processedFileContent;
     }
 }

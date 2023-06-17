@@ -1,9 +1,10 @@
 package com.mbrlabs.mundus.editor.shader;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.Shader;
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider;
+import com.mbrlabs.mundus.commons.terrain.TerrainMaterial;
+import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
+import net.mgsx.gltf.scene3d.shaders.PBRShader;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 
 /**
@@ -18,10 +19,13 @@ public class EditorShaderProvider extends MundusPBRShaderProvider {
     }
 
     @Override
-    protected Shader createTerrainShader(Renderable renderable) {
-        Shader shader = new EditorTerrainUberShader(renderable, config);
-        shaders.add(shader);
-        Gdx.app.log(EditorShaderProvider.class.getSimpleName(), "Terrain Shader Compiled");
-        return shader;
+    protected PBRShader createPBRTerrainShader(Renderable renderable, PBRShaderConfig config, String prefix) {
+        TerrainMaterialAttribute terrainMaterialA = (TerrainMaterialAttribute) renderable.material.get(TerrainMaterialAttribute.TerrainMaterial);
+        TerrainMaterial terrainMaterial = terrainMaterialA.terrainMaterial;
+
+        prefix += "#define PICKER\n";
+        prefix += getTerrainPrefix(terrainMaterial);
+
+        return new EditorPBRTerrainShader(renderable, config, prefix);
     }
 }

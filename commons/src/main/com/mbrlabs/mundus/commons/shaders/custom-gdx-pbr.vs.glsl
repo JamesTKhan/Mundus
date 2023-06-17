@@ -232,7 +232,16 @@ varying vec3 v_shadowMapUv;
 varying float v_clipDistance;
 uniform vec4 u_clipPlane;
 
+#ifdef splatFlag
+varying vec2 v_splatPosition;
+uniform vec2 u_terrainSize;
+#endif
+
 void main() {
+
+	#ifdef splatFlag
+		v_splatPosition = vec2(a_position.x / u_terrainSize.x, a_position.z / u_terrainSize);
+	#endif
 	
 	#ifdef textureFlag
 		v_texCoord0 = (u_texCoord0Transform * vec3(a_texCoord0, 1.0)).xy;

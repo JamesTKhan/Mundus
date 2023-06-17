@@ -48,7 +48,8 @@ public class PickableLightComponent extends LightComponent implements PickableCo
     }
 
     @Override
-    public void render(float delta) {
+    public void update(float delta) {
+        super.update(delta);
         // Update position of cube for picking
         gameObject.getPosition(tmp);
         modelInstance.transform.setToTranslation(tmp);

@@ -30,11 +30,6 @@ public class CustomPropertiesComponent extends AbstractComponent {
     }
 
     @Override
-    public void render(final float delta) {
-        // NOOP
-    }
-
-    @Override
     public void update(final float delta) {
         // NOOP
     }

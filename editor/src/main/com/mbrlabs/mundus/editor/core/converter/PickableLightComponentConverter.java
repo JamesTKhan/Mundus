@@ -1,12 +1,12 @@
 package com.mbrlabs.mundus.editor.core.converter;
 
+import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.mbrlabs.mundus.commons.dto.LightComponentDTO;
-import com.mbrlabs.mundus.commons.env.lights.LightType;
-import com.mbrlabs.mundus.commons.env.lights.PointLight;
-import com.mbrlabs.mundus.commons.env.lights.SpotLight;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableLightComponent;
+import net.mgsx.gltf.scene3d.lights.PointLightEx;
+import net.mgsx.gltf.scene3d.lights.SpotLightEx;
 
 /**
  * @author JamesTKhan
@@ -20,19 +20,12 @@ public class PickableLightComponentConverter {
     public static PickableLightComponent convert(LightComponentDTO dto, GameObject go) {
 
         PickableLightComponent component = new PickableLightComponent(go, dto.getLightType());
-        PointLight light = component.getLight();
+        BaseLight light = component.getLight();
 
-        light.color.set(dto.getColor());
-        light.intensity = dto.getIntensity();
-
-        light.position.set(dto.getPosition());
-        light.attenuation.constant = dto.getConstant();
-        light.attenuation.linear = dto.getLinear();
-        light.attenuation.exponential = dto.getExponential();
-
-        if (dto.getLightType() == LightType.SPOT_LIGHT) {
-            ((SpotLight) light).direction.set(dto.getDirection());
-            ((SpotLight) light).setCutoff(dto.getCutoff());
+        if (light instanceof PointLightEx) {
+            ((PointLightEx) light).set(dto.getColor(), dto.getPosition(), dto.getIntensity());
+        } else if (light instanceof SpotLightEx) {
+            ((SpotLightEx) light).set(dto.getColor(), dto.getPosition(), dto.getDirection(), dto.getIntensity(), dto.getCutoff(), dto.getExponential());
         }
 
         return component;
@@ -44,20 +37,22 @@ public class PickableLightComponentConverter {
     public static LightComponentDTO convert(LightComponent lightComponent) {
         LightComponentDTO descriptor = new LightComponentDTO();
 
-        PointLight light = lightComponent.getLight();
+        BaseLight light = lightComponent.getLight();
 
-        descriptor.setLightType(light.lightType);
+        descriptor.setLightType(lightComponent.getLightType());
         descriptor.setColor(light.color);
-        descriptor.setIntensity(light.intensity);
 
-        descriptor.setPosition(light.position);
-        descriptor.setConstant(light.attenuation.constant);
-        descriptor.setLinear(light.attenuation.linear);
-        descriptor.setExponential(light.attenuation.exponential);
-
-        if (lightComponent.getLight().lightType == LightType.SPOT_LIGHT) {
-            descriptor.setCutoff(((SpotLight)light).getCutoff());
-            descriptor.setDirection(((SpotLight)light).direction);
+        if (light instanceof PointLightEx) {
+            PointLightEx pointLight = (PointLightEx) light;
+            descriptor.setPosition(pointLight.position);
+            descriptor.setIntensity(pointLight.intensity);
+        } else if (light instanceof SpotLightEx) {
+            SpotLightEx spotLight = (SpotLightEx) light;
+            descriptor.setPosition(spotLight.position);
+            descriptor.setIntensity(spotLight.intensity);
+            descriptor.setExponential(spotLight.exponent);
+            descriptor.setCutoff(spotLight.cutoffAngle);
+            descriptor.setDirection(spotLight.direction);
         }
 
         return descriptor;

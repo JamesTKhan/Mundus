@@ -12,7 +12,6 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLight
 import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -129,6 +128,8 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
                     try {
                         val light = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
                         light?.intensity = d
+                        light?.updateColor()
+                        projectManager.current().currScene.initPBR()
                     } catch (ex : NumberFormatException) {
                         Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + intensity.name))
                     }
@@ -140,35 +141,44 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
         colorPickerField.colorAdapter = object: ColorPickerAdapter() {
             override fun finished(newColor: Color) {
                 val light = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
-                light?.color?.set(newColor)
+                light?.baseColor?.set(newColor)
+                light?.updateColor()
+                projectManager.current().currScene.initPBR()
             }
 
             override fun changed(newColor: Color?) {
                 val light = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
-                light?.color?.set(newColor)
+                light?.baseColor?.set(newColor)
+                light?.updateColor()
+                projectManager.current().currScene.initPBR()
             }
 
             override fun canceled(oldColor: Color?) {
                 val light = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
-                light?.color?.set(oldColor)
+                light?.baseColor?.set(oldColor)
+                light?.updateColor()
+                projectManager.current().currScene.initPBR()
             }
         }
 
         dirXSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 LightUtils.getDirectionalLight(projectManager.current().currScene.environment)?.direction?.x = dirXSlider.value
+                projectManager.current().currScene.initPBR()
             }
         })
 
         dirYSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 LightUtils.getDirectionalLight(projectManager.current().currScene.environment)?.direction?.y = dirYSlider.value
+                projectManager.current().currScene.initPBR()
             }
         })
 
         dirZSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 LightUtils.getDirectionalLight(projectManager.current().currScene.environment).direction?.z = dirZSlider.value
+                projectManager.current().currScene.initPBR()
             }
         })
 
@@ -176,7 +186,7 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
         castShadows.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 val light = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
-                light?.castsShadows = castShadows.isChecked
+                light.isCastsShadows = castShadows.isChecked
                 shadowSettings.isDisabled = !castShadows.isChecked
             }
         })
@@ -191,11 +201,12 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
         defaultBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 val light = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
-                light?.color?.set(DirectionalLight.DEFAULT_COLOR)
-                light?.intensity = DirectionalLight.DEFAULT_INTENSITY
-                light?.direction?.set(DirectionalLight.DEFAULT_DIRECTION)
+                light?.color?.set(Color.WHITE)
+                light?.intensity = 1f
+                light?.direction?.set(.5f, -.5f, -.7f)
 
-                light?.castsShadows = false
+                light?.isCastsShadows = false
+                projectManager.current().currScene.initPBR()
                 resetValues()
             }
         })
@@ -204,10 +215,11 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
 
     private fun resetValues() {
         val light = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
+
         intensity.text = light!!.intensity.toString()
         colorPickerField.selectedColor = light.color
-        castShadows.isChecked = light.castsShadows
-        shadowSettings.isDisabled = !light.castsShadows
+        castShadows.isChecked = light.isCastsShadows
+        shadowSettings.isDisabled = !light.isCastsShadows
 
         dirXSlider.value = light.direction!!.x
         dirYSlider.value = light.direction!!.y

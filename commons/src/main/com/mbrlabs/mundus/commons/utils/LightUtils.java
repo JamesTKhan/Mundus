@@ -1,9 +1,21 @@
 package com.mbrlabs.mundus.commons.utils;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.environment.PointLight;
+import com.badlogic.gdx.graphics.g3d.environment.SpotLight;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
-import com.mbrlabs.mundus.commons.env.lights.*;
+import com.mbrlabs.mundus.commons.env.lights.LightType;
+import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight;
+import net.mgsx.gltf.scene3d.lights.PointLightEx;
+import net.mgsx.gltf.scene3d.lights.SpotLightEx;
 
 /**
  * Utilities class for lighting.
@@ -16,16 +28,20 @@ public class LightUtils {
     public static final int MAX_POINT_LIGHTS = 12;
     public static final int MAX_SPOT_LIGHTS = 12;
 
+    public static final float DEFAULT_INTENSITY = 2.0f;
+    public static final Color DEFAULT_COLOR = Color.WHITE.cpy();
+    public static final Vector3 DEFAULT_DIRECTION = new Vector3(0.40f, -1, 0);
+
     /**
      * Return the first Directional Light. Currently only one Directional Light is supported.
      */
-    public static DirectionalLight getDirectionalLight(Environment env) {
+    public static MundusDirectionalShadowLight getDirectionalLight(Environment env) {
         DirectionalLightsAttribute dirLightAttribs = env.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
         if (dirLightAttribs == null) return null;
 
         Array<DirectionalLight> dirLights = dirLightAttribs.lights;
         if (dirLights != null && dirLights.size > 0) {
-            return dirLights.first();
+            return (MundusDirectionalShadowLight) dirLights.first();
         }
         return null;
     }
@@ -75,10 +91,10 @@ public class LightUtils {
      * @param env the environment to add the light to
      * @param light the light to be added
      */
-    public static void addLightIfMissing(MundusEnvironment env, PointLight light) {
-        if (light.lightType == LightType.POINT_LIGHT && !getPointLights(env).contains(light, true)) {
+    public static void addLightIfMissing(MundusEnvironment env, BaseLight light) {
+        if (light instanceof PointLightEx && !getPointLights(env).contains((PointLightEx) light, true)) {
             env.add(light);
-        } else if  (light.lightType == LightType.SPOT_LIGHT && !getSpotLights(env).contains((SpotLight) light, true)) {
+        } else if  (light instanceof SpotLightEx && !getSpotLights(env).contains((SpotLight) light, true)) {
             env.add(light);
         }
     }
@@ -89,19 +105,24 @@ public class LightUtils {
      * @param from the light to copy from
      * @param to the light to copy to
      */
-    public static void copyLightSettings(PointLight from, PointLight to) {
+    public static void copyLightSettings(BaseLight from, BaseLight to) {
         to.color.set(from.color);
-        to.intensity = from.intensity;
 
-        to.position.set(from.position);
-        to.attenuation.constant = from.attenuation.constant;
-        to.attenuation.linear = from.attenuation.linear;
-        to.attenuation.exponential = from.attenuation.exponential;
+        if (from instanceof PointLightEx && to instanceof PointLightEx) {
+            PointLightEx fromI = (PointLightEx) from;
+            PointLightEx toI = (PointLightEx) to;
+            toI.intensity = fromI.intensity;
+            toI.position.set(fromI.position);
+        }
 
-        if (from instanceof SpotLight && to instanceof SpotLight) {
-            SpotLight currentLight = (SpotLight) from;
-            ((SpotLight) to).direction.set(currentLight.direction);
-            ((SpotLight) to).setCutoff(currentLight.getCutoff());
+        if (from instanceof SpotLightEx && to instanceof SpotLightEx) {
+            SpotLightEx fromI = (SpotLightEx) from;
+            SpotLightEx toI = (SpotLightEx) to;
+            toI.intensity = fromI.intensity;
+            toI.position.set(fromI.position);
+            toI.direction.set(fromI.direction);
+            toI.cutoffAngle = fromI.cutoffAngle;
+            toI.exponent = fromI.exponent;
         }
     }
 

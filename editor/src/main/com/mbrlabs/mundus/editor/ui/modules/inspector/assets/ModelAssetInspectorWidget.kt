@@ -29,6 +29,7 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.modules.inspector.BaseInspectorWidget
+import com.mbrlabs.mundus.editor.ui.widgets.MaterialSelectWidget
 import com.mbrlabs.mundus.editor.ui.widgets.MaterialWidget
 
 /**
@@ -106,8 +107,9 @@ class ModelAssetInspectorWidget : BaseInspectorWidget(TITLE) {
         materialContainer.clear()
         for (g3dbMatID in modelAsset!!.defaultMaterials.keys) {
             val mat = modelAsset!!.defaultMaterials[g3dbMatID]
-            val mw = MaterialWidget()
-            mw.matChangedListener = object: MaterialWidget.MaterialChangedListener {
+            val selectWidget = MaterialSelectWidget(mat!!)
+            materialContainer.add(selectWidget).grow().padBottom(20f).row()
+            selectWidget.matChangedListener = object: MaterialWidget.MaterialChangedListener {
                 override fun materialChanged(materialAsset: MaterialAsset) {
                     val assetManager = projectManager.current().assetManager
                     modelAsset!!.defaultMaterials.put(g3dbMatID, materialAsset)
@@ -116,8 +118,6 @@ class ModelAssetInspectorWidget : BaseInspectorWidget(TITLE) {
                     assetManager.addModifiedAsset(modelAsset!!)
                 }
             }
-            mw.material = mat
-            materialContainer.add(mw).grow().padBottom(20f).row()
         }
     }
 

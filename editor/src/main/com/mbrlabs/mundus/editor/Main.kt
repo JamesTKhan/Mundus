@@ -22,6 +22,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import com.badlogic.gdx.utils.SharedLibraryLoader
 import com.kotcrab.vis.ui.util.OsUtils
+import com.mbrlabs.mundus.commons.utils.ShaderPreprocessor
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.StartOnFirstThreadHelper
 import org.kohsuke.args4j.CmdLineParser
@@ -44,6 +45,9 @@ class LaunchOptions {
 
     @Option(name="-fullscreen",usage="Enables fullscreen mode")
     var fullscreen = false
+
+    @Option(name="-noShaderCache", usage="Disable shader preprocessor caching, useful for hot reloads during shader development")
+    var noShaderCache = false
 }
 
 fun main(arg: Array<String>) {
@@ -89,6 +93,10 @@ private fun launchEditor(options: LaunchOptions) {
         } else {
             config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 4, 3)
         }
+    }
+
+    if (options.noShaderCache) {
+        ShaderPreprocessor.cacheEnabled = false
     }
 
     val aaSamples = if (options.noMSAA) 0 else 8
