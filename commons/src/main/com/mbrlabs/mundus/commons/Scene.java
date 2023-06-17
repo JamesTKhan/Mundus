@@ -445,7 +445,13 @@ public class Scene implements Disposable {
     }
 
     private Texture getRefractionDepthTexture() {
-        return fboDepthRefraction.getColorBufferTexture();
+        Texture refractionDepth;
+        if (Gdx.graphics.isGL30Available()) {
+            refractionDepth = fboWaterRefraction.getTextureAttachments().get(DEPTH_ATTACHMENT);
+        } else {
+            refractionDepth = fboDepthRefraction.getColorBufferTexture();
+        }
+        return refractionDepth;
     }
 
     /**
