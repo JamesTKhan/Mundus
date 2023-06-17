@@ -28,7 +28,7 @@ public class LightUtils {
     public static final int MAX_POINT_LIGHTS = 12;
     public static final int MAX_SPOT_LIGHTS = 12;
 
-    public static final float DEFAULT_INTENSITY = 1.0f;
+    public static final float DEFAULT_INTENSITY = 2.0f;
     public static final Color DEFAULT_COLOR = Color.WHITE.cpy();
     public static final Vector3 DEFAULT_DIRECTION = new Vector3(0.40f, -1, 0);
 

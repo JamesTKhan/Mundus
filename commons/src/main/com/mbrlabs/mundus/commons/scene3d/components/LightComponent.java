@@ -38,12 +38,12 @@ public class LightComponent extends AbstractComponent {
                 throw new GdxRuntimeException("Directional Light not support for LightComponent");
             case POINT_LIGHT:
                 light = new PointLightEx();
-                ((PointLightEx) light).set(Color.WHITE, go.getPosition(tmp), 10.0f, 10f);
+                ((PointLightEx) light).set(Color.WHITE, go.getPosition(tmp), 2500.0f);
                 position = ((PointLightEx) light).position;
                 break;
             case SPOT_LIGHT:
                 light = new SpotLightEx();
-                ((SpotLightEx) light).set(Color.WHITE, go.getPosition(tmp), Vector3.Z.cpy(), 10f, 40f, 1f);
+                ((SpotLightEx) light).set(Color.WHITE, go.getPosition(tmp), Vector3.Z.cpy(), 2500.0f, 40f, 1f);
                 position = ((SpotLightEx) light).position;
                 break;
         }
