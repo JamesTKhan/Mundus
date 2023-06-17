@@ -1,7 +1,9 @@
 [0.5.0]
+- [Breaking Change] Lighting systems updated, visibly different. See PR#184
 - Convert Water Shader to an Uber Shader
 - Water Shader Enhancements (visible depth, toggle reflection/refraction)
 - Skybox rendering performance tweak
+- Added Triplanar Shader options for Terrains
 - Added scene delete button
 - Added scene rename button
 - Added dialog for adding water
@@ -29,6 +31,11 @@
 - Refactor tool selection
 - Custom properties component addable to game objects
 - Fix transparent layer in texture splatting for the terrain texture
+- Improved Terrain normal calculations
+- Terrain UV Scale is no longer changed under Settings, it is changed on the terrain material
+- New CLI argument to disable shader preprocessor caching for development purposes
+- Materials are no longer editable from Model Component Inspector, edit them directly
+- Terrains now have materials, uses same PBR material as models but does not use texture fields.
 
 [0.4.2] ~ 10/24/2022
 - Fix shader compilation error for Terrain when using normal maps

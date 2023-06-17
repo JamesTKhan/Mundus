@@ -10,8 +10,9 @@ import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
-import com.mbrlabs.mundus.commons.shadows.ShadowMapper
+import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution
+import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
@@ -102,15 +103,17 @@ class ShadowSettingsDialog : BaseDialog("Shadow Settings"), ProjectChangedEvent.
                     return
                 }
 
-                val shadowMapper = projectManager.current().currScene.shadowMapper as ShadowMapper
-                val res = ShadowResolution.valueFromString(shadowResSelectBox.selected)
-                shadowMapper.set(
-                    res,
-                    viewportSize.text.toInt(),
-                    viewportSize.text.toInt(),
-                    camNear.text.toFloat(),
-                    camFar.text.toFloat()
-                )
+                val directionalLightEx = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
+                if (directionalLightEx is MundusDirectionalShadowLight) {
+                    val res = ShadowResolution.valueFromString(shadowResSelectBox.selected)
+                    directionalLightEx.set(
+                        res,
+                        viewportSize.text.toInt(),
+                        viewportSize.text.toInt(),
+                        camNear.text.toFloat(),
+                        camFar.text.toFloat()
+                    )
+                }
 
                 resetValues()
             }
@@ -118,16 +121,18 @@ class ShadowSettingsDialog : BaseDialog("Shadow Settings"), ProjectChangedEvent.
 
         defaultBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                val shadowMapper = projectManager.current().currScene.shadowMapper as ShadowMapper
-                shadowMapper.set(
-                    ShadowResolution.DEFAULT_SHADOW_RESOLUTION,
-                    ShadowMapper.DEFAULT_VIEWPORT_SIZE,
-                    ShadowMapper.DEFAULT_VIEWPORT_SIZE,
-                    ShadowMapper.DEFAULT_CAM_NEAR,
-                    ShadowMapper.DEFAULT_CAM_FAR
-                )
+                val directionalLightEx = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
+                if (directionalLightEx is MundusDirectionalShadowLight) {
+                    directionalLightEx.set(
+                        ShadowResolution.DEFAULT_SHADOW_RESOLUTION,
+                        MundusDirectionalShadowLight.DEFAULT_VIEWPORT_SIZE,
+                        MundusDirectionalShadowLight.DEFAULT_VIEWPORT_SIZE,
+                        MundusDirectionalShadowLight.DEFAULT_CAM_NEAR,
+                        MundusDirectionalShadowLight.DEFAULT_CAM_FAR
+                    )
 
-                resetValues()
+                    resetValues()
+                }
             }
         })
 
@@ -137,11 +142,14 @@ class ShadowSettingsDialog : BaseDialog("Shadow Settings"), ProjectChangedEvent.
     }
 
     private fun resetValues() {
-        val shadowMapper = projectManager.current().currScene.environment.shadowMap as ShadowMapper
-        viewportSize.text = shadowMapper.viewportWidth.toString()
-        camNear.text = shadowMapper.nearPlane.toString()
-        camFar.text = shadowMapper.farPlane.toString()
-        shadowResSelectBox.selected = projectManager.current().currScene.shadowMapper.shadowResolution.value
+        val directionalLightEx = LightUtils.getDirectionalLight(projectManager.current().currScene.environment)
+        if (directionalLightEx is MundusDirectionalShadowLight) {
+            viewportSize.text = directionalLightEx.camera.viewportWidth.toInt().toString()
+            camNear.text = directionalLightEx.camera.near.toString()
+            camFar.text = directionalLightEx.camera.far.toString()
+            shadowResSelectBox.selected = directionalLightEx.shadowResolution.value
+        }
+
     }
 
     private fun validateFields(): String? {

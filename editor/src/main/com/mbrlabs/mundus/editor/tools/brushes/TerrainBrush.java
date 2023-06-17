@@ -40,7 +40,7 @@ import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.history.commands.TerrainHeightCommand;
 import com.mbrlabs.mundus.editor.history.commands.TerrainPaintCommand;
-import com.mbrlabs.mundus.editor.shader.EditorTerrainUberShader;
+import com.mbrlabs.mundus.editor.shader.EditorPBRTerrainShader;
 import com.mbrlabs.mundus.editor.tools.Tool;
 import com.mbrlabs.mundus.editor.ui.UI;
 
@@ -288,7 +288,7 @@ public abstract class TerrainBrush extends Tool {
         Vector2 nearestPoint = Pools.vector2Pool.obtain();
         Vector2 vertexPos2 = Pools.vector2Pool.obtain();
         Vector2 startPoint2 = Pools.vector2Pool.obtain().set(startPoint.x, startPoint.z);
-        Vector2 rampEnd2 = Pools.vector2Pool.obtain().set(rampEndPoint.x, rampEndPoint.z);;
+        Vector2 rampEnd2 = Pools.vector2Pool.obtain().set(rampEndPoint.x, rampEndPoint.z);
 
         for (int i = 0; i < 1; i++) {
 
@@ -580,7 +580,7 @@ public abstract class TerrainBrush extends Tool {
 
         mouseMoved = true;
 
-        EditorTerrainUberShader.setPickerPosition(brushPos.x, brushPos.y, brushPos.z);
+        EditorPBRTerrainShader.setPickerPosition(brushPos.x, brushPos.y, brushPos.z);
 
         return false;
     }
@@ -592,7 +592,7 @@ public abstract class TerrainBrush extends Tool {
         } else {
             scale(1.1f);
         }
-        EditorTerrainUberShader.setPickerRadius(radius);
+        EditorPBRTerrainShader.setPickerRadius(radius);
 
         return false;
     }
@@ -604,14 +604,14 @@ public abstract class TerrainBrush extends Tool {
 
     @Override
     public void onDisabled() {
-        EditorTerrainUberShader.activatePicker(false);
+        EditorPBRTerrainShader.activatePicker(false);
     }
 
     @Override
     public void onActivated() {
-        EditorTerrainUberShader.activatePicker(true);
-        EditorTerrainUberShader.setPickerPosition(brushPos.x, brushPos.y, brushPos.z);
-        EditorTerrainUberShader.setPickerRadius(radius);
+        EditorPBRTerrainShader.activatePicker(true);
+        EditorPBRTerrainShader.setPickerPosition(brushPos.x, brushPos.y, brushPos.z);
+        EditorPBRTerrainShader.setPickerRadius(radius);
     }
 
 }

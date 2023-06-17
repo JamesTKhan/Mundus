@@ -21,10 +21,15 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane
 import com.kotcrab.vis.ui.widget.tabbedpane.TabbedPaneListener
+import com.mbrlabs.mundus.commons.assets.MaterialAsset
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
+import com.mbrlabs.mundus.editor.ui.widgets.MaterialSelectWidget
+import com.mbrlabs.mundus.editor.ui.widgets.MaterialWidget
 
 /**
  * @author Marcus Brummer
@@ -35,6 +40,8 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
 
     private val tabbedPane = TabbedPane()
     private val tabContainer = VisTable()
+    private val materialContainer = VisTable()
+    private val projectManager: ProjectManager = Mundus.inject()
 
     private val raiseLowerTab = TerrainUpDownTab(this)
     private val flattenTab = TerrainFlattenTab(this)
@@ -58,7 +65,25 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
         collapsibleContent.add(tabbedPane.table).growX().row()
         collapsibleContent.add(VisLabel("Use CTRL+Scroll Wheel to adjust brush size")).center().padBottom(4f).row()
         collapsibleContent.add(tabContainer).expand().fill().row()
+        collapsibleContent.add(VisLabel("Material")).expandX().fillX().left().padBottom(4f).padTop(4f).row()
+        collapsibleContent.addSeparator().row()
+        collapsibleContent.add(materialContainer).grow().row()
+        buildMaterials()
         tabbedPane.switchTab(0)
+    }
+
+    private fun buildMaterials() {
+        materialContainer.clear()
+        val selectWidget = MaterialSelectWidget(component.terrainAsset.materialAsset)
+        materialContainer.add(selectWidget).grow().padBottom(20f).row()
+        selectWidget.matChangedListener = object: MaterialWidget.MaterialChangedListener {
+            override fun materialChanged(materialAsset: MaterialAsset) {
+                component.terrainAsset.materialAsset = materialAsset
+                component.applyMaterial()
+                val assetManager = projectManager.current().assetManager
+                assetManager.addModifiedAsset(component.terrainAsset)
+            }
+        }
     }
 
     override fun setValues(go: GameObject) {
