@@ -179,6 +179,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
     private var creationThreads = 0
     private var assetsToTerraform = HashMap<Vector2, TerrainComponent>()
     private var assetsToCreate = Array<IntArray>()
+    private var terrainChunkMatrix: TerrainChunkMatrix? = null
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
         if (assetsToCreate.size > 0) {
@@ -187,6 +188,10 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
 
         if (assetsToTerraform.size > 0 && terraformingThreads == 0) {
             runTerraformingThreads()
+        }
+
+        if (terrainChunkMatrix?.isDone() == true) {
+            setupNeighborTerrains()
         }
 
         if (generatingTerrain) {
@@ -260,6 +265,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
 
         if (assetExists) return
 
+        terrainChunkMatrix = TerrainChunkMatrix(xIteration, yIteration)
+
         generatingTerrain = true
         loadingDialog = Dialogs.showOKDialog(UI, "Generating Terrain", "Generating ")
         val button = loadingDialog!!.buttonsTable.getChild(0) as VisTextButton
@@ -332,6 +339,9 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
 
                     // Now Queue it up for terraforming
                     assetsToTerraform[Vector2(i.toFloat(), j.toFloat())] = component!!
+
+                    // Add generated terrain chunk to matrix
+                    terrainChunkMatrix!!.addTerrain(i, j, asset.terrain)
                 }
             }
         }
@@ -369,6 +379,46 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
         )
 
         return asset
+    }
+
+    /**
+     * Setups neighbor terrains for each terrain.
+     */
+    private fun setupNeighborTerrains() {
+        val terrains = terrainChunkMatrix!!.terrains
+
+        for (x in 0 until terrains.size) {
+            for (y in 0 until terrains[x].size) {
+                if (y-1 >= 0) {
+                    terrains[x][y]!!.topTerrain = terrains[x][y-1]
+                }
+                if (x+1 < terrains.size) {
+                    terrains[x][y]!!.rightTerrain = terrains[x+1][y]
+                }
+                if (y+1 < terrains[x].size) {
+                    terrains[x][y]!!.bottomTerrain = terrains[x][y+1]
+                }
+                if (x-1 >= 0) {
+                    terrains[x][y]!!.leftTerrain = terrains[x-1][y]
+                }
+            }
+        }
+
+        terrainChunkMatrix = null
+    }
+
+    inner class TerrainChunkMatrix(x: Int, y: Int) {
+
+        private var remainingTerrains = x * y
+        val terrains = Array(x) { Array<Terrain?>(y) {null} }
+
+        fun addTerrain(x: Int, y: Int, terrain: Terrain) {
+            --remainingTerrains
+
+            terrains[x][y] = terrain
+        }
+
+        fun isDone(): Boolean = remainingTerrains == 0
     }
 
 }

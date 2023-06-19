@@ -76,6 +76,12 @@ public class Terrain implements Disposable {
     private Model model;
     private Mesh mesh;
 
+    // Neighbor terrains
+    public Terrain topTerrain;
+    public Terrain rightTerrain;
+    public Terrain bottomTerrain;
+    public Terrain leftTerrain;
+
     private Terrain(int vertexResolution) {
         this.attribs = new VertexAttributes(
                 VertexAttribute.Position(),
