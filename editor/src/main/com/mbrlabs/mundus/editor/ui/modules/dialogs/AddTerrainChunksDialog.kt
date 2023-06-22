@@ -328,7 +328,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
                     )
 
                     terrainGO.setLocalPosition((i * width).toFloat(), 0f, (j * width).toFloat())
-                    val component = terrainGO.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
+                    val component = terrainGO.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
 
                     context.currScene.terrains.add(component)
                     projectManager.current().assetManager.addNewAsset(asset)
@@ -338,10 +338,10 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
                     Mundus.postEvent(SceneGraphChangedEvent())
 
                     // Now Queue it up for terraforming
-                    assetsToTerraform[Vector2(i.toFloat(), j.toFloat())] = component!!
+                    assetsToTerraform[Vector2(i.toFloat(), j.toFloat())] = component
 
                     // Add generated terrain chunk to matrix
-                    terrainChunkMatrix!!.addTerrain(i, j, asset.terrain)
+                    terrainChunkMatrix!!.addTerrain(i, j, component)
                 }
             }
         }
@@ -385,21 +385,21 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
      * Setups neighbor terrains for each terrain.
      */
     private fun setupNeighborTerrains() {
-        val terrains = terrainChunkMatrix!!.terrains
+        val terrainComponents = terrainChunkMatrix!!.terrainComponents
 
-        for (x in 0 until terrains.size) {
-            for (y in 0 until terrains[x].size) {
+        for (x in 0 until terrainComponents.size) {
+            for (y in 0 until terrainComponents[x].size) {
                 if (y-1 >= 0) {
-                    terrains[x][y]!!.topTerrain = terrains[x][y-1]
+                    terrainComponents[x][y]!!.topNeighbor = terrainComponents[x][y-1]
                 }
-                if (x+1 < terrains.size) {
-                    terrains[x][y]!!.rightTerrain = terrains[x+1][y]
+                if (x+1 < terrainComponents.size) {
+                    terrainComponents[x][y]!!.rightNeighbor = terrainComponents[x+1][y]
                 }
-                if (y+1 < terrains[x].size) {
-                    terrains[x][y]!!.bottomTerrain = terrains[x][y+1]
+                if (y+1 < terrainComponents[x].size) {
+                    terrainComponents[x][y]!!.bottomNeighbor = terrainComponents[x][y+1]
                 }
                 if (x-1 >= 0) {
-                    terrains[x][y]!!.leftTerrain = terrains[x-1][y]
+                    terrainComponents[x][y]!!.leftNeighbor = terrainComponents[x-1][y]
                 }
             }
         }
@@ -409,16 +409,16 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
 
     inner class TerrainChunkMatrix(x: Int, y: Int) {
 
-        private var remainingTerrains = x * y
-        val terrains = Array(x) { Array<Terrain?>(y) {null} }
+        private var remainingTerrainComponents = x * y
+        val terrainComponents = Array(x) { Array<TerrainComponent?>(y) {null} }
 
-        fun addTerrain(x: Int, y: Int, terrain: Terrain) {
-            --remainingTerrains
+        fun addTerrain(x: Int, y: Int, terrainComponent: TerrainComponent) {
+            --remainingTerrainComponents
 
-            terrains[x][y] = terrain
+            terrainComponents[x][y] = terrainComponent
         }
 
-        fun isDone(): Boolean = remainingTerrains == 0
+        fun isDone(): Boolean = remainingTerrainComponents == 0
     }
 
 }

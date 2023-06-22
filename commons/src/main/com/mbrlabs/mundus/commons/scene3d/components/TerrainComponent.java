@@ -41,6 +41,12 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
     protected TerrainAsset terrainAsset;
     protected Shader shader;
 
+    // Neighbor terrain components
+    private TerrainComponent topNeighbor;
+    private TerrainComponent rightNeighbor;
+    private TerrainComponent bottomNeighbor;
+    private TerrainComponent leftNeighbor;
+
     public TerrainComponent(GameObject go, Shader shader) {
         super(go);
         this.shader = shader;
@@ -68,6 +74,38 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
 
     public void setShader(Shader shader) {
         this.shader = shader;
+    }
+
+    public TerrainComponent getTopNeighbor() {
+        return topNeighbor;
+    }
+
+    public void setTopNeighbor(final TerrainComponent topNeighbor) {
+        this.topNeighbor = topNeighbor;
+    }
+
+    public TerrainComponent getRightNeighbor() {
+        return rightNeighbor;
+    }
+
+    public void setRightNeighbor(final TerrainComponent rightNeighbor) {
+        this.rightNeighbor = rightNeighbor;
+    }
+
+    public TerrainComponent getBottomNeighbor() {
+        return bottomNeighbor;
+    }
+
+    public void setBottomNeighbor(final TerrainComponent bottomNeighbor) {
+        this.bottomNeighbor = bottomNeighbor;
+    }
+
+    public TerrainComponent getLeftNeighbor() {
+        return leftNeighbor;
+    }
+
+    public void setLeftNeighbor(final TerrainComponent leftNeighbor) {
+        this.leftNeighbor = leftNeighbor;
     }
 
     @Override
