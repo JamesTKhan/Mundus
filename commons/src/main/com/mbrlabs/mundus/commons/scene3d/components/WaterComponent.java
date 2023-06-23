@@ -67,6 +67,7 @@ public class WaterComponent extends CullableComponent implements AssetUsage, Ren
 
     @Override
     public void update(float delta) {
+        super.update(delta);
         updateMoveFactor();
         updateFoamScroll();
     }
