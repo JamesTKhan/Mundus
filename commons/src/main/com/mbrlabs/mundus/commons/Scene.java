@@ -321,15 +321,22 @@ public class Scene implements Disposable {
     }
 
     protected void initFrameBuffers(int width, int height) {
-        fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-        if (Gdx.graphics.isGL30Available()) {
-            NestableFrameBuffer.NestableFrameBufferBuilder frameBufferBuilder = new NestableFrameBuffer.NestableFrameBufferBuilder(width, height);
-            frameBufferBuilder.addBasicColorTextureAttachment(Pixmap.Format.RGB888);
-            frameBufferBuilder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_UNSIGNED_SHORT);
-            fboWaterRefraction = frameBufferBuilder.build();
+
+        if (isRuntime){
+            fboWaterReflection = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
+            fboWaterRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
+            fboDepthRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
         } else {
-            fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-            fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+            fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+            if (Gdx.graphics.isGL30Available()) {
+                NestableFrameBuffer.NestableFrameBufferBuilder frameBufferBuilder = new NestableFrameBuffer.NestableFrameBufferBuilder(width, height);
+                frameBufferBuilder.addBasicColorTextureAttachment(Pixmap.Format.RGB888);
+                frameBufferBuilder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_UNSIGNED_SHORT);
+                fboWaterRefraction = frameBufferBuilder.build();
+            } else {
+                fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+                fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+            }
         }
     }
 
