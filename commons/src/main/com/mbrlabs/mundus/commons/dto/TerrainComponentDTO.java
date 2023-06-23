@@ -24,6 +24,13 @@ public class TerrainComponentDTO {
 
     private String terrainID;
 
+    // Neighbor terrain's game object IDs
+    private Integer topNeighborID;
+    private Integer rightNeighborID;
+    private Integer bottomNeighborID;
+    private Integer leftNeighborID;
+
+
     public String getTerrainID() {
         return terrainID;
     }
@@ -32,4 +39,35 @@ public class TerrainComponentDTO {
         this.terrainID = id;
     }
 
+    public Integer getTopNeighborID() {
+        return topNeighborID;
+    }
+
+    public void setTopNeighborID(Integer topNeighborID) {
+        this.topNeighborID = topNeighborID;
+    }
+
+    public Integer getRightNeighborID() {
+        return rightNeighborID;
+    }
+
+    public void setRightNeighborID(Integer rightNeighborID) {
+        this.rightNeighborID = rightNeighborID;
+    }
+
+    public Integer getBottomNeighborID() {
+        return bottomNeighborID;
+    }
+
+    public void setBottomNeighborID(Integer bottomNeighborID) {
+        this.bottomNeighborID = bottomNeighborID;
+    }
+
+    public Integer getLeftNeighborID() {
+        return leftNeighborID;
+    }
+
+    public void setLeftNeighborID(Integer leftNeighborID) {
+        this.leftNeighborID = leftNeighborID;
+    }
 }
