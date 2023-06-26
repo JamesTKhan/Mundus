@@ -25,7 +25,6 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.shaders.ClippableShader;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
@@ -47,7 +46,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private TerrainComponent bottomNeighbor;
     private TerrainComponent leftNeighbor;
 
-    public TerrainComponent(GameObject go, Shader shader) {
+    public TerrainComponent(GameObject go) {
         super(go);
         type = Component.Type.TERRAIN;
     }
@@ -116,35 +115,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     public void setLeftNeighbor(final TerrainComponent leftNeighbor) {
         this.leftNeighbor = leftNeighbor;
-    }
-
-    @Override
-    public void render(float delta) {
-        super.render(delta);
-        if (isCulled) return;
-        triggerBeforeRenderEvent();
-        gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment);
-    }
-
-    @Override
-    public void render(float delta, Vector3 clippingPlane, float clipHeight) {
-        TerrainUberShader.terrainClippingHeight = clipHeight;
-        TerrainUberShader.terrainClippingPlane.set(clippingPlane);
-        render(delta);
-    }
-
-    @Override
-    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader) {
-        if (isCulled) return;
-
-        if (shader instanceof ClippableShader) {
-            ((ClippableShader) shader).setClippingPlane(clippingPlane);
-            ((ClippableShader) shader).setClippingHeight(clipHeight);
-        }
-
-        triggerBeforeDepthRenderEvent();
-
-        gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
     }
 
     @Override

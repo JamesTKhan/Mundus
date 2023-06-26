@@ -323,8 +323,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
                     projectManager.current().assetManager.addAsset(asset)
 
                     val terrainGO = createTerrainGO(
-                        sceneGraph,
-                        null, goID, "${name.text}$i-$j", asset
+                        sceneGraph, goID, "${name.text}$i-$j", asset
                     )
 
                     terrainGO.setLocalPosition((i * width).toFloat(), 0f, (j * width).toFloat())
