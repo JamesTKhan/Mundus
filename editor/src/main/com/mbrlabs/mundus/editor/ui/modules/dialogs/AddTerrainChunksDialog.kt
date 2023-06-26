@@ -179,6 +179,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
     private var creationThreads = 0
     private var assetsToTerraform = HashMap<Vector2, TerrainComponent>()
     private var assetsToCreate = Array<IntArray>()
+    private var terrainChunkMatrix: TerrainChunkMatrix? = null
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
         if (assetsToCreate.size > 0) {
@@ -187,6 +188,10 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
 
         if (assetsToTerraform.size > 0 && terraformingThreads == 0) {
             runTerraformingThreads()
+        }
+
+        if (terrainChunkMatrix?.isDone() == true) {
+            setupNeighborTerrains()
         }
 
         if (generatingTerrain) {
@@ -260,6 +265,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
 
         if (assetExists) return
 
+        terrainChunkMatrix = TerrainChunkMatrix(xIteration, yIteration)
+
         generatingTerrain = true
         loadingDialog = Dialogs.showOKDialog(UI, "Generating Terrain", "Generating ")
         val button = loadingDialog!!.buttonsTable.getChild(0) as VisTextButton
@@ -321,7 +328,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
                     )
 
                     terrainGO.setLocalPosition((i * width).toFloat(), 0f, (j * width).toFloat())
-                    val component = terrainGO.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
+                    val component = terrainGO.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
 
                     context.currScene.terrains.add(component)
                     projectManager.current().assetManager.addNewAsset(asset)
@@ -331,7 +338,10 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
                     Mundus.postEvent(SceneGraphChangedEvent())
 
                     // Now Queue it up for terraforming
-                    assetsToTerraform[Vector2(i.toFloat(), j.toFloat())] = component!!
+                    assetsToTerraform[Vector2(i.toFloat(), j.toFloat())] = component
+
+                    // Add generated terrain chunk to matrix
+                    terrainChunkMatrix!!.addTerrain(i, j, component)
                 }
             }
         }
@@ -369,6 +379,46 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
         )
 
         return asset
+    }
+
+    /**
+     * Setups neighbor terrains for each terrain.
+     */
+    private fun setupNeighborTerrains() {
+        val terrainComponents = terrainChunkMatrix!!.terrainComponents
+
+        for (x in 0 until terrainComponents.size) {
+            for (y in 0 until terrainComponents[x].size) {
+                if (y-1 >= 0) {
+                    terrainComponents[x][y]!!.topNeighbor = terrainComponents[x][y-1]
+                }
+                if (x+1 < terrainComponents.size) {
+                    terrainComponents[x][y]!!.rightNeighbor = terrainComponents[x+1][y]
+                }
+                if (y+1 < terrainComponents[x].size) {
+                    terrainComponents[x][y]!!.bottomNeighbor = terrainComponents[x][y+1]
+                }
+                if (x-1 >= 0) {
+                    terrainComponents[x][y]!!.leftNeighbor = terrainComponents[x-1][y]
+                }
+            }
+        }
+
+        terrainChunkMatrix = null
+    }
+
+    inner class TerrainChunkMatrix(x: Int, y: Int) {
+
+        private var remainingTerrainComponents = x * y
+        val terrainComponents = Array(x) { Array<TerrainComponent?>(y) {null} }
+
+        fun addTerrain(x: Int, y: Int, terrainComponent: TerrainComponent) {
+            --remainingTerrainComponents
+
+            terrainComponents[x][y] = terrainComponent
+        }
+
+        fun isDone(): Boolean = remainingTerrainComponents == 0
     }
 
 }

@@ -20,12 +20,14 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
+import com.mbrlabs.mundus.commons.dto.TerrainComponentDTO;
 import com.mbrlabs.mundus.commons.mapper.CustomPropertiesComponentConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableWaterComponent;
@@ -86,9 +88,52 @@ public class GameObjectConverter {
             for (GameObjectDTO c : dto.getChilds()) {
                 go.addChild(convert(c, sceneGraph, assets));
             }
+
+            setupNeighborTerrains(dto, go);
         }
 
         return go;
+    }
+
+    /**
+     * Setups neighbor terrains for all children if child has {@link TerrainComponent} component and it has set neighbor.
+     *
+     * @param goDto The DTO of game object.
+     * @param go The game object.
+     */
+    private static void setupNeighborTerrains(final GameObjectDTO goDto, final GameObject go) {
+        for (final GameObjectDTO childDto : goDto.getChilds()) {
+            final GameObject child = go.findChildById(childDto.getId());
+
+            final TerrainComponentDTO terrainComponentDTO = childDto.getTerrainComponent();
+            final TerrainComponent terrainComponent = (TerrainComponent) child.findComponentByType(Component.Type.TERRAIN);
+
+            if (terrainComponentDTO != null) {
+                final Integer topNeighborId = terrainComponentDTO.getTopNeighborID();
+                if (topNeighborId != null) {
+                    final GameObject topNeighbor = go.findChildById(topNeighborId);
+                    terrainComponent.setTopNeighbor((TerrainComponent) topNeighbor.findComponentByType(Component.Type.TERRAIN));
+                }
+
+                final Integer rightNeighborId = terrainComponentDTO.getRightNeighborID();
+                if (rightNeighborId != null) {
+                    final GameObject rightNeighbor = go.findChildById(rightNeighborId);
+                    terrainComponent.setRightNeighbor((TerrainComponent) rightNeighbor.findComponentByType(Component.Type.TERRAIN));
+                }
+
+                final Integer bottomNeighborId = terrainComponentDTO.getBottomNeighborID();
+                if (bottomNeighborId != null) {
+                    final GameObject bottomNeighbor = go.findChildById(bottomNeighborId);
+                    terrainComponent.setBottomNeighbor((TerrainComponent) bottomNeighbor.findComponentByType(Component.Type.TERRAIN));
+                }
+
+                final Integer leftNeighborId = terrainComponentDTO.getLeftNeighborID();
+                if (leftNeighborId != null) {
+                    final GameObject leftNeighbor = go.findChildById(leftNeighborId);
+                    terrainComponent.setLeftNeighbor((TerrainComponent) leftNeighbor.findComponentByType(Component.Type.TERRAIN));
+                }
+            }
+        }
     }
 
     /**
