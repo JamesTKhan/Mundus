@@ -33,11 +33,7 @@ import com.mbrlabs.mundus.editor.tools.picker.PickerIDAttribute;
 public class PickableModelComponent extends ModelComponent implements PickableComponent {
 
     public PickableModelComponent(GameObject go) {
-        super(go, null);
-    }
-
-    public PickableModelComponent(GameObject go, Shader shader) {
-        super(go, shader);
+        super(go);
     }
 
     @Override
@@ -55,10 +51,9 @@ public class PickableModelComponent extends ModelComponent implements PickableCo
 
     @Override
     public Component clone(GameObject go) {
-        PickableModelComponent mc = new PickableModelComponent(go, shader);
+        PickableModelComponent mc = new PickableModelComponent(go);
         mc.modelAsset = this.modelAsset;
         mc.modelInstance = new ModelInstance(modelAsset.getModel());
-        mc.shader = this.shader;
         mc.materials.putAll(this.materials);
         mc.setDimensions(mc.modelInstance);
         mc.setUseModelCache(useModelCache);

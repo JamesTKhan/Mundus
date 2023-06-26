@@ -34,8 +34,7 @@ public class ModelComponentConverter {
     /**
      * Converts {@link ModelComponentDTO} to {@link ModelComponent}.
      */
-    public static ModelComponent convert(ModelComponentDTO modelComponentDTO, GameObject gameObject,
-                                         Shaders shaders, AssetManager assetManager) {
+    public static ModelComponent convert(ModelComponentDTO modelComponentDTO, GameObject gameObject, AssetManager assetManager) {
         ModelComponent mc = new ModelComponent(gameObject);
         mc.setModel((ModelAsset) assetManager.findAssetByID(modelComponentDTO.getModelID()), false);
         mc.setUseModelCache(modelComponentDTO.isUseModelCache());

@@ -16,8 +16,9 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -25,7 +26,7 @@ import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.shaders.ClippableShader;
-import com.mbrlabs.mundus.commons.shaders.TerrainUberShader;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
 
@@ -33,13 +34,12 @@ import java.util.Objects;
  * @author Marcus Brummer
  * @version 18-01-2016
  */
-public class TerrainComponent extends CullableComponent implements AssetUsage, ClippableComponent {
+public class TerrainComponent extends CullableComponent implements AssetUsage, RenderableComponent {
 
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
     protected ModelInstance modelInstance;
     protected TerrainAsset terrainAsset;
-    protected Shader shader;
 
     // Neighbor terrain components
     private TerrainComponent topNeighbor;
@@ -49,8 +49,12 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
 
     public TerrainComponent(GameObject go, Shader shader) {
         super(go);
-        this.shader = shader;
         type = Component.Type.TERRAIN;
+    }
+
+    @Override
+    public RenderableProvider getRenderableProvider() {
+        return modelInstance;
     }
 
     public void updateUVs(Vector2 uvScale) {
@@ -61,19 +65,25 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
         this.terrainAsset = terrainAsset;
         modelInstance = new ModelInstance(terrainAsset.getTerrain().getModel());
         modelInstance.transform = gameObject.getTransform();
+        applyMaterial();
         setDimensions(modelInstance);
+    }
+
+    public void applyMaterial() {
+        if (terrainAsset.getMaterialAsset() == null) return;
+
+        Material material = modelInstance.materials.first();
+
+        // Apply base textures to this instances material because we use base color/normal for splat base
+        material.set(PBRTextureAttribute.createBaseColorTexture(terrainAsset.getSplatBase().getTexture()));
+        if (terrainAsset.getSplatBaseNormal() != null)
+            material.set(PBRTextureAttribute.createNormalTexture(terrainAsset.getSplatBaseNormal().getTexture()));
+
+        terrainAsset.getMaterialAsset().applyToMaterial(material, true);
     }
 
     public TerrainAsset getTerrainAsset() {
         return terrainAsset;
-    }
-
-    public Shader getShader() {
-        return shader;
-    }
-
-    public void setShader(Shader shader) {
-        this.shader = shader;
     }
 
     public TerrainComponent getTopNeighbor() {
@@ -146,6 +156,10 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, C
     public boolean usesAsset(Asset assetToCheck) {
         if (Objects.equals(terrainAsset.getID(), assetToCheck.getID()))
             return true;
+
+        if (assetToCheck == terrainAsset.getMaterialAsset()) {
+            return true;
+        }
 
         return terrainAsset.usesAsset(assetToCheck);
     }

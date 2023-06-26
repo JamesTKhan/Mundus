@@ -275,6 +275,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                                     } else if (channel == SplatTexture.Channel.A) {
                                         terrain.splatA = asset as TextureAsset
                                     }
+                                    parentWidget.component.applyMaterial()
                                     terrain.applyDependencies()
                                     setTexturesInUiGrid()
                                     projectManager.current().assetManager.addModifiedAsset(terrain)

@@ -16,10 +16,8 @@
 
 package com.mbrlabs.mundus.commons.scene3d;
 
-import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.mbrlabs.mundus.commons.scene3d.components.ClippableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
@@ -91,67 +89,6 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
             this.components.add(c.clone(this));
         }
         setParent(gameObject.parent);
-    }
-
-    /**
-     * Calls the render() method for each component in this and all child nodes.
-     *
-     * @param delta
-     *            time since last render
-     */
-    public void render(float delta) {
-        if (active) {
-            for (Component component : this.components) {
-                component.render(delta);
-            }
-
-            if (getChildren() != null) {
-                for (GameObject node : getChildren()) {
-                    node.render(delta);
-                }
-            }
-        }
-    }
-
-    public void render(float delta, Vector3 clippingPlane, float clipHeight) {
-        if (!active) return;
-
-        for (Component component : this.components) {
-            if (component instanceof ClippableComponent)
-                ((ClippableComponent)component).render(delta, clippingPlane, clipHeight);
-            else
-                component.render(delta);
-        }
-
-        if (getChildren() != null) {
-            for (GameObject node : getChildren()) {
-                node.render(delta, clippingPlane, clipHeight);
-            }
-        }
-    }
-
-    /**
-     * Renders depth, right now only renders depth for clippable components as it
-     * is used for calculating depths of water for refractions.
-     * @param delta delta time
-     * @param clippingPlane the clipping plane to use
-     * @param clipHeight clipping height for the clipping plane
-     * @param shader
-     */
-    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader) {
-        if (active) {
-            for (Component component : this.components) {
-                if (component instanceof ClippableComponent) {
-                    ((ClippableComponent) component).renderDepth(delta, clippingPlane, clipHeight, shader);
-                }
-            }
-
-            if (getChildren() != null) {
-                for (GameObject node : getChildren()) {
-                    node.renderDepth(delta, clippingPlane, clipHeight, shader);
-                }
-            }
-        }
     }
 
     /**
@@ -235,10 +172,11 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
      * @return component if found or null
      */
     public Component findComponentByType(Component.Type type) {
-        for (Component c : components) {
+        // Use regular loop, to not conflict with nested iterators
+        for (int i = 0; i < components.size; i++) {
+            Component c = components.get(i);
             if (c != null && c.getType() == type) return c;
         }
-
         return null;
     }
 
