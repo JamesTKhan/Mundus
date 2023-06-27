@@ -101,6 +101,7 @@ object UI : Stage(ScreenViewport()) {
     val versionDialog: VersionDialog = VersionDialog()
     val keyboardShortcuts: KeyboardShortcutsDialog = KeyboardShortcutsDialog()
     val debugRenderDialog: DebugRenderDialog = DebugRenderDialog()
+    val terrainStitcherDialog: TerrainStitcherDialog = TerrainStitcherDialog()
     val exitDialog: ExitDialog = ExitDialog()
 
     // styles

@@ -386,19 +386,20 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
     private fun setupNeighborTerrains() {
         val terrainComponents = terrainChunkMatrix!!.terrainComponents
 
+        // Bottom right corner is 0,0. Top neighbor is +y, right neighbor is +x
         for (x in 0 until terrainComponents.size) {
             for (y in 0 until terrainComponents[x].size) {
-                if (y-1 >= 0) {
-                    terrainComponents[x][y]!!.topNeighbor = terrainComponents[x][y-1]
-                }
-                if (x+1 < terrainComponents.size) {
-                    terrainComponents[x][y]!!.rightNeighbor = terrainComponents[x+1][y]
-                }
                 if (y+1 < terrainComponents[x].size) {
-                    terrainComponents[x][y]!!.bottomNeighbor = terrainComponents[x][y+1]
+                    terrainComponents[x][y]!!.topNeighbor = terrainComponents[x][y+1]
                 }
                 if (x-1 >= 0) {
-                    terrainComponents[x][y]!!.leftNeighbor = terrainComponents[x-1][y]
+                    terrainComponents[x][y]!!.rightNeighbor = terrainComponents[x-1][y]
+                }
+                if (y-1 >= 0) {
+                    terrainComponents[x][y]!!.bottomNeighbor = terrainComponents[x][y-1]
+                }
+                if (x+1 < terrainComponents.size) {
+                    terrainComponents[x][y]!!.leftNeighbor = terrainComponents[x+1][y]
                 }
             }
         }

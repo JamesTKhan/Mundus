@@ -225,6 +225,13 @@ object Mundus {
         eventBus.unregister(listener)
     }
 
+    /*
+     * Gets the CommandHistory instance
+     */
+    fun getCommandHistory(): CommandHistory {
+        return commandHistory
+    }
+
     /**
      * Disposes everything.
      */
