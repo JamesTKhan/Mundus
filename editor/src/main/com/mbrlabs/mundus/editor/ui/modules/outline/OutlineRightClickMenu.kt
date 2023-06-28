@@ -1,5 +1,10 @@
 package com.mbrlabs.mundus.editor.ui.modules.outline
 
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.g3d.Material
+import com.badlogic.gdx.graphics.g3d.Model
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
@@ -7,16 +12,26 @@ import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
 import com.kotcrab.vis.ui.widget.MenuItem
 import com.kotcrab.vis.ui.widget.PopupMenu
+import com.mbrlabs.mundus.commons.assets.ModelAsset
+import com.mbrlabs.mundus.commons.assets.meta.MetaModel
 import com.mbrlabs.mundus.commons.scene3d.GameObject
+import com.mbrlabs.mundus.commons.scene3d.SceneGraph
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.assets.MetaSaver
+import com.mbrlabs.mundus.editor.assets.ModelImporter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.events.TerrainRemovedEvent
+import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
+import com.mbrlabs.mundus.editor.utils.UsefulMeshs
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute
+import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute
 
 /**
  * Holds code for Outlines right click menu. Separated from Outline class
@@ -33,6 +48,8 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
     private val outline: Outline
     private val projectManager: ProjectManager = Mundus.inject()
     private val toolManager: ToolManager = Mundus.inject()
+    private val modelImporter: ModelImporter = Mundus.inject()
+
 
     init {
         this.outline = outline
@@ -261,34 +278,85 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
         private val addEmpty: MenuItem = MenuItem("Add Empty")
         private val addTerrain: MenuItem = MenuItem("Add Terrain")
         private val addWater: MenuItem = MenuItem("Add Water")
+        private val addPlane: MenuItem = MenuItem("Add Plane")
+        private val addCube: MenuItem = MenuItem("Add Cube")
         init {
             addItem(addEmpty)
             addItem(addTerrain)
             addItem(addWater)
+            addItem(addPlane)
+            addItem(addCube)
 
             // add empty
             addEmpty.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     val sceneGraph = projectManager.current().currScene.sceneGraph
-                    val id = projectManager.current().obtainID()
-                    // the new game object
-                    val go = GameObject(sceneGraph, GameObject.DEFAULT_NAME, id)
+                    val go = createGameObject(sceneGraph)
+
                     // update outline
-                    if (selectedGO == null) {
-                        // update sceneGraph
-                        Log.trace(TAG, "Add empty game object [{}] in root node.", go)
-                        sceneGraph.addGameObject(go)
-                        // update outline
-                        outline.addGoToTree(null, go)
-                    } else {
-                        Log.trace(TAG, "Add empty game object [{}] child in node [{}].", go, selectedGO)
-                        // update sceneGraph
-                        selectedGO!!.addChild(go)
-                        // update outline
-                        val n = outline.tree.findNode(selectedGO!!)
-                        outline.addGoToTree(n, go)
+                    updateOutline(sceneGraph, go)
+                }
+            })
+
+            addPlane.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    val fileName = "standard_plane.gltf"
+                    val assetManager = projectManager.current().assetManager
+                    var modelAsset = assetManager.findAssetByFileName(fileName) as ModelAsset?
+
+                    val sceneGraph = projectManager.current().currScene.sceneGraph
+                    val go = createGameObject(sceneGraph)
+
+                    if (modelAsset == null) {
+                        // Create new material
+                        val material = Material("plane_material")
+                        setDefaultValues(material)
+                        modelAsset = createModelAsset(fileName, UsefulMeshs.createPlane(material, 5f))
                     }
-                    Mundus.postEvent(SceneGraphChangedEvent())
+
+                    // Create model component
+                    val modelComponent = PickableModelComponent(go)
+
+                    // Set model and add to game object
+                    modelComponent.setModel(modelAsset, true)
+                    go.addComponent(modelComponent)
+                    modelComponent.encodeRaypickColorId()
+
+                    Mundus.postEvent(AssetImportEvent(modelAsset))
+
+                    // update outline
+                    updateOutline(sceneGraph, go)
+                }
+            })
+
+            addCube.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    val fileName = "standard_cube.gltf"
+                    val assetManager = projectManager.current().assetManager
+                    var modelAsset = assetManager.findAssetByFileName(fileName) as ModelAsset?
+
+                    val sceneGraph = projectManager.current().currScene.sceneGraph
+                    val go = createGameObject(sceneGraph)
+
+                    if (modelAsset == null) {
+                        // Create new material
+                        val material = Material("cube_material")
+                        setDefaultValues(material)
+                        modelAsset = createModelAsset(fileName, UsefulMeshs.createCube(material, 5f))
+                    }
+
+                    // Create model component
+                    val modelComponent = PickableModelComponent(go)
+
+                    // Set model and add to game object
+                    modelComponent.setModel(modelAsset, true)
+                    go.addComponent(modelComponent)
+                    modelComponent.encodeRaypickColorId()
+
+                    Mundus.postEvent(AssetImportEvent(modelAsset!!))
+
+                    // update outline
+                    updateOutline(sceneGraph, go)
                 }
             })
 
@@ -305,6 +373,61 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
                     UI.showDialog(UI.addWaterDialog)
                 }
             })
+        }
+
+        private fun createModelAsset(fileName: String, model: Model): ModelAsset {
+            val assetManager = projectManager.current().assetManager
+            val modelAsset = assetManager.createModelAsset(fileName, model)
+            modelAsset.meta.model = MetaModel()
+
+            for (mat in modelAsset.model.materials) {
+                val materialAsset = assetManager.createMaterialAsset(modelAsset.id.substring(0, 4) + "_" + mat.id)
+
+                modelImporter.populateMaterialAsset(null, projectManager.current().assetManager, mat, materialAsset)
+                projectManager.current().assetManager.saveMaterialAsset(materialAsset)
+
+                modelAsset.meta.model.defaultMaterials.put(mat.id, materialAsset.id)
+                modelAsset.defaultMaterials.put(mat.id, materialAsset)
+            }
+
+            // save meta file
+            val saver = MetaSaver()
+            saver.save(modelAsset.meta)
+
+            modelAsset.applyDependencies()
+            return modelAsset
+        }
+
+        private fun setDefaultValues(material: Material) {
+            material.set(PBRColorAttribute.createBaseColorFactor(Color.GRAY))
+            material.set(PBRFloatAttribute.createMetallic(0f))
+            material.set(PBRFloatAttribute.createRoughness(1.0f))
+            material.set(IntAttribute.createCullFace(GL20.GL_BACK))
+        }
+
+        private fun updateOutline(sceneGraph: SceneGraph, go: GameObject) {
+            // update outline
+            if (selectedGO == null) {
+                // update sceneGraph
+                Log.trace(TAG, "Add empty game object [{}] in root node.", go)
+                sceneGraph.addGameObject(go)
+                // update outline
+                outline.addGoToTree(null, go)
+            } else {
+                Log.trace(TAG, "Add empty game object [{}] child in node [{}].", go, selectedGO)
+                // update sceneGraph
+                selectedGO!!.addChild(go)
+                // update outline
+                val n = outline.tree.findNode(selectedGO!!)
+                outline.addGoToTree(n, go)
+            }
+            Mundus.postEvent(SceneGraphChangedEvent())
+        }
+
+        fun createGameObject(sceneGraph : SceneGraph): GameObject {
+            val id = projectManager.current().obtainID()
+            // the new game object
+            return GameObject(sceneGraph, GameObject.DEFAULT_NAME, id)
         }
 
     }
