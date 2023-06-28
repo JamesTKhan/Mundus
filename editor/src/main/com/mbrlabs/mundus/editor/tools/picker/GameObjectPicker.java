@@ -42,6 +42,9 @@ public class GameObjectPicker extends BasePicker {
     }
 
     public GameObject pick(EditorScene scene, int screenX, int screenY) {
+        // Scene not initialized yet
+        if (scene.viewport == null) return null;
+
         begin(scene.viewport);
         renderPickableScene(scene.sceneGraph);
         end();
