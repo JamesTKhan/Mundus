@@ -17,6 +17,8 @@ package com.mbrlabs.mundus.editor.utils;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -25,7 +27,9 @@ import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
+import net.mgsx.gltf.loaders.shared.geometry.MeshTangentSpaceGenerator;
 
 /**
  * @author Marcus Brummer
@@ -126,6 +130,210 @@ public class UsefulMeshs {
             }
         }
 
+        return modelBuilder.end();
+    }
+
+    public static Model createPlane(Material mat, float size) {
+        // Position, Normal, TextureCoordinates, Tangents (generated later)
+        float[] vertices = {
+                -size, 0.0f, size,
+                0.0f, 1.0f, -0.0f,
+                0.0f, 1.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, 0.0f, size,
+                0.0f, 1.0f, -0.0f,
+                1.0f, 1.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, 0.0f, -size,
+                0.0f, 1.0f, -0.0f,
+                0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, 0.0f, -size,
+                0.0f, 1.0f, -0.0f,
+                1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+        };
+        short[] indices = {0, 1, 3, 0, 3, 2};
+
+        VertexAttributes attribs = new VertexAttributes(
+                new VertexAttribute(VertexAttributes.Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE),
+                new VertexAttribute(VertexAttributes.Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE),
+                new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"),
+                new VertexAttribute(Usage.Tangent, 4, ShaderProgram.TANGENT_ATTRIBUTE)
+        );
+
+        VertexAttribute normalMapUVs = null;
+        for(VertexAttribute a : attribs){
+            if(a.usage == VertexAttributes.Usage.TextureCoordinates){
+                normalMapUVs = a;
+            }
+        }
+
+        // Get tangents added for normal mapping
+        MeshTangentSpaceGenerator.computeTangentSpace(vertices, indices, attribs, false, true, normalMapUVs);
+
+        Mesh mesh = new Mesh(false, vertices.length, indices.length, attribs);
+        mesh.setVertices(vertices);
+        mesh.setIndices(indices);
+
+        ModelBuilder modelBuilder = new ModelBuilder();
+        modelBuilder.begin();
+        modelBuilder.part("plane", mesh, GL20.GL_TRIANGLES, mat);
+        return modelBuilder.end();
+    }
+
+    public static Model createCube(Material mat, float size) {
+        // Position, Normal, TextureCoordinates, Tangents (generated later)
+        float[] vertices = {
+                size, size, -size,
+                0.0f, 0.0f, -1.0f,
+                0.625f, 0.5f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, size, -size,
+                0.0f, 1.0f, -0.0f,
+                0.625f, 0.5f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, size, -size,
+                1.0f, 0.0f, -0.0f,
+                0.625f, 0.5f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, -size, -size,
+                0.0f, -1.0f, -0.0f,
+                0.375f, 0.5f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, -size, -size,
+                0.0f, 0.0f, -1.0f,
+                0.375f, 0.5f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, -size, -size,
+                1.0f, 0.0f, -0.0f,
+                0.375f, 0.5f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, size, size,
+                0.0f, 0.0f, 1.0f,
+                0.625f, 0.25f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, size, size,
+                0.0f, 1.0f, -0.0f,
+                0.625f, 0.25f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, size, size,
+                1.0f, 0.0f, -0.0f,
+                0.625f, 0.25f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, -size, size,
+                0.0f, -1.0f, -0.0f,
+                0.375f, 0.25f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, -size, size,
+                0.0f, 0.0f, 1.0f,
+                0.375f, 0.25f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                size, -size, size,
+                1.0f, 0.0f, -0.0f,
+                0.375f, 0.25f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, size, -size,
+                -1.0f, 0.0f, -0.0f,
+                0.625f, 0.75f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, size, -size,
+                0.0f, 0.0f, -1.0f,
+                0.625f, 0.75f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, size, -size,
+                0.0f, 1.0f, -0.0f,
+                0.875f, 0.5f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, -size, -size,
+                -1.0f, 0.0f, -0.0f,
+                0.375f, 0.75f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, -size, -size,
+                0.0f, -1.0f, -0.0f,
+                0.125f, 0.5f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, -size, -size,
+                0.0f, 0.0f, -1.0f,
+                0.375f, 0.75f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, size, size,
+                -1.0f, 0.0f, -0.0f,
+                0.625f, 1.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, size, size,
+                0.0f, 0.0f, 1.0f,
+                0.625f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, size, size,
+                0.0f, 1.0f, -0.0f,
+                0.875f, 0.25f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, -size, size,
+                -1.0f, 0.0f, -0.0f,
+                0.375f, 1.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, -size, size,
+                0.0f, -1.0f, -0.0f,
+                0.125f, 0.25f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+
+                -size, -size, size,
+                0.0f, 0.0f, 1.0f,
+                0.375f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+        };
+        short[] indices = {1, 14, 20, 1, 20, 7, 10, 6, 19, 10, 19, 23, 21, 18, 12, 21, 12, 15, 16, 3, 9, 16, 9, 22, 5, 2, 8, 5, 8, 11, 17, 13, 0, 17, 0, 4};
+
+        VertexAttributes attribs = new VertexAttributes(
+                new VertexAttribute(VertexAttributes.Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE),
+                new VertexAttribute(VertexAttributes.Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE),
+                new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"),
+                new VertexAttribute(Usage.Tangent, 4, ShaderProgram.TANGENT_ATTRIBUTE)
+        );
+
+        VertexAttribute normalMapUVs = null;
+        for(VertexAttribute a : attribs){
+            if(a.usage == VertexAttributes.Usage.TextureCoordinates){
+                normalMapUVs = a;
+            }
+        }
+
+        // Get tangents added for normal mapping
+        MeshTangentSpaceGenerator.computeTangentSpace(vertices, indices, attribs, false, true, normalMapUVs);
+
+        Mesh mesh = new Mesh(false, vertices.length, indices.length, attribs);
+        mesh.setVertices(vertices);
+        mesh.setIndices(indices);
+
+        ModelBuilder modelBuilder = new ModelBuilder();
+        modelBuilder.begin();
+        modelBuilder.part("cube", mesh, GL20.GL_TRIANGLES, mat);
         return modelBuilder.end();
     }
 
