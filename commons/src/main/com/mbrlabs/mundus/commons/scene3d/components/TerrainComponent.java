@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
@@ -115,6 +116,21 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     public void setLeftNeighbor(final TerrainComponent leftNeighbor) {
         this.leftNeighbor = leftNeighbor;
+    }
+
+    /**
+     * Retrieves immediate neighbors of this terrain (TOP, RIGHT, BOTTOM, LEFT).
+     * If a neighbor is null, it is not added to the array.
+     *
+     * @param out array to store neighbors in
+     * @return array with neighbors
+     */
+    public Array<TerrainComponent> getNeighbors(Array<TerrainComponent> out) {
+        if (topNeighbor != null) out.add(topNeighbor);
+        if (rightNeighbor != null) out.add(rightNeighbor);
+        if (bottomNeighbor != null) out.add(bottomNeighbor);
+        if (leftNeighbor != null) out.add(leftNeighbor);
+        return out;
     }
 
     @Override

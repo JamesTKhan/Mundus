@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2023. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.events
 
-import com.mbrlabs.mundus.commons.scene3d.GameObject
+package com.mbrlabs.mundus.editor.tools.terrain;
+
+import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush;
 
 /**
- * @author Marcus Brummer
- * @version 21-01-2016
+ * @author JamesTKhan
+ * @version June 28, 2023
  */
-class GameObjectSelectedEvent(var gameObject: GameObject?, var activateSelection: Boolean = true) {
-
-    interface GameObjectSelectedListener {
-        @Subscribe
-        fun onGameObjectSelected(event: GameObjectSelectedEvent)
-    }
+public abstract class RadiusTerrainTool implements TerrainTool {
+    protected static final TerrainBrush.TerrainModifyComparison radiusDistanceComparison = (terrainBrush, vertexPos, localBrushPos) -> {
+        float distance = vertexPos.dst(localBrushPos);
+        return distance <= terrainBrush.getRadius();
+    };
 
 }

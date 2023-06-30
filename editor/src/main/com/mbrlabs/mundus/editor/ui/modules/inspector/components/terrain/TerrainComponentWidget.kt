@@ -27,6 +27,9 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.tools.ToolManager
+import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
+import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
 import com.mbrlabs.mundus.editor.ui.widgets.MaterialSelectWidget
 import com.mbrlabs.mundus.editor.ui.widgets.MaterialWidget
@@ -42,6 +45,7 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
     private val tabContainer = VisTable()
     private val materialContainer = VisTable()
     private val projectManager: ProjectManager = Mundus.inject()
+    private val toolManager: ToolManager = Mundus.inject()
 
     private val raiseLowerTab = TerrainUpDownTab(this)
     private val flattenTab = TerrainFlattenTab(this)
@@ -50,6 +54,7 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
     private val paintTab = TerrainPaintTab(this)
     private val genTab = TerrainGenTab(this)
     private val settingsTab = TerrainSettingsTab(this)
+    private var initializing = true
 
     init {
         tabbedPane.addListener(this)
@@ -70,6 +75,7 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
         collapsibleContent.add(materialContainer).grow().row()
         buildMaterials()
         tabbedPane.switchTab(0)
+        initializing = false
     }
 
     private fun buildMaterials() {
@@ -96,6 +102,16 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
     override fun switchedTab(tab: Tab) {
         tabContainer.clearChildren()
         tabContainer.add(tab.contentTable).expand().fill()
+
+        // Don't toggle tool if the listener is called during init
+        if (initializing) return
+
+        // Set the active tool to default translate tool if changing tab
+        val projectManager: ProjectManager = Mundus.inject()
+        if (toolManager.activeTool is TerrainBrush) {
+            toolManager.activateTool(toolManager.translateTool)
+            projectManager.current().currScene.currentSelection = UI.outline.getSelectedGameObject()
+        }
     }
 
     override fun removedTab(tab: Tab) {

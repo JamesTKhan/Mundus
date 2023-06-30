@@ -2,6 +2,7 @@ package com.mbrlabs.mundus.commons.utils;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Pool;
 
 /**
@@ -36,6 +37,18 @@ public class Pools {
         }
     };
 
+    public final static Pool<BoundingBox> boundingBoxPool = new Pool<BoundingBox>(4) {
+        @Override
+        protected BoundingBox newObject () {
+            return new BoundingBox();
+        }
+
+        @Override
+        protected void reset(BoundingBox object) {
+            object.set(Vector3.Zero, Vector3.Zero);
+        }
+    };
+
 
     /**
      * Convenience method, free array of objects
@@ -44,6 +57,12 @@ public class Pools {
     public static void free(Vector2... objects ) {
         for (Vector2 object : objects) {
             vector2Pool.free(object);
+        }
+    }
+
+    public static void free(Vector3... objects ) {
+        for (Vector3 object : objects) {
+            vector3Pool.free(object);
         }
     }
 }

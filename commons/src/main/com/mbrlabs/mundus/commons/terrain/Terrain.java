@@ -74,9 +74,15 @@ public class Terrain implements Disposable {
     private final int norPos;
     private final int uvPos;
 
+    // Tracks the modified vertices bounds
+    private int minX = Integer.MAX_VALUE;
+    private int maxX = Integer.MIN_VALUE;
+    private int minZ = Integer.MAX_VALUE;
+    private int maxZ = Integer.MIN_VALUE;
+
     // Textures
     private TerrainMaterial terrainMaterial;
-    private Material material;
+    private final Material material;
 
     // Mesh
     private Model model;
@@ -171,7 +177,7 @@ public class Terrain implements Disposable {
      * Note: This method should be called after the vertices and indices of the mesh have been defined and set.
      * It directly modifies the vertices array to set the normal for each vertex.
      */
-    private void calculateAverageNormals(int numIndices, int numVertices) {
+    public void calculateAverageNormals(int numIndices, int numVertices) {
         Vector3 v1 = Pools.vector3Pool.obtain();
         Vector3 v2 = Pools.vector3Pool.obtain();
         Vector3 v3 = Pools.vector3Pool.obtain();
@@ -182,19 +188,40 @@ public class Terrain implements Disposable {
             getVertexPos(v1, indices[i] & 0xFFFF);
             getVertexPos(v2, indices[i + 1] & 0xFFFF);
             getVertexPos(v3, indices[i + 2] & 0xFFFF);
-            Vector3 normal = calculateFaceNormal(new Vector3(), v1, v2, v3);
+            Vector3 normal = calculateFaceNormal(Pools.vector3Pool.obtain(), v1, v2, v3);
             faceNormals[i / 3] = normal;
         }
 
+        int minXIndex, maxXIndex, minZIndex, maxZIndex;
+        if (minX <= maxX && minZ <= maxZ) {
+            // Only calculate normals for vertices within the modified region
+            minXIndex = Math.max(0, minX - 1);
+            maxXIndex = Math.min(vertexResolution - 1, maxX + 1);
+            minZIndex = Math.max(0, minZ - 1);
+            maxZIndex = Math.min(vertexResolution - 1, maxZ + 1);
+        } else {
+            // Calculate normals for all vertices
+            minXIndex = 0;
+            maxXIndex = vertexResolution - 1;
+            minZIndex = 0;
+            maxZIndex = vertexResolution - 1;
+        }
+
         // Calculate and set vertex normals
-        for (int i = 0; i < numVertices; i++) {
-            calculateVertexNormal(v1, i, faceNormals);
-            setVertexNormal(i, v1);
+        for (int z = minZIndex; z <= maxZIndex; z++) {
+            for (int x = minXIndex; x <= maxXIndex; x++) {
+                int i = z * vertexResolution + x;
+                calculateVertexNormal(v1, i, faceNormals);
+                setVertexNormal(i, v1);
+            }
         }
 
         Pools.vector3Pool.free(v1);
         Pools.vector3Pool.free(v2);
         Pools.vector3Pool.free(v3);
+        for (Vector3 normal : faceNormals) {
+            Pools.vector3Pool.free(normal);
+        }
     }
 
     /**
@@ -276,9 +303,14 @@ public class Terrain implements Disposable {
         // Translates world coordinates to local coordinates
         tmp.set(worldX, 0f, worldZ).mul(tmpMatrix.set(terrainTransform).inv());
 
-        float terrainX = tmp.x;
-        float terrainZ = tmp.z;
+        float height = getHeightAtLocalCoord(tmp.x, tmp.z);
 
+        // Translates to world coordinate
+        height *= terrainTransform.getScale(tmp).y;
+        return height;
+    }
+
+    public float getHeightAtLocalCoord(float terrainX, float terrainZ) {
         float gridSquareSize = terrainWidth / ((float) vertexResolution - 1);
         int gridX = (int) Math.floor(terrainX / gridSquareSize);
         int gridZ = (int) Math.floor(terrainZ / gridSquareSize);
@@ -302,8 +334,6 @@ public class Terrain implements Disposable {
             height = MathUtils.barryCentric(c10, c11, c01, tmpV2.set(zCoord, xCoord));
         }
 
-        // Translates to world coordinate
-        height *= terrainTransform.getScale(tmp).y;
         return height;
     }
 
@@ -313,9 +343,9 @@ public class Terrain implements Disposable {
      * @param out Vector3 to populate with intersect point with
      * @param ray the ray to cast
      * @param terrainTransform The world transform (modelInstance transform) of the terrain
-     * @return
+     * @return true if the ray intersects the terrain, false otherwise
      */
-    public Vector3 getRayIntersection(Vector3 out, Ray ray, Matrix4 terrainTransform) {
+    public boolean getRayIntersection(Vector3 out, Ray ray, Matrix4 terrainTransform) {
         // TODO improve performance. use binary search
         float curDistance = 2;
         int rounds = 0;
@@ -328,8 +358,10 @@ public class Terrain implements Disposable {
             ray.getEndPoint(out, curDistance);
 
             boolean u = isUnderTerrain(out, terrainTransform);
-            if (u != isUnder || rounds == 20000) {
-                return out;
+            if (u != isUnder) {
+                return true;
+            } else if (rounds == 80000) {
+                return false;
             }
             curDistance += u ? -0.1f : 0.1f;
         }
@@ -362,17 +394,40 @@ public class Terrain implements Disposable {
         return indices;
     }
 
-    private void buildVertices() {
-        for (int x = 0; x < vertexResolution; x++) {
-            for (int z = 0; z < vertexResolution; z++) {
-                calculateVertexAt(tempVertexInfo, x, z);
-                setVertex(z * vertexResolution + x, tempVertexInfo);
+    /**
+     * When only a subsection of the terrain is modified, this method can be used to track
+     * and expand the bounding box of the modified region. This allows the terrain to only update the
+     * vertices that are affected by the modification.
+     *
+     * @param x the x coordinate of the modified vertex
+     * @param z the z coordinate of the modified vertex
+     */
+    public void modifyVertex(int x, int z) {
+        // Expand the bounding box to include this vertex.
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minZ = Math.min(minZ, z);
+        maxZ = Math.max(maxZ, z);
+    }
+
+    public void buildVertices() {
+        if (minX <= maxX && minZ <= maxZ) {
+            // If we have a bounding box, only update that region.
+            for (int x = minX; x <= maxX; x++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    calculateVertexAt(tempVertexInfo, x, z);
+                    setVertex(z * vertexResolution + x, tempVertexInfo);
+                }
+            }
+        } else {
+            // If the bounding box is empty, then we need to update all vertices.
+            for (int x = 0; x < vertexResolution; x++) {
+                for (int z = 0; z < vertexResolution; z++) {
+                    calculateVertexAt(tempVertexInfo, x, z);
+                    setVertex(z * vertexResolution + x, tempVertexInfo);
+                }
             }
         }
-
-        final int numVertices = this.vertexResolution * vertexResolution;
-        final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
-        calculateAverageNormals(numIndices, numVertices);
     }
 
     private void setVertex(int index, MeshPartBuilder.VertexInfo info) {
@@ -508,15 +563,33 @@ public class Terrain implements Disposable {
     public void update() {
         buildVertices();
 
+        final int numVertices = this.vertexResolution * vertexResolution;
+        final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
+        calculateAverageNormals(numIndices, numVertices);
+        computeTangents();
+        updateMeshVertices();
+        resetBoundingBox();
+    }
+
+    void resetBoundingBox() {
+        // reset bounding box
+        minX = Integer.MAX_VALUE;
+        maxX = Integer.MIN_VALUE;
+        minZ = Integer.MAX_VALUE;
+        maxZ = Integer.MIN_VALUE;
+    }
+
+    public void computeTangents() {
         VertexAttribute normalMapUVs = null;
         for(VertexAttribute a : attribs){
             if(a.usage == VertexAttributes.Usage.TextureCoordinates){
                 normalMapUVs = a;
             }
         }
-        // Get tangents added to terrains vertices array for normal mapping
         MeshTangentSpaceGenerator.computeTangentSpace(vertices, indices, attribs, false, true, normalMapUVs);
+    }
 
+    public void updateMeshVertices() {
         mesh.setVertices(vertices);
     }
 
