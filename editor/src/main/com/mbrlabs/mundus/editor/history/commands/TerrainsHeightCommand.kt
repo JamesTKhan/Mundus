@@ -20,7 +20,7 @@ import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.editor.history.Command
 
 /**
- * A wrapper for modifying te height of multiple terrains.
+ * A wrapper for modifying the height of multiple terrains.
  * @author JamesTKhan
  * @version June 30, 2023
  */

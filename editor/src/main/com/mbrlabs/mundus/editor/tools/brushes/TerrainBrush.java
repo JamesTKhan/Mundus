@@ -43,8 +43,8 @@ import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent;
 import com.mbrlabs.mundus.editor.events.GlobalBrushSettingsChangedEvent;
 import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
-import com.mbrlabs.mundus.editor.history.commands.TerrainPaintCommand;
 import com.mbrlabs.mundus.editor.history.commands.TerrainsHeightCommand;
+import com.mbrlabs.mundus.editor.history.commands.TerrainsPaintCommand;
 import com.mbrlabs.mundus.editor.shader.EditorPBRTerrainShader;
 import com.mbrlabs.mundus.editor.tools.Tool;
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
@@ -176,7 +176,7 @@ public abstract class TerrainBrush extends Tool {
 
     // undo/redo system
     private TerrainsHeightCommand heightCommand = null;
-    private TerrainPaintCommand paintCommand = null;
+    private TerrainsPaintCommand paintCommand = null;
     private boolean terrainHeightModified = false;
     private boolean splatmapModified = false;
     private boolean refreshConnectedTerrains = false;
@@ -241,6 +241,23 @@ public abstract class TerrainBrush extends Tool {
     }
 
     private void paint() {
+        paint(terrainComponent, true);
+    }
+
+    private void paint(TerrainComponent terrainComponent, boolean updateNeighbors) {
+        if (updateNeighbors) {
+            Set<TerrainComponent> allNeighbors = getAllConnectedTerrains();
+
+            for (TerrainComponent neighbor : allNeighbors) {
+                if (neighbor == terrainComponent) continue;
+
+                if (brushAffectsTerrain(brushPos, radius, neighbor)) {
+                    paint(neighbor, false);
+                }
+            }
+        }
+
+
         Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
         SplatMap sm = terrain.getTerrainTexture().getSplatmap();
         if (sm == null) return;
@@ -254,16 +271,26 @@ public abstract class TerrainBrush extends Tool {
         final float splatRad = (radius / terrain.terrainWidth) * sm.getWidth();
         final Pixmap pixmap = sm.getPixmap();
 
+        boolean modified = false;
+
         for (int smX = 0; smX < pixmap.getWidth(); smX++) {
             for (int smY = 0; smY < pixmap.getHeight(); smY++) {
                 final float dst = Vector2.dst(splatX, splatY, smX, smY);
                 if (dst <= splatRad) {
+                    // If not already added, add the terrain to the list of modified terrains
+                    if (modifiedTerrains.add(terrainComponent)) {
+                        paintCommand.addTerrain(terrain);
+                    }
+
                     final float opacity = getValueOfBrushPixmap(splatX, splatY, smX, smY, splatRad) * 0.5f * strength;
                     int newPixelColor = sm.additiveBlend(pixmap.getPixel(smX, smY), paintChannel, opacity);
                     pixmap.drawPixel(smX, smY, newPixelColor);
+                    modified = true;
                 }
             }
         }
+
+        if (!modified) return;
 
         sm.updateTexture();
         splatmapModified = true;
@@ -436,7 +463,6 @@ public abstract class TerrainBrush extends Tool {
                 if (neighbor == terrainComponent) continue;
 
                 if (brushAffectsTerrain(brushPos, radius, neighbor)) {
-                    getBrushLocalPosition(neighbor, localBrushPos);
                     modifyTerrain(neighbor, modifier, comparison, false);
                 }
             }
@@ -653,8 +679,7 @@ public abstract class TerrainBrush extends Tool {
 
         }
         if (splatmapModified && paintCommand != null) {
-            final SplatMap sm = terrainComponent.getTerrainAsset().getTerrain().getTerrainTexture().getSplatmap();
-            paintCommand.setAfter(sm.getPixmap());
+            paintCommand.setAfter();
             getHistory().add(paintCommand);
         }
         splatmapModified = false;
@@ -695,8 +720,7 @@ public abstract class TerrainBrush extends Tool {
         } else if (mode == BrushMode.PAINT) {
             final SplatMap sm = terrainComponent.getTerrainAsset().getTerrain().getTerrainTexture().getSplatmap();
             if (sm != null) {
-                paintCommand = new TerrainPaintCommand(terrainComponent.getTerrainAsset().getTerrain());
-                paintCommand.setBefore(sm.getPixmap());
+                paintCommand = new TerrainsPaintCommand();
             }
         }
 
