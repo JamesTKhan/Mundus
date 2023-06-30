@@ -310,6 +310,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks") {
                 Gdx.app.postRunnable {
                     creationThreads--
                     asset.finishSyncLoad(loader)
+                    asset.resolveDependencies(context.assetManager.assetMap)
 
                     // set base texture
                     val chessboard =
