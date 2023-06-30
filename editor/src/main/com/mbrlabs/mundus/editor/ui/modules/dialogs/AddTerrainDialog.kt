@@ -174,6 +174,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                 }
 
                 asset.load()
+                asset.resolveDependencies(context.assetManager.assetMap)
                 asset.applyDependencies()
 
                 val terrainGO = createTerrainGO(sceneGraph, goID, terrainName, asset)
