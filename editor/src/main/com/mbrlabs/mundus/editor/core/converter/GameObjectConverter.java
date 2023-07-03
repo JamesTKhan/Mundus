@@ -99,7 +99,7 @@ public class GameObjectConverter {
      * Setups neighbor terrains for all children if child has {@link TerrainComponent} component and it has set neighbor.
      *
      * @param goDto The DTO of game object.
-     * @param go The game object.
+     * @param go    The game object.
      */
     private static void setupNeighborTerrains(final GameObjectDTO goDto, final GameObject go) {
         for (final GameObjectDTO childDto : goDto.getChilds()) {
@@ -112,25 +112,33 @@ public class GameObjectConverter {
                 final Integer topNeighborId = terrainComponentDTO.getTopNeighborID();
                 if (topNeighborId != null) {
                     final GameObject topNeighbor = go.findChildById(topNeighborId);
-                    terrainComponent.setTopNeighbor((TerrainComponent) topNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    if (topNeighbor != null) {
+                        terrainComponent.setTopNeighbor((TerrainComponent) topNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    }
                 }
 
                 final Integer rightNeighborId = terrainComponentDTO.getRightNeighborID();
                 if (rightNeighborId != null) {
                     final GameObject rightNeighbor = go.findChildById(rightNeighborId);
-                    terrainComponent.setRightNeighbor((TerrainComponent) rightNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    if (rightNeighbor != null) {
+                        terrainComponent.setRightNeighbor((TerrainComponent) rightNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    }
                 }
 
                 final Integer bottomNeighborId = terrainComponentDTO.getBottomNeighborID();
                 if (bottomNeighborId != null) {
                     final GameObject bottomNeighbor = go.findChildById(bottomNeighborId);
-                    terrainComponent.setBottomNeighbor((TerrainComponent) bottomNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    if (bottomNeighbor != null) {
+                        terrainComponent.setBottomNeighbor((TerrainComponent) bottomNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    }
                 }
 
                 final Integer leftNeighborId = terrainComponentDTO.getLeftNeighborID();
                 if (leftNeighborId != null) {
                     final GameObject leftNeighbor = go.findChildById(leftNeighborId);
-                    terrainComponent.setLeftNeighbor((TerrainComponent) leftNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    if (leftNeighbor != null) {
+                        terrainComponent.setLeftNeighbor((TerrainComponent) leftNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    }
                 }
             }
         }
