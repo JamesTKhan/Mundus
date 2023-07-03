@@ -9,7 +9,7 @@ import com.mbrlabs.mundus.editor.history.Command
  * @author JamesTKhan
  * @version July 03, 2023
  */
-class TerrainNeighborCommand(var terrainComponent: TerrainComponent, var neighborString: String) : Command {
+class TerrainNeighborCommand(var terrainComponent: TerrainComponent?, var neighborString: String) : Command {
     private var previousNeighbor: TerrainComponent? = null
     private var newNeighbor: TerrainComponent? = null
     private var textField: VisTextField? = null
@@ -17,10 +17,10 @@ class TerrainNeighborCommand(var terrainComponent: TerrainComponent, var neighbo
     init {
         previousNeighbor =
             when (neighborString) {
-                "Left" -> terrainComponent.leftNeighbor
-                "Right" -> terrainComponent.rightNeighbor
-                "Top" -> terrainComponent.topNeighbor
-                "Bottom" -> terrainComponent.bottomNeighbor
+                "Left" -> terrainComponent?.leftNeighbor
+                "Right" -> terrainComponent?.rightNeighbor
+                "Top" -> terrainComponent?.topNeighbor
+                "Bottom" -> terrainComponent?.bottomNeighbor
                 else -> null
             }
     }
@@ -34,10 +34,10 @@ class TerrainNeighborCommand(var terrainComponent: TerrainComponent, var neighbo
     }
 
     private fun setNeighbor(neighbor: TerrainComponent?) {
-        if (neighborString == "Left") terrainComponent.leftNeighbor = neighbor
-        if (neighborString == "Right") terrainComponent.rightNeighbor = neighbor
-        if (neighborString == "Top") terrainComponent.topNeighbor = neighbor
-        if (neighborString == "Bottom") terrainComponent.bottomNeighbor = neighbor
+        if (neighborString == "Left") terrainComponent?.leftNeighbor = neighbor
+        if (neighborString == "Right") terrainComponent?.rightNeighbor = neighbor
+        if (neighborString == "Top") terrainComponent?.topNeighbor = neighbor
+        if (neighborString == "Bottom") terrainComponent?.bottomNeighbor = neighbor
         textField?.text = neighbor?.gameObject?.name ?: "None"
     }
 
