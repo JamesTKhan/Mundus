@@ -107,6 +107,7 @@ public class GameObjectConverter {
 
             final TerrainComponentDTO terrainComponentDTO = childDto.getTerrainComponent();
             final TerrainComponent terrainComponent = (TerrainComponent) child.findComponentByType(Component.Type.TERRAIN);
+            if (terrainComponent == null) return; // Happens if terra files deleted in file system
 
             if (terrainComponentDTO != null) {
                 final Integer topNeighborId = terrainComponentDTO.getTopNeighborID();
