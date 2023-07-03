@@ -17,7 +17,7 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.gameobjects.GameObjectPicker
  */
 class GameObjectSelectionField : VisTable() {
 
-    private val textField: VisTextField
+    val textField: VisTextField = VisTextField()
     private val btn: VisTextButton
 
     var pickerListener: GameObjectPickerDialog.GameObjectPickerListener? = null
@@ -26,7 +26,6 @@ class GameObjectSelectionField : VisTable() {
     private val internalListener: GameObjectPickerDialog.GameObjectPickerListener
 
     init {
-        textField = VisTextField()
         textField.isDisabled = true
         btn = VisTextButton("Select")
 

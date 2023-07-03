@@ -3,6 +3,8 @@ package com.mbrlabs.mundus.editor.ui.widgets
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.history.commands.TerrainNeighborCommand
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.gameobjects.GameObjectFilter
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.gameobjects.GameObjectPickerDialog
 
@@ -44,11 +46,14 @@ class TerrainNeighborWidget(val terrainComponent: TerrainComponent) : BaseWidget
         field.gameObjectFilter = filter
         field.pickerListener = object : GameObjectPickerDialog.GameObjectPickerListener {
             override fun onSelected(go: GameObject?) {
-                val neighbor = go?.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
-                if (neighborString == "Left") terrainComponent.leftNeighbor = neighbor
-                if (neighborString == "Right") terrainComponent.rightNeighbor = neighbor
-                if (neighborString == "Top") terrainComponent.topNeighbor = neighbor
-                if (neighborString == "Bottom") terrainComponent.bottomNeighbor = neighbor
+                val newNeighbor = go?.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
+                val command = TerrainNeighborCommand(terrainComponent, neighborString)
+                command.setNewNeighbor(newNeighbor)
+                command.setTextField(field.textField)
+
+                Mundus.getCommandHistory().add(command)
+                command.execute()
+
                 field.setGameObject(go)
             }
         }
