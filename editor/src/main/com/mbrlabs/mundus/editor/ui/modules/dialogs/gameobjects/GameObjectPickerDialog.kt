@@ -1,20 +1,4 @@
-/*
- * Copyright (c) 2016. See AUTHORS file.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.mbrlabs.mundus.editor.ui.modules.dialogs.assets
+package com.mbrlabs.mundus.editor.ui.modules.dialogs.gameobjects
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Touchable
@@ -23,40 +7,41 @@ import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.adapter.SimpleListAdapter
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
-import com.mbrlabs.mundus.commons.assets.Asset
+import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.assets.AssetFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
+import com.mbrlabs.mundus.editor.events.SceneChangedEvent
+import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.editor.ui.widgets.AutoFocusListView
 
 /**
- * A filterable list of assets.
+ * A filterable list of GameObjects.
  *
- * The user can pick one or no asset. The list of assets can be filtered by type before
- * showing it to the user.
+ * The user can pick one or no GameObject. The list of GameObjects can be filtered before
+ * showing it to the user via GameObjectFilter.
  *
- * @author Marcus Brummer
- * @version 02-10-2016
+ * @author JamesTKhan
+ * @version July 02, 2023
  */
-class AssetPickerDialog : BaseDialog(AssetPickerDialog.TITLE),
-        AssetImportEvent.AssetImportListener,
-        ProjectChangedEvent.ProjectChangedListener {
+class GameObjectPickerDialog : BaseDialog(TITLE),
+    SceneGraphChangedEvent.SceneGraphChangedListener,
+    SceneChangedEvent.SceneChangedListener,
+    ProjectChangedEvent.ProjectChangedListener {
 
     private companion object {
-        private val TITLE = "Select an asset"
+        private val TITLE = "Select a GameObject"
     }
 
     private val root = VisTable()
-    private val listAdapter = SimpleListAdapter(Array<Asset>())
+    private val listAdapter = SimpleListAdapter(Array<GameObject>())
     private val list = AutoFocusListView(listAdapter)
-    private val noneBtn = VisTextButton("None / Remove old asset")
+    private val noneBtn = VisTextButton("None / Remove")
 
-    private var filter: AssetFilter? = null
-    private var listener: AssetPickerListener? = null
+    private var filter: GameObjectFilter? = null
+    private var listener: GameObjectPickerListener? = null
 
     private val projectManager: ProjectManager = Mundus.inject()
 
@@ -95,22 +80,28 @@ class AssetPickerDialog : BaseDialog(AssetPickerDialog.TITLE),
         reloadData()
     }
 
-    override fun onAssetImported(event: AssetImportEvent) {
+    override fun onSceneChanged(event: SceneChangedEvent) {
+        reloadData()
+    }
+
+    override fun onSceneGraphChanged(event: SceneGraphChangedEvent) {
         reloadData()
     }
 
     private fun reloadData() {
-        val assetManager = projectManager.current().assetManager
+        val gos = Array<GameObject>()
+        projectManager.current().currScene.sceneGraph.getAllGameObjects(gos)
+
         listAdapter.clear()
 
-        // filter assets
-        for (asset in assetManager.assets) {
+        // filter GameObjects
+        for (go in gos) {
             if (filter != null) {
-                if (filter!!.ignore(asset)) {
+                if (filter!!.ignore(go)) {
                     continue
                 }
             }
-            listAdapter.add(asset)
+            listAdapter.add(go)
         }
 
         listAdapter.itemsDataChanged()
@@ -119,14 +110,14 @@ class AssetPickerDialog : BaseDialog(AssetPickerDialog.TITLE),
     /**
      * Shows the dialog.
      *
-     * @param showNoneAsset if true the user will be able to select a NONE asset
-     * @param filter optional asset type filter
+     * @param showNoneOption if true the user will be able to select a NONE GameObject
+     * @param filter optional GameObject type filter
      * @listener picker listener
      */
-    fun show(showNoneAsset: Boolean, filter: AssetFilter?, listener: AssetPickerListener) {
+    fun show(showNoneOption: Boolean, filter: GameObjectFilter?, listener: GameObjectPickerListener) {
         this.listener = listener
         this.filter = filter
-        if (showNoneAsset) {
+        if (showNoneOption) {
             noneBtn.isDisabled = false
             noneBtn.touchable = Touchable.enabled
         } else {
@@ -139,9 +130,8 @@ class AssetPickerDialog : BaseDialog(AssetPickerDialog.TITLE),
 
     /**
      */
-    interface AssetPickerListener {
-        fun onSelected(asset: Asset?)
+    interface GameObjectPickerListener {
+        fun onSelected(go: GameObject?)
     }
-
 
 }
