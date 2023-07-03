@@ -25,14 +25,14 @@ class TerrainNeighborWidget(val terrainComponent: TerrainComponent) : BaseWidget
     /**
      * Custom filter that ignores all GameObjects that are not terrains or are not children of the same parent GameObject.
      */
-    class TerrainGameObjectFilter(var parentGo: GameObject) : GameObjectFilter {
+    class TerrainGameObjectFilter(var parentGo: GameObject, var currentGo: GameObject) : GameObjectFilter {
         override fun ignore(go: GameObject): Boolean {
-            return go.findComponentByType(Component.Type.TERRAIN) == null || !go.isChildOf(parentGo)
+            return go.findComponentByType(Component.Type.TERRAIN) == null || !go.isChildOf(parentGo) || go == currentGo
         }
     }
 
     init {
-        filter = TerrainGameObjectFilter(terrainComponent.gameObject.parent)
+        filter = TerrainGameObjectFilter(terrainComponent.gameObject.parent, terrainComponent.gameObject)
         add(ToolTipLabel("Neighbors: ", "Assigned neighbor terrains.\nNeighbors must all be children of the same parent GameObject."))
             .left().padBottom(5f).row()
         setNeighbors()

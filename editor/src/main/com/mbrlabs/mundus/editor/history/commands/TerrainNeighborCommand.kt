@@ -2,6 +2,8 @@ package com.mbrlabs.mundus.editor.history.commands
 
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.history.Command
 
 /**
@@ -27,10 +29,12 @@ class TerrainNeighborCommand(var terrainComponent: TerrainComponent?, var neighb
 
     override fun execute() {
         setNeighbor(newNeighbor)
+        Mundus.postEvent(LogEvent("$neighborString Terrain neighbor of ${terrainComponent?.gameObject?.name} changed to ${newNeighbor?.gameObject?.name}"))
     }
 
     override fun undo() {
         setNeighbor(previousNeighbor)
+        Mundus.postEvent(LogEvent("$neighborString Terrain neighbor of ${terrainComponent?.gameObject?.name} undone back to ${previousNeighbor?.gameObject?.name}"))
     }
 
     private fun setNeighbor(neighbor: TerrainComponent?) {
