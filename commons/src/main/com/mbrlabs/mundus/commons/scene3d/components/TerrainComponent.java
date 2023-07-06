@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
+import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
@@ -75,9 +76,10 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         Material material = modelInstance.materials.first();
 
         // Apply base textures to this instances material because we use base color/normal for splat base
-        material.set(PBRTextureAttribute.createBaseColorTexture(terrainAsset.getSplatBase().getTexture()));
-        if (terrainAsset.getSplatBaseNormal() != null)
-            material.set(PBRTextureAttribute.createNormalTexture(terrainAsset.getSplatBaseNormal().getTexture()));
+        final TerrainLayerAsset terrainLayerAsset = terrainAsset.getTerrainLayerAsset();
+        material.set(PBRTextureAttribute.createBaseColorTexture(terrainLayerAsset.getSplatBase().getTexture()));
+        if (terrainLayerAsset.getSplatBaseNormal() != null)
+            material.set(PBRTextureAttribute.createNormalTexture(terrainLayerAsset.getSplatBaseNormal().getTexture()));
 
         terrainAsset.getMaterialAsset().applyToMaterial(material, true);
     }

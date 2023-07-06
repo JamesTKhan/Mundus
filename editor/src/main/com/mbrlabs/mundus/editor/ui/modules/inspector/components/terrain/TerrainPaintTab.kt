@@ -107,13 +107,14 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
         val assetManager = projectManager.current().assetManager
 
         val terrainAsset = this@TerrainPaintTab.parentWidget.component.terrainAsset
+        val terrainLayerAsset = terrainAsset.terrainLayerAsset
         val terrainTexture = terrainAsset.terrain.terrainTexture
 
         assetManager.addModifiedAsset(terrainAsset)
 
         // channel base
-        if (terrainAsset.splatBase == null) {
-            terrainAsset.splatBase = textureAsset
+        if (terrainLayerAsset.splatBase == null) {
+            terrainLayerAsset.splatBase = textureAsset
             terrainAsset.applyDependencies()
             textureGrid.addTexture(terrainTexture.getTexture(SplatTexture.Channel.BASE))
             return
@@ -135,32 +136,32 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
         }
 
         // channel r
-        if (terrainAsset.splatR == null) {
-            terrainAsset.splatR = textureAsset
+        if (terrainLayerAsset.splatR == null) {
+            terrainLayerAsset.splatR = textureAsset
             terrainAsset.applyDependencies()
             textureGrid.addTexture(terrainTexture.getTexture(SplatTexture.Channel.R))
             return
         }
 
         // channel g
-        if (terrainAsset.splatG == null) {
-            terrainAsset.splatG = textureAsset
+        if (terrainLayerAsset.splatG == null) {
+            terrainLayerAsset.splatG = textureAsset
             terrainAsset.applyDependencies()
             textureGrid.addTexture(terrainTexture.getTexture(SplatTexture.Channel.G))
             return
         }
 
         // channel b
-        if (terrainAsset.splatB == null) {
-            terrainAsset.splatB = textureAsset
+        if (terrainLayerAsset.splatB == null) {
+            terrainLayerAsset.splatB = textureAsset
             terrainAsset.applyDependencies()
             textureGrid.addTexture(terrainTexture.getTexture(SplatTexture.Channel.B))
             return
         }
 
         // channel a
-        if (terrainAsset.splatA == null) {
-            terrainAsset.splatA = textureAsset
+        if (terrainLayerAsset.splatA == null) {
+            terrainLayerAsset.splatA = textureAsset
             terrainAsset.applyDependencies()
             textureGrid.addTexture(terrainTexture.getTexture(SplatTexture.Channel.A))
             return
@@ -232,18 +233,19 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     if (channel != null) {
                         val terrain = parentWidget.component.terrainAsset
+                        val terrainLayerAsset = terrain.terrainLayerAsset
                         if (channel == SplatTexture.Channel.R) {
-                            terrain.splatR = null
-                            terrain.splatRNormal = null
+                            terrainLayerAsset.splatR = null
+                            terrainLayerAsset.splatRNormal = null
                         } else if (channel == SplatTexture.Channel.G) {
-                            terrain.splatG = null
-                            terrain.splatGNormal = null
+                            terrainLayerAsset.splatG = null
+                            terrainLayerAsset.splatGNormal = null
                         } else if (channel == SplatTexture.Channel.B) {
-                            terrain.splatB = null
-                            terrain.splatBNormal = null
+                            terrainLayerAsset.splatB = null
+                            terrainLayerAsset.splatBNormal = null
                         } else if (channel == SplatTexture.Channel.A) {
-                            terrain.splatA = null
-                            terrain.splatANormal = null
+                            terrainLayerAsset.splatA = null
+                            terrainLayerAsset.splatANormal = null
                         } else {
                             UI.toaster.error("Can't remove the base texture")
                             return
@@ -264,16 +266,17 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                             override fun onSelected(asset: Asset?) {
                                 if (channel != null) {
                                     val terrain = parentWidget.component.terrainAsset
+                                    val terrainLayerAsset = terrain.terrainLayerAsset
                                     if (channel == SplatTexture.Channel.BASE) {
-                                        terrain.splatBase = asset as TextureAsset
+                                        terrainLayerAsset.splatBase = asset as TextureAsset
                                     } else if (channel == SplatTexture.Channel.R) {
-                                        terrain.splatR = asset as TextureAsset
+                                        terrainLayerAsset.splatR = asset as TextureAsset
                                     } else if (channel == SplatTexture.Channel.G) {
-                                        terrain.splatG = asset as TextureAsset
+                                        terrainLayerAsset.splatG = asset as TextureAsset
                                     } else if (channel == SplatTexture.Channel.B) {
-                                        terrain.splatB = asset as TextureAsset
+                                        terrainLayerAsset.splatB = asset as TextureAsset
                                     } else if (channel == SplatTexture.Channel.A) {
-                                        terrain.splatA = asset as TextureAsset
+                                        terrainLayerAsset.splatA = asset as TextureAsset
                                     }
                                     parentWidget.component.applyMaterial()
                                     terrain.applyDependencies()
@@ -295,16 +298,17 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                             override fun onSelected(asset: Asset?) {
                                 if (channel != null) {
                                     val terrain = parentWidget.component.terrainAsset
+                                    val terrainLayerAsset = terrain.terrainLayerAsset
                                     if (channel == SplatTexture.Channel.BASE) {
-                                        terrain.splatBaseNormal = asset as TextureAsset
+                                        terrainLayerAsset.splatBaseNormal = asset as TextureAsset
                                     } else if (channel == SplatTexture.Channel.R) {
-                                        terrain.splatRNormal = asset as TextureAsset
+                                        terrainLayerAsset.splatRNormal = asset as TextureAsset
                                     } else if (channel == SplatTexture.Channel.G) {
-                                        terrain.splatGNormal = asset as TextureAsset
+                                        terrainLayerAsset.splatGNormal = asset as TextureAsset
                                     } else if (channel == SplatTexture.Channel.B) {
-                                        terrain.splatBNormal = asset as TextureAsset
+                                        terrainLayerAsset.splatBNormal = asset as TextureAsset
                                     } else if (channel == SplatTexture.Channel.A) {
-                                        terrain.splatANormal = asset as TextureAsset
+                                        terrainLayerAsset.splatANormal = asset as TextureAsset
                                     }
 
                                     terrain.applyDependencies()
@@ -321,17 +325,18 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     if (channel != null) {
                         val terrain = parentWidget.component.terrainAsset
+                        val terrainLayerAsset = terrain.terrainLayerAsset
                         if (channel == SplatTexture.Channel.BASE) {
-                            terrain.splatBaseNormal = null
+                            terrainLayerAsset.splatBaseNormal = null
                         }
                         if (channel == SplatTexture.Channel.R) {
-                            terrain.splatRNormal = null
+                            terrainLayerAsset.splatRNormal = null
                         } else if (channel == SplatTexture.Channel.G) {
-                            terrain.splatGNormal = null
+                            terrainLayerAsset.splatGNormal = null
                         } else if (channel == SplatTexture.Channel.B) {
-                            terrain.splatBNormal = null
+                            terrainLayerAsset.splatBNormal = null
                         } else if (channel == SplatTexture.Channel.A) {
-                            terrain.splatANormal = null
+                            terrainLayerAsset.splatANormal = null
                         }
 
                         terrain.applyDependencies()
@@ -355,15 +360,16 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
             // Show/Hide remove normal map button conditionally
             var normalMapRemoveVisible = false
             val terrain = parentWidget.component.terrainAsset
-            if (channel == SplatTexture.Channel.BASE && terrain.splatBaseNormal != null) {
+            val terrainLayerAsset = terrain.terrainLayerAsset
+            if (channel == SplatTexture.Channel.BASE && terrainLayerAsset.splatBaseNormal != null) {
                 normalMapRemoveVisible = true
-            } else if (channel == SplatTexture.Channel.R && terrain.splatRNormal != null) {
+            } else if (channel == SplatTexture.Channel.R && terrainLayerAsset.splatRNormal != null) {
                 normalMapRemoveVisible = true
-            } else if (channel == SplatTexture.Channel.G && terrain.splatGNormal != null) {
+            } else if (channel == SplatTexture.Channel.G && terrainLayerAsset.splatGNormal != null) {
                 normalMapRemoveVisible = true
-            } else if (channel == SplatTexture.Channel.B && terrain.splatBNormal != null) {
+            } else if (channel == SplatTexture.Channel.B && terrainLayerAsset.splatBNormal != null) {
                 normalMapRemoveVisible = true
-            } else if (channel == SplatTexture.Channel.A && terrain.splatANormal != null) {
+            } else if (channel == SplatTexture.Channel.A && terrainLayerAsset.splatANormal != null) {
                 normalMapRemoveVisible = true
             }
 

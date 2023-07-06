@@ -325,8 +325,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         // set base texture
         val chessboard = findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD)
         if (chessboard != null) {
-            asset.splatBase = chessboard as TextureAsset
-            asset.applyDependencies()
+            val terrainLayerAsset = asset.terrainLayerAsset
+            terrainLayerAsset.splatBase = chessboard as TextureAsset
+            terrainLayerAsset.applyDependencies()
             metaSaver.save(asset.meta)
         }
 
