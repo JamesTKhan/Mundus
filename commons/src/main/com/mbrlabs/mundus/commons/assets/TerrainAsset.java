@@ -105,6 +105,7 @@ public class TerrainAsset extends Asset {
     @Override
     public void load(AssetManager assetManager) {
         terrain = assetManager.get(meta.getFile().pathWithoutExtension());
+        terrainLayerAsset.setTerrain(terrain);
         setTriplanar(meta.getTerrain().isTriplanar());
         data = terrain.heightData;
     }
