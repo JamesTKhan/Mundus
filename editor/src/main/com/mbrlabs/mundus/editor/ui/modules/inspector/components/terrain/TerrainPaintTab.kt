@@ -26,6 +26,8 @@ import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.widget.*
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.TextureAsset
+import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.SplatTexture
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -116,7 +118,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
         // channel base
         if (terrainLayerAsset.splatBase == null) {
             terrainLayerAsset.splatBase = textureAsset
-            terrainAsset.applyDependencies()
+            applyDependencies()
             textureGrid.addTexture(terrainTexture.getTexture(SplatTexture.Channel.BASE))
             return
         }
@@ -124,11 +126,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
         // create splatmap
         if (terrainAsset.splatmap == null) {
             try {
-                val splatmap = assetManager.createPixmapTextureAsset(terrainAsset.meta.terrain.splatMapResolution)
-                terrainAsset.splatmap = splatmap
-                terrainAsset.applyDependencies()
-                metaSaver.save(terrainAsset.meta)
-                Mundus.postEvent(AssetImportEvent(splatmap))
+                applyDependencies(true)
             } catch (e: AssetAlreadyExistsException) {
                 Log.exception(TAG, e)
                 return
@@ -139,7 +137,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
         // channel r
         if (terrainLayerAsset.splatR == null) {
             terrainLayerAsset.splatR = textureAsset
-            terrainAsset.applyDependencies()
+            applyDependencies()
             textureGrid.addTexture(terrainTexture.getTexture(SplatTexture.Channel.R))
             return
         }
@@ -147,7 +145,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
         // channel g
         if (terrainLayerAsset.splatG == null) {
             terrainLayerAsset.splatG = textureAsset
-            terrainAsset.applyDependencies()
+            applyDependencies()
             textureGrid.addTexture(terrainTexture.getTexture(SplatTexture.Channel.G))
             return
         }
@@ -155,7 +153,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
         // channel b
         if (terrainLayerAsset.splatB == null) {
             terrainLayerAsset.splatB = textureAsset
-            terrainAsset.applyDependencies()
+            applyDependencies()
             textureGrid.addTexture(terrainTexture.getTexture(SplatTexture.Channel.B))
             return
         }
@@ -163,7 +161,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
         // channel a
         if (terrainLayerAsset.splatA == null) {
             terrainLayerAsset.splatA = textureAsset
-            terrainAsset.applyDependencies()
+            applyDependencies()
             textureGrid.addTexture(terrainTexture.getTexture(SplatTexture.Channel.A))
             return
         }
@@ -252,7 +250,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                             return
                         }
 
-                        terrain.applyDependencies()
+                        applyDependencies()
                         setTexturesInUiGrid()
                         projectManager.current().assetManager.addModifiedAsset(terrain)
                         projectManager.current().assetManager.addModifiedAsset(terrainLayerAsset)
@@ -281,7 +279,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                                         terrainLayerAsset.splatA = asset as TextureAsset
                                     }
                                     parentWidget.component.applyMaterial()
-                                    terrain.applyDependencies()
+                                    applyDependencies()
                                     setTexturesInUiGrid()
                                     projectManager.current().assetManager.addModifiedAsset(terrain)
                                     projectManager.current().assetManager.addModifiedAsset(terrainLayerAsset)
@@ -314,7 +312,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                                         terrainLayerAsset.splatANormal = asset as TextureAsset
                                     }
 
-                                    terrain.applyDependencies()
+                                    applyDependencies()
                                     projectManager.current().assetManager.addModifiedAsset(terrain)
                                     projectManager.current().assetManager.addModifiedAsset(terrainLayerAsset)
                                 }
@@ -343,7 +341,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                             terrainLayerAsset.splatANormal = null
                         }
 
-                        terrain.applyDependencies()
+                        applyDependencies()
                         projectManager.current().assetManager.addModifiedAsset(terrain)
                         projectManager.current().assetManager.addModifiedAsset(terrainLayerAsset)
                     }
@@ -386,6 +384,27 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
             pack()
         }
 
+    }
+
+    private fun applyDependencies(createSplatMap : Boolean = false) {
+        val terrainAsset = this@TerrainPaintTab.parentWidget.component.terrainAsset
+        projectManager.current().currScene.sceneGraph.findAllByComponent(Component.Type.TERRAIN).forEach {
+            val component = it.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
+
+            if (createSplatMap) {
+                val assetManager = projectManager.current().assetManager
+                val splatmap = assetManager.createPixmapTextureAsset(component.terrainAsset.meta.terrain.splatMapResolution)
+                component.terrainAsset.splatmap = splatmap
+//                terrainAsset.applyDependencies()
+                metaSaver.save(component.terrainAsset.meta)
+                Mundus.postEvent(AssetImportEvent(splatmap))
+            }
+
+            if (component.terrainAsset.terrainLayerAsset == terrainAsset.terrainLayerAsset) {
+                component.terrainAsset.applyDependencies()
+                component.applyMaterial()
+            }
+        }
     }
 
 }

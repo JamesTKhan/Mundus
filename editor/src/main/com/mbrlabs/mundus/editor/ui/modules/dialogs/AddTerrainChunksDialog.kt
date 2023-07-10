@@ -139,6 +139,12 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
 
         parentGO = GameObject(context.currScene.sceneGraph, "Terrain Chunks", goID)
 
+        val layerName = "${terrainName}.layer"
+        if (projectManager.current().assetManager.assetExists(layerName)) {
+            Dialogs.showErrorDialog(UI, "Terrain Layer with name $terrainName already exists. Pick a different name or\nremove existing asset.")
+            return
+        }
+
         var assetExists = false
         for (i in 0 until xIteration) {
             for (j in 0 until yIteration) {
@@ -148,7 +154,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
                 if (projectManager.current().assetManager.assetExists(terraFileName)) {
                     assetExists = true
                     assetsToCreate.clear()
-                    Dialogs.showErrorDialog(UI, "Terrain with name $terrainName already exists. Pick a different name or\n remove existing asset.")
+                    Dialogs.showErrorDialog(UI, "Terrain with name $terrainName already exists. Pick a different name or\nremove existing asset.")
                     break
                 }
 

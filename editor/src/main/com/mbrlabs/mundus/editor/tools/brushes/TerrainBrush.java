@@ -761,6 +761,9 @@ public abstract class TerrainBrush extends Tool {
         // Create a bounding box for the brush
         brushBounds.set(min, max);
 
+        // Check if the brush's bounding box intersects with the terrain's bounding box
+        boolean intersects = brushBounds.intersects(terrainBounds);
+
         Pools.vector3Pool.free(dim);
         Pools.vector3Pool.free(bPos);
         Pools.vector3Pool.free(center);
@@ -769,8 +772,7 @@ public abstract class TerrainBrush extends Tool {
         Pools.boundingBoxPool.free(terrainBounds);
         Pools.boundingBoxPool.free(brushBounds);
 
-        // Check if the brush's bounding box intersects with the terrain's bounding box
-        return brushBounds.intersects(terrainBounds);
+        return intersects;
     }
 
     @Override
