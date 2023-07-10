@@ -42,6 +42,8 @@ public class MetaLoader {
             parseTerrain(meta, json.get(Meta.JSON_TERRAIN));
         } else if(meta.getType() == AssetType.MODEL) {
             parseModel(meta, json.get(Meta.JSON_MODEL));
+        } else if (meta.getType() == AssetType.TERRAIN_LAYER) {
+            parseTerrainLayer(meta, json.get(Meta.JSON_TERRAIN_LAYER));
         }
 
         return meta;
@@ -64,6 +66,9 @@ public class MetaLoader {
         terrain.setTriplanar(jsonTerrain.getBoolean(MetaTerrain.JSON_TRIPLANAR, false));
         terrain.setSplatmap(jsonTerrain.getString(MetaTerrain.JSON_SPLATMAP, null));
         terrain.setSplatBase64(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_BASE64, null));
+        terrain.setTerrainLayerAssetId(jsonTerrain.getString(MetaTerrain.JSON_LAYER, null));
+
+        // Deprecated with TerrainLayer feature, left for Backward compatibility for the time being
         terrain.setSplatBase(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_BASE, null));
         terrain.setSplatR(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_R, null));
         terrain.setSplatG(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_G, null));
@@ -76,6 +81,24 @@ public class MetaLoader {
         terrain.setSplatANormal(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_A_NORMAL, null));
 
         meta.setTerrain(terrain);
+    }
+
+    private void parseTerrainLayer(Meta meta, JsonValue jsonTerrain) {
+        if(jsonTerrain == null) return;
+
+        final MetaTerrainLayer layer = new MetaTerrainLayer();
+        layer.setSplatBase(jsonTerrain.getString(MetaTerrainLayer.JSON_SPLAT_BASE, null));
+        layer.setSplatR(jsonTerrain.getString(MetaTerrainLayer.JSON_SPLAT_R, null));
+        layer.setSplatG(jsonTerrain.getString(MetaTerrainLayer.JSON_SPLAT_G, null));
+        layer.setSplatB(jsonTerrain.getString(MetaTerrainLayer.JSON_SPLAT_B, null));
+        layer.setSplatA(jsonTerrain.getString(MetaTerrainLayer.JSON_SPLAT_A, null));
+        layer.setSplatBaseNormal(jsonTerrain.getString(MetaTerrainLayer.JSON_SPLAT_BASE_NORMAL, null));
+        layer.setSplatRNormal(jsonTerrain.getString(MetaTerrainLayer.JSON_SPLAT_R_NORMAL, null));
+        layer.setSplatGNormal(jsonTerrain.getString(MetaTerrainLayer.JSON_SPLAT_G_NORMAL, null));
+        layer.setSplatBNormal(jsonTerrain.getString(MetaTerrainLayer.JSON_SPLAT_B_NORMAL, null));
+        layer.setSplatANormal(jsonTerrain.getString(MetaTerrainLayer.JSON_SPLAT_A_NORMAL, null));
+
+        meta.setTerrainLayer(layer);
     }
 
     private void parseModel(Meta meta, JsonValue jsonModel) {

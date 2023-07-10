@@ -33,11 +33,13 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.assets.PixmapTextureAsset
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset
 import com.mbrlabs.mundus.commons.assets.TerrainAsset
+import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset
 import com.mbrlabs.mundus.commons.assets.TexCoordInfo
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.WaterAsset
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
+import com.mbrlabs.mundus.commons.assets.meta.MetaTerrainLayer
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
@@ -372,6 +374,31 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     /**
+     * Creates a new terrain layer asset.
+     */
+    @Throws(IOException::class, AssetAlreadyExistsException::class)
+    fun createTerrainLayerAsset(name: String): TerrainLayerAsset {
+        val newName = name.replace(".terra","")
+        val layerFilename = "$newName.layer"
+        val metaFilename = "$layerFilename.meta"
+
+        // create meta file
+        val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
+        val meta = createNewMetaFile(FileHandle(metaPath), AssetType.TERRAIN_LAYER)
+
+        // create layer file
+        val layerPath = FilenameUtils.concat(rootFolder.path(), layerFilename)
+        val layerFile = File(layerPath)
+        FileUtils.touch(layerFile)
+
+        val asset = TerrainLayerAsset(meta, FileHandle(layerFile))
+        asset.load()
+
+        addAsset(asset)
+        return asset
+    }
+
+    /**
      * Determines if a asset file exists
      */
     fun assetExists(name: String): Boolean {
@@ -543,6 +570,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             saveMaterialAsset(asset)
         } else if (asset is TerrainAsset) {
             saveTerrainAsset(asset)
+        } else if (asset is TerrainLayerAsset) {
+            saveTerrainLayerAsset(asset)
         } else if (asset is ModelAsset) {
             saveModelAsset(asset)
         } else if (asset is WaterAsset) {
@@ -562,6 +591,42 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             asset.meta.model.defaultMaterials.put(g3dbMatID, asset.defaultMaterials[g3dbMatID]!!.id)
         }
         metaSaver.save(asset.meta)
+    }
+
+    override fun loadAsset(meta: Meta?): Asset {
+        val asset = super.loadAsset(meta)
+
+        if (asset is TerrainAsset && asset.meta.terrain.terrainLayerAssetId == null) {
+            // Backward compatibility for old terrain assets missing a Terrain Layer
+            // Added in 0.5.x
+            val layerAsset = createTerrainLayerAsset(asset.name)
+
+            // Set new TerrainLayer Asset ID to Terrain Asset
+            asset.meta.terrain.terrainLayerAssetId = layerAsset.id
+            metaSaver.save(asset.meta)
+
+            // Create new TerrainLayer Meta, copy old values
+            val layer = MetaTerrainLayer()
+            layer.splatBase = asset.meta.terrain.splatBase
+            layer.splatR = asset.meta.terrain.splatR
+            layer.splatG = asset.meta.terrain.splatG
+            layer.splatB = asset.meta.terrain.splatB
+            layer.splatA = asset.meta.terrain.splatA
+            layer.splatBaseNormal = asset.meta.terrain.splatBaseNormal
+            layer.splatRNormal = asset.meta.terrain.splatRNormal
+            layer.splatGNormal = asset.meta.terrain.splatGNormal
+            layer.splatBNormal = asset.meta.terrain.splatBNormal
+            layer.splatANormal = asset.meta.terrain.splatANormal
+
+            layerAsset.meta!!.terrainLayer = layer
+
+            // Save new TerrainLayer Meta
+            metaSaver.save(layerAsset.meta)
+
+            layerAsset.load(gdxAssetManager)
+            addAsset(layerAsset)
+        }
+        return super.loadAsset(meta)
     }
 
     /**
@@ -786,6 +851,11 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         // save meta file
         metaSaver.save(terrain.meta)
+    }
+
+    @Throws(IOException::class)
+    fun saveTerrainLayerAsset(layer: TerrainLayerAsset) {
+        metaSaver.save(layer.meta)
     }
 
     @Throws(IOException::class)

@@ -81,7 +81,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
 
         // At tab open the first (base) texture will be selected
         TerrainBrush.setPaintChannel(SplatTexture.Channel.BASE)
-        textureGrid.highlightFirst();
+        textureGrid.highlightFirst()
     }
 
     fun setupAddTextureBrowser() {
@@ -111,6 +111,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
         val terrainTexture = terrainAsset.terrain.terrainTexture
 
         assetManager.addModifiedAsset(terrainAsset)
+        assetManager.addModifiedAsset(terrainLayerAsset)
 
         // channel base
         if (terrainLayerAsset.splatBase == null) {
@@ -254,6 +255,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                         terrain.applyDependencies()
                         setTexturesInUiGrid()
                         projectManager.current().assetManager.addModifiedAsset(terrain)
+                        projectManager.current().assetManager.addModifiedAsset(terrainLayerAsset)
                     }
                 }
             })
@@ -282,6 +284,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                                     terrain.applyDependencies()
                                     setTexturesInUiGrid()
                                     projectManager.current().assetManager.addModifiedAsset(terrain)
+                                    projectManager.current().assetManager.addModifiedAsset(terrainLayerAsset)
                                 }
                             }
                         })
@@ -313,6 +316,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
 
                                     terrain.applyDependencies()
                                     projectManager.current().assetManager.addModifiedAsset(terrain)
+                                    projectManager.current().assetManager.addModifiedAsset(terrainLayerAsset)
                                 }
                             }
                         })
@@ -341,6 +345,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
 
                         terrain.applyDependencies()
                         projectManager.current().assetManager.addModifiedAsset(terrain)
+                        projectManager.current().assetManager.addModifiedAsset(terrainLayerAsset)
                     }
                 }
             })
