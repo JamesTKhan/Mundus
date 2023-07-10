@@ -668,9 +668,7 @@ public abstract class TerrainBrush extends Tool {
                     // as calculating normals is more expensive
                     Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
 
-                    final int numVertices = terrain.vertexResolution * terrain.vertexResolution;
-                    final int numIndices = (terrain.vertexResolution - 1) * (terrain.vertexResolution - 1) * 6;
-                    terrain.calculateAverageNormals(numIndices, numVertices);
+                    terrain.calculateAverageNormals();
                     terrain.computeTangents();
                     terrain.updateMeshVertices();
                 }

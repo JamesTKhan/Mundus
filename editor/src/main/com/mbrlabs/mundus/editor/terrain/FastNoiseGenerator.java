@@ -19,18 +19,8 @@ public class FastNoiseGenerator extends Generator<FastNoiseGenerator> {
     // The list of modifiers to apply to the noise
     private final ArrayList<TerrainModifier> modifiers = new ArrayList<>();
 
-    // X and Z Grid offsets
-    private int offsetX = 0;
-    private int offsetZ = 0;
-
     FastNoiseGenerator(Terrain terrain) {
         super(terrain);
-    }
-
-    public FastNoiseGenerator offset(int x, int z) {
-        this.offsetX = x;
-        this.offsetZ = z;
-        return this;
     }
 
     public ArrayList<TerrainModifier> getModifiers() {

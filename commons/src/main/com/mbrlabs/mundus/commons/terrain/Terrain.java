@@ -171,13 +171,12 @@ public class Terrain implements Disposable {
      * It first calculates the normal of each face (triangle) in the mesh, then for each vertex,
      * it calculates the average normal from the normals of all faces that include this vertex.
      *
-     * @param numIndices   The total number of indices in the index buffer, representing the total number of vertices in the mesh.
-     * @param numVertices  The total number of unique vertices in the vertex buffer.
-     *
      * Note: This method should be called after the vertices and indices of the mesh have been defined and set.
      * It directly modifies the vertices array to set the normal for each vertex.
      */
-    public void calculateAverageNormals(int numIndices, int numVertices) {
+    public void calculateAverageNormals() {
+        final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
+
         Vector3 v1 = Pools.vector3Pool.obtain();
         Vector3 v2 = Pools.vector3Pool.obtain();
         Vector3 v3 = Pools.vector3Pool.obtain();
@@ -563,9 +562,7 @@ public class Terrain implements Disposable {
     public void update() {
         buildVertices();
 
-        final int numVertices = this.vertexResolution * vertexResolution;
-        final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
-        calculateAverageNormals(numIndices, numVertices);
+        calculateAverageNormals();
         computeTangents();
         updateMeshVertices();
         resetBoundingBox();
@@ -591,6 +588,7 @@ public class Terrain implements Disposable {
 
     public void updateMeshVertices() {
         mesh.setVertices(vertices);
+        resetBoundingBox();
     }
 
     public Model getModel() {

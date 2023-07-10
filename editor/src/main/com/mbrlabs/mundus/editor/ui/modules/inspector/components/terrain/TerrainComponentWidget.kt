@@ -52,7 +52,6 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
     private val smoothTab = TerrainSmoothTab(this)
     private val rampTab = TerrainRampTab(this)
     private val paintTab = TerrainPaintTab(this)
-    private val genTab = TerrainGenTab(this)
     private val settingsTab = TerrainSettingsTab(this)
     private var initializing = true
 
@@ -64,7 +63,6 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
         tabbedPane.add(smoothTab)
         tabbedPane.add(rampTab)
         tabbedPane.add(paintTab)
-        tabbedPane.add(genTab)
         tabbedPane.add(settingsTab)
 
         collapsibleContent.add(tabbedPane.table).growX().row()
