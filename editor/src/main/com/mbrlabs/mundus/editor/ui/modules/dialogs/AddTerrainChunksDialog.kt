@@ -175,6 +175,18 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         val sceneGraph = context.currScene.sceneGraph
         // Start a new thread pool for creating the assets
 
+        // Create a new layer asset to assign to all terrain chunks
+        val terrainLayerAsset = projectManager.current().assetManager.createTerrainLayerAsset(terrainName!!)
+        // set base texture
+        val chessboard =
+            projectManager.current().assetManager.findAssetByID(EditorAssetManager.STANDARD_ASSET_TEXTURE_CHESSBOARD)
+        if (chessboard != null) {
+            terrainLayerAsset.splatBase = chessboard as TextureAsset
+            terrainLayerAsset.applyDependencies()
+            metaSaver.save(terrainLayerAsset.meta)
+        }
+        projectManager.current().assetManager.addAsset(terrainLayerAsset)
+
         for (arr in assetsToCreate) {
             val goID = projectManager.current().obtainID()
 
@@ -190,6 +202,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
                 val loader: TerrainLoader
                 try {
                     asset = createTerrainAsset(res, width, i, j)
+                    asset.meta.terrain.terrainLayerAssetId = terrainLayerAsset.id
                     loader = asset.startAsyncLoad()
                 } catch (ex: AssetAlreadyExistsException) {
                     Dialogs.showErrorDialog(stage, "An asset with that name already exists.")
@@ -204,16 +217,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
                     creationThreads.decrementAndGet()
                     asset.finishSyncLoad(loader)
                     asset.resolveDependencies(context.assetManager.assetMap)
-
-                    // set base texture
-                    val chessboard =
-                        projectManager.current().assetManager.findAssetByID(EditorAssetManager.STANDARD_ASSET_TEXTURE_CHESSBOARD)
-                    if (chessboard != null) {
-                        val terrainLayerAsset = asset.terrainLayerAsset
-                        terrainLayerAsset.splatBase = chessboard as TextureAsset
-                        terrainLayerAsset.applyDependencies()
-                        metaSaver.save(asset.meta)
-                    }
+                    metaSaver.save(asset.meta)
 
                     projectManager.current().assetManager.addAsset(asset)
 

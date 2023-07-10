@@ -385,6 +385,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         // create meta file
         val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
         val meta = createNewMetaFile(FileHandle(metaPath), AssetType.TERRAIN_LAYER)
+        meta.terrainLayer = MetaTerrainLayer()
+        metaSaver.save(meta)
 
         // create layer file
         val layerPath = FilenameUtils.concat(rootFolder.path(), layerFilename)
@@ -606,7 +608,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             metaSaver.save(asset.meta)
 
             // Create new TerrainLayer Meta, copy old values
-            val layer = MetaTerrainLayer()
+            val layer = layerAsset.meta!!.terrainLayer
             layer.splatBase = asset.meta.terrain.splatBase
             layer.splatR = asset.meta.terrain.splatR
             layer.splatG = asset.meta.terrain.splatG
@@ -617,8 +619,6 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             layer.splatGNormal = asset.meta.terrain.splatGNormal
             layer.splatBNormal = asset.meta.terrain.splatBNormal
             layer.splatANormal = asset.meta.terrain.splatANormal
-
-            layerAsset.meta!!.terrainLayer = layer
 
             // Save new TerrainLayer Meta
             metaSaver.save(layerAsset.meta)
