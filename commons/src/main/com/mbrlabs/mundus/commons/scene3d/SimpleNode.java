@@ -21,10 +21,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 
 /**
- * Very simple and incredible inefficient implementation of a scene graph node.
- *
- * Inefficient, because each call to getTransform() multiplies all parent
- * transformation matrices without caching them.
+ * Very simple implementation of a scene graph node.
  *
  * @author Marcus Brummer
  * @version 09-06-2016
