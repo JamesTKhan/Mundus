@@ -1,5 +1,8 @@
 [0.5.1]
+- Add dirty transform flag optimization for caching GameObject/SimpleNode world transform
 - Fix mouse picking by not rendering inactive game objects to picker
+- Fix Child terrain objects not updating on translation
+- Refactor outline drag and drop world to local conversion code when moving game objects
 
 [0.5.0]
 - [Breaking Change] Lighting systems updated, visibly different. See PR#184
