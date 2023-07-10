@@ -188,10 +188,11 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
             projectManager.current().assetManager.findAssetByID(EditorAssetManager.STANDARD_ASSET_TEXTURE_CHESSBOARD)
         if (chessboard != null) {
             terrainLayerAsset.splatBase = chessboard as TextureAsset
+            terrainLayerAsset.resolveDependencies(projectManager.current().assetManager.assetMap)
             terrainLayerAsset.applyDependencies()
-            metaSaver.save(terrainLayerAsset.meta)
         }
         projectManager.current().assetManager.addAsset(terrainLayerAsset)
+        projectManager.current().assetManager.addModifiedAsset(terrainLayerAsset)
 
         for (arr in assetsToCreate) {
             val goID = projectManager.current().obtainID()
