@@ -1,6 +1,3 @@
-[0.5.1]
-- Fix mouse picking by not rendering inactive game objects to picker
-
 [0.5.0]
 - [Breaking Change] Lighting systems updated, visibly different. See PR#184
 - Convert Water Shader to an Uber Shader

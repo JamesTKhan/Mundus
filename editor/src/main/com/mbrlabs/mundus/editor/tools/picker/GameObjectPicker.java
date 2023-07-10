@@ -69,7 +69,6 @@ public class GameObjectPicker extends BasePicker {
     private void renderPickableScene(SceneGraph sceneGraph) {
         sceneGraph.scene.batch.begin(sceneGraph.scene.cam);
         for (GameObject go : sceneGraph.getGameObjects()) {
-            if (!go.active) continue;
             renderPickableGameObject(go);
         }
         sceneGraph.scene.batch.end();
@@ -84,7 +83,6 @@ public class GameObjectPicker extends BasePicker {
 
         if (go.getChildren() != null) {
             for (GameObject goc : go.getChildren()) {
-                if (!go.active) continue;
                 renderPickableGameObject(goc);
             }
         }
