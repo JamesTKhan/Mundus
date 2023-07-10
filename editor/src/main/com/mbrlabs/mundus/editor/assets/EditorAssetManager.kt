@@ -626,7 +626,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             layerAsset.load(gdxAssetManager)
             addAsset(layerAsset)
         }
-        return super.loadAsset(meta)
+        
+        return asset
     }
 
     /**
