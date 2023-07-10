@@ -186,7 +186,6 @@ class Outline : VisTable(),
                         return
                     }
                 }
-                val oldParent = draggedGo.parent
 
                 // remove child from old parent
                 draggedGo.remove()
@@ -194,40 +193,42 @@ class Outline : VisTable(),
                 // add to new parent
                 if (newParent == null) {
 
-                    // if moved from old parent
-                    if (oldParent != null) {
-                        // Convert draggedGo from old parents local space to world space
-                        val world = draggedGo.transform.mulLeft(oldParent.transform)
-                        world.getTranslation(tmpPos)
-                        world.getRotation(tmpQuat, true)
-                        world.getScale(tmpScale)
+                    // Get the current world transform of the GameObject
+                    val worldPos = draggedGo.getPosition(tmpPos)
+                    val worldRot = draggedGo.getRotation(tmpQuat)
+                    val worldScale = draggedGo.getScale(tmpScale)
 
-                        // add
-                        context.currScene.sceneGraph.root.addChild(draggedGo)
-                        draggedGo.setLocalPosition(tmpPos.x, tmpPos.y, tmpPos.z)
-                        draggedGo.setLocalRotation(tmpQuat.x, tmpQuat.y, tmpQuat.z, tmpQuat.w)
-                        draggedGo.setLocalScale(tmpScale.x, tmpScale.y, tmpScale.z)
-                    } else {
-                        // Is this scenario even possible right now? Null new and old parent.
-                        val newPos = draggedGo.getPosition(tmpPos)
-                        // new local position = World position
-                        draggedGo.setLocalPosition(newPos.x, newPos.y, newPos.z)
-                    }
+                    // Set the local transform to the current world transform
+                    draggedGo.setLocalPosition(worldPos.x, worldPos.y, worldPos.z)
+                    draggedGo.setLocalRotation(worldRot.x, worldRot.y, worldRot.z, worldRot.w)
+                    draggedGo.setLocalScale(worldScale.x, worldScale.y, worldScale.z)
+
+                    context.currScene.sceneGraph.root.addChild(draggedGo)
 
                 } else {
                     val parentGo = newParent.value
 
-                    // Convert draggedGo to new parents local space
-                    val local = draggedGo.transform.mulLeft(parentGo.transform.inv())
-                    local.getTranslation(tmpPos)
-                    local.getRotation(tmpQuat, true)
-                    local.getScale(tmpScale)
+                    // Get the current world transform of the GameObject
+                    val childWorldTransform = draggedGo.transform
 
-                    // add
-                    parentGo.addChild(draggedGo)
+                    // Get the inverse world transform of the new parent
+                    val invParentWorldTransform = parentGo.transform.cpy().inv()
+
+                    // Multiply to get the new local transform
+                    val localTransform = invParentWorldTransform.mul(childWorldTransform)
+
+                    // Extract the new local position, rotation, and scale
+                    localTransform.getTranslation(tmpPos)
+                    localTransform.getRotation(tmpQuat, true)
+                    localTransform.getScale(tmpScale)
+
+                    // Set the new local transform
                     draggedGo.setLocalPosition(tmpPos.x, tmpPos.y, tmpPos.z)
                     draggedGo.setLocalRotation(tmpQuat.x, tmpQuat.y, tmpQuat.z, tmpQuat.w)
                     draggedGo.setLocalScale(tmpScale.x, tmpScale.y, tmpScale.z)
+
+                    // add
+                    parentGo.addChild(draggedGo)
                 }
 
                 // update tree

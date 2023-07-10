@@ -50,7 +50,9 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Mod
     @Override
     public void update(float delta) {
         super.update(delta);
-        modelInstance.transform.set(gameObject.getTransform());
+        if (gameObject.isDirty()) {
+            modelInstance.transform.set(gameObject.getTransform());
+        }
     }
 
     @Override

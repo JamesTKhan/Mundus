@@ -32,14 +32,16 @@ import com.badlogic.gdx.math.Vector3;
 public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
 
     static boolean WORLD_SPACE_TRANSFORM = true;
-    private static Matrix4 tempMat = new Matrix4();
 
-    private Vector3 localPosition;
-    private Quaternion localRotation;
-    private Vector3 localScale;
+    private final Vector3 localPosition;
+    private final Quaternion localRotation;
+    private final Vector3 localScale;
 
     // root * p0 * p1 * localMat = combined (absolute transfrom)
-    private Matrix4 combined;
+    private final Matrix4 combined;
+
+    /** Flag to indicate that the transform is dirty and needs to be recalculated */
+    boolean isTransformDirty;
 
     public SimpleNode(int id) {
         super(id);
@@ -47,6 +49,7 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
         localRotation = new Quaternion();
         localScale = new Vector3(1, 1, 1);
         combined = new Matrix4();
+        markDirty(); // Initialize the flag as true to ensure first calculation
     }
 
     /**
@@ -61,6 +64,7 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
         this.localRotation = new Quaternion(simpleNode.localRotation);
         this.localScale = new Vector3(simpleNode.localScale);
         this.combined = new Matrix4(simpleNode.combined);
+        this.markDirty();  // Initialize the flag as true to ensure first calculation
     }
 
     @Override
@@ -95,57 +99,85 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
 
     @Override
     public Matrix4 getTransform() {
-        if (parent == null) {
-            return combined.set(localPosition, localRotation, localScale);
+        if (isTransformDirty || parent != null && parent.isTransformDirty) {
+            combined.set(localPosition, localRotation, localScale);
+            if (parent != null) {
+                combined.mulLeft(parent.getTransform());
+            }
+            isTransformDirty = false;
         }
-
-        combined.set(localPosition, localRotation, localScale);
-        return combined.mulLeft(parent.getTransform());
+        return combined;
     }
 
     @Override
     public void translate(Vector3 v) {
         localPosition.add(v);
+        markDirty();
     }
 
     @Override
     public void translate(float x, float y, float z) {
         localPosition.add(x, y, z);
+        markDirty();
     }
 
     @Override
     public void rotate(Quaternion q) {
         localRotation.mulLeft(q);
+        markDirty();
     }
 
     @Override
     public void rotate(float x, float y, float z, float w) {
         localRotation.mulLeft(x, y, z, w);
+        markDirty();
     }
 
     @Override
     public void scale(Vector3 v) {
         localScale.scl(v);
+        markDirty();
     }
 
     @Override
     public void scale(float x, float y, float z) {
         localScale.scl(x, y, z);
+        markDirty();
     }
 
     @Override
     public void setLocalPosition(float x, float y, float z) {
         localPosition.set(x, y, z);
+        markDirty();
     }
 
     @Override
     public void setLocalRotation(float x, float y, float z, float w) {
         localRotation.set(x, y, z, w);
+        markDirty();
     }
 
     @Override
     public void setLocalScale(float x, float y, float z) {
         localScale.set(x, y, z);
+        markDirty();
     }
 
+    @Override
+    public void addChild(T child) {
+        super.addChild(child);
+        child.markDirty();
+    }
+
+    public void markDirty() {
+        isTransformDirty = true;
+        if (children == null) return;
+        for (T child : children) {
+            child.markDirty();
+        }
+    }
+
+    public boolean isDirty() {
+        return isTransformDirty;
+    }
 }

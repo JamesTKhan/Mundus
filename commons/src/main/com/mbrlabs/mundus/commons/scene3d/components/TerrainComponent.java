@@ -25,7 +25,6 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.shaders.ClippableShader;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
@@ -44,6 +43,14 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     public TerrainComponent(GameObject go) {
         super(go);
         type = Component.Type.TERRAIN;
+    }
+
+    @Override
+    public void update(float delta) {
+        super.update(delta);
+        if (gameObject.isDirty()) {
+            modelInstance.transform.set(gameObject.getTransform());
+        }
     }
 
     @Override
