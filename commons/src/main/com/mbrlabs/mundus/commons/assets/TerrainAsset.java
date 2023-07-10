@@ -21,6 +21,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
@@ -121,6 +122,9 @@ public class TerrainAsset extends Asset {
         // terrain layer
         if (assets.containsKey(meta.getTerrain().getTerrainLayerAssetId())) {
             terrainLayerAsset = (TerrainLayerAsset) assets.get(meta.getTerrain().getTerrainLayerAssetId());
+        } else {
+            throw new GdxRuntimeException("Cannot find a TerrainLayerAsset for asset: " + getName() +
+                    ". A terrain layer can be generated automatically by opening the project in the editor.");
         }
 
         // material
