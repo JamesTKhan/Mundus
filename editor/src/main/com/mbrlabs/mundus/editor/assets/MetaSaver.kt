@@ -22,7 +22,6 @@ import com.mbrlabs.mundus.commons.assets.AssetType
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
-import com.mbrlabs.mundus.commons.assets.meta.MetaTerrainLayer
 
 /**
  *
@@ -39,8 +38,6 @@ class MetaSaver {
             addTerrain(meta, json)
         } else if(meta.type == AssetType.MODEL) {
             addModel(meta, json)
-        } else if (meta.type == AssetType.TERRAIN_LAYER) {
-            addTerrainLayer(meta, json)
         }
         json.writeObjectEnd()
 
@@ -84,23 +81,6 @@ class MetaSaver {
         json.writeValue(MetaTerrain.JSON_MATERIAL, terrain.materialId)
         json.writeValue(MetaTerrain.JSON_LAYER, terrain.terrainLayerAssetId)
         if (terrain.splatmap != null) json.writeValue(MetaTerrain.JSON_SPLATMAP, terrain.splatmap)
-        json.writeObjectEnd()
-    }
-
-    private fun addTerrainLayer(meta: Meta, json: Json) {
-        val terrain = meta.terrainLayer ?:return
-
-        json.writeObjectStart(Meta.JSON_TERRAIN_LAYER)
-        if (terrain.splatBase != null) json.writeValue(MetaTerrainLayer.JSON_SPLAT_BASE, terrain.splatBase)
-        if (terrain.splatR != null) json.writeValue(MetaTerrainLayer.JSON_SPLAT_R, terrain.splatR)
-        if (terrain.splatG != null) json.writeValue(MetaTerrainLayer.JSON_SPLAT_G, terrain.splatG)
-        if (terrain.splatB != null) json.writeValue(MetaTerrainLayer.JSON_SPLAT_B, terrain.splatB)
-        if (terrain.splatA != null) json.writeValue(MetaTerrainLayer.JSON_SPLAT_A, terrain.splatA)
-        if (terrain.splatBaseNormal != null) json.writeValue(MetaTerrainLayer.JSON_SPLAT_BASE_NORMAL, terrain.splatBaseNormal)
-        if (terrain.splatRNormal != null) json.writeValue(MetaTerrainLayer.JSON_SPLAT_R_NORMAL, terrain.splatRNormal)
-        if (terrain.splatGNormal != null) json.writeValue(MetaTerrainLayer.JSON_SPLAT_G_NORMAL, terrain.splatGNormal)
-        if (terrain.splatBNormal != null) json.writeValue(MetaTerrainLayer.JSON_SPLAT_B_NORMAL, terrain.splatBNormal)
-        if (terrain.splatANormal != null) json.writeValue(MetaTerrainLayer.JSON_SPLAT_A_NORMAL, terrain.splatANormal)
         json.writeObjectEnd()
     }
 
