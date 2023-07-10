@@ -146,7 +146,6 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
 
         // some assets can not be duplicated
         duplicate.isDisabled = selectedGO == null
-                || selectedGO!!.findComponentByType(Component.Type.TERRAIN) != null
                 || selectedGO!!.findComponentByType(Component.Type.WATER) != null
     }
 

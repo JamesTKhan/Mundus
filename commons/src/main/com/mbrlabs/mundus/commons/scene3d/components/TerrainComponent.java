@@ -22,7 +22,6 @@ import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
@@ -137,7 +136,9 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     @Override
     public Component clone(GameObject go) {
-        throw new GdxRuntimeException("Duplicating terrains is not supported.");
+        TerrainComponent terrainComponent = new TerrainComponent(go);
+        terrainComponent.setTerrainAsset(terrainAsset);
+        return terrainComponent;
     }
 
     @Override
