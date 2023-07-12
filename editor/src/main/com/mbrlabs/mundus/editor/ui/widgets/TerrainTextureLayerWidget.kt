@@ -40,6 +40,7 @@ import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
 import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
+import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
@@ -80,6 +81,7 @@ class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowChange: B
     internal val textureGrid = TextureGrid<SplatTexture>(40, 5)
 
     private val layerNameLabel: VisLabel = VisLabel()
+    private val editBtn: VisTextButton = VisTextButton("Edit")
     private val duplicatedBtn: VisTextButton = VisTextButton("Duplicate")
     private val changedBtn: VisTextButton = VisTextButton("Change")
 
@@ -93,8 +95,16 @@ class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowChange: B
         layerNameLabel.color = Colors.TEAL
         layerNameLabel.wrap = true
 
+        val description = "Terrain layers determine what textures a terrain uses.\n" +
+                "They can be shared with multiple terrains.\n" +
+                "Changing a texture here will update all terrains using the layer."
+        val descLabel = ToolTipLabel("Terrain Layer", description)
+        root.add(descLabel).expandX().fillX().row()
+        root.addSeparator()
+
         val layerTable = VisTable()
         layerTable.add(layerNameLabel).grow()
+        layerTable.add(editBtn).padLeft(4f).right()
         layerTable.add(duplicatedBtn).padLeft(4f).right()
         if (allowChange)
             layerTable.add(changedBtn).padLeft(4f).right().row()
@@ -191,6 +201,13 @@ class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowChange: B
                         }
                     }
                 })
+            }
+        })
+
+        editBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                Mundus.postEvent(AssetSelectedEvent(asset))
+                UI.docker.assetsDock.setSelected(asset)
             }
         })
     }
