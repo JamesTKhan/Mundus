@@ -79,6 +79,8 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         material.set(PBRTextureAttribute.createBaseColorTexture(terrainLayerAsset.getSplatBase().getTexture()));
         if (terrainLayerAsset.getSplatBaseNormal() != null)
             material.set(PBRTextureAttribute.createNormalTexture(terrainLayerAsset.getSplatBaseNormal().getTexture()));
+        else
+            material.remove(PBRTextureAttribute.NormalTexture);
 
         terrainAsset.getMaterialAsset().applyToMaterial(material, true);
     }

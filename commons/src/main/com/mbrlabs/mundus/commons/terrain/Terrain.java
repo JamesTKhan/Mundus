@@ -108,7 +108,7 @@ public class Terrain implements Disposable {
         this.terrainMaterial = new TerrainMaterial();
         this.terrainMaterial.setTerrain(this);
 
-        // Attach our custom water material to the main material
+        // Attach our custom terrain material to the main material
         material = new Material();
         material.set(TerrainMaterialAttribute.createTerrainMaterialAttribute(terrainMaterial));
     }

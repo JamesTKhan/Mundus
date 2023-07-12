@@ -157,6 +157,11 @@ public class TerrainAsset extends Asset {
 
     @Override
     public void applyDependencies() {
+        updateTerrainMaterial();
+        terrain.update();
+    }
+
+    public void updateTerrainMaterial() {
         TerrainMaterial terrainMaterial = terrain.getTerrainTexture();
 
         if (materialAsset != null) {
@@ -168,59 +173,34 @@ public class TerrainAsset extends Asset {
         } else {
             terrainMaterial.setSplatmap(new SplatMap(splatmap));
         }
-        if (terrainLayerAsset.getSplatBase() == null) {
-            terrainMaterial.removeTexture(SplatTexture.Channel.BASE);
-        } else {
-            terrainMaterial.setSplatTexture(new SplatTexture(SplatTexture.Channel.BASE, terrainLayerAsset.getSplatBase()));
-        }
-        if (terrainLayerAsset.getSplatR() == null) {
-            terrainMaterial.removeTexture(SplatTexture.Channel.R);
-        } else {
-            terrainMaterial.setSplatTexture(new SplatTexture(SplatTexture.Channel.R, terrainLayerAsset.getSplatR()));
-        }
-        if (terrainLayerAsset.getSplatG() == null) {
-            terrainMaterial.removeTexture(SplatTexture.Channel.G);
-        } else {
-            terrainMaterial.setSplatTexture(new SplatTexture(SplatTexture.Channel.G, terrainLayerAsset.getSplatG()));
-        }
-        if (terrainLayerAsset.getSplatB() == null) {
-            terrainMaterial.removeTexture(SplatTexture.Channel.B);
-        } else {
-            terrainMaterial.setSplatTexture(new SplatTexture(SplatTexture.Channel.B, terrainLayerAsset.getSplatB()));
-        }
-        if (terrainLayerAsset.getSplatA() == null) {
-            terrainMaterial.removeTexture(SplatTexture.Channel.A);
-        } else {
-            terrainMaterial.setSplatTexture(new SplatTexture(SplatTexture.Channel.A, terrainLayerAsset.getSplatA()));
+
+        updateLayer(terrainMaterial, SplatTexture.Channel.BASE, terrainLayerAsset.getSplatBase(), false);
+        updateLayer(terrainMaterial, SplatTexture.Channel.R, terrainLayerAsset.getSplatR(), false);
+        updateLayer(terrainMaterial, SplatTexture.Channel.G, terrainLayerAsset.getSplatG(), false);
+        updateLayer(terrainMaterial, SplatTexture.Channel.B, terrainLayerAsset.getSplatB(), false);
+        updateLayer(terrainMaterial, SplatTexture.Channel.A, terrainLayerAsset.getSplatA(), false);
+
+        updateLayer(terrainMaterial, SplatTexture.Channel.BASE, terrainLayerAsset.getSplatBaseNormal(), true);
+        updateLayer(terrainMaterial, SplatTexture.Channel.R, terrainLayerAsset.getSplatRNormal(), true);
+        updateLayer(terrainMaterial, SplatTexture.Channel.G, terrainLayerAsset.getSplatGNormal(), true);
+        updateLayer(terrainMaterial, SplatTexture.Channel.B, terrainLayerAsset.getSplatBNormal(), true);
+        updateLayer(terrainMaterial, SplatTexture.Channel.A, terrainLayerAsset.getSplatANormal(), true);
+    }
+
+    private void updateLayer(TerrainMaterial terrainMaterial, SplatTexture.Channel channel, TextureAsset textureAsset, boolean isNormal) {
+        if (textureAsset == null) {
+            if (isNormal) terrainMaterial.removeNormalTexture(channel);
+            else terrainMaterial.removeTexture(channel);
+            return;
         }
 
-        if (terrainLayerAsset.getSplatBaseNormal() == null) {
-            terrainMaterial.removeNormalTexture(SplatTexture.Channel.BASE);
+        SplatTexture existingChannel = isNormal ? terrainMaterial.getNormalTextures().get(channel) : terrainMaterial.getTextures().get(channel);
+        if (existingChannel != null) {
+            existingChannel.setTexture(textureAsset);
         } else {
-            terrainMaterial.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.BASE, terrainLayerAsset.getSplatBaseNormal()));
+            if (isNormal) terrainMaterial.setSplatNormalTexture(new SplatTexture(channel, textureAsset));
+            else terrainMaterial.setSplatTexture(new SplatTexture(channel, textureAsset));
         }
-        if (terrainLayerAsset.getSplatRNormal() == null) {
-            terrainMaterial.removeNormalTexture(SplatTexture.Channel.R);
-        } else {
-            terrainMaterial.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.R, terrainLayerAsset.getSplatRNormal()));
-        }
-        if (terrainLayerAsset.getSplatGNormal() == null) {
-            terrainMaterial.removeNormalTexture(SplatTexture.Channel.G);
-        } else {
-            terrainMaterial.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.G, terrainLayerAsset.getSplatGNormal()));
-        }
-        if (terrainLayerAsset.getSplatBNormal() == null) {
-            terrainMaterial.removeNormalTexture(SplatTexture.Channel.B);
-        } else {
-            terrainMaterial.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.B, terrainLayerAsset.getSplatBNormal()));
-        }
-        if (terrainLayerAsset.getSplatANormal() == null) {
-            terrainMaterial.removeNormalTexture(SplatTexture.Channel.A);
-        } else {
-            terrainMaterial.setSplatNormalTexture(new SplatTexture(SplatTexture.Channel.A, terrainLayerAsset.getSplatANormal()));
-        }
-
-        terrain.update();
     }
 
     @Override
@@ -236,6 +216,16 @@ public class TerrainAsset extends Asset {
 
     public TerrainLayerAsset getTerrainLayerAsset() {
         return terrainLayerAsset;
+    }
+
+    /**
+     * Sets the terrain layer asset. This will update the terrain material.
+     * @param terrainLayerAsset the terrain layer asset
+     */
+    public void setTerrainLayerAsset(TerrainLayerAsset terrainLayerAsset) {
+        this.terrainLayerAsset = terrainLayerAsset;
+        meta.getTerrain().setTerrainLayerAssetId(terrainLayerAsset.getID());
+        updateTerrainMaterial();
     }
 
     public MaterialAsset getMaterialAsset() {

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2023. See AUTHORS file.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.assets.AssetManager;
@@ -226,6 +242,47 @@ public class TerrainLayerAsset extends Asset {
     public void setSplatANormal(TextureAsset splatANormal) {
         this.splatANormal = splatANormal;
         this.splatANormalId = splatANormal == null ? null : splatANormal.getID();
+    }
+
+    /**
+     * Returns the number of active splat layers
+     */
+    public int getActiveLayerCount() {
+        int count = 0;
+        if (splatR != null) {
+            count++;
+        }
+        if (splatG != null) {
+            count++;
+        }
+        if (splatB != null) {
+            count++;
+        }
+        if (splatA != null) {
+            count++;
+        }
+        return count;
+    }
+
+    /**
+     * Duplicates the given layer asset into this one
+     * @param assetToDupe The asset to duplicate
+     */
+    public void duplicateLayerAsset(TerrainLayerAsset assetToDupe) {
+        if (assetToDupe == null) {
+            return;
+        }
+        if (assetToDupe.getSplatBase() != null) setSplatBase(assetToDupe.getSplatBase());
+        if (assetToDupe.getSplatR() != null) setSplatR(assetToDupe.getSplatR());
+        if (assetToDupe.getSplatG() != null) setSplatG(assetToDupe.getSplatG());
+        if (assetToDupe.getSplatB() != null) setSplatB(assetToDupe.getSplatB());
+        if (assetToDupe.getSplatA() != null) setSplatA(assetToDupe.getSplatA());
+
+        if (assetToDupe.getSplatBaseNormal() != null) setSplatBaseNormal(assetToDupe.getSplatBaseNormal());
+        if (assetToDupe.getSplatRNormal() != null) setSplatRNormal(assetToDupe.getSplatRNormal());
+        if (assetToDupe.getSplatGNormal() != null) setSplatGNormal(assetToDupe.getSplatGNormal());
+        if (assetToDupe.getSplatBNormal() != null) setSplatBNormal(assetToDupe.getSplatBNormal());
+        if (assetToDupe.getSplatANormal() != null) setSplatANormal(assetToDupe.getSplatANormal());
     }
 
 }
