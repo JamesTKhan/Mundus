@@ -121,7 +121,7 @@ class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowChange: B
                 override fun onSelected(asset: Asset?) {
                     val layer = (asset as? TerrainLayerAsset)!!
 
-                    val oldLayerCount = asset.activeLayerCount
+                    val oldLayerCount = this@TerrainTextureLayerWidget.asset.activeLayerCount
                     val newLayerCount = layer.activeLayerCount
 
                     if (oldLayerCount > newLayerCount) {
