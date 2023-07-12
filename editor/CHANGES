@@ -1,6 +1,11 @@
 [0.5.1]
+- [Breaking Changes] Old Projects must be reopened in Editor to generate Terrain Layers
 - Fix mouse picking by not rendering inactive game objects to picker
-- Add optional ignore filter to GameObjectPicker
+- Fix Terrain Cloning, now works as expected
+- Added optional ignore filter to GameObjectPicker
+- Added loading priorities for assets
+- Added new TerrainLayerAsset to decouple splat textures from terrains
+- Updated Terrain getRayIntersection to use binary search
 
 [0.5.0]
 - [Breaking Change] Lighting systems updated, visibly different. See PR#184
