@@ -1,4 +1,5 @@
 [0.5.1]
+- Added FPS launcher argument, always call setForegroundFPS
 - Fix mouse picking by not rendering inactive game objects to picker
 
 [0.5.0]
