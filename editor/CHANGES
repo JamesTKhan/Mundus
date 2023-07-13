@@ -1,5 +1,6 @@
 [0.5.1]
 - Fix mouse picking by not rendering inactive game objects to picker
+- Fix removed terrain in helper lines
 
 [0.5.0]
 - [Breaking Change] Lighting systems updated, visibly different. See PR#184
