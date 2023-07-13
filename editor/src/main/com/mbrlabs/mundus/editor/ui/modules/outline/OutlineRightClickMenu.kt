@@ -103,6 +103,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
 
                     val terrainComponent = selectedGO!!.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
                     if (terrainComponent != null) {
+                        projectManager.current().currScene.terrains.removeValue(terrainComponent, true)
                         Mundus.postEvent(TerrainRemovedEvent(terrainComponent))
                     }
                 }
