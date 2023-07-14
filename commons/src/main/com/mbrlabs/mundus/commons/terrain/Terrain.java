@@ -108,7 +108,7 @@ public class Terrain implements Disposable {
         this.terrainMaterial = new TerrainMaterial();
         this.terrainMaterial.setTerrain(this);
 
-        // Attach our custom water material to the main material
+        // Attach our custom terrain material to the main material
         material = new Material();
         material.set(TerrainMaterialAttribute.createTerrainMaterialAttribute(terrainMaterial));
     }
@@ -314,9 +314,9 @@ public class Terrain implements Disposable {
         int gridX = (int) Math.floor(terrainX / gridSquareSize);
         int gridZ = (int) Math.floor(terrainZ / gridSquareSize);
 
-        if (gridX >= vertexResolution - 1 || gridZ >= vertexResolution - 1 || gridX < 0 || gridZ < 0) {
-            return 0;
-        }
+        // Check if we are outside the terrain, if so use nearest point
+        gridX = com.badlogic.gdx.math.MathUtils.clamp(gridX, 0, vertexResolution - 2);
+        gridZ = com.badlogic.gdx.math.MathUtils.clamp(gridZ, 0, vertexResolution - 2);
 
         float xCoord = (terrainX % gridSquareSize) / gridSquareSize;
         float zCoord = (terrainZ % gridSquareSize) / gridSquareSize;
@@ -335,7 +335,6 @@ public class Terrain implements Disposable {
 
         return height;
     }
-
     /**
      * Casts the given ray to determine where it intersects on the terrain.
      *
@@ -345,26 +344,28 @@ public class Terrain implements Disposable {
      * @return true if the ray intersects the terrain, false otherwise
      */
     public boolean getRayIntersection(Vector3 out, Ray ray, Matrix4 terrainTransform) {
-        // TODO improve performance. use binary search
-        float curDistance = 2;
-        int rounds = 0;
+        // Performs a binary search to find the intersection point
+        float minDistance = 2;
+        float maxDistance = 80000;
 
-        ray.getEndPoint(out, curDistance);
-        boolean isUnder = isUnderTerrain(out, terrainTransform);
+        // Interval halving
+        for(int i = 0; i < 500; i++) {
+            float middleDistance = (minDistance + maxDistance) / 2;
+            ray.getEndPoint(out, middleDistance);
 
-        while (true) {
-            rounds++;
-            ray.getEndPoint(out, curDistance);
-
-            boolean u = isUnderTerrain(out, terrainTransform);
-            if (u != isUnder) {
-                return true;
-            } else if (rounds == 80000) {
-                return false;
+            if(isUnderTerrain(out, terrainTransform)) {
+                maxDistance = middleDistance;
+            } else {
+                minDistance = middleDistance;
             }
-            curDistance += u ? -0.1f : 0.1f;
+
+            // If min and max are very close, we found the intersection
+            if(Math.abs(minDistance - maxDistance) < 0.1f) {
+                return true;
+            }
         }
 
+        return false;
     }
 
     public Material getMaterial() {

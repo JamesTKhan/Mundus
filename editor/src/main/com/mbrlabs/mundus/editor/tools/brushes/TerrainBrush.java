@@ -134,7 +134,7 @@ public abstract class TerrainBrush extends Tool {
      * Thrown if the brush is set to a mode, which it currently does not
      * support.
      */
-    public class ModeNotSupportedException extends Exception {
+    public static class ModeNotSupportedException extends Exception {
         public ModeNotSupportedException(String message) {
             super(message);
         }
@@ -152,6 +152,7 @@ public abstract class TerrainBrush extends Tool {
 
     // all brushes share the some common settings
     private static final GlobalBrushSettingsChangedEvent brushSettingsChangedEvent = new GlobalBrushSettingsChangedEvent();
+    private static final GameObjectPicker.ComponentIgnoreFilter ignoreFilter = component -> !(component instanceof TerrainComponent);
     private static final TerrainTool raiseLowerTool = new RaiseLowerTool();
     private static final TerrainTool flattenTool = new FlattenTool();
     private static final TerrainTool smoothTool = new SmoothTool();
@@ -581,15 +582,6 @@ public abstract class TerrainBrush extends Tool {
         return heightSample;
     }
 
-    public static void setHeightSample(float heightSample) {
-        TerrainBrush.heightSample = heightSample;
-        Mundus.INSTANCE.postEvent(brushSettingsChangedEvent);
-    }
-
-    public static SplatTexture.Channel getPaintChannel() {
-        return paintChannel;
-    }
-
     public static void setPaintChannel(SplatTexture.Channel paintChannel) {
         TerrainBrush.paintChannel = paintChannel;
         Mundus.INSTANCE.postEvent(brushSettingsChangedEvent);
@@ -761,6 +753,9 @@ public abstract class TerrainBrush extends Tool {
         // Create a bounding box for the brush
         brushBounds.set(min, max);
 
+        // Check if the brush's bounding box intersects with the terrain's bounding box
+        boolean intersects = brushBounds.intersects(terrainBounds);
+
         Pools.vector3Pool.free(dim);
         Pools.vector3Pool.free(bPos);
         Pools.vector3Pool.free(center);
@@ -769,8 +764,7 @@ public abstract class TerrainBrush extends Tool {
         Pools.boundingBoxPool.free(terrainBounds);
         Pools.boundingBoxPool.free(brushBounds);
 
-        // Check if the brush's bounding box intersects with the terrain's bounding box
-        return brushBounds.intersects(terrainBounds);
+        return intersects;
     }
 
     @Override
@@ -787,8 +781,10 @@ public abstract class TerrainBrush extends Tool {
     private void updateBrushPosition(int screenX, int screenY) {
         if (terrainComponent == null) return;
 
-        // Use picking to find current hovered terrain
+        // Use picking to find current hovered terrain, filter picking to only pick terrains
+        goPicker.setIgnoreFilter(ignoreFilter);
         GameObject go = goPicker.pick(getProjectManager().current().currScene, screenX, screenY);
+        goPicker.clearIgnoreFilter();
         if (go == null) return;
 
         TerrainComponent comp = (TerrainComponent) go.findComponentByType(Component.Type.TERRAIN);

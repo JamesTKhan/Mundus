@@ -33,6 +33,7 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.assets.PixmapTextureAsset
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset
 import com.mbrlabs.mundus.commons.assets.TerrainAsset
+import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset
 import com.mbrlabs.mundus.commons.assets.TexCoordInfo
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.WaterAsset
@@ -325,8 +326,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         // set base texture
         val chessboard = findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD)
         if (chessboard != null) {
-            asset.splatBase = chessboard as TextureAsset
-            asset.applyDependencies()
+            val terrainLayerAsset = asset.terrainLayerAsset
+            terrainLayerAsset.splatBase = chessboard as TextureAsset
+            terrainLayerAsset.applyDependencies()
             metaSaver.save(asset.meta)
         }
 
@@ -368,6 +370,32 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         // load & apply standard chessboard texture
         return TerrainAsset(meta, FileHandle(terraFile))
+    }
+
+    /**
+     * Creates a new terrain layer asset.
+     */
+    @Throws(IOException::class, AssetAlreadyExistsException::class)
+    fun createTerrainLayerAsset(name: String): TerrainLayerAsset {
+        val newName = name.replace(".terra","")
+        val layerFilename = "$newName.layer"
+        val metaFilename = "$layerFilename.meta"
+
+        // create meta file
+        val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
+        val meta = createNewMetaFile(FileHandle(metaPath), AssetType.TERRAIN_LAYER)
+        metaSaver.save(meta)
+
+        // create layer file
+        val layerPath = FilenameUtils.concat(rootFolder.path(), layerFilename)
+        val layerFile = File(layerPath)
+        FileUtils.touch(layerFile)
+
+        val asset = TerrainLayerAsset(meta, FileHandle(layerFile))
+        asset.load()
+
+        addAsset(asset)
+        return asset
     }
 
     /**
@@ -542,6 +570,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             saveMaterialAsset(asset)
         } else if (asset is TerrainAsset) {
             saveTerrainAsset(asset)
+        } else if (asset is TerrainLayerAsset) {
+            saveTerrainLayerAsset(asset)
         } else if (asset is ModelAsset) {
             saveModelAsset(asset)
         } else if (asset is WaterAsset) {
@@ -561,6 +591,48 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             asset.meta.model.defaultMaterials.put(g3dbMatID, asset.defaultMaterials[g3dbMatID]!!.id)
         }
         metaSaver.save(asset.meta)
+    }
+
+    override fun loadAsset(meta: Meta?): Asset {
+        val asset = super.loadAsset(meta)
+
+        if (asset is TerrainAsset && asset.meta.terrain.terrainLayerAssetId == null) {
+            // Backward compatibility for old terrain assets missing a Terrain Layer
+            // Added in 0.5.x
+            postEvent(LogEvent("Upgrading Terrain Asset ${asset.name} to Terrain Layers"))
+
+            val layerAsset = createTerrainLayerAsset(asset.name)
+
+            // Set new TerrainLayer Asset ID to Terrain Asset
+            asset.meta.terrain.terrainLayerAssetId = layerAsset.id
+            metaSaver.save(asset.meta)
+
+            // Save new TerrainLayer asset file with copied values from legacy Terrain Asset
+            val props = Properties()
+            if (asset.meta.terrain.splatBase != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_BASE, asset.meta.terrain.splatBase)
+            if (asset.meta.terrain.splatR != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_R, asset.meta.terrain.splatR)
+            if (asset.meta.terrain.splatG != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_G, asset.meta.terrain.splatG)
+            if (asset.meta.terrain.splatB != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_B, asset.meta.terrain.splatB)
+            if (asset.meta.terrain.splatA != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_A, asset.meta.terrain.splatA)
+            if (asset.meta.terrain.splatBaseNormal != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_BASE_NORMAL, asset.meta.terrain.splatBaseNormal)
+            if (asset.meta.terrain.splatRNormal != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_R_NORMAL, asset.meta.terrain.splatRNormal)
+            if (asset.meta.terrain.splatGNormal != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_G_NORMAL, asset.meta.terrain.splatGNormal)
+            if (asset.meta.terrain.splatBNormal != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_B_NORMAL, asset.meta.terrain.splatBNormal)
+            if (asset.meta.terrain.splatANormal != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_A_NORMAL, asset.meta.terrain.splatANormal)
+
+            val fileOutputStream = FileOutputStream(layerAsset.file.file())
+            props.store(fileOutputStream, null)
+            fileOutputStream.flush()
+            fileOutputStream.close()
+
+            // Save new TerrainLayer Meta
+            metaSaver.save(layerAsset.meta)
+
+            layerAsset.load(gdxAssetManager)
+            addAsset(layerAsset)
+        }
+        
+        return asset
     }
 
     /**
@@ -785,6 +857,28 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         // save meta file
         metaSaver.save(terrain.meta)
+    }
+
+    @Throws(IOException::class)
+    fun saveTerrainLayerAsset(layer: TerrainLayerAsset) {
+        val props = Properties()
+        if (layer.splatBase != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_BASE, layer.splatBase.id)
+        if (layer.splatR != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_R, layer.splatR.id)
+        if (layer.splatG != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_G, layer.splatG.id)
+        if (layer.splatB != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_B, layer.splatB.id)
+        if (layer.splatA != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_A, layer.splatA.id)
+        if (layer.splatBaseNormal != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_BASE_NORMAL, layer.splatBaseNormal.id)
+        if (layer.splatRNormal != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_R_NORMAL, layer.splatRNormal.id)
+        if (layer.splatGNormal != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_G_NORMAL, layer.splatGNormal.id)
+        if (layer.splatBNormal != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_B_NORMAL, layer.splatBNormal.id)
+        if (layer.splatANormal != null) props.setProperty(TerrainLayerAsset.PROP_SPLAT_A_NORMAL, layer.splatANormal.id)
+
+        val fileOutputStream = FileOutputStream(layer.file.file())
+        props.store(fileOutputStream, null)
+        fileOutputStream.flush()
+        fileOutputStream.close()
+
+        metaSaver.save(layer.meta)
     }
 
     @Throws(IOException::class)
