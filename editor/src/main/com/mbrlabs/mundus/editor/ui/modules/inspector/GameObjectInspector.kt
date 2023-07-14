@@ -70,6 +70,8 @@ class GameObjectInspector : VisTable() {
         })
     }
 
+    fun getGameObject() : GameObject? = gameObject
+
     fun setGameObject(gameObject: GameObject) {
         this.gameObject = gameObject
 
