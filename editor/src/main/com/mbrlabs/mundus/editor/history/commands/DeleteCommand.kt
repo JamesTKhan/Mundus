@@ -19,9 +19,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Tree
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheManager
 import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
+import com.mbrlabs.mundus.editor.events.TerrainAddedEvent
 import com.mbrlabs.mundus.editor.history.Command
 import com.mbrlabs.mundus.editor.ui.modules.outline.Outline
 import com.mbrlabs.mundus.editor.utils.Log
@@ -37,6 +40,8 @@ class DeleteCommand(private var go: GameObject?, private var node: Outline.Outli
     companion object {
         private val TAG = DeleteCommand::class.java.simpleName
     }
+
+    private val projectManager: ProjectManager = Mundus.inject()
 
     private var parentGO: GameObject? = null
     private var parentNode: Tree.Node<Outline.OutlineNode, GameObject, Outline.NodeTable>? = null
@@ -73,9 +78,15 @@ class DeleteCommand(private var go: GameObject?, private var node: Outline.Outli
 
         // For components that utilize gizmos we should send a ComponentAddedEvent
         // so that GizmoManager can update as needed.
-        val component = go!!.findComponentByType(Component.Type.LIGHT)
-        if (component != null) {
-            Mundus.postEvent(ComponentAddedEvent(component))
+        val lightComponent = go!!.findComponentByType(Component.Type.LIGHT)
+        if (lightComponent != null) {
+            Mundus.postEvent(ComponentAddedEvent(lightComponent))
+        }
+
+        val terrainComponent = go!!.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
+        if (terrainComponent != null) {
+            projectManager.current().currScene.terrains.add(terrainComponent)
+            Mundus.postEvent(TerrainAddedEvent(terrainComponent))
         }
     }
 
