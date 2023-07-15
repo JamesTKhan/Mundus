@@ -103,7 +103,11 @@ class Inspector : VisTable(),
     }
 
     override fun onComponentAdded(event: ComponentAddedEvent) {
-        goInspector.addComponent(event.component)
+        val component = event.component
+
+        if (component.gameObject == goInspector.getGameObject()) {
+            goInspector.addComponent(component)
+        }
     }
 
 }
