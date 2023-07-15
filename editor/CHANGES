@@ -1,5 +1,6 @@
 [0.5.1]
 - Fix mouse picking by not rendering inactive game objects to picker
+- Fix removed terrain in helper lines
 - Fix undo removed light component on selected game object
 
 [0.5.0]
