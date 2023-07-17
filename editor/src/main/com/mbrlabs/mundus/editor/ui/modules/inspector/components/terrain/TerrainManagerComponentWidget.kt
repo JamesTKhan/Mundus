@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.dialog.Dialogs
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.Asset
@@ -51,14 +52,18 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     private fun setupUI() {
         root.defaults()
 
+        val label = VisLabel()
+        label.wrap = true
+        label.setText("This component applies changes to all child terrains.")
+        collapsibleContent.add(label).grow().padBottom(10f).row()
+
         val buttonTable = VisTable()
         buttonTable.defaults().fill().pad(5f)
-        buttonTable.add(updateBtn).left().row()
+        buttonTable.add(updateBtn).row()
         buttonTable.add(triplanarOnBtn).row()
         buttonTable.add(triplanarOffBtn).row()
         root.add(buttonTable).left().row()
 
-        root.debug()
         collapsibleContent.add(root).left().growX().row()
     }
 
