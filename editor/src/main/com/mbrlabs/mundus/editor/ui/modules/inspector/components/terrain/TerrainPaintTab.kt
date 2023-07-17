@@ -54,7 +54,6 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
             override fun layerChanged(terrainLayerAsset: TerrainLayerAsset) {
                 // Assign the new layer asset to the terrain
                 parentWidget.component.terrainAsset.terrainLayerAsset = terrainLayerAsset
-                parentWidget.component.terrainAsset.updateTerrainMaterial()
                 parentWidget.component.applyMaterial()
                 metaSaver.save(parentWidget.component.terrainAsset.meta)
                 projectManager.current().assetManager.addModifiedAsset(parentWidget.component.terrainAsset)

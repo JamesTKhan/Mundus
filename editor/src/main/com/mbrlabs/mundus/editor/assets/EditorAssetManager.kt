@@ -41,12 +41,14 @@ import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute
 import com.mbrlabs.mundus.commons.water.attributes.WaterIntAttribute
 import com.mbrlabs.mundus.editor.Mundus.postEvent
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
@@ -331,6 +333,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             terrainLayerAsset.applyDependencies()
             metaSaver.save(asset.meta)
         }
+        saveAsset(terrainLayerAsset)
 
         asset.meta.terrain.terrainLayerAssetId = terrainLayerAsset.id
         asset.load()
@@ -398,6 +401,27 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         addAsset(asset)
         return asset
+    }
+
+    /**
+     * Convenience method to create splatmaps for Terrains if
+     * the splatmap is null
+     */
+    fun createSplatmapForTerrain(component: TerrainComponent) {
+        val asset = component.terrainAsset
+        if (asset.splatmap == null) {
+            try {
+                val splatmap = createPixmapTextureAsset(asset.meta.terrain.splatMapResolution)
+                component.terrainAsset.splatmap = splatmap
+                metaSaver.save(component.terrainAsset.meta)
+                component.terrainAsset.updateTerrainMaterial()
+
+                postEvent(AssetImportEvent(splatmap))
+            } catch (e: AssetAlreadyExistsException) {
+                Log.exception("Error creating splatmaps.", e)
+                return
+            }
+        }
     }
 
     /**
@@ -791,10 +815,16 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val objectsWithAssets = HashMap<GameObject, String>()
 
         // we check for usages in all scenes
-        for (sceneName in projectManager.current().scenes) {
+        // Use regular loop, to not conflict with nested iterators
+        for (i in 0 until projectManager.current().scenes.size) {
+            val sceneName: String = projectManager.current().scenes.get(i)
             val gameObjects = projectManager.getSceneGameObjects(projectManager.current(), sceneName)
             checkSceneForAssetUsage(sceneName, gameObjects, asset, objectsWithAssets)
         }
+//        for (sceneName in projectManager.current().scenes) {
+//            val gameObjects = projectManager.getSceneGameObjects(projectManager.current(), sceneName)
+//            checkSceneForAssetUsage(sceneName, gameObjects, asset, objectsWithAssets)
+//        }
 
         return objectsWithAssets
     }

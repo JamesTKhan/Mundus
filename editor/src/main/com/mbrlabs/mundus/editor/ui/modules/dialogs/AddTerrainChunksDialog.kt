@@ -17,6 +17,7 @@ import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -137,7 +138,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         // Save context here so that the ID above is persisted in .pro file
         kryoManager.saveProjectContext(projectManager.current())
 
-        parentGO = GameObject(context.currScene.sceneGraph, "Terrain Chunks", goID)
+        parentGO = GameObject(context.currScene.sceneGraph, "$terrainName Manager", goID)
+        parentGO.addComponent(TerrainManagerComponent(parentGO))
 
         val layerName = "${terrainName}.layer"
         if (projectManager.current().assetManager.assetExists(layerName)) {
@@ -193,6 +195,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         }
         projectManager.current().assetManager.addAsset(terrainLayerAsset)
         projectManager.current().assetManager.addModifiedAsset(terrainLayerAsset)
+        projectManager.current().assetManager.saveAsset(terrainLayerAsset)
 
         for (arr in assetsToCreate) {
             val goID = projectManager.current().obtainID()

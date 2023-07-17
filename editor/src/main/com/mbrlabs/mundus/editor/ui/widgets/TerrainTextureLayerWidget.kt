@@ -37,7 +37,6 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.assets.AssetTerrainLayerFilter
 import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
-import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
@@ -45,7 +44,6 @@ import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.utils.Colors
-import com.mbrlabs.mundus.editor.utils.Log
 import java.io.FileNotFoundException
 import java.io.IOException
 
@@ -86,8 +84,6 @@ class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowChange: B
     private val changedBtn: VisTextButton = VisTextButton("Change")
 
     private val projectManager: ProjectManager = Mundus.inject()
-    private val metaSaver: MetaSaver = Mundus.inject()
-
     private val root = VisTable()
     private val rightClickMenu = TextureRightClickMenu()
 
@@ -319,19 +315,7 @@ class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowChange: B
             val component = it.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
 
             if (component.terrainAsset.terrainLayerAsset == asset) {
-                if (component.terrainAsset.splatmap == null) {
-                    try {
-                        val assetManager = projectManager.current().assetManager
-                        val splatmap =
-                            assetManager.createPixmapTextureAsset(component.terrainAsset.meta.terrain.splatMapResolution)
-                        component.terrainAsset.splatmap = splatmap
-                        metaSaver.save(component.terrainAsset.meta)
-                        Mundus.postEvent(AssetImportEvent(splatmap))
-                    } catch (e: AssetAlreadyExistsException) {
-                        Log.exception("Error creating splatmaps.", e)
-                        return
-                    }
-                }
+                projectManager.current().assetManager.createSplatmapForTerrain(component)
             }
         }
 
