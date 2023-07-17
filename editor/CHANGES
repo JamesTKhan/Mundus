@@ -1,6 +1,8 @@
 [0.5.1]
 - [Breaking Changes] Old Projects must be reopened in Editor to generate Terrain Layers
 - Fix mouse picking by not rendering inactive game objects to picker
+- Fix removed terrain in helper lines
+- Fix undo removed light component on selected game object
 - Fix Terrain Cloning, now works as expected
 - Added optional ignore filter to GameObjectPicker
 - Added loading priorities for assets
