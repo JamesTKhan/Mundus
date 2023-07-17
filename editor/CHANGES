@@ -7,6 +7,7 @@
 - Added optional ignore filter to GameObjectPicker
 - Added loading priorities for assets
 - Added new TerrainLayerAsset to decouple splat textures from terrains
+- Added PlaneMesh, decouples terrain mesh generation logic from terrain class
 - Updated Terrain getRayIntersection to use binary search
 
 [0.5.0]

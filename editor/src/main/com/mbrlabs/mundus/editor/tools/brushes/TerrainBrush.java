@@ -508,8 +508,8 @@ public abstract class TerrainBrush extends Tool {
 
     private void updateTerrain(Terrain terrain) {
         if (optimizeTerrainUpdates) {
-            terrain.buildVertices();
-            terrain.updateMeshVertices();
+            terrain.getPlaneMesh().buildVertices();
+            terrain.getPlaneMesh().updateMeshVertices();
         } else {
             terrain.update();
         }
@@ -660,9 +660,9 @@ public abstract class TerrainBrush extends Tool {
                     // as calculating normals is more expensive
                     Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
 
-                    terrain.calculateAverageNormals();
-                    terrain.computeTangents();
-                    terrain.updateMeshVertices();
+                    terrain.getPlaneMesh().calculateAverageNormals();
+                    terrain.getPlaneMesh().computeTangents();
+                    terrain.getPlaneMesh().updateMeshVertices();
                 }
 
             }
