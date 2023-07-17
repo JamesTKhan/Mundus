@@ -32,7 +32,9 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     var root = VisTable()
     private var projectManager : ProjectManager = Mundus.inject()
 
-    private val updateBtn: VisTextButton = VisTextButton("Update all layers")
+    private val updateBtn: VisTextButton = VisTextButton("Change Layers")
+    private val triplanarOnBtn: VisTextButton = VisTextButton("Triplanar Toggle On")
+    private val triplanarOffBtn: VisTextButton = VisTextButton("Triplanar Toggle Off")
 
     init {
         setupUI()
@@ -47,7 +49,17 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     }
 
     private fun setupUI() {
-        collapsibleContent.add(updateBtn).row()
+        root.defaults()
+
+        val buttonTable = VisTable()
+        buttonTable.defaults().fill().pad(5f)
+        buttonTable.add(updateBtn).left().row()
+        buttonTable.add(triplanarOnBtn).row()
+        buttonTable.add(triplanarOffBtn).row()
+        root.add(buttonTable).left().row()
+
+        root.debug()
+        collapsibleContent.add(root).left().growX().row()
     }
 
     private fun setupListeners() {
@@ -75,6 +87,26 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
                 UI.assetSelectionDialog.show(false, filter, assetPickerListener)
             }
         })
+
+        triplanarOnBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                setTriplanar(true)
+            }
+        })
+
+        triplanarOffBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                setTriplanar(false)
+            }
+        })
+    }
+
+    private fun setTriplanar(value: Boolean) {
+        val modifiedTerrains = Array<TerrainComponent>()
+        component.setTriplanar(value, modifiedTerrains)
+        for (terrain in modifiedTerrains) {
+            projectManager.current().assetManager.addModifiedAsset(terrain.terrainAsset)
+        }
     }
 
     private fun setTerrainLayerAsset(layer: TerrainLayerAsset) {

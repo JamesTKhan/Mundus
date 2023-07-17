@@ -43,4 +43,20 @@ public class TerrainManagerComponent extends AbstractComponent {
         }
     }
 
+    /**
+     * Sets the triplanar value for all child terrains.
+     * @param value The value to set.
+     * @param modifiedTerrainsOut  Optional, The terrains that were modified will be added to this array.
+     */
+    public void setTriplanar(boolean value, Array<TerrainComponent> modifiedTerrainsOut) {
+        Array<GameObject> childTerrains = gameObject.findChildrenByComponent(Type.TERRAIN);
+        for (GameObject childTerrain : childTerrains) {
+            TerrainComponent terrainComponent = (TerrainComponent) childTerrain.findComponentByType(Type.TERRAIN);
+            terrainComponent.getTerrainAsset().setTriplanar(value);
+            if (modifiedTerrainsOut != null) {
+                modifiedTerrainsOut.add(terrainComponent);
+            }
+        }
+    }
+
 }
