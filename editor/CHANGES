@@ -1,4 +1,5 @@
 [0.5.1]
+- Added FPS launcher argument, always call setForegroundFPS
 - Fix mouse picking by not rendering inactive game objects to picker
 - Fix removed terrain in helper lines
 - Fix undo removed light component on selected game object
