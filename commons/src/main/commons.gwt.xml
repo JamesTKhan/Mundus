@@ -8,6 +8,7 @@
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.GameObjectDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.WaterComponentDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.TerrainComponentDTO" />
+    <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.TerrainManagerComponentDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.BaseLightDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.LightComponentDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.CustomPropertiesComponentDTO" />
