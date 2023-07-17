@@ -276,12 +276,14 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
     private inner class AddSubMenu : PopupMenu() {
         private val addEmpty: MenuItem = MenuItem("Add Empty")
         private val addTerrain: MenuItem = MenuItem("Add Terrain")
+        private val addTerrainChunks: MenuItem = MenuItem("Add Terrain Chunks")
         private val addWater: MenuItem = MenuItem("Add Water")
         private val addPlane: MenuItem = MenuItem("Add Plane")
         private val addCube: MenuItem = MenuItem("Add Cube")
         init {
             addItem(addEmpty)
             addItem(addTerrain)
+            addItem(addTerrainChunks)
             addItem(addWater)
             addItem(addPlane)
             addItem(addCube)
@@ -361,6 +363,12 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
 
             // add terrainAsset
             addTerrain.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    UI.showDialog(UI.addTerrainDialog)
+                }
+            })
+
+            addTerrainChunks.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     UI.showDialog(UI.addTerrainChunksDialog)
                 }

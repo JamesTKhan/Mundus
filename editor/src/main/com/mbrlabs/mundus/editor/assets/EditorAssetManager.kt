@@ -308,7 +308,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     /**
      * Creates a new terrainAsset asset.
      *
-     * This creates a .terra file (height data) and a pixmap texture (splatmap).
+     * This creates a .terra file (height data) and a pixmap texture (splatmap)
+     * as well as a new terrain layer.
      * The asset will be added to this asset manager.
      *
      * @param vertexResolution
@@ -321,17 +322,18 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createTerraAsset(name: String, vertexResolution: Int, size: Int, splatMapResolution: Int): TerrainAsset {
         val asset = createTerraAssetAsync(name, vertexResolution, size, splatMapResolution)
-        asset.load()
 
+        val terrainLayerAsset = createTerrainLayerAsset(name)
         // set base texture
         val chessboard = findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD)
         if (chessboard != null) {
-            val terrainLayerAsset = asset.terrainLayerAsset
             terrainLayerAsset.splatBase = chessboard as TextureAsset
             terrainLayerAsset.applyDependencies()
             metaSaver.save(asset.meta)
         }
 
+        asset.meta.terrain.terrainLayerAssetId = terrainLayerAsset.id
+        asset.load()
         addAsset(asset)
         return asset
     }

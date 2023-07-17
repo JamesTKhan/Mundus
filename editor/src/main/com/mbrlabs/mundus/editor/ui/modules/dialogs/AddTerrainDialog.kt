@@ -161,6 +161,12 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                 // Save context here so that the ID above is persisted in .pro file
                 kryoManager.saveProjectContext(projectManager.current())
 
+                val layerName = "${terrainName}.layer"
+                if (projectManager.current().assetManager.assetExists(layerName)) {
+                    Dialogs.showErrorDialog(UI, "Terrain Layer with name $terrainName already exists. Pick a different name or\nremove existing asset.")
+                    return null
+                }
+
                 val asset: TerrainAsset
                 try {
                     // create asset
