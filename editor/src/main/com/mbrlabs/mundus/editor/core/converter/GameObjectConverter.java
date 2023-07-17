@@ -28,6 +28,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableWaterComponent;
@@ -68,6 +69,8 @@ public class GameObjectConverter {
             go.getComponents().add(ModelComponentConverter.convert(dto.getModelComponent(), go, assets));
         } else if (dto.getTerrainComponent() != null) {
             go.getComponents().add(TerrainComponentConverter.convert(dto.getTerrainComponent(), go, assets));
+        } else if (dto.getTerrainManagerComponent() != null) {
+            go.getComponents().add(TerrainManagerComponentConverter.convert(dto.getTerrainManagerComponent(), go));
         } else if (dto.getWaterComponent() != null) {
             go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, assets));
         }
@@ -187,6 +190,8 @@ public class GameObjectConverter {
                 descriptor.setLightComponent(PickableLightComponentConverter.convert((LightComponent) c));
             } else if (c.getType() == Component.Type.CUSTOM_PROPERTIES) {
                 descriptor.setCustomPropertiesComponent(CustomPropertiesComponentConverter.convert((CustomPropertiesComponent) c));
+            } else if (c.getType() == Component.Type.TERRAIN_MANAGER) {
+                descriptor.setTerrainManagerComponent(TerrainManagerComponentConverter.convert((TerrainManagerComponent) c));
             }
         }
 
