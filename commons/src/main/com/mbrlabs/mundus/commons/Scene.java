@@ -45,7 +45,6 @@ import com.mbrlabs.mundus.commons.scene3d.components.CullableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.RenderableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.commons.shaders.DepthShader;
-import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
 import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight;
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
@@ -86,7 +85,6 @@ public class Scene implements Disposable {
     protected FrameBuffer fboDepthRefraction;
 
     private DepthShader depthShader;
-    private ShadowMapShader shadowMapShader;
 
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
@@ -313,9 +311,9 @@ public class Scene implements Disposable {
         dirLight.begin();
         depthBatch.begin(dirLight.getCamera());
         setClippingPlane(clippingPlaneDisable, 0);
-        renderComponents(depthBatch, sceneGraph.getRoot(), shadowMapShader, true);
+        renderComponents(depthBatch, sceneGraph.getRoot(), null, true);
         modelCacheManager.triggerBeforeDepthRenderEvent();
-        depthBatch.render(modelCacheManager.modelCache, environment, shadowMapShader);
+        depthBatch.render(modelCacheManager.modelCache, environment);
         depthBatch.end();
         dirLight.end();
     }
@@ -430,10 +428,6 @@ public class Scene implements Disposable {
 
     public void setDepthShader(DepthShader depthShader) {
         this.depthShader = depthShader;
-    }
-
-    public void setShadowMapShader(ShadowMapShader shadowMapShader) {
-        this.shadowMapShader = shadowMapShader;
     }
 
     private Texture getReflectionTexture() {
