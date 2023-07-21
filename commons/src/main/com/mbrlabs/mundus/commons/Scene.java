@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -83,6 +84,7 @@ public class Scene implements Disposable {
     protected FrameBuffer fboWaterReflection;
     protected FrameBuffer fboWaterRefraction;
     protected FrameBuffer fboDepthRefraction;
+    private boolean isMRTRefraction = false;
 
     private DepthShader depthShader;
 
@@ -176,7 +178,7 @@ public class Scene implements Disposable {
         modelCacheManager.update(delta);
 
         if (sceneGraph.isContainsWater()) {
-            if (!Gdx.graphics.isGL30Available()) {
+            if (!isMRTRefraction) {
                 captureDepth();
             }
             captureReflectionFBO();
@@ -320,10 +322,14 @@ public class Scene implements Disposable {
 
     protected void initFrameBuffers(int width, int height) {
         fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-        if (Gdx.graphics.isGL30Available()) {
+
+        // Despite supporting MRT on WebGL2, the depth precision is far worse then doing a separate depth pass frustratingly.
+        isMRTRefraction = Gdx.graphics.isGL30Available() && Gdx.app.getType() != Application.ApplicationType.WebGL;
+
+        if (isMRTRefraction) {
             NestableFrameBuffer.NestableFrameBufferBuilder frameBufferBuilder = new NestableFrameBuffer.NestableFrameBufferBuilder(width, height);
             frameBufferBuilder.addBasicColorTextureAttachment(Pixmap.Format.RGB888);
-            frameBufferBuilder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_UNSIGNED_SHORT);
+            frameBufferBuilder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_UNSIGNED_INT);
             fboWaterRefraction = frameBufferBuilder.build();
         } else {
             fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
@@ -440,7 +446,7 @@ public class Scene implements Disposable {
 
     private Texture getRefractionDepthTexture() {
         Texture refractionDepth;
-        if (Gdx.graphics.isGL30Available()) {
+        if (isMRTRefraction) {
             refractionDepth = fboWaterRefraction.getTextureAttachments().get(DEPTH_ATTACHMENT);
         } else {
             refractionDepth = fboDepthRefraction.getColorBufferTexture();

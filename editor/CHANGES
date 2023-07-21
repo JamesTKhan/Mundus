@@ -1,10 +1,11 @@
-[0.5.1]
+[0.5.1] ~
 - Added FPS launcher argument, always call setForegroundFPS
 - Fix mouse picking by not rendering inactive game objects to picker
 - Fix removed terrain in helper lines
 - Fix undo removed light component on selected game object
+- Updated libGDX to 1.12.0
 
-[0.5.0]
+[0.5.0] ~ 06/28/2023
 - [Breaking Change] Lighting systems updated, visibly different. See PR#184
 - Convert Water Shader to an Uber Shader
 - Water Shader Enhancements (visible depth, toggle reflection/refraction)
