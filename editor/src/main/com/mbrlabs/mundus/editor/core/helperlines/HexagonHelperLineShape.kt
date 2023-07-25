@@ -47,11 +47,18 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
     }
 
     private fun calculate(width: Int, vertexResolution: Int, method: (pos: Short) -> Unit) {
+        val rightTerrainChunksVertexResolution = calculateRightTerrainChunksVertexResolution()
+
+        val xUsedWidth = rightTerrainChunksVertexResolution % width
+
+        val xInit = if (xUsedWidth == 0) 0 else -xUsedWidth
+
         var patternY = 0
 
         for (y in 0 until vertexResolution + width step width) {
-            var patternX = 0
-            for (x in 0 until vertexResolution step width) {
+            var patternX = ((rightTerrainChunksVertexResolution - xUsedWidth) / width) % PATTERN.get(patternY).size
+
+            for (x in xInit until vertexResolution step width) {
                 val mainCurrent = y * vertexResolution + x
 
                 for (pattern in PATTERN.get(patternY).get(patternX)) {
@@ -59,15 +66,16 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
                     for (w in 0 until  width) {
                         val next = getNext(current, pattern, vertexResolution)
 
-                        if (isOnMap(current, vertexResolution) && isOk(current, next, vertexResolution, pattern) && isOnMap(next, vertexResolution)) {
-                            method.invoke(current.toShort())
-                            method.invoke(next.toShort())
-                        } else if (!isOk(current, next, vertexResolution, pattern)) {
-                            break
+                        if (x + w >= 0) {
+                            if (isOnMap(current, vertexResolution) && isOk(current, next, vertexResolution, pattern) && isOnMap(next, vertexResolution)) {
+                                method.invoke(current.toShort())
+                                method.invoke(next.toShort())
+                            } else if (!isOk(current, next, vertexResolution, pattern)) {
+                                break
+                            }
                         }
 
                         current = next
-
                     }
                 }
 
