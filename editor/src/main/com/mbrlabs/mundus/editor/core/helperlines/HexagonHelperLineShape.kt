@@ -47,15 +47,18 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
     }
 
     private fun calculate(width: Int, vertexResolution: Int, method: (pos: Short) -> Unit) {
+        val bottomTerrainChunksVertexResolution = calculateBottomTerrainChunksVertexResolution()
         val rightTerrainChunksVertexResolution = calculateRightTerrainChunksVertexResolution()
 
+        val yUsedWidth = bottomTerrainChunksVertexResolution % width
         val xUsedWidth = rightTerrainChunksVertexResolution % width
 
+        val yInit = if (yUsedWidth == 0) 0 else -yUsedWidth
         val xInit = if (xUsedWidth == 0) 0 else -xUsedWidth
 
-        var patternY = 0
+        var patternY = ((bottomTerrainChunksVertexResolution - yUsedWidth) / width) % PATTERN.size
 
-        for (y in 0 until vertexResolution + width step width) {
+        for (y in yInit until vertexResolution + width step width) {
             var patternX = ((rightTerrainChunksVertexResolution - xUsedWidth) / width) % PATTERN.get(patternY).size
 
             for (x in xInit until vertexResolution step width) {
@@ -66,7 +69,7 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
                     for (w in 0 until  width) {
                         val next = getNext(current, pattern, vertexResolution)
 
-                        if (x + w >= 0) {
+                        if (current >= 0 && next >= 0 && x + w >= 0) {
                             if (isOnMap(current, vertexResolution) && isOk(current, next, vertexResolution, pattern) && isOnMap(next, vertexResolution)) {
                                 method.invoke(current.toShort())
                                 method.invoke(next.toShort())
