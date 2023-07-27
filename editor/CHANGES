@@ -4,6 +4,7 @@
 - Fix removed terrain in helper lines
 - Fix undo removed light component on selected game object
 - Fix Material culling value being reset to GL_NONE by editor
+- Fix crash on Asset Usage tool when Light Component in scene
 
 [0.5.0]
 - [Breaking Change] Lighting systems updated, visibly different. See PR#184
