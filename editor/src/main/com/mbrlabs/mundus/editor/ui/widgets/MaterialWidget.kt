@@ -96,12 +96,15 @@ class MaterialWidget : VisTable() {
                 normalScaleField.value = value.normalScale
                 shadowBiasField.value = value.shadowBias
 
+                // Store current cull value first, before we set the items, otherwise
+                // the listener can override it.
+                val currentValue = CullFace.getFromValue(value.cullFace)
+
                 val cullValues = Array<CullFace>()
                 for (cullValue in CullFace.values())
                     cullValues.add(cullValue)
                 cullFaceSelectBox.items = cullValues
-
-                cullFaceSelectBox.selected = CullFace.getFromValue(value.cullFace)
+                cullFaceSelectBox.selected = currentValue
 
                 scaleUField.textField.text = value.diffuseTexCoord.scaleU.toString()
                 scaleVField.textField.text = value.diffuseTexCoord.scaleV.toString()
