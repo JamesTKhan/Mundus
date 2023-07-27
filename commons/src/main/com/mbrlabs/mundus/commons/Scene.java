@@ -74,6 +74,7 @@ public class Scene implements Disposable {
     public MundusEnvironment environment;
     public Skybox skybox;
     public String skyboxAssetId;
+    public boolean hasGLContext;
 
     public Camera cam;
     public ModelBatch batch;
@@ -108,6 +109,7 @@ public class Scene implements Disposable {
      * @param hasGLContext normally this should be true, false if you are not on main thread
      */
     public Scene(boolean hasGLContext) {
+        this.hasGLContext = hasGLContext;
         environment = new MundusEnvironment();
         settings = new SceneSettings();
         modelCacheManager = new ModelCacheManager(this);
