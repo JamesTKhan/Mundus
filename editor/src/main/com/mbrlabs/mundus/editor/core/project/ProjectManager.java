@@ -248,6 +248,13 @@ public class ProjectManager implements Disposable {
             UI.INSTANCE.toggleLoadingScreen(true, context.name);
             ref.setName(context.name);
             registry.getProjects().add(ref);
+
+            // Set this import project as last opened to prevent NPE only
+            // if no project was opened before
+            if (registry.getLastProject() == null){
+                registry.setLastProject(ref);
+            }
+            
             kryoManager.saveRegistry(registry);
             startAsyncProjectLoad(absolutePath, context);
             return context;
@@ -316,6 +323,14 @@ public class ProjectManager implements Disposable {
     public ProjectContext loadLastProjectAsync() {
         ProjectRef lastOpenedProject = registry.getLastOpenedProject();
         if (lastOpenedProject != null) {
+
+            // Check if file exists first
+            File file = new File(lastOpenedProject.getPath());
+            if (!file.exists()) {
+                Log.error(TAG, "Last opened project does not exist: " + lastOpenedProject.getPath());
+                return null;
+            }
+
             try {
                 return startAsyncProjectLoad(lastOpenedProject);
             } catch (FileNotFoundException fnf) {
