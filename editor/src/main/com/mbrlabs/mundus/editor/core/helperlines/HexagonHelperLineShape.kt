@@ -76,6 +76,8 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
                             } else if (!isOk(current, next, vertexResolution, pattern)) {
                                 break
                             }
+                        } else if (current == -1 && next == 0) {
+                            break
                         }
 
                         current = next
@@ -110,5 +112,5 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
         }
     }
 
-    private fun getRow(cell: Int, vertexResolution: Int) = cell / vertexResolution
+    private fun getRow(cell: Int, vertexResolution: Int) = cell / vertexResolution + if (cell < 0) -1 else 0
 }
