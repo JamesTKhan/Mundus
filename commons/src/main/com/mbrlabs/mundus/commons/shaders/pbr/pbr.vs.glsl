@@ -208,7 +208,20 @@ varying vec3 v_csmUVs[numCSM];
 #endif
 #endif //shadowMapFlag
 
+// clipping plane
+varying float v_clipDistance;
+uniform vec4 u_clipPlane;
+
+#ifdef splatFlag
+varying vec2 v_splatPosition;
+uniform vec2 u_terrainSize;
+#endif
+
 void main() {
+
+	#ifdef splatFlag
+		v_splatPosition = vec2(a_position.x / u_terrainSize.x, a_position.z / u_terrainSize);
+	#endif
 	
 	#ifdef textureFlag
 		v_texCoord0 = (u_texCoord0Transform * vec3(a_texCoord0, 1.0)).xy;
@@ -285,7 +298,8 @@ void main() {
 	#else
 		vec4 pos = u_worldTrans * vec4(morph_pos, 1.0);
 	#endif
-	
+
+	v_clipDistance = dot(pos, u_clipPlane);
 	v_position = vec3(pos.xyz) / pos.w;
 	gl_Position = u_projViewTrans * pos;
 	

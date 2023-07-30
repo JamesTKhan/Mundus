@@ -15,9 +15,14 @@
 #include <ibl.glsl>
 #endif
 
+varying float v_clipDistance;
+
 #ifdef unlitFlag
 
 void main() {
+    if ( v_clipDistance < 0.0 )
+        discard;
+
 	vec4 baseColor = getBaseColor();
     
     vec3 color = baseColor.rgb;
@@ -45,6 +50,8 @@ void main() {
 #else
 
 void main() {
+    if ( v_clipDistance < 0.0 )
+        discard;
 	
     // Metallic and Roughness material properties are packed together
     // In glTF, these factors can be specified by fixed scalar values
@@ -262,6 +269,17 @@ void main() {
 	#endif
 #else
 	out_FragColor.a = 1.0;
+#endif
+
+#ifdef PICKER
+if(u_pickerActive == 1) {
+    float dist = distance(u_pickerPos, v_position);
+    if(dist <= u_pickerRadius) {
+        float gradient = (u_pickerRadius - dist + 0.01) / u_pickerRadius;
+        gradient = 1.0 - clamp(cos(gradient * M_PI), 0.0, 1.0);
+        out_FragColor += COLOR_BRUSH * gradient;
+    }
+}
 #endif
 
 	applyClippingPlane();
