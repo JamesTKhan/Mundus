@@ -86,4 +86,28 @@ abstract class HelperLineShape(width: Int, val terrainComponent: TerrainComponen
         modelInstance.model!!.dispose()
     }
 
+    protected fun calculateRightTerrainChunksVertexResolution() : Int {
+        var rightTerrainComponent = terrainComponent.rightNeighbor
+        var allVertexResolution = 0
+
+        while (rightTerrainComponent != null) {
+            allVertexResolution += rightTerrainComponent.terrainAsset.terrain.vertexResolution - 1
+            rightTerrainComponent = rightTerrainComponent.rightNeighbor
+        }
+
+        return allVertexResolution
+    }
+
+    protected fun calculateBottomTerrainChunksVertexResolution() : Int {
+        var bottomTerrainComponent = terrainComponent.bottomNeighbor
+        var allVertexResolution = 0
+
+        while (bottomTerrainComponent != null) {
+            allVertexResolution += bottomTerrainComponent.terrainAsset.terrain.vertexResolution - 1
+            bottomTerrainComponent = bottomTerrainComponent.bottomNeighbor
+        }
+
+        return allVertexResolution
+    }
+
 }
