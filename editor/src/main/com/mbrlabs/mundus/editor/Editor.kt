@@ -52,6 +52,7 @@ import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.lwjgl.opengl.GL11
+import java.io.File
 
 /**
  * @author Marcus Brummer
@@ -236,6 +237,14 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             val name = "Default Project"
             var path = FileUtils.getUserDirectoryPath()
             path = FilenameUtils.concat(path, "MundusProjects")
+
+            // If the default project already exists, import it instead of recreate it.
+            // This can happen if the registry was deleted but the project folder was not.
+            val defaultProjectPath = FilenameUtils.concat(path, name)
+            val file = File(defaultProjectPath)
+            if (file.exists()) {
+                return projectManager.importProject(defaultProjectPath)
+            }
 
             return projectManager.createProject(name, path)
         }
