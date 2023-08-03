@@ -28,6 +28,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer;
+import com.mbrlabs.mundus.editor.core.io.IOManager;
 import com.mbrlabs.mundus.editor.core.kryo.descriptors.*;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
@@ -45,7 +46,7 @@ import com.mbrlabs.mundus.editor.core.registry.Registry;
  * @author Marcus Brummer
  * @version 12-12-2015
  */
-public class KryoManager {
+public class KryoManager implements IOManager {
 
     private Kryo kryo;
 

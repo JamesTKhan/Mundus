@@ -28,7 +28,8 @@ import com.kotcrab.vis.ui.widget.Menu
 import com.kotcrab.vis.ui.widget.MenuItem
 import com.kotcrab.vis.ui.widget.PopupMenu
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.core.kryo.KryoManager
+import com.mbrlabs.mundus.editor.core.io.IOManager
+import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneAddedEvent
@@ -52,7 +53,7 @@ class SceneMenu : Menu("Scenes"),
     private val addScene = MenuItem("Add scene")
 
     private val projectManager: ProjectManager = Mundus.inject()
-    private val kryoManager : KryoManager = Mundus.inject()
+    private val ioManager : IOManager = Mundus.inject<IOManagerProvider>().ioManager
 
     init {
         Mundus.registerEventListener(this)
@@ -127,7 +128,7 @@ class SceneMenu : Menu("Scenes"),
                         projectManager.renameScene(projectManager.current(), oldSceneName, input)
 
                         // Update project
-                        kryoManager.saveProjectContext(projectManager.current())
+                        ioManager.saveProjectContext(projectManager.current())
 
                         // Update menu
                         parentMenu.text = input
@@ -153,7 +154,7 @@ class SceneMenu : Menu("Scenes"),
                         projectManager.deleteScene(projectManager.current(), sceneName)
 
                         // Delete scene from project
-                        kryoManager.saveProjectContext(projectManager.current())
+                        ioManager.saveProjectContext(projectManager.current())
 
                         // Delete scene from UI
                         sceneItems.removeValue(sceneMenu, true)
@@ -190,11 +191,11 @@ class SceneMenu : Menu("Scenes"),
     private fun isFreeSceneName(newSceneName: String): Boolean {
         for (scene in sceneItems) {
             if (scene.text.toString() == newSceneName) {
-                return false;
+                return false
             }
         }
 
-        return true;
+        return true
     }
 
     private fun disableMenuItem(menuItem: MenuItem) {
@@ -217,7 +218,7 @@ class SceneMenu : Menu("Scenes"),
         updateDeleteButtonEnable(sceneName)
 
         // Save context here so that the scene name above is persisted in .pro file
-        kryoManager.saveProjectContext(projectManager.current())
+        ioManager.saveProjectContext(projectManager.current())
 
         Log.trace(TAG, "SceneMenu", "New scene [{}] added.", sceneName)
     }

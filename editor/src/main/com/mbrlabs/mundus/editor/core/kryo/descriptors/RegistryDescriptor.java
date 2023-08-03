@@ -28,11 +28,11 @@ import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer.Tag;
 public class RegistryDescriptor {
 
     @Tag(0)
-    private SettingsDescriptor settingsDescriptor;
+    public SettingsDescriptor settingsDescriptor;
     @Tag(1)
-    private List<ProjectRefDescriptor> projects;
+    public List<ProjectRefDescriptor> projects;
     @Tag(2)
-    private ProjectRefDescriptor lastProject = null;
+    public ProjectRefDescriptor lastProject = null;
 
     public RegistryDescriptor() {
         projects = new ArrayList<>();
