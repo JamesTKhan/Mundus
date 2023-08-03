@@ -1,4 +1,5 @@
 [0.5.1] ~
+- [BREAKING CHANGE] Migrated from Kryo to JSON for .registry and .pro files. Migration handled automatically.
 - Added FPS launcher argument, always call setForegroundFPS
 - Fix mouse picking by not rendering inactive game objects to picker
 - Fix removed terrain in helper lines
