@@ -31,7 +31,7 @@ import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
 import com.mbrlabs.mundus.editor.core.io.IOManager
 import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
-import com.mbrlabs.mundus.editor.core.kryo.KryoManager
+import com.mbrlabs.mundus.editor.core.io.MigrationIOManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.EventBus
@@ -106,7 +106,7 @@ object Mundus {
         input = InputManager()
         goPicker = GameObjectPicker()
         handlePicker = ToolHandlePicker()
-        ioManager = KryoManager()
+        ioManager = MigrationIOManager()
         registry = ioManager.loadRegistry()
         freeCamController = FreeCamController()
         commandHistory = CommandHistory(CommandHistory.DEFAULT_LIMIT)

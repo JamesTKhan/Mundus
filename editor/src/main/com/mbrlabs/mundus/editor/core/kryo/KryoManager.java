@@ -25,6 +25,7 @@ import java.util.Date;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer;
@@ -69,7 +70,6 @@ public class KryoManager implements IOManager {
         kryo.register(KeyboardLayout.class, 13);
         kryo.register(ProjectDescriptor.class, 14);
         kryo.register(SceneRefDescriptor.class, 15);
-
     }
 
     /**
@@ -165,6 +165,49 @@ public class KryoManager implements IOManager {
         }
 
         return null;
+    }
+
+    /**
+     * Checks if the registry is saved with kryo serializer to aid in migration to Json format
+     */
+    public boolean isRegistryKryo() {
+        Input input = null;
+        try {
+            input = new Input(new FileInputStream(Registry.HOME_DATA_FILE));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+           kryo.readObjectOrNull(input, RegistryDescriptor.class);
+        } catch (KryoException e) {
+            // Assume it's not kryo if we get an exception
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Creates a backup of the registry.
+     */
+    public void backupRegistry() {
+        FileHandle file = Gdx.files.absolute(Registry.HOME_DATA_FILE);
+        FileHandle backup = Gdx.files.absolute(Registry.HOME_DATA_FILE + ".kryo.bak");
+        file.copyTo(backup);
+        Gdx.app.log("Mundus", "Created Kryo registry backup: " + backup.path());
+    }
+
+    /**
+     * Creates a backup of the project context.
+     */
+    public void backupProjectContext(ProjectContext context) {
+        FileHandle file = Gdx.files.absolute(context.path + "/" +
+                context.name + "." + ProjectManager.PROJECT_EXTENSION);
+        FileHandle backup = Gdx.files.absolute(context.path + "/" +
+                context.name + "." + ProjectManager.PROJECT_EXTENSION + ".kryo.bak");
+        file.copyTo(backup);
+        Gdx.app.log("Mundus", "Created Kryo project context backup: " + backup.path());
     }
 
 //    /**
