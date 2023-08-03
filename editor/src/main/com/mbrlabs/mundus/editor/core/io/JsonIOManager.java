@@ -25,7 +25,7 @@ import java.io.Writer;
  * @version August 03, 2023
  */
 public class JsonIOManager implements IOManager {
-    Json json;
+    private final Json json;
 
     public JsonIOManager() {
         json = new Json(JsonWriter.OutputType.json);
