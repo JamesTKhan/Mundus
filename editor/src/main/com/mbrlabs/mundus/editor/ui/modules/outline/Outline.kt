@@ -36,6 +36,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.Mundus.postEvent
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.*
 import com.mbrlabs.mundus.editor.history.CommandHistory
@@ -233,6 +234,7 @@ class Outline : VisTable(),
 
                 // update tree
                 buildTree(projectManager.current().currScene.sceneGraph)
+                postEvent(GameObjectModifiedEvent(draggedGo))
             }
 
         })
