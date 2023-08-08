@@ -1,5 +1,10 @@
-[0.5.1] ~
+[0.6.0] ~
 - [BREAKING CHANGE] Migrated from Kryo to JSON for .registry and .pro files. Migration handled automatically.
+- Add dirty transform flag optimization for caching GameObject/SimpleNode world transform
+- Fix Child terrain objects not updating on translation
+- Refactor outline drag and drop world to local conversion code when moving game objects
+
+[0.5.1] ~ 08/08/2023
 - Added FPS launcher argument, always call setForegroundFPS
 - Fix mouse picking by not rendering inactive game objects to picker
 - Fix removed terrain in helper lines
