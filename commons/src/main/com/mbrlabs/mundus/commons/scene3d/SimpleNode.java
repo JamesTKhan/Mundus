@@ -38,7 +38,7 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
     private final Matrix4 combined;
 
     /** Flag to indicate that the transform is dirty and needs to be recalculated */
-    boolean isTransformDirty;
+    protected boolean isTransformDirty;
 
     public SimpleNode(int id) {
         super(id);
