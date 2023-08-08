@@ -2,10 +2,12 @@ package com.mbrlabs.mundus.editor.core.io;
 
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryo.KryoException;
+import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.kryo.KryoManager;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.registry.ProjectRef;
 import com.mbrlabs.mundus.editor.core.registry.Registry;
+import com.mbrlabs.mundus.editor.events.LogEvent;
 
 import java.io.FileNotFoundException;
 
@@ -67,7 +69,10 @@ public class MigrationIOManager extends JsonIOManager {
         // Migrate project to Json
         if (kryoProject == null) return;
 
-        Gdx.app.log("Mundus", "Migrating project " + project.getName() + " to Json format");
+        String log = "Migrating project " + project.getName() + " to Json format";
+        Mundus.INSTANCE.postEvent(new LogEvent(log));
+        Gdx.app.log("MigrationIOManager", log);
+
         kryoProject.path = project.getPath();
         kryoProject.currScene.setName(kryoProject.activeSceneName);
 
