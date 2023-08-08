@@ -30,7 +30,7 @@ import org.kohsuke.args4j.Option
 
 const private val TAG = "Main"
 
-const val VERSION = "v0.5.0"
+const val VERSION = "v0.5.1"
 const val TITLE = "Mundus $VERSION"
 
 /**

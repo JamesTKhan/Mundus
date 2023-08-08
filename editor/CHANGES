@@ -1,4 +1,4 @@
-[0.5.1] ~
+[0.5.1] ~ 08/08/2023
 - Added FPS launcher argument, always call setForegroundFPS
 - Fix mouse picking by not rendering inactive game objects to picker
 - Fix removed terrain in helper lines
