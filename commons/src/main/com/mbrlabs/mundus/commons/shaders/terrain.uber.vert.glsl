@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#ifdef GL_ES
-precision highp float;
-#endif
+#include "compat.glsl"
 
 attribute vec3 a_position;
 attribute vec3 a_normal;
@@ -30,7 +28,6 @@ uniform vec4 u_cameraPosition;
 uniform mat3 u_normalMatrix;
 
 varying vec2 v_texCoord0;
-varying vec3 v_normal;
 varying vec3 v_worldPos;
 varying mat3 v_TBN;
 

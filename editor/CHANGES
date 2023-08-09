@@ -1,10 +1,30 @@
-[0.5.0]
+[0.6.0] ~
+- Add dirty transform flag optimization for caching GameObject/SimpleNode world transform
+- Fix Child terrain objects not updating on translation
+- Refactor outline drag and drop world to local conversion code when moving game objects
+
+[0.5.1] ~ 08/08/2023
+- Added FPS launcher argument, always call setForegroundFPS
+- Fix mouse picking by not rendering inactive game objects to picker
+- Fix removed terrain in helper lines
+- Fix undo removed light component on selected game object
+- Fix Material culling value being reset to GL_NONE by editor
+- Fix crash on Asset Usage tool when Light Component in scene
+- Updated libGDX to 1.12.0
+
+[0.5.0] ~ 06/28/2023
+- [Breaking Change] Lighting systems updated, visibly different. See PR#184
 - Convert Water Shader to an Uber Shader
 - Water Shader Enhancements (visible depth, toggle reflection/refraction)
 - Skybox rendering performance tweak
+- Added Triplanar Shader options for Terrains
 - Added scene delete button
 - Added scene rename button
 - Added dialog for adding water
+- Added args4j for command line parsing
+- Added command line option to enable GL30
+- Added command line option to enable fullscreen
+- Added Pools.java class to manage object pools
 - Update gradle to 7.5.1
 - Updated editor to use MSAA by default, disable by command line
 - Terrain Assets can now be reused in the same scene and other scenes
@@ -13,6 +33,7 @@
 - Fix selection after model delete
 - Fix temporary files not deleted on model import
 - Fix reset import model dialog on close
+- Fix Gizmos not adding and removing on Project/Scene changes
 - Change scene camera to be base camera class
 - Duplicate materials from inspector
 - Show brush selection
@@ -21,6 +42,14 @@
 - Helper lines
 - Show renamed game object's new name after rename in Inspector
 - Fix terrain brush tools for rotated and scaled terrain
+- Refactor tool selection
+- Custom properties component addable to game objects
+- Fix transparent layer in texture splatting for the terrain texture
+- Improved Terrain normal calculations
+- Terrain UV Scale is no longer changed under Settings, it is changed on the terrain material
+- New CLI argument to disable shader preprocessor caching for development purposes
+- Materials are no longer editable from Model Component Inspector, edit them directly
+- Terrains now have materials, uses same PBR material as models but does not use texture fields.
 
 [0.4.2] ~ 10/24/2022
 - Fix shader compilation error for Terrain when using normal maps

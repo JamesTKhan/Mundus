@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2023. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.commons.env.lights;
+package com.mbrlabs.mundus.commons.dto;
 
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.OrderedMap;
 
-/**
- * @author Marcus Brummer
- * @version 04-01-2016
- */
-public class SunLight extends BaseLight {
+public class CustomPropertiesComponentDTO {
 
-    public final Vector3 position = new Vector3();
+    private OrderedMap<String, String> customProperties;
 
+    public OrderedMap<String, String> getCustomProperties() {
+        return customProperties;
+    }
+
+    public void setCustomProperties(final OrderedMap<String, String> customProperties) {
+        this.customProperties = customProperties;
+    }
 }

@@ -133,6 +133,10 @@ class AssetsDock : Tab(false, false),
         registerListeners()
     }
 
+    fun clearSelection() {
+        setSelected(null)
+    }
+
     private fun registerListeners() {
         deleteAsset.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
@@ -186,6 +190,20 @@ class AssetsDock : Tab(false, false),
         }
     }
 
+    /**
+     * Highlights the selected asset item in the dock view.
+     * @param asset
+     */
+    fun setSelected(asset: Asset) {
+        for (item in assetItems) {
+            if (item.asset == asset) {
+                item.toggleSelectOverlay(true)
+            } else {
+                item.toggleSelectOverlay(false)
+            }
+        }
+    }
+
     fun reloadAssets() {
         filesView.clearChildren()
         val projectContext = projectManager.current()
@@ -226,7 +244,7 @@ class AssetsDock : Tab(false, false),
     }
 
     override fun onGameObjectSelected(event: GameObjectSelectedEvent) {
-        setSelected(null)
+        clearSelection()
     }
 
     override fun onFullScreenEvent(event: FullScreenEvent) {

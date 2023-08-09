@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-#ifdef GL_ES
-#define LOW lowp
-#define MED mediump
-#define HIGH highp
-precision highp float;
-#else
+#include "compat.glsl"
+#include "light.glsl"
+
+// Just stops the static analysis from complaining
+#ifndef MED
 #define MED
-#define LOW
-#define HIGH
 #endif
 
 #define PI 3.1415926535897932384626433832795
@@ -88,8 +85,14 @@ varying vec3 v_pos;
 // light
 varying mat3 v_TBN;
 
-varying MED vec2 v_texCoord0;
+varying vec2 v_texCoord0;
 varying float v_clipDistance;
+
+// Brings the normal from [0, 1] to [-1, 1]
+vec3 unpackNormal(vec3 normal)
+{
+    return normalize(normal * 2.0 - 1.0);
+}
 
 void main(void) {
     if ( v_clipDistance < 0.0 )
@@ -100,46 +103,55 @@ void main(void) {
     gl_FragColor = texture2D(u_baseTexture, v_texCoord0);
 
     #ifdef baseNormalFlag
-        normal = texture2D(u_texture_base_normal, v_texCoord0).rgb;
+        normal = unpackNormal(texture2D(u_texture_base_normal, v_texCoord0).rgb);
     #endif
 
     // Mix splat textures
     #ifdef splatFlag
     vec4 splat = texture2D(u_texture_splat, v_splatPosition);
         #ifdef splatRFlag
-            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_r, v_texCoord0), splat.r);
+            vec4 colorR = texture2D(u_texture_r, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorR, splat.r), colorR.a);
         #endif
         #ifdef splatGFlag
-            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_g, v_texCoord0), splat.g);
+            vec4 colorG = texture2D(u_texture_g, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorG, splat.g), colorG.a);
         #endif
         #ifdef splatBFlag
-            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_b, v_texCoord0), splat.b);
-        #endif
+            vec4 colorB = texture2D(u_texture_b, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorB, splat.b), colorB.a);
+    #endif
         #ifdef splatAFlag
-            gl_FragColor = mix(gl_FragColor, texture2D(u_texture_a, v_texCoord0), splat.a);
-        #endif
+            vec4 colorA = texture2D(u_texture_a, v_texCoord0);
+            gl_FragColor = mix(gl_FragColor, mix(gl_FragColor, colorA, splat.a), colorA.a);
+    #endif
 
         #ifdef normalTextureFlag
+            vec3 splatNormal = vec3(0.0);
             // Splat normals
             #ifdef splatRNormalFlag
-                normal = mix(normal, texture2D(u_texture_r_normal, v_texCoord0).rgb, splat.r);
+                splatNormal += unpackNormal(texture2D(u_texture_r_normal, v_texCoord0).rgb) * splat.r;
             #endif
             #ifdef splatGNormalFlag
-                normal = mix(normal, texture2D(u_texture_g_normal, v_texCoord0).rgb, splat.g);
+                splatNormal += unpackNormal(texture2D(u_texture_g_normal, v_texCoord0).rgb) * splat.g;
             #endif
             #ifdef splatBNormalFlag
-                normal = mix(normal, texture2D(u_texture_b_normal, v_texCoord0).rgb, splat.b);
+                splatNormal += unpackNormal(texture2D(u_texture_b_normal, v_texCoord0).rgb) * splat.b;
             #endif
             #ifdef splatANormalFlag
-                normal = mix(normal, texture2D(u_texture_a_normal, v_texCoord0).rgb, splat.a);
+                splatNormal += unpackNormal(texture2D(u_texture_a_normal, v_texCoord0).rgb) * splat.a;
             #endif
 
+            // The base normal should only be visible when the sum of the splat weights is less than 1.0
+            float normalBlendFactor = (1.0 - splat.r - splat.g - splat.b - splat.a);
+            normal = normalize((normal * normalBlendFactor) + splatNormal);
         #endif
 
     #endif
 
     #ifdef normalTextureFlag
-        normal = normalize(v_TBN * ((2.0 * normal - 1.0)));
+        // Apply TBN matrix to tangent space normal to get world space normal
+        normal = normalize(v_TBN * normal);
     #else
         normal = normalize(v_TBN[2].xyz);
     #endif

@@ -21,6 +21,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.PixmapIO
+import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ObjectSet
 import com.kotcrab.vis.ui.util.dialog.Dialogs
@@ -49,6 +50,7 @@ import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
+import net.mgsx.gltf.exporters.GLTFExporter
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import java.io.BufferedOutputStream
@@ -71,6 +73,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val STANDARD_ASSET_TEXTURE_DUDV = "dudv"
         val STANDARD_ASSET_TEXTURE_WATER_NORMAL = "waterNormal"
         val STANDARD_ASSET_TEXTURE_WATER_FOAM = "waterFoam"
+        val STANDARD_ASSET_MATERIAL_TERRAIN = "terrain_default"
     }
 
     /** Modified assets that need to be saved.  */
@@ -169,6 +172,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
                 asset.resolveDependencies(assetIndex)
                 asset.applyDependencies()
             }
+
+            // We must reload the assets again, since the missing standard assets are now loaded.
+            super.finalizeLoad()
         }
     }
 
@@ -185,16 +191,19 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         try {
 
             if (findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD) == null) {
-                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_CHESSBOARD, "standardAssets/chessboard.png"))
+                createdAssets.add(createStandardTextureAsset(STANDARD_ASSET_TEXTURE_CHESSBOARD, "standardAssets/chessboard.png"))
             }
             if (findAssetByID(STANDARD_ASSET_TEXTURE_DUDV) == null) {
-                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_DUDV, "standardAssets/dudv.png"))
+                createdAssets.add(createStandardTextureAsset(STANDARD_ASSET_TEXTURE_DUDV, "standardAssets/dudv.png"))
             }
             if (findAssetByID(STANDARD_ASSET_TEXTURE_WATER_NORMAL) == null) {
-                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_NORMAL, "standardAssets/waterNormal.png"))
+                createdAssets.add(createStandardTextureAsset(STANDARD_ASSET_TEXTURE_WATER_NORMAL, "standardAssets/waterNormal.png"))
             }
             if (findAssetByID(STANDARD_ASSET_TEXTURE_WATER_FOAM) == null) {
-                createdAssets.add(createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_FOAM, "standardAssets/waterFoam.png"))
+                createdAssets.add(createStandardTextureAsset(STANDARD_ASSET_TEXTURE_WATER_FOAM, "standardAssets/waterFoam.png"))
+            }
+            if (findAssetByID(STANDARD_ASSET_MATERIAL_TERRAIN) == null) {
+                createdAssets.add(createStandardMaterialAsset(STANDARD_ASSET_MATERIAL_TERRAIN, "standardAssets/terrain_default.mat"))
             }
             return createdAssets
 
@@ -205,7 +214,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
     }
 
-    private fun createStandardAsset(id: String, path: String): TextureAsset {
+    private fun createStandardTextureAsset(id: String, path: String): TextureAsset {
         val textureAsset = getOrCreateTextureAsset(Gdx.files.internal(path))
         assetIndex.remove(textureAsset.id)
         textureAsset.meta.uuid = id
@@ -214,12 +223,22 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         return textureAsset
     }
 
+    private fun createStandardMaterialAsset(id: String, path: String): MaterialAsset {
+        val materialAsset = getOrCreateMaterialAsset(Gdx.files.internal(path))
+        assetIndex.remove(materialAsset.id)
+        materialAsset.meta.uuid = id
+        assetIndex[materialAsset.id] = materialAsset
+        metaSaver.save(materialAsset.meta)
+        return materialAsset
+    }
+
     private fun getStandardAssets(): Array<Asset> {
         val standardAssets = Array<Asset>()
         standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_CHESSBOARD))
         standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_DUDV))
         standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_WATER_NORMAL))
         standardAssets.add(findAssetByID(STANDARD_ASSET_TEXTURE_WATER_FOAM))
+        standardAssets.add(findAssetByID(STANDARD_ASSET_MATERIAL_TERRAIN))
         return standardAssets
     }
 
@@ -248,6 +267,36 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         // load & return asset
         val assetFile = FileHandle(FilenameUtils.concat(rootFolder.path(), modelFilename))
+        val asset = ModelAsset(meta, assetFile)
+        asset.load()
+
+        addAsset(asset)
+        return asset
+    }
+
+    /**
+     * Creates a new model asset. This variant of the method
+     * is used when the model does not have a file, e.g.
+     * a model that was generated by code (planes, cubes, etc)..
+     * It uses GLTF exporter to create a new gltf model file.
+     *
+     * @param fileName name of the model file
+     * @param model the loaded model
+     */
+    @Throws(IOException::class, AssetAlreadyExistsException::class)
+    fun createModelAsset(fileName: String, model: Model): ModelAsset {
+        val modelFilename = fileName
+        val metaFilename = modelFilename + ".meta"
+
+        // create meta file
+        val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
+        val meta = createNewMetaFile(FileHandle(metaPath), AssetType.MODEL)
+
+        val assetFile = FileHandle(FilenameUtils.concat(rootFolder.path(), modelFilename))
+        val exporter = GLTFExporter()
+        exporter.export(model, assetFile)
+
+        // load & return asset
         val asset = ModelAsset(meta, assetFile)
         asset.load()
 
@@ -389,6 +438,22 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         return createTextureAsset(texture)
     }
 
+    /**
+     * Creates a new material asset if it does not exist, else
+     * returns an existing one.
+     *
+     * @param material file
+     * @return a material asset
+     * @throws IOException
+     */
+    private fun getOrCreateMaterialAsset(material: FileHandle): MaterialAsset {
+        val existingMaterial = findAssetByFileName(material.name())
+        if (existingMaterial != null)
+            return existingMaterial as MaterialAsset
+
+        return createMaterialAsset(material)
+    }
+
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createSkyBoxAsset(name: String, positiveX: String, negativeX: String, positiveY: String, negativeY: String, positiveZ: String, negativeZ: String): SkyboxAsset {
         val fileName = "$name.sky"
@@ -436,6 +501,21 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         asset.load()
 
         saveAsset(asset)
+        addAsset(asset)
+        return asset
+    }
+
+    /**
+     * Creates a new material asset using the given material file.
+     */
+    @Throws(IOException::class, AssetAlreadyExistsException::class)
+    fun createMaterialAsset(material: FileHandle): MaterialAsset {
+        val meta = createMetaFileFromAsset(material, AssetType.MATERIAL)
+        val importedAssetFile = copyToAssetFolder(material)
+
+        val asset = MaterialAsset(meta, importedAssetFile)
+        asset.load()
+
         addAsset(asset)
         return asset
     }
@@ -837,7 +917,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         // if foam image is missing, create it
         if (findAssetByID(STANDARD_ASSET_TEXTURE_WATER_FOAM) == null) {
-            createStandardAsset(STANDARD_ASSET_TEXTURE_WATER_FOAM, "standardAssets/waterFoam.png")
+            createStandardTextureAsset(STANDARD_ASSET_TEXTURE_WATER_FOAM, "standardAssets/waterFoam.png")
         }
 
         val asset = WaterAsset(meta, FileHandle(file))

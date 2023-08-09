@@ -38,7 +38,7 @@ Below are some of the more interesting features, that already work
 
 ### Latest Release Video
 
-[![Release video](https://img.youtube.com/vi/Txc-uwf6gEM/0.jpg)](https://www.youtube.com/watch?v=Txc-uwf6gEM)
+[![Release video](https://img.youtube.com/vi/e7g5q4I1gdM/0.jpg)](https://www.youtube.com/watch?v=e7g5q4I1gdM)
 
 ## LibGDX discord channel for Mundus
 

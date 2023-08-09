@@ -17,12 +17,9 @@
 package com.mbrlabs.mundus.editor.ui.modules.dialogs
 
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
-import com.kotcrab.vis.ui.util.FloatDigitsOnlyFilter
 import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -38,7 +35,6 @@ import com.mbrlabs.mundus.editor.ui.widgets.ColorPickerField
 class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.ProjectChangedListener,
         SceneChangedEvent.SceneChangedListener {
 
-    private val intensity = VisTextField("0")
     private val colorPickerField = ColorPickerField()
 
     private val projectManager: ProjectManager = Mundus.inject()
@@ -54,9 +50,6 @@ class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.Proj
         val root = Table()
         root.padTop(6f).padRight(6f).padBottom(22f)
         add(root)
-
-        root.add(VisLabel("Intensity: ")).left().padBottom(10f)
-        root.add(intensity).fillX().expandX().padBottom(10f).row()
         root.add(VisLabel("Color")).growX().row()
         root.add(colorPickerField).left().fillX().expandX().colspan(2).row()
         resetValues()
@@ -64,33 +57,30 @@ class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.Proj
 
     private fun setupListeners() {
 
-        // intensity
-        intensity.textFieldFilter = FloatDigitsOnlyFilter(false)
-        intensity.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent, actor: Actor) {
-                val d = convert(intensity.text)
-                if (d != null) {
-                    val projectContext = projectManager.current()
-                    projectContext.currScene.environment.ambientLight.intensity = d
-                }
-            }
-        })
-
         // color
         colorPickerField.colorAdapter = object: ColorPickerAdapter() {
             override fun finished(newColor: Color) {
                 val projectContext = projectManager.current()
-                projectContext.currScene.environment.ambientLight.color.set(newColor)
+                val ambientLight: ColorAttribute = projectContext.currScene.environment.get(
+                    ColorAttribute::class.java, ColorAttribute.AmbientLight
+                )
+                ambientLight.color.set(newColor)
             }
 
             override fun changed(newColor: Color?) {
                 val projectContext = projectManager.current()
-                projectContext.currScene.environment.ambientLight.color.set(newColor)
+                val ambientLight: ColorAttribute = projectContext.currScene.environment.get<ColorAttribute>(
+                    ColorAttribute::class.java, ColorAttribute.AmbientLight
+                )
+                ambientLight.color.set(newColor)
             }
 
             override fun canceled(oldColor: Color?) {
                 val projectContext = projectManager.current()
-                projectContext.currScene.environment.ambientLight.color.set(oldColor)
+                val ambientLight: ColorAttribute = projectContext.currScene.environment.get<ColorAttribute>(
+                    ColorAttribute::class.java, ColorAttribute.AmbientLight
+                )
+                ambientLight.color.set(oldColor)
             }
         }
 
@@ -98,18 +88,7 @@ class AmbientLightDialog : BaseDialog("Ambient Light"), ProjectChangedEvent.Proj
 
     private fun resetValues() {
         val light = projectManager.current().currScene.environment.ambientLight
-        intensity.text = light.intensity.toString()
         colorPickerField.selectedColor = light.color
-    }
-
-    private fun convert(input: String): Float? {
-        try {
-            if (input.isEmpty()) return null
-            return java.lang.Float.valueOf(input)
-        } catch (e: Exception) {
-            return null
-        }
-
     }
 
     override fun onProjectChanged(event: ProjectChangedEvent) {

@@ -10,6 +10,8 @@ public class TerrainAttribute extends MundusAttribute {
     // Diffuse Textures
     public final static String DiffuseBaseAlias = "DiffuseBase";
     public final static long DiffuseBase = register(DiffuseBaseAlias);
+    public final static String SplatMapAlias = "SplatMap";
+    public final static long SplatMap = register(SplatMapAlias);
     public final static String DiffuseRAlias = "DiffuseR";
     public final static long DiffuseR = register(DiffuseRAlias);
     public final static String DiffuseGAlias = "DiffuseG";
@@ -30,6 +32,8 @@ public class TerrainAttribute extends MundusAttribute {
     public final static long NormalMapB = register(NormalMapBAlias);
     public final static String NormalMapAAlias = "normalMapA";
     public final static long NormalMapA = register(NormalMapAAlias);
+    public final static String TriplanarAlias = "triplanar";
+    public final static long Triplanar = register(TriplanarAlias);
 
     public TerrainAttribute(long type) {
         super(type);

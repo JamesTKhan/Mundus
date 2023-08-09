@@ -95,7 +95,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
      * required for resolving image/texture files.
      */
     fun populateMaterialAsset(
-        importedModel: FileHandleWithDependencies,
+        importedModel: FileHandleWithDependencies?,
         assetManager: EditorAssetManager,
         materialToUse: Material,
         materialAssetToPopulate: MaterialAsset,
@@ -126,7 +126,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
         // Texture Attributes
         if (materialToUse.has(PBRTextureAttribute.BaseColorTexture)) {
             materialAssetToPopulate.diffuseTexture = getTextureAssetForMaterial(
-                importedModel,
+                importedModel!!,
                 assetManager,
                 materialToUse.id,
                 PBRTextureAttribute.BaseColorTexture)
@@ -135,7 +135,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
 
         if (materialToUse.has(PBRTextureAttribute.NormalTexture)) {
             materialAssetToPopulate.normalMap = getTextureAssetForMaterial(
-                importedModel,
+                importedModel!!,
                 assetManager,
                 materialToUse.id,
                 PBRTextureAttribute.NormalTexture
@@ -145,7 +145,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
 
         if (materialToUse.has(PBRTextureAttribute.EmissiveTexture)) {
             materialAssetToPopulate.emissiveTexture = getTextureAssetForMaterial(
-                importedModel,
+                importedModel!!,
                 assetManager,
                 materialToUse.id,
                 PBRTextureAttribute.EmissiveTexture
@@ -155,7 +155,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
 
         if (materialToUse.has(PBRTextureAttribute.MetallicRoughnessTexture)) {
             materialAssetToPopulate.metallicRoughnessTexture = getTextureAssetForMaterial(
-                importedModel,
+                importedModel!!,
                 assetManager,
                 materialToUse.id,
                 PBRTextureAttribute.MetallicRoughnessTexture
@@ -165,7 +165,7 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
 
         if (materialToUse.has(PBRTextureAttribute.OcclusionTexture)) {
             materialAssetToPopulate.occlusionTexture = getTextureAssetForMaterial(
-                importedModel,
+                importedModel!!,
                 assetManager,
                 materialToUse.id,
                 PBRTextureAttribute.OcclusionTexture

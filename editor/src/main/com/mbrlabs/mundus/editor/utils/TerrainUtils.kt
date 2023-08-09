@@ -18,7 +18,6 @@
 
 package com.mbrlabs.mundus.editor.utils
 
-import com.badlogic.gdx.graphics.g3d.Shader
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.Ray
@@ -31,15 +30,14 @@ import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent
 
 private var tempVI = VertexInfo()
 
-fun createTerrainGO(sg: SceneGraph, shader: Shader?, goID: Int, goName: String,
+fun createTerrainGO(sg: SceneGraph, goID: Int, goName: String,
                     terrainAsset: TerrainAsset): GameObject {
     val terrainGO = GameObject(sg, null, goID)
     terrainGO.name = goName
 
-    val terrainComponent = PickableTerrainComponent(terrainGO, null)
+    val terrainComponent = PickableTerrainComponent(terrainGO)
     terrainComponent.terrainAsset = terrainAsset
     terrainGO.components.add(terrainComponent)
-    terrainComponent.shader = shader
     terrainComponent.encodeRaypickColorId()
 
     return terrainGO

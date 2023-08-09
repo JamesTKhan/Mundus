@@ -74,6 +74,11 @@ class Inspector : VisTable(),
         add<ScrollPane>(scrollPane).expand().fill().top()
     }
 
+    fun clearWidgets() {
+        root.clear()
+        mode = InspectorMode.EMPTY
+    }
+
     override fun onGameObjectSelected(event: GameObjectSelectedEvent) {
         if (mode != InspectorMode.GAME_OBJECT) {
             mode = InspectorMode.GAME_OBJECT
@@ -98,7 +103,11 @@ class Inspector : VisTable(),
     }
 
     override fun onComponentAdded(event: ComponentAddedEvent) {
-        goInspector.addComponent(event.component)
+        val component = event.component
+
+        if (component.gameObject == goInspector.getGameObject()) {
+            goInspector.addComponent(component)
+        }
     }
 
 }

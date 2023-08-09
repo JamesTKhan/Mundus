@@ -76,6 +76,14 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
         setupTextureGrid()
     }
 
+    override fun onShow() {
+        super.onShow()
+
+        // At tab open the first (base) texture will be selected
+        TerrainBrush.setPaintChannel(SplatTexture.Channel.BASE)
+        textureGrid.highlightFirst();
+    }
+
     fun setupAddTextureBrowser() {
         addTextureBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -267,6 +275,7 @@ class TerrainPaintTab(private val parentWidget: TerrainComponentWidget) : BaseBr
                                     } else if (channel == SplatTexture.Channel.A) {
                                         terrain.splatA = asset as TextureAsset
                                     }
+                                    parentWidget.component.applyMaterial()
                                     terrain.applyDependencies()
                                     setTexturesInUiGrid()
                                     projectManager.current().assetManager.addModifiedAsset(terrain)

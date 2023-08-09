@@ -17,16 +17,13 @@
 package com.mbrlabs.mundus.commons.scene3d;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
-import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 
 /**
  * @author Marcus Brummer
@@ -38,8 +35,6 @@ public class SceneGraph {
 
     public Scene scene;
 
-    private GameObject selected;
-
     private boolean containsWater = false;
 
     public SceneGraph(Scene scene) {
@@ -47,35 +42,6 @@ public class SceneGraph {
         root.initChildrenArray();
         root.active = false;
         this.scene = scene;
-    }
-
-    public void render(float delta, Vector3 clippingPlane, float clipHeight) {
-        for (GameObject go : root.getChildren()) {
-            if (go.hasWaterComponent) continue;
-            go.render(delta, clippingPlane, clipHeight);
-        }
-    }
-
-    //todo consider using renderable sorter instead
-    public void renderWater(float delta, Texture reflectionTexture, Texture refraction, Texture refractionDepth) {
-        for (GameObject go : root.getChildren()) {
-            if (go.hasWaterComponent) {
-                WaterComponent waterComponent = (WaterComponent) go.findComponentByType(Component.Type.WATER);
-                if (waterComponent != null) {
-                    waterComponent.getWaterAsset().setWaterReflectionTexture(reflectionTexture);
-                    waterComponent.getWaterAsset().setWaterRefractionTexture(refraction);
-                    waterComponent.getWaterAsset().setWaterRefractionDepthTexture(refractionDepth);
-                    go.render(delta);
-                }
-            }
-        }
-    }
-
-    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader shader) {
-        for (GameObject go : root.getChildren()) {
-            if (go.hasWaterComponent) continue;
-            go.renderDepth(delta, clippingPlane, clipHeight, shader);
-        }
     }
 
     public void update() {
@@ -198,14 +164,6 @@ public class SceneGraph {
 
     public GameObject getRoot() {
         return root;
-    }
-
-    public GameObject getSelected() {
-        return selected;
-    }
-
-    public void setSelected(GameObject selected) {
-        this.selected = selected;
     }
 
     public boolean isContainsWater() {

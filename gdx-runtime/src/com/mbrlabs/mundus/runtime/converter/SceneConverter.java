@@ -16,19 +16,18 @@
 
 package com.mbrlabs.mundus.runtime.converter;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
 import com.mbrlabs.mundus.commons.env.CameraSettings;
-import com.mbrlabs.mundus.commons.env.lights.BaseLight;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLight;
-import com.mbrlabs.mundus.commons.env.lights.DirectionalLightsAttribute;
 import com.mbrlabs.mundus.commons.mapper.BaseLightConverter;
 import com.mbrlabs.mundus.commons.mapper.DirectionalLightConverter;
 import com.mbrlabs.mundus.commons.mapper.FogConverter;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 import com.mbrlabs.mundus.runtime.Shaders;
 
@@ -50,16 +49,14 @@ public class SceneConverter {
 
         // environment stuff
         FogConverter.convert(dto.getFog(), scene.environment);
-        BaseLight ambientLight = BaseLightConverter.convert(dto.getAmbientLight());
+        Color ambientLight = BaseLightConverter.convert(dto.getAmbientLight());
         if (ambientLight != null) {
             scene.environment.setAmbientLight(ambientLight);
         }
 
-        DirectionalLight light = DirectionalLightConverter.convert(scene, dto.getDirectionalLight());
+        MundusDirectionalShadowLight light = DirectionalLightConverter.convert(scene, dto.getDirectionalLight());
         if (light != null) {
-            DirectionalLightsAttribute directionalLight = scene.environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
-            directionalLight.lights.clear();
-            directionalLight.lights.add(light);
+            scene.setDirectionalLight(light);
         }
 
         // Water stuff

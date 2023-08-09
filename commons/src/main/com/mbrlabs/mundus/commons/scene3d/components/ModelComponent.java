@@ -18,8 +18,7 @@ package com.mbrlabs.mundus.commons.scene3d.components;
 
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.Shader;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.MaterialAsset;
@@ -27,8 +26,6 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
-import com.mbrlabs.mundus.commons.shaders.ClippableShader;
-import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
 
 import java.util.Objects;
 
@@ -36,11 +33,10 @@ import java.util.Objects;
  * @author Marcus Brummer
  * @version 17-01-2016
  */
-public class ModelComponent extends CullableComponent implements AssetUsage, ClippableComponent, ModelCacheable {
+public class ModelComponent extends CullableComponent implements AssetUsage, ModelCacheable, RenderableComponent {
 
     protected ModelAsset modelAsset;
     protected ModelInstance modelInstance;
-    protected Shader shader;
     protected boolean useModelCache = false;
 
     protected ObjectMap<String, MaterialAsset> materials;  // g3db material id to material asset uuid
@@ -51,19 +47,17 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
         materials = new ObjectMap<>();
     }
 
-    public ModelComponent(GameObject go, Shader shader) {
-        super(go);
-        type = Type.MODEL;
-        materials = new ObjectMap<>();
-        this.shader = shader;
+    @Override
+    public void update(float delta) {
+        super.update(delta);
+        if (gameObject.isDirty()) {
+            modelInstance.transform.set(gameObject.getTransform());
+        }
     }
 
-    public Shader getShader() {
-        return shader;
-    }
-
-    public void setShader(Shader shader) {
-        this.shader = shader;
+    @Override
+    public RenderableProvider getRenderableProvider() {
+        return modelInstance;
     }
 
     public void setModel(ModelAsset model, boolean inheritMaterials) {
@@ -122,62 +116,10 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Cli
     }
 
     @Override
-    public void render(float delta) {
-        // Update transform before checking if culled
-        modelInstance.transform.set(gameObject.getTransform());
-
-        super.render(delta);
-
-        if (isCulled || useModelCache) return;
-
-        triggerBeforeRenderEvent();
-        if (shader != null) {
-            gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment, shader);
-        } else {
-            gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment);
-        }
-    }
-
-    @Override
-    public void renderDepth(float delta, Vector3 clippingPlane, float clipHeight, Shader depthShader) {
-        if (isCulled || useModelCache) return;
-
-        if (depthShader instanceof ClippableShader) {
-            ((ClippableShader) depthShader).setClippingPlane(clippingPlane);
-            ((ClippableShader) depthShader).setClippingHeight(clipHeight);
-        }
-
-        triggerBeforeDepthRenderEvent();
-
-        if (depthShader instanceof ShadowMapShader)
-            // Shadow Mapper will use default (PBR's depth shader) for animation support
-            gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment);
-        else {
-            // Otherwise, use the mundus depth shader (using PBR Depth shader causes odd foam artifacts and issues).
-            gameObject.sceneGraph.scene.depthBatch.render(modelInstance, gameObject.sceneGraph.scene.environment, depthShader);
-        }
-    }
-
-    @Override
-    public void render(float delta, Vector3 clippingPlane, float clipHeight) {
-        if (shader != null && shader instanceof ClippableShader) {
-            ((ClippableShader) shader).setClippingPlane(clippingPlane);
-            ((ClippableShader) shader).setClippingHeight(clipHeight);
-        } else {
-            // For use with PBR shader
-            gameObject.sceneGraph.scene.environment.setClippingHeight(clipHeight);
-            gameObject.sceneGraph.scene.environment.getClippingPlane().set(clippingPlane);
-        }
-
-        render(delta);
-    }
-
-    @Override
     public Component clone(GameObject go) {
-        ModelComponent mc = new ModelComponent(go, shader);
+        ModelComponent mc = new ModelComponent(go);
         mc.modelAsset = this.modelAsset;
         mc.modelInstance = new ModelInstance(modelAsset.getModel());
-        mc.shader = this.shader;
         mc.materials.putAll(this.materials);
         mc.setDimensions(mc.modelInstance);
         mc.setUseModelCache(useModelCache);

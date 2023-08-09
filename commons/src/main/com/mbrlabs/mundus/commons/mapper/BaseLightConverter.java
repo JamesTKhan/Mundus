@@ -17,8 +17,8 @@
 package com.mbrlabs.mundus.commons.mapper;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.mbrlabs.mundus.commons.dto.BaseLightDTO;
-import com.mbrlabs.mundus.commons.env.lights.BaseLight;
 
 /**
  * The converter for lights.
@@ -26,24 +26,19 @@ import com.mbrlabs.mundus.commons.env.lights.BaseLight;
 public class BaseLightConverter {
 
     /**
-     * Converts {@link BaseLightDTO} to {@link BaseLight}.
+     * Converts {@link BaseLightDTO} to {@link Color}.
      */
-    public static BaseLight convert(BaseLightDTO dto) {
+    public static Color convert(BaseLightDTO dto) {
         if (dto == null) return null;
-        BaseLight light = new BaseLight();
-        light.intensity = dto.getIntensity();
-        light.color.set(dto.getColor());
-
-        return light;
+        return new Color(dto.getColor());
     }
 
     /**
-     * Converts {@link BaseLight} to {@link BaseLightDTO}.
+     * Converts {@link ColorAttribute} to {@link BaseLightDTO}.
      */
-    public static BaseLightDTO convert(BaseLight light) {
+    public static BaseLightDTO convert(ColorAttribute light) {
         if (light == null) return null;
         BaseLightDTO lightDescriptor = new BaseLightDTO();
-        lightDescriptor.setIntensity(light.intensity);
         lightDescriptor.setColor(Color.rgba8888(light.color));
 
         return lightDescriptor;

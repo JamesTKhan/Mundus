@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editor.ui.modules.inspector.components
 
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
@@ -42,6 +43,16 @@ class IdentifierWidget : VisTable() {
     init {
         setupUI()
         setupListeners()
+    }
+
+    override fun act(delta: Float) {
+        super.act(delta)
+
+        // If this widget is visible and the currentSelection variable is null (for example a brush tool selected) then
+        // disable this widget
+        val projectContext = projectManager.current()
+        val touchable = if (projectContext.currScene.currentSelection != null) Touchable.enabled else Touchable.disabled
+        this.touchable = touchable
     }
 
     private fun setupUI() {

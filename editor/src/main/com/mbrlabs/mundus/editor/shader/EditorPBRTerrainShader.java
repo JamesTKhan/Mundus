@@ -1,33 +1,26 @@
 package com.mbrlabs.mundus.editor.shader;
 
 import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.math.Vector3;
-import com.mbrlabs.mundus.commons.shaders.TerrainUberShader;
+import com.mbrlabs.mundus.commons.shaders.PBRTerrainShader;
 
 /**
- * Overrides TerrainUberShader to include picking data
+ * Overrides PBRTerrainShader to include picking data
  *
  * @author JamesTKhan
  * @version August 16, 2022
  */
-public class EditorTerrainUberShader extends TerrainUberShader {
+public class EditorPBRTerrainShader extends PBRTerrainShader {
     protected final int UNIFORM_PICKER_POS = register(new Uniform("u_pickerPos"));
     protected final int UNIFORM_PICKER_RADIUS = register(new Uniform("u_pickerRadius"));
     protected final int UNIFORM_MOUSE_ACTIVE = register(new Uniform("u_pickerActive"));
 
     private static boolean pickerActive = false;
-    private static Vector3 pickerPosition = new Vector3();
+    private static final Vector3 pickerPosition = new Vector3();
     private static float pickerRadius = 0;
 
-    public EditorTerrainUberShader(Renderable renderable, DefaultShader.Config config) {
-        super(renderable, config);
-    }
-
-    @Override
-    protected String createPrefixForRenderable(Renderable renderable) {
-        String prefix = "#define PICKER\n";
-        return prefix + super.createPrefixForRenderable(renderable);
+    public EditorPBRTerrainShader(Renderable renderable, Config config, String prefix) {
+        super(renderable, config, prefix);
     }
 
     @Override

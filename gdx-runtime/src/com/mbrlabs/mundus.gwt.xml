@@ -15,6 +15,8 @@
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/shadowmap.frag.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/shadowmap.vert.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/light.glsl" />
+    <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/utils.glsl" />
+    <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/compat.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.fs.glsl" />
     <extend-configuration-property name="gdx.files.classpath" value="com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.vs.glsl" />
 

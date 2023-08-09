@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
-import com.badlogic.gdx.graphics.g3d.Shader;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 
 /**
@@ -26,12 +25,10 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
 public interface Component {
 
     enum Type {
-        MODEL, TERRAIN, LIGHT, PARTICLE_SYSTEM, WATER
+        MODEL, TERRAIN, LIGHT, PARTICLE_SYSTEM, WATER, CUSTOM_PROPERTIES
     }
 
     GameObject getGameObject();
-
-    void render(float delta);
 
     void update(float delta);
 

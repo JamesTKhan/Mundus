@@ -33,7 +33,7 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
 
     private val helperLineShapes = Array<HelperLineShape>()
     private var width = -1
-    private var type = HelperLineType.RECTANGLE
+    private var type: HelperLineType? = null
 
 
     fun build(type: HelperLineType, width: Int, terrainComponents: Array<TerrainComponent>) {
@@ -74,7 +74,9 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
     }
 
     override fun onTerrainAdded(event: TerrainAddedEvent) {
-        addNewHelperLineShape(event.terrainComponent)
+        if (type != null) {
+            addNewHelperLineShape(event.terrainComponent)
+        }
     }
 
     override fun onTerrainRemoved(event: TerrainRemovedEvent) {
@@ -87,6 +89,7 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
     override fun dispose() {
         helperLineShapes.forEach { helperLineObject -> helperLineObject.dispose() }
         helperLineShapes.clear()
+        type = null
     }
 
     private fun addNewHelperLineShape(terrainComponent: TerrainComponent) {
