@@ -2,6 +2,7 @@
 - Add dirty transform flag optimization for caching GameObject/SimpleNode world transform
 - Fix Child terrain objects not updating on translation
 - Refactor outline drag and drop world to local conversion code when moving game objects
+- Updated VisUI to 1.5.2
 
 [0.5.1] ~ 08/08/2023
 - Added FPS launcher argument, always call setForegroundFPS
