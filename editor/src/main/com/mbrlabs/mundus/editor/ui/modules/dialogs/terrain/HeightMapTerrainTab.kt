@@ -141,10 +141,15 @@ class HeightMapTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false
         imageWidth = originalMap.width
         imageHeight = originalMap.height
 
-        heightMapData = HeightMapGenerator.heightColorsToMap(
-            originalMap.getPixels(), originalMap.getFormat(), imageWidth,
-            imageHeight
-        )
+        try {
+            heightMapData = HeightMapGenerator.heightColorsToMap(
+                originalMap.getPixels(), originalMap.getFormat(), imageWidth,
+                imageHeight
+            )
+        } catch (e: Exception) {
+            Dialogs.showErrorDialog(UI, "Failed to load heightmap. " + e.message)
+            return
+        }
 
         if (flipHeightMap.isChecked) {
             // Bottom left corner of the image is 0,0 on terrain
