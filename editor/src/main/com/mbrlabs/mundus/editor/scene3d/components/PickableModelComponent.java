@@ -18,7 +18,6 @@ package com.mbrlabs.mundus.editor.scene3d.components;
 
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.Shader;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
@@ -53,9 +52,8 @@ public class PickableModelComponent extends ModelComponent implements PickableCo
     public Component clone(GameObject go) {
         PickableModelComponent mc = new PickableModelComponent(go);
         mc.modelAsset = this.modelAsset;
-        mc.modelInstance = new ModelInstance(modelAsset.getModel());
+        mc.setModel(new ModelInstance(modelAsset.getModel()));
         mc.materials.putAll(this.materials);
-        mc.setDimensions(mc.modelInstance);
         mc.setUseModelCache(useModelCache);
         mc.encodeRaypickColorId();
         gameObject.sceneGraph.scene.modelCacheManager.requestModelCacheRebuild();
