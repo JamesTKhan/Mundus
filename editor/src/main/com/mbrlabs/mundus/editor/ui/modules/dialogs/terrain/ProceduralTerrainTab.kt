@@ -71,7 +71,7 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
     }
 
     private fun setupUI() {
-        vertexResolution.text = Terrain.DEFAULT_VERTEX_RESOLUTION.toString()
+        vertexResolution.text = 64.toString()
         terrainWidth.text = Terrain.DEFAULT_SIZE.toString()
 
         minHeight.text = (-50f).toString()

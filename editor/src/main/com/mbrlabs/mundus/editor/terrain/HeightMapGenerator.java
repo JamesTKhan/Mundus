@@ -63,7 +63,6 @@ public class HeightMapGenerator extends Generator<HeightMapGenerator> {
 
     @Override
     public void terraform() {
-        float[] heightData = new float[terrain.vertexResolution * terrain.vertexResolution];
         int idx = 0;
 
         // Copy only a part of the height map data to this terrain using the offsets
@@ -74,12 +73,11 @@ public class HeightMapGenerator extends Generator<HeightMapGenerator> {
                 int heightDataIndex = xi + zj * imageWidth;
                 float height = heightMapData[heightDataIndex];
 
-                heightData[idx] = (height * (maxHeight - minHeight)) + minHeight;  // map it to the desired range
+                terrain.heightData[idx] = (height * (maxHeight - minHeight)) + minHeight;  // map it to the desired range
                 idx++;
             }
         }
 
-        terrain.heightData = heightData;
         Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
