@@ -505,8 +505,8 @@ public class MaterialAsset extends Asset {
         this.metallicRoughnessTexCoord = materialAsset.metallicRoughnessTexCoord.deepCopy();
         this.occlusionTexCoord = materialAsset.occlusionTexCoord.deepCopy();
 
-        this.diffuseColor = materialAsset.getDiffuseColor();
-        this.emissiveColor = materialAsset.getEmissiveColor();
+        this.diffuseColor = materialAsset.getDiffuseColor().cpy();
+        this.emissiveColor = materialAsset.getEmissiveColor().cpy();
 
         this.setDiffuseTexture(materialAsset.getDiffuseTexture());
         this.setNormalMap(materialAsset.getNormalMap());
