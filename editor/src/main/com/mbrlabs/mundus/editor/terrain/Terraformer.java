@@ -29,6 +29,9 @@ public class Terraformer {
     public static PerlinNoiseGenerator perlin(final TerrainComponent terrainComponent) {
         return new PerlinNoiseGenerator(terrainComponent);
     }
+    public static VariableNoiseGenerator simplex(final TerrainComponent terrainComponent) {
+        return new VariableNoiseGenerator(terrainComponent);
+    }
 
     public static HeightMapGenerator heightMap(final TerrainComponent terrainComponent) {
         return new HeightMapGenerator(terrainComponent);

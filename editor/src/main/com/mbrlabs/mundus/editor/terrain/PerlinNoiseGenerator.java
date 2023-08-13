@@ -16,12 +16,12 @@
 
 package com.mbrlabs.mundus.editor.terrain;
 
-import java.util.Random;
-
 import com.badlogic.gdx.math.Interpolation;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
+
+import java.util.Random;
 
 /**
  *

@@ -23,6 +23,7 @@ import com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane
 import com.kotcrab.vis.ui.widget.tabbedpane.TabbedPaneListener
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.generation.HeightmapTab
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.generation.PerlinNoiseTab
+import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.generation.VariableNoiseTab
 
 /**
  * @author Marcus Brummer
@@ -36,12 +37,14 @@ class TerrainGenTab(parent: TerrainComponentWidget) : Tab(false, false), TabbedP
 
     private val heightmapTab = HeightmapTab(parent.component)
     private val perlinNoiseTab = PerlinNoiseTab(parent.component)
+    private val variableNoiseTab = VariableNoiseTab(parent.component)
 
     init {
         tabbedPane.addListener(this)
 
         tabbedPane.add(heightmapTab)
         tabbedPane.add(perlinNoiseTab)
+        tabbedPane.add(variableNoiseTab)
 
         root.add(tabbedPane.table).growX().row()
         root.add(tabContainer).expand().fill().row()
