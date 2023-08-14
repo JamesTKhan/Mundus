@@ -24,6 +24,7 @@ import com.badlogic.gdx.graphics.g3d.model.MeshPart
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
@@ -34,6 +35,7 @@ abstract class HelperLineShape(val width: Int, val terrainComponent: TerrainComp
 
     companion object {
         val tmpV3 = Vector3()
+        val tmpMatrix = Matrix4()
     }
 
     val mesh: Mesh
@@ -103,11 +105,15 @@ abstract class HelperLineShape(val width: Int, val terrainComponent: TerrainComp
     }
 
     fun findNearestCenterObject(pos: Vector3): HelperLineCenterObject {
+        tmpV3.set(pos)
+        // Convert global position to local position
+        tmpV3.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv())
+
         var nearest = centerOfHelperObjects.first()
-        var nearestDistance = pos.dst(nearest.position.x, 0f, nearest.position.y)
+        var nearestDistance = tmpV3.dst(nearest.position.x, 0f, nearest.position.y)
 
         for (helperLineCenterObject in centerOfHelperObjects) {
-            val distance = pos.dst(helperLineCenterObject.position.x, 0f, helperLineCenterObject.position.y)
+            val distance = tmpV3.dst(helperLineCenterObject.position.x, 0f, helperLineCenterObject.position.y)
 
             if (distance < nearestDistance) {
                 nearest = helperLineCenterObject
