@@ -16,7 +16,12 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
-import com.badlogic.gdx.graphics.*
+import com.badlogic.gdx.graphics.Camera
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.Mesh
+import com.badlogic.gdx.graphics.VertexAttribute
+import com.badlogic.gdx.graphics.VertexAttributes
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
@@ -24,7 +29,6 @@ import com.badlogic.gdx.graphics.g3d.model.MeshPart
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
@@ -35,7 +39,6 @@ abstract class HelperLineShape(val width: Int, val terrainComponent: TerrainComp
 
     companion object {
         val tmpV3 = Vector3()
-        val tmpMatrix = Matrix4()
     }
 
     val mesh: Mesh
@@ -105,15 +108,11 @@ abstract class HelperLineShape(val width: Int, val terrainComponent: TerrainComp
     }
 
     fun findNearestCenterObject(pos: Vector3): HelperLineCenterObject {
-        tmpV3.set(pos)
-        // Convert global position to local position
-        tmpV3.mul(tmpMatrix.set(terrainComponent.getModelInstance().transform).inv())
-
         var nearest = centerOfHelperObjects.first()
-        var nearestDistance = tmpV3.dst(nearest.position.x, 0f, nearest.position.y)
+        var nearestDistance = pos.dst(nearest.position.x, 0f, nearest.position.z)
 
         for (helperLineCenterObject in centerOfHelperObjects) {
-            val distance = tmpV3.dst(helperLineCenterObject.position.x, 0f, helperLineCenterObject.position.y)
+            val distance = pos.dst(helperLineCenterObject.position.x, 0f, helperLineCenterObject.position.z)
 
             if (distance < nearestDistance) {
                 nearest = helperLineCenterObject
