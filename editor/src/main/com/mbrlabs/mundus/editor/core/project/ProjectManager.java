@@ -254,7 +254,7 @@ public class ProjectManager implements Disposable {
             if (registry.getLastProject() == null){
                 registry.setLastProject(ref);
             }
-            
+
             kryoManager.saveRegistry(registry);
             startAsyncProjectLoad(absolutePath, context);
             return context;
@@ -396,7 +396,7 @@ public class ProjectManager implements Disposable {
      * Opens a project.
      *
      * Opens a project. If a project is already open it will be disposed.
-     * 
+     *
      * @param context
      *            project context to open
      */
