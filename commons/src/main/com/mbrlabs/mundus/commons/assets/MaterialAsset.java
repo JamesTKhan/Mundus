@@ -93,7 +93,7 @@ public class MaterialAsset extends Asset {
     private float alphaTest = 0f;
     private float normalScale = 1f;
     private float shadowBias = 0.4f;
-    private int shadowCascade = 3;
+    private int shadowCascade = 2;
 
     public MaterialAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
@@ -276,7 +276,7 @@ public class MaterialAsset extends Asset {
         material.set(PBRFloatAttribute.createMetallic(metallic));
         material.set(PBRFloatAttribute.createNormalScale(normalScale));
         material.set(new PBRFloatAttribute(PBRFloatAttribute.ShadowBias, shadowBias / 255f));
-        material.set(new CascadeShadowMapAttribute(new CascadeShadowMap(3)));
+        material.set(new CascadeShadowMapAttribute(new CascadeShadowMap(2)));
 
         if (cullFace != -1) {
             material.set(IntAttribute.createCullFace(cullFace));
