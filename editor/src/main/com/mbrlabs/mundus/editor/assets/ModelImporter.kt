@@ -29,6 +29,7 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.SettingsChangedEvent
 import com.mbrlabs.mundus.editor.utils.*
+import net.mgsx.gltf.scene3d.attributes.CascadeShadowMapAttribute
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute
@@ -121,6 +122,11 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
         if (materialToUse.has(ColorAttribute.Emissive)) {
             val attr = materialToUse.get(ColorAttribute.Emissive) as ColorAttribute
             materialAssetToPopulate.emissiveColor.set(attr.color)
+        }
+
+        if (materialToUse.has(CascadeShadowMapAttribute.Type)) {
+            val attr = materialToUse.get(CascadeShadowMapAttribute.Type) as IntAttribute
+            materialAssetToPopulate.shadowCascade = attr.value
         }
 
         // Texture Attributes
