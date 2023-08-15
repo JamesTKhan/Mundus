@@ -2,7 +2,6 @@ package com.mbrlabs.mundus.commons.shaders;
 
 import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import net.mgsx.gltf.scene3d.shaders.PBRShader;
@@ -17,11 +16,6 @@ public class MundusPBRShader extends PBRShader {
 
     public MundusPBRShader(Renderable renderable, Config config, String prefix) {
         super(renderable, config, prefix);
-    }
-
-    @Override
-    public void init(ShaderProgram program, Renderable renderable) {
-        super.init(program, renderable);
     }
 
     @Override

@@ -62,7 +62,7 @@ class MaterialWidget : VisTable() {
     private val alphaTestField = ImprovedSlider(0.0f, 1.0f, 0.01f)
     private val normalScaleField = ImprovedSlider(0.5f, 5f, 0.01f)
     private val shadowBiasField = ImprovedSlider(0.1f, 2f, 0.01f)
-
+    private val shadowCascadeField = ImprovedSlider (0f, 10f,1f);
     private val scaleUField = FloatFieldWithLabel("Scale U", -1, false)
     private val scaleVField = FloatFieldWithLabel("Scale V", -1, false)
 
@@ -95,6 +95,7 @@ class MaterialWidget : VisTable() {
                 alphaTestField.value = value.alphaTest
                 normalScaleField.value = value.normalScale
                 shadowBiasField.value = value.shadowBias
+                shadowCascadeField.value = value.shadowCascade.toFloat()
 
                 // Store current cull value first, before we set the items, otherwise
                 // the listener can override it.
@@ -176,6 +177,9 @@ class MaterialWidget : VisTable() {
         sliderTable.add(ToolTipLabel("Shadow Bias", "Increase to reduce shadow acne. Increase wisely as " +
                 "higher bias results in peter-panning effect.")).left()
         sliderTable.add(shadowBiasField).growX().row()
+
+        sliderTable.add(ToolTipLabel("Shadow Cascades", "Increase to reduce shadow cascades.")).left()
+        sliderTable.add(shadowCascadeField).growX().row()
 
         val cullTip = buildString {
             append("NONE: No culling\n")
