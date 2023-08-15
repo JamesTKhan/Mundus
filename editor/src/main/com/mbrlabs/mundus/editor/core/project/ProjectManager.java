@@ -408,9 +408,6 @@ public class ProjectManager implements Disposable {
             currentProject.dispose();
         }
 
-        //Clear out inspector
-        UI.INSTANCE.changeProject();
-
         // Null it out now that loading is complete
         if (context == loadingProject) {
             loadingProject = null;
