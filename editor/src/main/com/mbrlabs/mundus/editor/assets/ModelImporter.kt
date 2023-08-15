@@ -25,7 +25,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.TexCoordInfo
-import com.mbrlabs.mundus.commons.shadows.CascadeShadowMapAttribute
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.SettingsChangedEvent
@@ -193,11 +192,6 @@ class ModelImporter(private val registry: Registry) : SettingsChangedEvent.Setti
         if (materialToUse.has(PBRFloatAttribute.NormalScale)) {
             val attr = materialToUse.get(PBRFloatAttribute.NormalScale) as PBRFloatAttribute
             materialAssetToPopulate.normalScale = attr.value
-        }
-
-        if (materialToUse.has(CascadeShadowMapAttribute.Type)){
-            val attr = materialToUse.get(CascadeShadowMapAttribute.Type) as CascadeShadowMapAttribute
-            materialAssetToPopulate.shadowCascade = attr.value
         }
     }
 

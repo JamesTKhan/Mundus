@@ -36,7 +36,6 @@ public class MundusPBRShaderProvider extends PBRShaderProvider {
         }
 
         return new MundusPBRShader(renderable, config, prefix);
-
     }
 
     protected PBRShader createPBRTerrainShader(Renderable renderable, PBRShaderConfig config, String prefix) {
