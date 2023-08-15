@@ -226,8 +226,4 @@ object UI : Stage(ScreenViewport()) {
             showDialog(versionDialog)
         }
     }
-
-    fun changeProject(){
-        inspector.clearWidgets()
-    }
 }

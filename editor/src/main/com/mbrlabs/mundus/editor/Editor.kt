@@ -220,6 +220,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
     override fun onProjectChanged(event: ProjectChangedEvent) {
         setupSceneWidget()
+        UI.inspector.clearWidgets()
     }
 
     override fun onSceneChanged(event: SceneChangedEvent) {
