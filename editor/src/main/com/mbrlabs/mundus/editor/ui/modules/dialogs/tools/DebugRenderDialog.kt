@@ -29,6 +29,10 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     private val hexagonRadio = VisRadioButton("Hexagon")
     private val columnSpinnerModel = IntSpinnerModel(2, 2, 100)
     private val columnSpinner = Spinner("Column:", columnSpinnerModel)
+    private val offsetXSpinnerModel = IntSpinnerModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE)
+    private val offsetXSpinner = Spinner("Offset X:", offsetXSpinnerModel)
+    private val offsetYSpinnerModel = IntSpinnerModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE)
+    private val offsetYSpinner = Spinner("Offset Y:", offsetYSpinnerModel)
     private val projectManager: ProjectManager = Mundus.inject()
 
     init {
@@ -99,6 +103,8 @@ class DebugRenderDialog : BaseDialog(TITLE) {
                 rectangleRadio.touchable = touchable
                 hexagonRadio.touchable = touchable
                 columnSpinner.touchable = touchable
+                offsetXSpinner.touchable = touchable
+                offsetYSpinner.touchable = touchable
 
                 if (helperLines.isChecked) {
                     createHelperLines()
@@ -154,6 +160,8 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         rectangleRadio.touchable = Touchable.disabled
         hexagonRadio.touchable = Touchable.disabled
         columnSpinner.touchable = Touchable.disabled
+        offsetXSpinner.touchable = Touchable.disabled
+        offsetYSpinner.touchable = Touchable.disabled
 
         rectangleRadio.isChecked = true
 
@@ -162,7 +170,10 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         helperLinesTable.add(rectangleRadio).left()
         helperLinesTable.add(hexagonRadio).right()
         helperLinesTable.row()
-        helperLinesTable.add(columnSpinner)
+        helperLinesTable.add(columnSpinner).padBottom(5f)
+        helperLinesTable.row()
+        helperLinesTable.add(offsetXSpinner).padRight(3f)
+        helperLinesTable.add(offsetYSpinner)
 
         return helperLinesTable
     }
