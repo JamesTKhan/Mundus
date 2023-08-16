@@ -154,6 +154,20 @@ class DebugRenderDialog : BaseDialog(TITLE) {
                 createHelperLines()
             }
         })
+
+        offsetXSpinner.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                clearHelperLines()
+                createHelperLines()
+            }
+        })
+
+        offsetYSpinner.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                clearHelperLines()
+                createHelperLines()
+            }
+        })
     }
 
     private fun createHelperLinesTable(): VisTable {
@@ -190,5 +204,5 @@ class DebugRenderDialog : BaseDialog(TITLE) {
 
     private fun clearHelperLines() = projectManager.current().helperLines.dispose()
 
-    private fun createHelperLines() = projectManager.current().helperLines.build(getHelperLineType(), columnSpinnerModel.value, projectManager.current().currScene.terrains)
+    private fun createHelperLines() = projectManager.current().helperLines.build(getHelperLineType(), columnSpinnerModel.value, offsetXSpinnerModel.value, offsetYSpinnerModel.value, projectManager.current().currScene.terrains)
 }

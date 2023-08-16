@@ -21,7 +21,10 @@ import com.badlogic.gdx.utils.Array
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : HelperLineShape(width, terrainComponent) {
+class HexagonHelperLineShape(width: Int,
+                             counterOffsetX: Int,
+                             counterOffsetY: Int,
+                             terrainComponent: TerrainComponent) : HelperLineShape(width, counterOffsetX, counterOffsetY, terrainComponent) {
 
     enum class Vector {
         BOTTOM_RIGHT,
@@ -76,7 +79,7 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
                 // Convert to world position
                 pos.mul(terrainComponent.modelInstance.transform)
 
-                centerOfHelperObjects.add(HelperLineCenterObject(cellX, cellY, pos, fullCell))
+                centerOfHelperObjects.add(HelperLineCenterObject(cellX + counterOffsetX, cellY + counterOffsetY, pos, fullCell))
 
                 ++cellX
                 terrainX += 2 * widthOffset
@@ -100,7 +103,7 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
             // Convert to world position
             pos.mul(terrainComponent.modelInstance.transform)
 
-            centerOfHelperObjects.add(HelperLineCenterObject(cellX, 0, pos, false))
+            centerOfHelperObjects.add(HelperLineCenterObject(cellX + counterOffsetX, 0 + counterOffsetY, pos, false))
 
             cellX += 2
             terrainX += 4 * widthOffset
@@ -118,7 +121,7 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
             // Convert to world position
             pos.mul(terrainComponent.modelInstance.transform)
 
-            centerOfHelperObjects.add(HelperLineCenterObject(-1, cellY, pos, false))
+            centerOfHelperObjects.add(HelperLineCenterObject(-1 + counterOffsetX, cellY + counterOffsetY, pos, false))
 
             cellY += 2
             terrainY += 2 * depthOffset

@@ -22,7 +22,9 @@ import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
 class RectangleHelperLineShape(width: Int,
-                               terrainComponent: TerrainComponent) : HelperLineShape(width, terrainComponent) {
+                               counterOffsetX: Int,
+                               counterOffsetY: Int,
+                               terrainComponent: TerrainComponent) : HelperLineShape(width, counterOffsetX, counterOffsetY, terrainComponent) {
 
     override fun calculateIndicesNum(width: Int, terrain: Terrain): Int {
         val vertexResolution = terrain.vertexResolution
@@ -73,7 +75,7 @@ class RectangleHelperLineShape(width: Int,
                 // Convert to world position
                 pos.mul(terrainComponent.modelInstance.transform)
 
-                centerOfHelperObjects.add(HelperLineCenterObject(x, y, pos, fullCell))
+                centerOfHelperObjects.add(HelperLineCenterObject(x + counterOffsetX, y + counterOffsetY, pos, fullCell))
 
                 ++x
                 terrainX += width * widthOffset

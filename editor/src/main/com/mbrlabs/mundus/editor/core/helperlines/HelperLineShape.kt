@@ -35,7 +35,10 @@ import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-abstract class HelperLineShape(val width: Int, val terrainComponent: TerrainComponent) : Disposable {
+abstract class HelperLineShape(val width: Int,
+                               val counterOffsetX: Int,
+                               val counterOffsetY: Int,
+                               val terrainComponent: TerrainComponent) : Disposable {
 
     companion object {
         val tmpV3 = Vector3()
