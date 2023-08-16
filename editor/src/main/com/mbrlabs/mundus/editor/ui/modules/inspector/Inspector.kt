@@ -25,6 +25,7 @@ import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
 import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
 import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent
+import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.ui.widgets.AutoFocusScrollPane
 import com.mbrlabs.mundus.editor.utils.Log
 
@@ -36,7 +37,8 @@ class Inspector : VisTable(),
         GameObjectSelectedEvent.GameObjectSelectedListener,
         GameObjectModifiedEvent.GameObjectModifiedListener,
         ComponentAddedEvent.ComponentAddedListener,
-        AssetSelectedEvent.AssetSelectedListener {
+        AssetSelectedEvent.AssetSelectedListener,
+        ProjectChangedEvent.ProjectChangedListener{
 
     companion object {
         private val TAG = Inspector::class.java.simpleName
@@ -108,6 +110,10 @@ class Inspector : VisTable(),
         if (component.gameObject == goInspector.getGameObject()) {
             goInspector.addComponent(component)
         }
+    }
+
+    override fun onProjectChanged(event: ProjectChangedEvent) {
+        clearWidgets()
     }
 
 }
