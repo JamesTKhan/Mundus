@@ -29,10 +29,10 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     private val hexagonRadio = VisRadioButton("Hexagon")
     private val columnSpinnerModel = IntSpinnerModel(2, 2, 100)
     private val columnSpinner = Spinner("Column:", columnSpinnerModel)
-    private val offsetXSpinnerModel = IntSpinnerModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE)
-    private val offsetXSpinner = Spinner("Offset X:", offsetXSpinnerModel)
-    private val offsetYSpinnerModel = IntSpinnerModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE)
-    private val offsetYSpinner = Spinner("Offset Y:", offsetYSpinnerModel)
+    private val counterOffsetXSpinnerModel = IntSpinnerModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE)
+    private val counterOffsetXSpinner = Spinner("Counter offset X:", counterOffsetXSpinnerModel)
+    private val counterOffsetYSpinnerModel = IntSpinnerModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE)
+    private val counterOffsetYSpinner = Spinner("Counter offset Y:", counterOffsetYSpinnerModel)
     private val projectManager: ProjectManager = Mundus.inject()
 
     init {
@@ -103,8 +103,8 @@ class DebugRenderDialog : BaseDialog(TITLE) {
                 rectangleRadio.touchable = touchable
                 hexagonRadio.touchable = touchable
                 columnSpinner.touchable = touchable
-                offsetXSpinner.touchable = touchable
-                offsetYSpinner.touchable = touchable
+                counterOffsetXSpinner.touchable = touchable
+                counterOffsetYSpinner.touchable = touchable
 
                 if (helperLines.isChecked) {
                     createHelperLines()
@@ -155,14 +155,14 @@ class DebugRenderDialog : BaseDialog(TITLE) {
             }
         })
 
-        offsetXSpinner.addListener(object : ChangeListener() {
+        counterOffsetXSpinner.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 clearHelperLines()
                 createHelperLines()
             }
         })
 
-        offsetYSpinner.addListener(object : ChangeListener() {
+        counterOffsetYSpinner.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 clearHelperLines()
                 createHelperLines()
@@ -174,20 +174,22 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         rectangleRadio.touchable = Touchable.disabled
         hexagonRadio.touchable = Touchable.disabled
         columnSpinner.touchable = Touchable.disabled
-        offsetXSpinner.touchable = Touchable.disabled
-        offsetYSpinner.touchable = Touchable.disabled
+        counterOffsetXSpinner.touchable = Touchable.disabled
+        counterOffsetYSpinner.touchable = Touchable.disabled
 
         rectangleRadio.isChecked = true
 
         val helperLinesTable = VisTable()
+        helperLinesTable.defaults().left()
         helperLinesTable.padLeft(20f)
         helperLinesTable.add(rectangleRadio).left()
         helperLinesTable.add(hexagonRadio).right()
         helperLinesTable.row()
-        helperLinesTable.add(columnSpinner).padBottom(5f)
+        helperLinesTable.add(columnSpinner)
         helperLinesTable.row()
-        helperLinesTable.add(offsetXSpinner).padRight(3f)
-        helperLinesTable.add(offsetYSpinner)
+        helperLinesTable.add(counterOffsetXSpinner)
+        helperLinesTable.row()
+        helperLinesTable.add(counterOffsetYSpinner).padBottom(5f)
 
         return helperLinesTable
     }
@@ -204,5 +206,5 @@ class DebugRenderDialog : BaseDialog(TITLE) {
 
     private fun clearHelperLines() = projectManager.current().helperLines.dispose()
 
-    private fun createHelperLines() = projectManager.current().helperLines.build(getHelperLineType(), columnSpinnerModel.value, offsetXSpinnerModel.value, offsetYSpinnerModel.value, projectManager.current().currScene.terrains)
+    private fun createHelperLines() = projectManager.current().helperLines.build(getHelperLineType(), columnSpinnerModel.value, counterOffsetXSpinnerModel.value, counterOffsetYSpinnerModel.value, projectManager.current().currScene.terrains)
 }
