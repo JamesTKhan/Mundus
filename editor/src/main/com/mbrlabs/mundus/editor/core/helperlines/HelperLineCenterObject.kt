@@ -19,8 +19,18 @@ package com.mbrlabs.mundus.editor.core.helperlines
 import com.badlogic.gdx.math.Vector3
 
 data class HelperLineCenterObject(
-        val x: Int,
-        val y: Int,
-        val position: Vector3,
-        val full: Boolean
-        )
+        var x: Int = 0,
+        var y: Int = 0,
+        var position: Vector3 = Vector3(),
+        var full: Boolean = true
+        ) {
+
+        fun initialize(x: Int, y: Int, position: Vector3, full: Boolean): HelperLineCenterObject{
+                this.x = x
+                this.y = y
+                this.position = position
+                this.full = full
+
+                return this
+        }
+}

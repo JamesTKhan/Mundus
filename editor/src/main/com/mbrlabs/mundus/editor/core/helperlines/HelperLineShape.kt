@@ -32,6 +32,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
+import com.badlogic.gdx.utils.Pool
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
@@ -41,6 +42,10 @@ abstract class HelperLineShape(val width: Int,
                                val terrainComponent: TerrainComponent) : Disposable {
 
     companion object {
+        val helperLineCenterObjectPool = object : Pool<HelperLineCenterObject>() {
+            override fun newObject(): HelperLineCenterObject = HelperLineCenterObject()
+        }
+
         val tmpV3 = Vector3()
     }
 
@@ -136,6 +141,10 @@ abstract class HelperLineShape(val width: Int,
     }
 
     override fun dispose() {
+        while (centerOfHelperObjects.notEmpty()) {
+            helperLineCenterObjectPool.free(centerOfHelperObjects.removeIndex(0))
+        }
+
         modelInstance.model!!.dispose()
     }
 

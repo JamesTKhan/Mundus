@@ -75,7 +75,8 @@ class RectangleHelperLineShape(width: Int,
                 // Convert to world position
                 pos.mul(terrainComponent.modelInstance.transform)
 
-                centerOfHelperObjects.add(HelperLineCenterObject(x + counterOffsetX, y + counterOffsetY, pos, fullCell))
+                val helperLineCenterObject = helperLineCenterObjectPool.obtain().initialize(x + counterOffsetX, y + counterOffsetY, pos, fullCell)
+                centerOfHelperObjects.add(helperLineCenterObject)
 
                 ++x
                 terrainX += width * widthOffset

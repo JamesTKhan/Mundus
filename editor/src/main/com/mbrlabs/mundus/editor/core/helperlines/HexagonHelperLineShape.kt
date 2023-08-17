@@ -79,7 +79,8 @@ class HexagonHelperLineShape(width: Int,
                 // Convert to world position
                 pos.mul(terrainComponent.modelInstance.transform)
 
-                centerOfHelperObjects.add(HelperLineCenterObject(cellX + counterOffsetX, cellY + counterOffsetY, pos, fullCell))
+                val helperLineCenterObject = helperLineCenterObjectPool.obtain().initialize(cellX + counterOffsetX, cellY + counterOffsetY, pos, fullCell)
+                centerOfHelperObjects.add(helperLineCenterObject)
 
                 ++cellX
                 terrainX += 2 * widthOffset
@@ -103,7 +104,8 @@ class HexagonHelperLineShape(width: Int,
             // Convert to world position
             pos.mul(terrainComponent.modelInstance.transform)
 
-            centerOfHelperObjects.add(HelperLineCenterObject(cellX + counterOffsetX, 0 + counterOffsetY, pos, false))
+            val helperLineCenterObject = helperLineCenterObjectPool.obtain().initialize(cellX + counterOffsetX, 0 + counterOffsetY, pos, false)
+            centerOfHelperObjects.add(helperLineCenterObject)
 
             cellX += 2
             terrainX += 4 * widthOffset
@@ -121,7 +123,8 @@ class HexagonHelperLineShape(width: Int,
             // Convert to world position
             pos.mul(terrainComponent.modelInstance.transform)
 
-            centerOfHelperObjects.add(HelperLineCenterObject(-1 + counterOffsetX, cellY + counterOffsetY, pos, false))
+            val helperLineCenterObject = helperLineCenterObjectPool.obtain().initialize(-1 + counterOffsetX, cellY + counterOffsetY, pos, false)
+            centerOfHelperObjects.add(helperLineCenterObject)
 
             cellY += 2
             terrainY += 2 * depthOffset
