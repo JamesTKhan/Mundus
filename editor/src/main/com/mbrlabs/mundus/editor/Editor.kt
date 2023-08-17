@@ -172,7 +172,6 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             scene.batch.begin(scene.cam)
             context.helperLines.render(scene.batch)
             scene.batch.end()
-            context.helperLines.debugDraw(scene.cam) // TODO temporary
             Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
 
 

@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
-import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Mesh
@@ -28,7 +27,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.model.MeshPart
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
@@ -53,8 +51,6 @@ abstract class HelperLineShape(val width: Int,
     val modelInstance: ModelInstance
 
     val centerOfHelperObjects: Array<HelperLineCenterObject>
-
-    val shapeRenderer = ShapeRenderer()
 
     init {
         val attribs = VertexAttributes(
@@ -99,20 +95,6 @@ abstract class HelperLineShape(val width: Int,
 
     fun updateVertices() {
         mesh.setVertices(terrainComponent.terrainAsset.terrain.vertices)
-    }
-
-    fun debugDraw(camera: Camera) {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-        shapeRenderer.projectionMatrix = camera.combined
-
-        for (helperLineCenterObject in centerOfHelperObjects) {
-            tmpV3.set(helperLineCenterObject.position).sub(0.5f)
-
-            shapeRenderer.color = if (helperLineCenterObject.full) Color.CYAN else Color.RED
-            shapeRenderer.box(tmpV3.x, tmpV3.y, tmpV3.z, 1f, 1f, 1f)
-        }
-
-        shapeRenderer.end()
     }
 
     fun findNearestCenterObject(pos: Vector3): HelperLineCenterObject {

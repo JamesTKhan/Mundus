@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
-import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.math.Vector3
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
@@ -55,12 +54,6 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
     }
 
     fun hasHelperLines() = helperLineShapes.notEmpty()
-
-    fun debugDraw(camera: Camera) {
-        for (helperLineShape in helperLineShapes) {
-            helperLineShape.debugDraw(camera)
-        }
-    }
 
     fun findHelperLineCenterObject(terrainComponent: TerrainComponent, pos: Vector3): HelperLineCenterObject? {
         for (helperLineShape in helperLineShapes) {
