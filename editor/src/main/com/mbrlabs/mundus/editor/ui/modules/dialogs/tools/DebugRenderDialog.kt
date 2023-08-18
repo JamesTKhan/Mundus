@@ -2,7 +2,7 @@ package com.mbrlabs.mundus.editor.ui.modules.dialogs.tools
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisDialog
@@ -35,6 +35,8 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     private val counterOffsetYSpinner = Spinner("Counter offset Y:", counterOffsetYSpinnerModel)
     private val projectManager: ProjectManager = Mundus.inject()
 
+    private lateinit var helperLineSettingsTable: Table
+
     init {
         setupUI()
         setupListeners()
@@ -45,10 +47,6 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         if ((hasHelperLines && !helperLines.isChecked) || (!hasHelperLines && helperLines.isChecked)) {
             toggle(helperLines)
         }
-        val touchable = if (hasHelperLines) Touchable.enabled else Touchable.disabled
-        rectangleRadio.touchable = touchable
-        hexagonRadio.touchable = touchable
-        columnSpinner.touchable = touchable
 
         return super.show(stage)
     }
@@ -77,8 +75,10 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         table.add(ToolTipLabel("Helper lines", "Render helper lines on the terrains.")).left()
         table.add(helperLines)
         table.row()
-        table.add(createHelperLinesTable()).left()
 
+        helperLineSettingsTable = createHelperLinesTable()
+        helperLineSettingsTable.isVisible = false
+        table.add(helperLineSettingsTable).left()
 
         add(table)
     }
@@ -98,13 +98,7 @@ class DebugRenderDialog : BaseDialog(TITLE) {
 
         helperLines.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                val touchable = if (helperLines.isChecked) Touchable.enabled else Touchable.disabled
-
-                rectangleRadio.touchable = touchable
-                hexagonRadio.touchable = touchable
-                columnSpinner.touchable = touchable
-                counterOffsetXSpinner.touchable = touchable
-                counterOffsetYSpinner.touchable = touchable
+                helperLineSettingsTable.isVisible = helperLines.isChecked
 
                 if (helperLines.isChecked) {
                     createHelperLines()
@@ -171,12 +165,6 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     }
 
     private fun createHelperLinesTable(): VisTable {
-        rectangleRadio.touchable = Touchable.disabled
-        hexagonRadio.touchable = Touchable.disabled
-        columnSpinner.touchable = Touchable.disabled
-        counterOffsetXSpinner.touchable = Touchable.disabled
-        counterOffsetYSpinner.touchable = Touchable.disabled
-
         rectangleRadio.isChecked = true
 
         val helperLinesTable = VisTable()
