@@ -323,7 +323,8 @@ public class Scene implements Disposable {
     }
 
     /**
-     * Render models to the shadow map.
+     * Render models to the shadow map .This is called by the render method normally, but if using post-processing
+     * you may want to call this method directly.
      */
     public void renderShadowMap() {
         if (dirLight == null) {
