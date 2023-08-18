@@ -1,3 +1,6 @@
+[0.6.0] ~
+- Made Scene.java more post-processing friendly for runtime users
+
 [0.5.1] ~
 - Updated libGDX to 1.12.0
 
