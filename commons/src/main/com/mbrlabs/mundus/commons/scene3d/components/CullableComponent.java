@@ -48,6 +48,7 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
     protected final Vector3 center = new Vector3();
     protected final Vector3 dimensions = new Vector3();
+    protected final Vector3 facing = new Vector3();
     protected float radius;
 
     // Render calls since last cull check
@@ -66,7 +67,7 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
     public void update(float delta) {
         if (modelInstance == null) return;
 
-        if (gameObject.scaleChanged) {
+        if (gameObject.transformChanged) {
             setDimensions(modelInstance);
         }
 
@@ -143,6 +144,7 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         tmpBounds.getDimensions(dimensions);
         gameObject.getScale(tmpScale);
         dimensions.scl(tmpScale);
+        Gdx.app.log("Cullable dimensions after scale", dimensions.x + "/" + dimensions.y + "/" + dimensions.z);
         radius = dimensions.len() / 2f;
     }
 
@@ -166,6 +168,10 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         return dimensions;
     }
 
+    public Vector3 getDimensions(Vector3 out){
+        out.set(dimensions.cpy());
+        return out;
+    }
     public float getRadius() {
         return radius;
     }

@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.scene3d;
 
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
@@ -36,7 +37,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
     public String name;
     public boolean active;
-    public boolean scaleChanged = true; // true by default to force initial calculations
+    public boolean transformChanged = true; // true by default to force initial calculations
     public boolean hasWaterComponent = false;
     private Array<String> tags;
     private Array<Component> components;
@@ -111,7 +112,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         }
 
         // Reset after each update, after components have updated that might need to know about it
-        scaleChanged = false;
+        transformChanged = false;
     }
 
     /**
@@ -334,23 +335,38 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
     public void setLocalScale(float x, float y, float z) {
         super.setLocalScale(x, y, z);
         // We track when the scale has changed, for recalculating bounds for things like frustum culling
-        scaleChanged = true;
-        updateChildrenScaleChanged(this);
+        transformChanged = true;
+        updateChildrenTransformChanged(this);
     }
 
     @Override
     public void scale(Vector3 v) {
         super.scale(v);
-        scaleChanged = true;
-        updateChildrenScaleChanged(this);
+        transformChanged = true;
+        updateChildrenTransformChanged(this);
     }
 
     @Override
     public void scale(float x, float y, float z) {
         super.scale(x,y,z);
-        scaleChanged = true;
-        updateChildrenScaleChanged(this);
+        transformChanged = true;
+        updateChildrenTransformChanged(this);
     }
+
+    @Override
+    public void rotate(Quaternion q) {
+        super.rotate(q);
+        transformChanged = true;
+        updateChildrenTransformChanged(this);
+    }
+
+    @Override
+    public void rotate(float x, float y, float z, float w) {
+        super.rotate(x,y,z, w);
+        transformChanged = true;
+        updateChildrenTransformChanged(this);
+    }
+
 
     @Override
     public Iterator<GameObject> iterator() {
@@ -382,13 +398,12 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         return name;
     }
 
-    private void updateChildrenScaleChanged(GameObject go) {
+    private void updateChildrenTransformChanged(GameObject go) {
         if (go.getChildren() == null) return;
         // Update all children recursively
         for (GameObject child : go.getChildren()) {
-            child.scaleChanged = true;
-            updateChildrenScaleChanged(child);
+            child.transformChanged = true;
+            updateChildrenTransformChanged(child);
         }
     }
-
 }
