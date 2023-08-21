@@ -136,7 +136,7 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
     protected void updateBoundingBox(ModelInstance modelInstance) {
         if (modelInstance == null) {
-            Gdx.app.error("CullableComponent", "setDimensions called with null modelInstance");
+            Gdx.app.error("CullableComponent", "updateBoundingBox called with null modelInstance");
             return;
         }
         modelInstance.calculateBoundingBox(tmpBounds);

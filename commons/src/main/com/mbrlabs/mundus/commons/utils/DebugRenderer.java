@@ -3,6 +3,7 @@ package com.mbrlabs.mundus.commons.utils;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g3d.ModelCache;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
@@ -25,9 +26,9 @@ import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
  * @version July 25, 2022
  */
 public class DebugRenderer implements Renderer, Disposable {
-    private static final Vector3 tmpPos = new Vector3();
+    private static final Matrix4 tmpTransform = new Matrix4();
     private static final Vector3 tmpDims = new Vector3();
-    private static final Quaternion tmpRotation = new Quaternion();
+    private static final Vector3 tmpCenter = new Vector3();
     private Vector3[] vertices = new Vector3[8];
 
     private final ShapeRenderer shapeRenderer;
@@ -74,11 +75,10 @@ public class DebugRenderer implements Renderer, Disposable {
             }
             CullableComponent cullableComponent = (CullableComponent) component;
 
-            go.getRotation(tmpRotation);
-            go.getPosition(tmpPos);
+            tmpTransform.set(go.getTransform());
             ((CullableComponent) component).getDimensions(tmpDims);
 
-            vertices = calculateVertices(tmpPos, tmpRotation, tmpDims);
+            vertices = calculateVertices(tmpTransform, tmpDims);
             shapeRenderer.setColor(getColor(component));
             for(int i = 0; i < 8; i++) {
             }
@@ -95,7 +95,7 @@ public class DebugRenderer implements Renderer, Disposable {
             shapeRenderer.line(vertices[3], vertices[7]);
             shapeRenderer.line(vertices[2], vertices[6]);
 
-            shapeRenderer.point(tmpPos.x, tmpPos.y, tmpPos.z);
+            shapeRenderer.point(tmpCenter.x, tmpCenter.y, tmpCenter.z);
         }
 
         if (go.getChildren() == null) return;
@@ -130,7 +130,7 @@ public class DebugRenderer implements Renderer, Disposable {
     }
 
 
-    private Vector3[] calculateVertices(Vector3 center, Quaternion rotation, Vector3 dimensions) {
+    private Vector3[] calculateVertices(Matrix4 transform, Vector3 dimensions) {
         Vector3[] vertices = new Vector3[8];
 
         Vector3 halfDimensions = dimensions.cpy().scl(0.5f);
@@ -138,21 +138,22 @@ public class DebugRenderer implements Renderer, Disposable {
         Vector3 right = new Vector3(1, 0, 0);
         Vector3 up = new Vector3(0, 1, 0);
         Vector3 forward = new Vector3(0, 0, 1);
-        rotation.transform(right);
-        rotation.transform(up);
-        rotation.transform(forward);
+        transform.getTranslation(tmpCenter);
+        right.set(right.mul(transform));
+        up.set(up.mul(transform));
+        forward.set(forward.mul(transform));
 
         // Calculate near face vertices
-        vertices[0] = center.cpy().sub(right.cpy().scl(halfDimensions.x)).sub(up.cpy().scl(halfDimensions.y)).sub(forward.cpy().scl(halfDimensions.z));
-        vertices[1] = center.cpy().add(right.cpy().scl(halfDimensions.x)).sub(up.cpy().scl(halfDimensions.y)).sub(forward.cpy().scl(halfDimensions.z));
-        vertices[2] = center.cpy().add(right.cpy().scl(halfDimensions.x)).add(up.cpy().scl(halfDimensions.y)).sub(forward.cpy().scl(halfDimensions.z));
-        vertices[3] = center.cpy().sub(right.cpy().scl(halfDimensions.x)).add(up.cpy().scl(halfDimensions.y)).sub(forward.cpy().scl(halfDimensions.z));
+        vertices[0] = tmpCenter.cpy().sub(right.cpy().scl(halfDimensions.x)).sub(up.cpy().scl(halfDimensions.y)).sub(forward.cpy().scl(halfDimensions.z));
+        vertices[1] = tmpCenter.cpy().add(right.cpy().scl(halfDimensions.x)).sub(up.cpy().scl(halfDimensions.y)).sub(forward.cpy().scl(halfDimensions.z));
+        vertices[2] = tmpCenter.cpy().add(right.cpy().scl(halfDimensions.x)).add(up.cpy().scl(halfDimensions.y)).sub(forward.cpy().scl(halfDimensions.z));
+        vertices[3] = tmpCenter.cpy().sub(right.cpy().scl(halfDimensions.x)).add(up.cpy().scl(halfDimensions.y)).sub(forward.cpy().scl(halfDimensions.z));
 
         // Calculate far face vertices
-        vertices[4] = center.cpy().sub(right.cpy().scl(halfDimensions.x)).sub(up.cpy().scl(halfDimensions.y)).add(forward.cpy().scl(halfDimensions.z));
-        vertices[5] = center.cpy().add(right.cpy().scl(halfDimensions.x)).sub(up.cpy().scl(halfDimensions.y)).add(forward.cpy().scl(halfDimensions.z));
-        vertices[6] = center.cpy().add(right.cpy().scl(halfDimensions.x)).add(up.cpy().scl(halfDimensions.y)).add(forward.cpy().scl(halfDimensions.z));
-        vertices[7] = center.cpy().sub(right.cpy().scl(halfDimensions.x)).add(up.cpy().scl(halfDimensions.y)).add(forward.cpy().scl(halfDimensions.z));
+        vertices[4] = tmpCenter.cpy().sub(right.cpy().scl(halfDimensions.x)).sub(up.cpy().scl(halfDimensions.y)).add(forward.cpy().scl(halfDimensions.z));
+        vertices[5] = tmpCenter.cpy().add(right.cpy().scl(halfDimensions.x)).sub(up.cpy().scl(halfDimensions.y)).add(forward.cpy().scl(halfDimensions.z));
+        vertices[6] = tmpCenter.cpy().add(right.cpy().scl(halfDimensions.x)).add(up.cpy().scl(halfDimensions.y)).add(forward.cpy().scl(halfDimensions.z));
+        vertices[7] = tmpCenter.cpy().sub(right.cpy().scl(halfDimensions.x)).add(up.cpy().scl(halfDimensions.y)).add(forward.cpy().scl(halfDimensions.z));
 
         return vertices;
     }
