@@ -96,6 +96,9 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         globalPreferencesManager = Mundus.inject()
         setupInput()
 
+        debugRenderer.isEnabled = globalPreferencesManager.getBoolean(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_ON, false)
+        debugRenderer.isAppearOnTop = globalPreferencesManager.getBoolean(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_DEPTH_OFF, false)
+
         // TODO dispose this
         val axesModel = UsefulMeshs.createAxes()
         axesInstance = ModelInstance(axesModel)
@@ -149,8 +152,6 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         UI.sceneWidget.setCam(context.currScene.cam)
         UI.sceneWidget.setRenderer {
             val renderWireframe = projectManager.current().renderWireframe
-            val renderDebug = projectManager.current().renderDebug
-
 
             Gdx.gl.glLineWidth(globalPreferencesManager.getFloat(MundusPreferencesManager.GLOB_LINE_WIDTH_WIREFRAME, MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE))
             glProfiler.resume()
@@ -161,7 +162,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             glProfiler.pause()
             Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
 
-            if (renderDebug) {
+            if (debugRenderer.isEnabled) {
                 debugRenderer.begin(scene.cam)
                 debugRenderer.render(sg.gameObjects)
                 debugRenderer.end()

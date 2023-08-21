@@ -14,6 +14,7 @@ import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.helperlines.HelperLineType
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 
@@ -31,8 +32,9 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     private val hexagonRadio = VisRadioButton("Hexagon")
     private val columnSpinnerModel = IntSpinnerModel(2, 2, 100)
     private val columnSpinner = Spinner("Column:", columnSpinnerModel)
-    private val projectManager: ProjectManager = Mundus.inject()
 
+    private val projectManager: ProjectManager = Mundus.inject()
+    private val preferencesManager : MundusPreferencesManager = Mundus.inject()
     private val debugRenderer: DebugRenderer = Mundus.inject()
 
     init {
@@ -62,7 +64,7 @@ class DebugRenderDialog : BaseDialog(TITLE) {
             toggle(wireFrameMode)
         }
 
-        if (projectManager.current().renderDebug != showBoundingBoxes.isChecked) {
+        if (debugRenderer.isEnabled != showBoundingBoxes.isChecked) {
             toggle(showBoundingBoxes)
         }
     }
@@ -91,13 +93,15 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     private fun setupListeners() {
         showBoundingBoxes.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                projectManager.current().renderDebug = !projectManager.current().renderDebug
+                debugRenderer.isEnabled = showBoundingBoxes.isChecked
+                preferencesManager.set(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_ON, showBoundingBoxes.isChecked)
             }
         })
 
         showBoundingBoxesOnTop.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 debugRenderer.isAppearOnTop = showBoundingBoxesOnTop.isChecked
+                preferencesManager.set(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_DEPTH_OFF, showBoundingBoxesOnTop.isChecked)
             }
         })
 

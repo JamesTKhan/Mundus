@@ -117,7 +117,7 @@ object Mundus {
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
                 commandHistory, globalPrefManager)
         gizmoManager = GizmoManager()
-        shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager)
+        shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager, debugRenderer, globalPrefManager)
         json = Json()
         glProfiler = MundusGLProfiler(Gdx.graphics)
 

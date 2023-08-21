@@ -51,6 +51,7 @@ public class DebugRenderer implements Renderer, Disposable {
 
     // Debug settings
     private boolean appearOnTop = true;
+    private boolean enabled = false;
 
     public DebugRenderer() {
         shapeRenderer = new ShapeRenderer();
@@ -69,6 +70,8 @@ public class DebugRenderer implements Renderer, Disposable {
 
     @Override
     public void begin(Camera camera) {
+        if (!enabled) return;
+
         if (appearOnTop) {
             // Clearing depth puts the model debug lines on top of everything else
             Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
@@ -101,6 +104,7 @@ public class DebugRenderer implements Renderer, Disposable {
 
     @Override
     public void render(GameObject go) {
+        if (!enabled) return;
         if (!go.active) return;
 
         for (Component component : go.getComponents()) {
@@ -135,6 +139,7 @@ public class DebugRenderer implements Renderer, Disposable {
 
     @Override
     public void end() {
+        if (!enabled) return;
         modelBatch.end();
     }
 
@@ -171,8 +176,9 @@ public class DebugRenderer implements Renderer, Disposable {
 
     /**
      * Builds a model for the given oriented bounding box.
+     *
      * @param orientedBoundingBox the oriented bounding box
-     * @param color the color of the model
+     * @param color               the color of the model
      * @return the model
      */
     private Model buildModel(OrientedBoundingBox orientedBoundingBox, Color color) {
@@ -194,5 +200,13 @@ public class DebugRenderer implements Renderer, Disposable {
 
     public boolean isAppearOnTop() {
         return appearOnTop;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
