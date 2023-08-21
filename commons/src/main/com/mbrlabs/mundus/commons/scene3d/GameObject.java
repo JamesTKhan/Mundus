@@ -367,6 +367,19 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         updateChildrenTransformChanged(this);
     }
 
+    @Override
+    public void translate(Vector3 v) {
+        super.translate(v);
+        transformChanged = true;
+        updateChildrenTransformChanged(this);
+    }
+
+    @Override
+    public void translate(float x, float y, float z) {
+        super.translate(x,y,z);
+        transformChanged = true;
+        updateChildrenTransformChanged(this);
+    }
 
     @Override
     public Iterator<GameObject> iterator() {
