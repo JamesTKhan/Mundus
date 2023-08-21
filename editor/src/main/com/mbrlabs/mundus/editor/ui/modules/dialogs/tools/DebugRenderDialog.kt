@@ -75,7 +75,7 @@ class DebugRenderDialog : BaseDialog(TITLE) {
                 "\nthe bounding boxes reflect what frustum culling will use when determining to cull an object. Hotkey: CTRL+F2")).left()
         table.add(showBoundingBoxes).left().padBottom(10f).row()
 
-        table.add(ToolTipLabel("Render Debug On Top", "Whether the render debug lines with depth or not.")).left()
+        table.add(ToolTipLabel("Render Debug On Top", "Whether to render debug lines with depth or not.")).left()
         table.add(showBoundingBoxesOnTop).left().padBottom(10f).row()
 
         table.add(ToolTipLabel("Wireframe Mode", "Uses OpenGL glPolygonMode with GL_LINE to show wireframe.  Hotkey: CTRL+F3")).left()
