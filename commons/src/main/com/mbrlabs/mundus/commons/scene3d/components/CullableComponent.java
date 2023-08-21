@@ -19,6 +19,8 @@ package com.mbrlabs.mundus.commons.scene3d.components;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
@@ -43,12 +45,11 @@ import static com.mbrlabs.mundus.commons.utils.ModelUtils.isVisible;
  */
 public abstract class CullableComponent extends AbstractComponent implements ModelEventable {
     private final static BoundingBox tmpBounds = new BoundingBox();
+    private final static Matrix4 tmpTransform = new Matrix4();
+    private final static Quaternion tmpRotation = new Quaternion();
     private final static Vector3 tmpScale = new Vector3();
     private final static short frameCullCheckInterval = 15;
-
-    protected final Vector3 center = new Vector3();
     protected final Vector3 dimensions = new Vector3();
-    protected final Vector3 facing = new Vector3();
     protected float radius;
 
     // Render calls since last cull check
@@ -68,7 +69,7 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         if (modelInstance == null) return;
 
         if (gameObject.transformChanged) {
-            setDimensions(modelInstance);
+            updateBoundingBox(modelInstance);
         }
 
         if (!gameObject.sceneGraph.scene.settings.useFrustumCulling) {
@@ -94,13 +95,13 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
         Camera sceneCam = gameObject.sceneGraph.scene.cam;
 
-        visibleToPerspective = isVisible(sceneCam, modelInstance, center, radius);
+        visibleToPerspective = isVisible(sceneCam, modelInstance, tmpTransform.getTranslation(new Vector3()), radius);
 
         // If not visible to main cam, check if it's visible to shadow map (to prevent shadows popping out)
         if (!visibleToPerspective) {
             if (gameObject.sceneGraph.scene.environment.shadowMap instanceof MundusDirectionalShadowLight) {
                 MundusDirectionalShadowLight shadowLight = (MundusDirectionalShadowLight) gameObject.sceneGraph.scene.environment.shadowMap;
-                visibleToShadowMap = isVisible(shadowLight.getCamera(), modelInstance, center, radius);
+                visibleToShadowMap = isVisible(shadowLight.getCamera(), modelInstance, tmpTransform.getTranslation(new Vector3()), radius);
             }
         }
 
@@ -133,18 +134,19 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         triggerEvent(EventType.BEFORE_RENDER);
     }
 
-    protected void setDimensions(ModelInstance modelInstance) {
+    protected void updateBoundingBox(ModelInstance modelInstance) {
         if (modelInstance == null) {
             Gdx.app.error("CullableComponent", "setDimensions called with null modelInstance");
             return;
         }
-        this.modelInstance = modelInstance;
         modelInstance.calculateBoundingBox(tmpBounds);
-        tmpBounds.getCenter(center);
-        tmpBounds.getDimensions(dimensions);
+        tmpTransform.set(gameObject.getTransform());
         gameObject.getScale(tmpScale);
+        gameObject.getRotation(tmpRotation);
+        tmpBounds.getDimensions(dimensions);
         dimensions.scl(tmpScale);
-        Gdx.app.log("Cullable dimensions after scale", dimensions.x + "/" + dimensions.y + "/" + dimensions.z);
+        tmpBounds.mul(new Matrix4().setToScaling(dimensions).mul(tmpTransform));
+        tmpBounds.mul(new Matrix4().set(tmpRotation));
         radius = dimensions.len() / 2f;
     }
 
@@ -161,7 +163,7 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
     }
 
     public Vector3 getCenter() {
-        return center;
+        return tmpTransform.getTranslation(new Vector3());
     }
 
     public Vector3 getDimensions() {

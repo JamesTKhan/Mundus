@@ -67,7 +67,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         modelInstance = new ModelInstance(terrainAsset.getTerrain().getModel());
         modelInstance.transform = gameObject.getTransform();
         applyMaterial();
-        setDimensions(modelInstance);
+        updateBoundingBox(modelInstance);
     }
 
     public void applyMaterial() {

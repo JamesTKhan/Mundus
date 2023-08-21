@@ -49,7 +49,7 @@ public class WaterComponent extends CullableComponent implements AssetUsage, Ren
 
     public void setWaterAsset(WaterAsset waterAsset) {
         this.waterAsset = waterAsset;
-        setDimensions(waterAsset.water.modelInstance);
+        updateBoundingBox(waterAsset.water.modelInstance);
     }
 
     public Shader getShader() {
