@@ -140,13 +140,12 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
             return;
         }
         modelInstance.calculateBoundingBox(tmpBounds);
+
         tmpTransform.set(gameObject.getTransform());
         gameObject.getScale(tmpScale);
-        gameObject.getRotation(tmpRotation);
         tmpBounds.getDimensions(dimensions);
         dimensions.scl(tmpScale);
-        tmpBounds.mul(new Matrix4().setToScaling(dimensions).mul(tmpTransform));
-        tmpBounds.mul(new Matrix4().set(tmpRotation));
+        tmpBounds.mul(tmpTransform);
         radius = dimensions.len() / 2f;
     }
 
