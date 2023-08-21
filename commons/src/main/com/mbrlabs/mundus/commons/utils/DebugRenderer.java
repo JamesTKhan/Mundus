@@ -191,4 +191,8 @@ public class DebugRenderer implements Renderer, Disposable {
     public void setAppearOnTop(boolean appearOnTop) {
         this.appearOnTop = appearOnTop;
     }
+
+    public boolean isAppearOnTop() {
+        return appearOnTop;
+    }
 }

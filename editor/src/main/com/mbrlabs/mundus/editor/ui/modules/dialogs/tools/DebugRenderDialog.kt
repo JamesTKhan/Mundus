@@ -10,6 +10,7 @@ import com.kotcrab.vis.ui.widget.VisRadioButton
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel
 import com.kotcrab.vis.ui.widget.spinner.Spinner
+import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.helperlines.HelperLineType
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -23,6 +24,7 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     }
 
     private val showBoundingBoxes = VisCheckBox(null)
+    private val showBoundingBoxesOnTop = VisCheckBox(null)
     private val wireFrameMode = VisCheckBox(null)
     private val helperLines = VisCheckBox(null)
     private val rectangleRadio = VisRadioButton("Rectangle")
@@ -30,6 +32,8 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     private val columnSpinnerModel = IntSpinnerModel(2, 2, 100)
     private val columnSpinner = Spinner("Column:", columnSpinnerModel)
     private val projectManager: ProjectManager = Mundus.inject()
+
+    private val debugRenderer: DebugRenderer = Mundus.inject()
 
     init {
         setupUI()
@@ -45,6 +49,8 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         rectangleRadio.touchable = touchable
         hexagonRadio.touchable = touchable
         columnSpinner.touchable = touchable
+
+        showBoundingBoxesOnTop.isChecked = debugRenderer.isAppearOnTop
 
         return super.show(stage)
     }
@@ -67,6 +73,9 @@ class DebugRenderDialog : BaseDialog(TITLE) {
                 "\nthe bounding boxes reflect what frustum culling will use when determining to cull an object. Hotkey: CTRL+F2")).left()
         table.add(showBoundingBoxes).left().padBottom(10f).row()
 
+        table.add(ToolTipLabel("Render Debug On Top", "Whether the render debug lines with depth or not.")).left()
+        table.add(showBoundingBoxesOnTop).left().padBottom(10f).row()
+
         table.add(ToolTipLabel("Wireframe Mode", "Uses OpenGL glPolygonMode with GL_LINE to show wireframe.  Hotkey: CTRL+F3")).left()
         table.add(wireFrameMode).left().padBottom(10f).row()
 
@@ -83,6 +92,12 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         showBoundingBoxes.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 projectManager.current().renderDebug = !projectManager.current().renderDebug
+            }
+        })
+
+        showBoundingBoxesOnTop.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                debugRenderer.isAppearOnTop = showBoundingBoxesOnTop.isChecked
             }
         })
 

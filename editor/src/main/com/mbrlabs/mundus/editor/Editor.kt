@@ -92,10 +92,9 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         gizmoManager = Mundus.inject()
         glProfiler = Mundus.inject()
         shapeRenderer = Mundus.inject()
+        debugRenderer = Mundus.inject()
         globalPreferencesManager = Mundus.inject()
         setupInput()
-
-        debugRenderer = DebugRenderer(shapeRenderer)
 
         // TODO dispose this
         val axesModel = UsefulMeshs.createAxes()
