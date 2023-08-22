@@ -1,9 +1,21 @@
 package com.mbrlabs.mundus.commons.utils;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.OrientedBoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -13,21 +25,33 @@ import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 /**
  * Simple debug renderer that only renders bounding boxes of {@link CullableComponent}
- *  which are used for frustum culling.
+ * which are used for frustum culling.
  *
  * @author JamesTKhan
  * @version July 25, 2022
  */
 public class DebugRenderer implements Renderer, Disposable {
-    private static final Vector3 tmpPos = new Vector3();
-    private static final Vector3 tmpCenter = new Vector3();
+    private static final OrientedBoundingBox tmpObb = new OrientedBoundingBox();
 
-    private final ShapeRenderer shapeRenderer;
+    // Shape Renderer
     private final boolean ownsShapeRenderer;
-
+    private final ShapeRenderer shapeRenderer;
     private ShapeRenderer.ShapeType shapeType = ShapeRenderer.ShapeType.Line;
+
+    // Model Renderer
+    private ModelBatch modelBatch;
+    private final Map<Component, ModelInstance> modelInstancesCache = new HashMap<>();
+    private final Array<ModelInstance> instances = new Array<>();
+
+    // Debug settings
+    private boolean appearOnTop = true;
+    private boolean enabled = false;
 
     public DebugRenderer() {
         shapeRenderer = new ShapeRenderer();
@@ -36,6 +60,7 @@ public class DebugRenderer implements Renderer, Disposable {
 
     public DebugRenderer(ShapeRenderer shapeRenderer) {
         this.shapeRenderer = shapeRenderer;
+        modelBatch = new ModelBatch();
         ownsShapeRenderer = false;
     }
 
@@ -45,19 +70,41 @@ public class DebugRenderer implements Renderer, Disposable {
 
     @Override
     public void begin(Camera camera) {
-        shapeRenderer.begin(shapeType);
-        shapeRenderer.setProjectionMatrix(camera.combined);
+        if (!enabled) return;
+
+        if (appearOnTop) {
+            // Clearing depth puts the model debug lines on top of everything else
+            Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
+        }
+        modelBatch.begin(camera);
     }
 
     @Override
     public void render(Array<GameObject> gameObjects) {
+        instances.clear();
         for (GameObject object : gameObjects) {
             render(object);
         }
+        modelBatch.render(instances);
+
+        // If it's in the cache but not in instances, remove from cache
+        Iterator<Map.Entry<Component, ModelInstance>> it = modelInstancesCache.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Component, ModelInstance> item = it.next();
+            if (!instances.contains(item.getValue(), true)) {
+                // Dispose the debug model
+                item.getValue().model.dispose();
+                it.remove();
+            }
+        }
+
+
+        // Any shape rendering should be done here if needed
     }
 
     @Override
     public void render(GameObject go) {
+        if (!enabled) return;
         if (!go.active) return;
 
         for (Component component : go.getComponents()) {
@@ -68,19 +115,18 @@ public class DebugRenderer implements Renderer, Disposable {
             }
 
             CullableComponent cullableComponent = (CullableComponent) component;
-            go.getPosition(tmpPos);
-            tmpCenter.set(cullableComponent.getCenter());
-            tmpPos.add(tmpCenter);
 
-            shapeRenderer.setColor(getColor(component));
-            shapeRenderer.box(
-                    tmpPos.x - (cullableComponent.getDimensions().x / 2),
-                    tmpPos.y - (cullableComponent.getDimensions().y / 2),
-                    tmpPos.z + (cullableComponent.getDimensions().z / 2),
-                    cullableComponent.getDimensions().x,
-                    cullableComponent.getDimensions().y,
-                    cullableComponent.getDimensions().z);
-            shapeRenderer.point(tmpCenter.x, tmpCenter.y, tmpCenter.z);
+            if (!modelInstancesCache.containsKey(component)) {
+                OrientedBoundingBox orientedBoundingBox = cullableComponent.getOrientedBoundingBox();
+                if (orientedBoundingBox == null) continue;
+                tmpObb.set(orientedBoundingBox.getBounds(), new Matrix4());
+                Model model = buildModel(tmpObb, getColor(component));
+                modelInstancesCache.put(component, new ModelInstance(model));
+            }
+
+            ModelInstance modelInstance = modelInstancesCache.get(component);
+            modelInstance.transform.set(cullableComponent.getOrientedBoundingBox().getTransform());
+            instances.add(modelInstance);
         }
 
         if (go.getChildren() == null) return;
@@ -93,7 +139,8 @@ public class DebugRenderer implements Renderer, Disposable {
 
     @Override
     public void end() {
-        shapeRenderer.end();
+        if (!enabled) return;
+        modelBatch.end();
     }
 
     protected Color getColor(Component component) {
@@ -112,5 +159,54 @@ public class DebugRenderer implements Renderer, Disposable {
         if (ownsShapeRenderer) {
             shapeRenderer.dispose();
         }
+
+        if (modelBatch != null) {
+            modelBatch.dispose();
+        }
+
+        // Dispose all cached models
+        Iterator<Map.Entry<Component, ModelInstance>> it = modelInstancesCache.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Component, ModelInstance> item = it.next();
+            // Dispose the debug model
+            item.getValue().model.dispose();
+            it.remove();
+        }
+    }
+
+    /**
+     * Builds a model for the given oriented bounding box.
+     *
+     * @param orientedBoundingBox the oriented bounding box
+     * @param color               the color of the model
+     * @return the model
+     */
+    private Model buildModel(OrientedBoundingBox orientedBoundingBox, Color color) {
+        Material material = new Material(ColorAttribute.createDiffuse(color));
+        com.badlogic.gdx.graphics.g3d.utils.ModelBuilder mb = new com.badlogic.gdx.graphics.g3d.utils.ModelBuilder();
+        mb.begin();
+        MeshPartBuilder meshPartBuilder = mb.part("debug_box", GL20.GL_LINES, VertexAttributes.Usage.Position, material);
+        BoxShapeBuilder.build(meshPartBuilder, orientedBoundingBox.getCorner000(new Vector3()),
+                orientedBoundingBox.getCorner010(new Vector3()), orientedBoundingBox.getCorner100(new Vector3()),
+                orientedBoundingBox.getCorner110(new Vector3()), orientedBoundingBox.getCorner001(new Vector3()),
+                orientedBoundingBox.getCorner011(new Vector3()), orientedBoundingBox.getCorner101(new Vector3()),
+                orientedBoundingBox.getCorner111(new Vector3()));
+        return mb.end();
+    }
+
+    public void setAppearOnTop(boolean appearOnTop) {
+        this.appearOnTop = appearOnTop;
+    }
+
+    public boolean isAppearOnTop() {
+        return appearOnTop;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

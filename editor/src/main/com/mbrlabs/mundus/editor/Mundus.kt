@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.Json
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.file.FileChooser
 import com.mbrlabs.mundus.commons.assets.meta.MetaLoader
+import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
@@ -73,6 +74,7 @@ object Mundus {
     private val freeCamController: FreeCamController
     private val shortcutController: ShortcutController
     private val shapeRenderer: ShapeRenderer
+    private val debugRenderer: DebugRenderer
     private val kryoManager: KryoManager
     private val projectManager: ProjectManager
     private val registry: Registry
@@ -100,6 +102,7 @@ object Mundus {
 
         // DI
         shapeRenderer = ShapeRenderer()
+        debugRenderer = DebugRenderer(shapeRenderer)
         modelBatch = ModelBatch()
         input = InputManager()
         goPicker = GameObjectPicker()
@@ -114,13 +117,14 @@ object Mundus {
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
                 commandHistory, globalPrefManager)
         gizmoManager = GizmoManager()
-        shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager)
+        shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager, debugRenderer, globalPrefManager)
         json = Json()
         glProfiler = MundusGLProfiler(Gdx.graphics)
 
         // add to DI container
         context.register {
             bindSingleton(shapeRenderer)
+            bindSingleton(debugRenderer)
             bindSingleton(input)
             bindSingleton(goPicker)
             bindSingleton(handlePicker)
