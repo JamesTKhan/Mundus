@@ -16,6 +16,8 @@
 - Fix Material culling value being reset to GL_NONE by editor
 - Fix crash on Asset Usage tool when Light Component in scene
 - Updated libGDX to 1.12.0
+- Fix Previous project's inspector data persists after switching project
+- Fix transform tools scale with camera distance
 
 [0.5.0] ~ 06/28/2023
 - [Breaking Change] Lighting systems updated, visibly different. See PR#184
