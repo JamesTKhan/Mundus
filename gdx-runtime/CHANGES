@@ -1,5 +1,6 @@
 [0.5.1] ~
 - Updated libGDX to 1.12.0
+- Add 'getRayIntersection(Vector3, Ray)' method to TerrainComponent
 
 [0.5.0] ~ 06/28/2023
 - [Breaking Change] Terrain API modified to closer reflect Models
