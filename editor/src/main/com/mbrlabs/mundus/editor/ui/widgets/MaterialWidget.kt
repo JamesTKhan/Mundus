@@ -30,7 +30,6 @@ import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
 import com.mbrlabs.mundus.commons.assets.TexCoordInfo
 import com.mbrlabs.mundus.commons.assets.TextureAsset
-import com.mbrlabs.mundus.commons.utils.MathUtils
 import com.mbrlabs.mundus.commons.utils.ModelUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
@@ -66,7 +65,8 @@ class MaterialWidget : VisTable() {
 
     private val scaleUField = FloatFieldWithLabel("Scale U", -1, false)
     private val scaleVField = FloatFieldWithLabel("Scale V", -1, false)
-    private val rotateUVField = ImprovedSliderWithFloat("Rotate UV", 0f, Math.PI.toFloat() * 2f, 0.01f, false, true)
+    //slider moves in 11.25 degree steps
+    private val rotateUVField = ImprovedSliderWithFloatLabel("Rotate UV (Radians)", 0f, Math.PI.toFloat() * 2f, Math.PI.toFloat() / 16f)
 
     private val offsetUField = ImprovedSlider(0.0f, 1.0f, 0.01f)
     private val offsetVField = ImprovedSlider(0.0f, 1.0f, 0.01f)

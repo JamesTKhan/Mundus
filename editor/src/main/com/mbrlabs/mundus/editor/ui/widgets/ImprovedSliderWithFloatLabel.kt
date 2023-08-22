@@ -30,31 +30,25 @@ import com.mbrlabs.mundus.editor.utils.formatFloat
  * Can be used inside a scroll pane & has the current value displayed in the
  * text box.
  */
-class ImprovedSliderWithFloat(labeltext: String, min: Float, max: Float, step: Float, allowNegative: Boolean, radToDeg: Boolean) : VisTable() {
+class ImprovedSliderWithFloatLabel(labeltext: String, min: Float, max: Float, step: Float) : VisTable() {
 
     private val currentValue = VisLabel("0")
     private val slider = ScrollPaneSlider(min, max, step, false)
     private var oldValue = 0f
-    private var processedValue = 0f
-    protected var textField: VisTextField = VisTextField()
+    private var textField: VisTextField = VisTextField()
     private var label: VisLabel = VisLabel()
 
     init {
         label.setText(labeltext)
         add(label).left().expandX()
         add(slider).expandX().fillX().right()
-        textField.textFieldFilter = FloatDigitsOnlyFilter(allowNegative)
+        textField.textFieldFilter = FloatDigitsOnlyFilter(false)
         textField.text = "0"
         add(textField).right().expandX().row()
 
         slider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
-                if (radToDeg)
-                    processedValue = slider.value / MathUtils.degRad
-                else
-                    processedValue = slider.value
-
-                textField.setText(String.format(formatFloat(processedValue, 2)))
+                textField.setText(String.format(formatFloat(value, 5)))
                 oldValue = slider.value
             }
         })
@@ -62,7 +56,7 @@ class ImprovedSliderWithFloat(labeltext: String, min: Float, max: Float, step: F
         textField.addListener(object : FocusListener() {
             override fun keyboardFocusChanged(event: FocusEvent, actor: Actor, focused: Boolean) {
                 val floatString = java.lang.Float.parseFloat(textField.text)
-                if (floatString in min..max) {
+                if (textField.text != "" && floatString in min..max) {
                     slider.value = floatString
                 }
                 else textField.text = oldValue.toString()
