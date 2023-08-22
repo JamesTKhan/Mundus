@@ -66,7 +66,7 @@ class MaterialWidget : VisTable() {
     private val scaleUField = FloatFieldWithLabel("Scale U", -1, false)
     private val scaleVField = FloatFieldWithLabel("Scale V", -1, false)
     //slider moves in 11.25 degree steps
-    private val rotateUVField = ImprovedSliderWithFloatLabel("Rotate UV (Radians)", 0f, Math.PI.toFloat() * 2f, Math.PI.toFloat() / 16f)
+    private val rotateUVField = UvSliderWithFloatLabel("Rotate UV (Radians)", 0f, (Math.PI * 2f).toFloat(), (Math.PI / 16f).toFloat())
 
     private val offsetUField = ImprovedSlider(0.0f, 1.0f, 0.01f)
     private val offsetVField = ImprovedSlider(0.0f, 1.0f, 0.01f)

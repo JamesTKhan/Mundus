@@ -16,7 +16,7 @@
 
 package com.mbrlabs.mundus.editor.ui.widgets
 
-import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener
@@ -27,10 +27,10 @@ import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.editor.utils.formatFloat
 
 /**
- * Can be used inside a scroll pane & has the current value displayed in the
+ * Can be used inside a scroll pane & has the current value editable and displayed in the
  * text box.
  */
-class ImprovedSliderWithFloatLabel(labeltext: String, min: Float, max: Float, step: Float) : VisTable() {
+class UvSliderWithFloatLabel(labeltext: String, min: Float, max: Float, step: Float) : VisTable() {
 
     private val currentValue = VisLabel("0")
     private val slider = ScrollPaneSlider(min, max, step, false)
@@ -43,12 +43,12 @@ class ImprovedSliderWithFloatLabel(labeltext: String, min: Float, max: Float, st
         add(label).left().expandX()
         add(slider).expandX().fillX().right()
         textField.textFieldFilter = FloatDigitsOnlyFilter(false)
-        textField.text = "0"
         add(textField).right().expandX().row()
+        textField.text = String.format(formatFloat(value, 6))
 
         slider.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
-                textField.setText(String.format(formatFloat(value, 5)))
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                textField.text = String.format(formatFloat(value, 6))
                 oldValue = slider.value
             }
         })
@@ -68,15 +68,11 @@ class ImprovedSliderWithFloatLabel(labeltext: String, min: Float, max: Float, st
         get() = slider.value
         set(value) {
             slider.value = value
-            currentValue.setText(formatFloat(value, 2))
+            currentValue.setText(formatFloat(value, 6))
         }
-
-    override fun clear() {
-        textField!!.text = "0"
-    }
 
     fun setText(text: String?) {
         if (text != "")
-        textField!!.text = text
+        textField.text = text
     }
 }
