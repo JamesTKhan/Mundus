@@ -31,6 +31,7 @@ public enum AssetType {
     MODEL("Model"),
     /** Terra file. Contains height data for terrains. */
     TERRAIN("Terrain"),
+    TERRAIN_LAYER("TL"),
     /** Material file. Mundus material file contains material information. */
     MATERIAL("Material"),
     /** Water file. Contains data for water. */

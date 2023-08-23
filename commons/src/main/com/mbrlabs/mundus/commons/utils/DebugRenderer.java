@@ -10,10 +10,14 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.ArrowShapeBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.OrientedBoundingBox;
 import com.badlogic.gdx.utils.Array;
@@ -38,6 +42,9 @@ import java.util.Map;
  */
 public class DebugRenderer implements Renderer, Disposable {
     private static final OrientedBoundingBox tmpObb = new OrientedBoundingBox();
+    //Game Object needed for rendering forward facing arrow
+    private static GameObject selectedGameObject;
+    private static CullableComponent cullableComponent;
 
     // Shape Renderer
     private final boolean ownsShapeRenderer;
@@ -52,6 +59,7 @@ public class DebugRenderer implements Renderer, Disposable {
     // Debug settings
     private boolean appearOnTop = true;
     private boolean enabled = false;
+    private boolean drawFacingArrow = true;
 
     public DebugRenderer() {
         shapeRenderer = new ShapeRenderer();
@@ -62,6 +70,10 @@ public class DebugRenderer implements Renderer, Disposable {
         this.shapeRenderer = shapeRenderer;
         modelBatch = new ModelBatch();
         ownsShapeRenderer = false;
+    }
+
+    public static void setSelectedGameObject(GameObject go){
+        selectedGameObject = go;
     }
 
     public void setShapeType(ShapeRenderer.ShapeType shapeType) {
@@ -114,7 +126,7 @@ public class DebugRenderer implements Renderer, Disposable {
                 continue;
             }
 
-            CullableComponent cullableComponent = (CullableComponent) component;
+            cullableComponent = (CullableComponent) component;
 
             if (!modelInstancesCache.containsKey(component)) {
                 OrientedBoundingBox orientedBoundingBox = cullableComponent.getOrientedBoundingBox();
@@ -127,6 +139,33 @@ public class DebugRenderer implements Renderer, Disposable {
             ModelInstance modelInstance = modelInstancesCache.get(component);
             modelInstance.transform.set(cullableComponent.getOrientedBoundingBox().getTransform());
             instances.add(modelInstance);
+        }
+
+        if (drawFacingArrow && go == selectedGameObject){
+            //TODO Cache arrow model
+            Vector3 origin = new Vector3();
+            Vector3 facing = new Vector3();
+
+            float scale = cullableComponent.getOrientedBoundingBox().getBounds().max.len2();
+
+            Vector3 offset = facing.cpy().scl(scale);
+
+            go.getForwardDirection(facing);
+            go.getPosition(origin);
+
+
+
+            facing.scl(scale);
+
+            ModelBuilder modelBuilder = new ModelBuilder();
+            modelBuilder.begin();
+            MeshPartBuilder builder =  modelBuilder.part("forward", GL20.GL_TRIANGLES,
+                    (VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked), new Material());
+            builder.setColor(Color.RED);
+            ArrowShapeBuilder.build(builder, origin.x, origin.y,origin.z, facing.x,facing.y, facing.z, .02f, .2f, 20);
+            Model arrowModel = modelBuilder.end();
+            ModelInstance arrow = new ModelInstance(arrowModel);
+            instances.add(arrow);
         }
 
         if (go.getChildren() == null) return;
