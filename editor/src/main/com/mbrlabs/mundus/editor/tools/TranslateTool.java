@@ -159,6 +159,8 @@ public class TranslateTool extends TransformTool {
 
         if (getProjectManager().current().currScene.currentSelection != null) {
             translateHandles();
+            scaleHandles();
+
             if (state == TransformState.IDLE) return;
 
             Ray ray = getProjectManager().current().currScene.viewport.getPickRay(Gdx.input.getX(), Gdx.input.getY());

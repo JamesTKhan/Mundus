@@ -396,7 +396,7 @@ public class ProjectManager implements Disposable {
      * Opens a project.
      *
      * Opens a project. If a project is already open it will be disposed.
-     * 
+     *
      * @param context
      *            project context to open
      */

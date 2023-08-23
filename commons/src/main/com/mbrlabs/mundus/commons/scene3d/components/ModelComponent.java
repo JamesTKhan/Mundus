@@ -51,7 +51,8 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Mod
     public void update(float delta) {
         super.update(delta);
         if (gameObject.isDirty()) {
-            modelInstance.transform.set(gameObject.getTransform());
+            // Force update of transform. No need to re-assign it to modelInstance.transform
+            gameObject.getTransform();
         }
     }
 
@@ -119,9 +120,8 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Mod
     public Component clone(GameObject go) {
         ModelComponent mc = new ModelComponent(go);
         mc.modelAsset = this.modelAsset;
-        mc.modelInstance = new ModelInstance(modelAsset.getModel());
+        mc.setModel(new ModelInstance(modelAsset.getModel()));
         mc.materials.putAll(this.materials);
-        mc.setDimensions(mc.modelInstance);
         mc.setUseModelCache(useModelCache);
         gameObject.sceneGraph.scene.modelCacheManager.requestModelCacheRebuild();
         return mc;
