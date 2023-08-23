@@ -1,5 +1,6 @@
 [0.6.0] ~
 - Add dirty transform flag optimization for caching GameObject/SimpleNode world transform
+- Add OrientedBoundingBox to cullable components, update debug renderer to use it
 - Fix Child terrain objects not updating on translation
 - Refactor outline drag and drop world to local conversion code when moving game objects
 - Updated kotlin to 1.9.0
