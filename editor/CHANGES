@@ -1,4 +1,5 @@
 [0.6.0] ~
+- [BREAKING CHANGE] Migrated from Kryo to JSON for .registry and .pro files. Migration handled automatically.
 - Add dirty transform flag optimization for caching GameObject/SimpleNode world transform
 - Add OrientedBoundingBox to cullable components, update debug renderer to use it
 - Fix Child terrain objects not updating on translation

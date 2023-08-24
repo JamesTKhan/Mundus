@@ -28,10 +28,11 @@ import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.file.FileChooser
 import com.mbrlabs.mundus.commons.assets.meta.MetaLoader
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
-import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
-import com.mbrlabs.mundus.editor.core.kryo.KryoManager
+import com.mbrlabs.mundus.editor.core.io.IOManager
+import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
+import com.mbrlabs.mundus.editor.core.io.MigrationIOManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.EventBus
@@ -39,6 +40,7 @@ import com.mbrlabs.mundus.editor.history.CommandHistory
 import com.mbrlabs.mundus.editor.input.FreeCamController
 import com.mbrlabs.mundus.editor.input.InputManager
 import com.mbrlabs.mundus.editor.input.ShortcutController
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
 import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.tools.ToolManager
@@ -75,7 +77,7 @@ object Mundus {
     private val shortcutController: ShortcutController
     private val shapeRenderer: ShapeRenderer
     private val debugRenderer: DebugRenderer
-    private val kryoManager: KryoManager
+    private val ioManager: IOManager
     private val projectManager: ProjectManager
     private val registry: Registry
     private val modelImporter: ModelImporter
@@ -107,11 +109,11 @@ object Mundus {
         input = InputManager()
         goPicker = GameObjectPicker()
         handlePicker = ToolHandlePicker()
-        kryoManager = KryoManager()
-        registry = kryoManager.loadRegistry()
+        ioManager = MigrationIOManager()
+        registry = ioManager.loadRegistry()
         commandHistory = CommandHistory(CommandHistory.DEFAULT_LIMIT)
         modelImporter = ModelImporter(registry)
-        projectManager = ProjectManager(kryoManager, registry, modelBatch)
+        projectManager = ProjectManager(ioManager, registry, modelBatch)
         freeCamController = FreeCamController(projectManager, goPicker)
         globalPrefManager = MundusPreferencesManager("global")
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
@@ -121,6 +123,8 @@ object Mundus {
         json = Json()
         glProfiler = MundusGLProfiler(Gdx.graphics)
 
+        val ioManagerProvider = IOManagerProvider(ioManager)
+
         // add to DI container
         context.register {
             bindSingleton(shapeRenderer)
@@ -128,7 +132,7 @@ object Mundus {
             bindSingleton(input)
             bindSingleton(goPicker)
             bindSingleton(handlePicker)
-            bindSingleton(kryoManager)
+            bindSingleton(ioManagerProvider)
             bindSingleton(registry)
             bindSingleton(commandHistory)
             bindSingleton(modelImporter)
