@@ -10,14 +10,12 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.ArrowShapeBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.OrientedBoundingBox;
 import com.badlogic.gdx.utils.Array;
@@ -42,14 +40,13 @@ import java.util.Map;
  */
 public class DebugRenderer implements Renderer, Disposable {
     private static final OrientedBoundingBox tmpObb = new OrientedBoundingBox();
+    private static CullableComponent cullableComponent;
     //Game Object needed for rendering forward facing arrow
     private static GameObject selectedGameObject;
-    private static CullableComponent cullableComponent;
 
     // Shape Renderer
     private final boolean ownsShapeRenderer;
     private final ShapeRenderer shapeRenderer;
-    private ShapeRenderer.ShapeType shapeType = ShapeRenderer.ShapeType.Line;
 
     // Model Renderer
     private ModelBatch modelBatch;
@@ -59,7 +56,7 @@ public class DebugRenderer implements Renderer, Disposable {
     // Debug settings
     private boolean appearOnTop = true;
     private boolean enabled = false;
-    private boolean drawFacingArrow = true;
+    private boolean drawFacingArrow = false;
 
     public DebugRenderer() {
         shapeRenderer = new ShapeRenderer();
@@ -77,7 +74,6 @@ public class DebugRenderer implements Renderer, Disposable {
     }
 
     public void setShapeType(ShapeRenderer.ShapeType shapeType) {
-        this.shapeType = shapeType;
     }
 
     @Override
@@ -146,16 +142,11 @@ public class DebugRenderer implements Renderer, Disposable {
             Vector3 origin = new Vector3();
             Vector3 facing = new Vector3();
 
-            float scale = cullableComponent.getOrientedBoundingBox().getBounds().max.len2();
-
-            Vector3 offset = facing.cpy().scl(scale);
-
             go.getForwardDirection(facing);
             go.getPosition(origin);
 
-
-
-            facing.scl(scale);
+            facing.scl((float) Math.sqrt(cullableComponent.getDimensions().len2()));
+            facing.add(origin);
 
             ModelBuilder modelBuilder = new ModelBuilder();
             modelBuilder.begin();
@@ -237,9 +228,11 @@ public class DebugRenderer implements Renderer, Disposable {
         this.appearOnTop = appearOnTop;
     }
 
-    public boolean isAppearOnTop() {
-        return appearOnTop;
-    }
+    public boolean isAppearOnTop() { return appearOnTop; }
+
+    public void setShowFacingArrow(boolean showFacingArrow) { this.drawFacingArrow = showFacingArrow; }
+
+    public boolean isShowFacingArrow() { return drawFacingArrow; }
 
     public boolean isEnabled() {
         return enabled;
