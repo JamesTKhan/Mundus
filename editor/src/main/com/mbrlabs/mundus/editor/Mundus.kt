@@ -28,7 +28,6 @@ import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.file.FileChooser
 import com.mbrlabs.mundus.commons.assets.meta.MetaLoader
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
-import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
 import com.mbrlabs.mundus.editor.core.io.IOManager
@@ -41,6 +40,7 @@ import com.mbrlabs.mundus.editor.history.CommandHistory
 import com.mbrlabs.mundus.editor.input.FreeCamController
 import com.mbrlabs.mundus.editor.input.InputManager
 import com.mbrlabs.mundus.editor.input.ShortcutController
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
 import com.mbrlabs.mundus.editor.shader.Shaders
 import com.mbrlabs.mundus.editor.tools.ToolManager
