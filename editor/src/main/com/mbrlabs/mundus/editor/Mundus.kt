@@ -109,10 +109,10 @@ object Mundus {
         handlePicker = ToolHandlePicker()
         kryoManager = KryoManager()
         registry = kryoManager.loadRegistry()
-        freeCamController = FreeCamController()
         commandHistory = CommandHistory(CommandHistory.DEFAULT_LIMIT)
         modelImporter = ModelImporter(registry)
         projectManager = ProjectManager(kryoManager, registry, modelBatch)
+        freeCamController = FreeCamController(projectManager, goPicker)
         globalPrefManager = MundusPreferencesManager("global")
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
                 commandHistory, globalPrefManager)
