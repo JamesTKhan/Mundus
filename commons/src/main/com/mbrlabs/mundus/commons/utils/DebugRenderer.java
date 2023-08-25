@@ -48,9 +48,11 @@ public class DebugRenderer implements Renderer, Disposable {
     private final boolean ownsShapeRenderer;
     private final ShapeRenderer shapeRenderer;
 
-    // Model Renderer
+    // Bounding box and facing arrow Renderer
     private ModelBatch modelBatch;
+    private final ModelBuilder modelBuilder = new ModelBuilder();
     private final Map<Component, ModelInstance> modelInstancesCache = new HashMap<>();
+    private final Map<Component, ModelInstance> arrowInstancesCache = new HashMap<>();
     private final Array<ModelInstance> instances = new Array<>();
 
     // Debug settings
@@ -106,7 +108,6 @@ public class DebugRenderer implements Renderer, Disposable {
             }
         }
 
-
         // Any shape rendering should be done here if needed
     }
 
@@ -135,28 +136,30 @@ public class DebugRenderer implements Renderer, Disposable {
             ModelInstance modelInstance = modelInstancesCache.get(component);
             modelInstance.transform.set(cullableComponent.getOrientedBoundingBox().getTransform());
             instances.add(modelInstance);
-        }
 
-        if (drawFacingArrow && go == selectedGameObject){
-            //TODO Cache arrow model
-            Vector3 origin = new Vector3();
-            Vector3 facing = new Vector3();
+            if (drawFacingArrow && go == selectedGameObject){
+                if (!arrowInstancesCache.containsKey(component)) {
+                    Vector3 origin = Pools.vector3Pool.obtain();
+                    Vector3 facing = Pools.vector3Pool.obtain();
 
-            go.getForwardDirection(facing);
-            go.getPosition(origin);
+                    selectedGameObject.getForwardDirection(facing);
+                    selectedGameObject.getPosition(origin);
 
-            facing.scl((float) Math.sqrt(cullableComponent.getDimensions().len2()));
-            facing.add(origin);
+                    facing.scl((float) Math.sqrt(cullableComponent.getDimensions().len2()));
+                    facing.add(origin);
 
-            ModelBuilder modelBuilder = new ModelBuilder();
-            modelBuilder.begin();
-            MeshPartBuilder builder =  modelBuilder.part("forward", GL20.GL_TRIANGLES,
-                    (VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked), new Material());
-            builder.setColor(Color.RED);
-            ArrowShapeBuilder.build(builder, origin.x, origin.y,origin.z, facing.x,facing.y, facing.z, .02f, .2f, 20);
-            Model arrowModel = modelBuilder.end();
-            ModelInstance arrow = new ModelInstance(arrowModel);
-            instances.add(arrow);
+                    modelBuilder.begin();
+                    MeshPartBuilder meshBuilder =  modelBuilder.part("arrow", GL20.GL_TRIANGLES,
+                        (VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked), new Material());
+                    meshBuilder.setColor(Color.MAROON);
+                    ArrowShapeBuilder.build(meshBuilder, origin.x, origin.y,origin.z, facing.x,facing.y, facing.z, .03f, .5f, 20);
+                    Model arrowModel = modelBuilder.end();
+                    arrowInstancesCache.put(component, new ModelInstance(arrowModel));
+                }
+                ModelInstance arrowInstance = arrowInstancesCache.get(component);
+                arrowInstance.transform.set(go.getTransform());
+                instances.add(arrowInstance);
+            }
         }
 
         if (go.getChildren() == null) return;
@@ -201,6 +204,14 @@ public class DebugRenderer implements Renderer, Disposable {
             // Dispose the debug model
             item.getValue().model.dispose();
             it.remove();
+        }
+
+        Iterator<Map.Entry<Component, ModelInstance>> it2 = arrowInstancesCache.entrySet().iterator();
+        while (it2.hasNext()) {
+            Map.Entry<Component, ModelInstance> item = it2.next();
+            // Dispose the debug model
+            item.getValue().model.dispose();
+            it2.remove();
         }
     }
 
