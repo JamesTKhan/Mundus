@@ -2,7 +2,7 @@ package com.mbrlabs.mundus.editor.ui.modules.dialogs.tools
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisDialog
@@ -10,9 +10,11 @@ import com.kotcrab.vis.ui.widget.VisRadioButton
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel
 import com.kotcrab.vis.ui.widget.spinner.Spinner
+import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.helperlines.HelperLineType
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 
@@ -23,13 +25,23 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     }
 
     private val showBoundingBoxes = VisCheckBox(null)
+    private val showBoundingBoxesOnTop = VisCheckBox(null)
     private val wireFrameMode = VisCheckBox(null)
     private val helperLines = VisCheckBox(null)
     private val rectangleRadio = VisRadioButton("Rectangle")
     private val hexagonRadio = VisRadioButton("Hexagon")
     private val columnSpinnerModel = IntSpinnerModel(2, 2, 100)
     private val columnSpinner = Spinner("Column:", columnSpinnerModel)
+    private val counterOffsetXSpinnerModel = IntSpinnerModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE)
+    private val counterOffsetXSpinner = Spinner("Counter offset X:", counterOffsetXSpinnerModel)
+    private val counterOffsetYSpinnerModel = IntSpinnerModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE)
+    private val counterOffsetYSpinner = Spinner("Counter offset Y:", counterOffsetYSpinnerModel)
+
     private val projectManager: ProjectManager = Mundus.inject()
+    private val preferencesManager : MundusPreferencesManager = Mundus.inject()
+    private val debugRenderer: DebugRenderer = Mundus.inject()
+
+    private lateinit var helperLineSettingsTable: Table
 
     init {
         setupUI()
@@ -41,10 +53,8 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         if ((hasHelperLines && !helperLines.isChecked) || (!hasHelperLines && helperLines.isChecked)) {
             toggle(helperLines)
         }
-        val touchable = if (hasHelperLines) Touchable.enabled else Touchable.disabled
-        rectangleRadio.touchable = touchable
-        hexagonRadio.touchable = touchable
-        columnSpinner.touchable = touchable
+
+        showBoundingBoxesOnTop.isChecked = debugRenderer.isAppearOnTop
 
         return super.show(stage)
     }
@@ -56,7 +66,7 @@ class DebugRenderDialog : BaseDialog(TITLE) {
             toggle(wireFrameMode)
         }
 
-        if (projectManager.current().renderDebug != showBoundingBoxes.isChecked) {
+        if (debugRenderer.isEnabled != showBoundingBoxes.isChecked) {
             toggle(showBoundingBoxes)
         }
     }
@@ -67,14 +77,19 @@ class DebugRenderDialog : BaseDialog(TITLE) {
                 "\nthe bounding boxes reflect what frustum culling will use when determining to cull an object. Hotkey: CTRL+F2")).left()
         table.add(showBoundingBoxes).left().padBottom(10f).row()
 
+        table.add(ToolTipLabel("Render Debug On Top", "Whether to render debug lines with depth or not.")).left()
+        table.add(showBoundingBoxesOnTop).left().padBottom(10f).row()
+
         table.add(ToolTipLabel("Wireframe Mode", "Uses OpenGL glPolygonMode with GL_LINE to show wireframe.  Hotkey: CTRL+F3")).left()
         table.add(wireFrameMode).left().padBottom(10f).row()
 
         table.add(ToolTipLabel("Helper lines", "Render helper lines on the terrains.")).left()
         table.add(helperLines)
         table.row()
-        table.add(createHelperLinesTable()).left()
 
+        helperLineSettingsTable = createHelperLinesTable()
+        helperLineSettingsTable.isVisible = false
+        table.add(helperLineSettingsTable).left()
 
         add(table)
     }
@@ -82,7 +97,15 @@ class DebugRenderDialog : BaseDialog(TITLE) {
     private fun setupListeners() {
         showBoundingBoxes.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                projectManager.current().renderDebug = !projectManager.current().renderDebug
+                debugRenderer.isEnabled = showBoundingBoxes.isChecked
+                preferencesManager.set(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_ON, showBoundingBoxes.isChecked)
+            }
+        })
+
+        showBoundingBoxesOnTop.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                debugRenderer.isAppearOnTop = showBoundingBoxesOnTop.isChecked
+                preferencesManager.set(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_DEPTH_OFF, showBoundingBoxesOnTop.isChecked)
             }
         })
 
@@ -94,11 +117,7 @@ class DebugRenderDialog : BaseDialog(TITLE) {
 
         helperLines.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                val touchable = if (helperLines.isChecked) Touchable.enabled else Touchable.disabled
-
-                rectangleRadio.touchable = touchable
-                hexagonRadio.touchable = touchable
-                columnSpinner.touchable = touchable
+                helperLineSettingsTable.isVisible = helperLines.isChecked
 
                 if (helperLines.isChecked) {
                     createHelperLines()
@@ -148,21 +167,36 @@ class DebugRenderDialog : BaseDialog(TITLE) {
                 createHelperLines()
             }
         })
+
+        counterOffsetXSpinner.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                clearHelperLines()
+                createHelperLines()
+            }
+        })
+
+        counterOffsetYSpinner.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                clearHelperLines()
+                createHelperLines()
+            }
+        })
     }
 
     private fun createHelperLinesTable(): VisTable {
-        rectangleRadio.touchable = Touchable.disabled
-        hexagonRadio.touchable = Touchable.disabled
-        columnSpinner.touchable = Touchable.disabled
-
         rectangleRadio.isChecked = true
 
         val helperLinesTable = VisTable()
+        helperLinesTable.defaults().left()
         helperLinesTable.padLeft(20f)
         helperLinesTable.add(rectangleRadio).left()
         helperLinesTable.add(hexagonRadio).right()
         helperLinesTable.row()
         helperLinesTable.add(columnSpinner)
+        helperLinesTable.row()
+        helperLinesTable.add(counterOffsetXSpinner)
+        helperLinesTable.row()
+        helperLinesTable.add(counterOffsetYSpinner).padBottom(5f)
 
         return helperLinesTable
     }
@@ -179,5 +213,5 @@ class DebugRenderDialog : BaseDialog(TITLE) {
 
     private fun clearHelperLines() = projectManager.current().helperLines.dispose()
 
-    private fun createHelperLines() = projectManager.current().helperLines.build(getHelperLineType(), columnSpinnerModel.value, projectManager.current().currScene.terrains)
+    private fun createHelperLines() = projectManager.current().helperLines.build(getHelperLineType(), columnSpinnerModel.value, counterOffsetXSpinnerModel.value, counterOffsetYSpinnerModel.value, projectManager.current().currScene.terrains)
 }

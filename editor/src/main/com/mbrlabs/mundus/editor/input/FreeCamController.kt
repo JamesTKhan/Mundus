@@ -22,12 +22,22 @@ import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.IntIntMap
+import com.mbrlabs.mundus.commons.scene3d.GameObject
+import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.commons.utils.Pools
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.helperlines.HelperLineCenterObject
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker
+import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.utils.getRayIntersection
 
 /**
  * @author Marcus Brummer
  * @version 24-11-2015
  */
-class FreeCamController : InputAdapter() {
+class FreeCamController(private val projectManager: ProjectManager, private val goPicker: GameObjectPicker) : InputAdapter() {
 
     val SPEED_01 = 10f
     val SPEED_1 = 150f
@@ -165,5 +175,37 @@ class FreeCamController : InputAdapter() {
             }
         }
         camera!!.update(true)
+    }
+
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        if (camera == null) {
+            return false
+        }
+
+        val currentProject = projectManager.current()
+        val currentScene = currentProject.currScene
+
+        if (currentProject.helperLines.hasHelperLines()) {
+            val ray = currentScene.viewport.getPickRay(screenX.toFloat(), screenY.toFloat())
+
+            var helperCell: HelperLineCenterObject? = null
+
+            val go = goPicker.pick(currentScene, screenX, screenY)
+            val terrainComponent = go?.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
+
+            if (terrainComponent != null) {
+                val result = terrainComponent.getRayIntersection(Pools.vector3Pool.obtain(), ray)
+                helperCell = currentProject.helperLines.findHelperLineCenterObject(terrainComponent, result!!)
+                Pools.vector3Pool.free(result)
+            }
+
+            if (helperCell != null && helperCell.full) {
+                UI.statusBar.setSelectedHelperCell(helperCell.x, helperCell.y)
+            } else {
+                UI.statusBar.clearSelectedHelperCell()
+            }
+        }
+
+        return true
     }
 }
