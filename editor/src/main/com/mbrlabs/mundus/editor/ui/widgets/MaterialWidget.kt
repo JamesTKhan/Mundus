@@ -66,7 +66,7 @@ class MaterialWidget : VisTable() {
     private val scaleUField = FloatFieldWithLabel("Scale U", -1, false)
     private val scaleVField = FloatFieldWithLabel("Scale V", -1, false)
     //slider moves in 11.25 degree steps
-    private val rotateUVField = UvSliderWithFloatLabel("Rotate UV (Radians)", 0f, (Math.PI * 2f).toFloat(), (Math.PI / 16f).toFloat())
+    private val rotateUVField = ImprovedSlider(0f, (Math.PI * 2f).toFloat(), (Math.PI / 16f).toFloat())
 
     private val offsetUField = ImprovedSlider(0.0f, 1.0f, 0.01f)
     private val offsetVField = ImprovedSlider(0.0f, 1.0f, 0.01f)
@@ -109,8 +109,7 @@ class MaterialWidget : VisTable() {
 
                 scaleUField.textField.text = value.diffuseTexCoord.scaleU.toString()
                 scaleVField.textField.text = value.diffuseTexCoord.scaleV.toString()
-                rotateUVField.setText(value.diffuseTexCoord.rotationUV.toString())
-
+                rotateUVField.value = value.diffuseTexCoord.rotationUV
                 offsetUField.value = value.diffuseTexCoord.offsetU
                 offsetVField.value = value.diffuseTexCoord.offsetV
             }
@@ -200,9 +199,11 @@ class MaterialWidget : VisTable() {
         texTable.add(offsetUField).growX().row()
         texTable.add(VisLabel("Offset V")).padRight(10f)
         texTable.add(offsetVField).growX().row()
+        texTable.add(ToolTipLabel("Rotate UV", "Value in Radians")).padRight(10f)
+        texTable.add(rotateUVField).growX().row()
 
         add(texTable).growX().row()
-        add(rotateUVField).growX().row()
+
         add(scaleUField).growX().row()
         add(scaleVField).growX().row()
 
@@ -386,6 +387,7 @@ class MaterialWidget : VisTable() {
         diffuseTexCoord?.scaleV = scaleVField.float
         diffuseTexCoord?.offsetU = offsetUField.value
         diffuseTexCoord?.offsetV = offsetVField.value
+        diffuseTexCoord?.rotationUV = rotateUVField.value
     }
 
     // TODO find better solution than iterating through all components
