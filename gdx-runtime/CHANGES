@@ -1,4 +1,5 @@
 [0.6.0] ~
+- [Breaking Change] Spotlights now use GameObjects forward direction
 - Made Scene.java more post-processing friendly for runtime users
 - Add 'getRayIntersection(Vector3, Ray)' method to TerrainComponent
 
