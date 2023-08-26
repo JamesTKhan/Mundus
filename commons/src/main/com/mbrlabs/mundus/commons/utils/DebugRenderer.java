@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.ArrowShapeBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.OrientedBoundingBox;
 import com.badlogic.gdx.utils.Array;
@@ -108,6 +109,16 @@ public class DebugRenderer implements Renderer, Disposable {
             }
         }
 
+        Iterator<Map.Entry<Component, ModelInstance>> nit = modelInstancesCache.entrySet().iterator();
+        while (nit.hasNext()) {
+            Map.Entry<Component, ModelInstance> item = nit.next();
+            if (!instances.contains(item.getValue(), true)) {
+                // Dispose the debug model
+                item.getValue().model.dispose();
+                nit.remove();
+            }
+        }
+
         // Any shape rendering should be done here if needed
     }
 
@@ -155,6 +166,8 @@ public class DebugRenderer implements Renderer, Disposable {
                     ArrowShapeBuilder.build(meshBuilder, origin.x, origin.y,origin.z, facing.x,facing.y, facing.z, .03f, .5f, 20);
                     Model arrowModel = modelBuilder.end();
                     arrowInstancesCache.put(component, new ModelInstance(arrowModel));
+                    Pools.vector3Pool.free(origin);
+                    Pools.vector3Pool.free(facing);
                 }
                 ModelInstance arrowInstance = arrowInstancesCache.get(component);
                 arrowInstance.transform.set(go.getTransform());
@@ -206,12 +219,12 @@ public class DebugRenderer implements Renderer, Disposable {
             it.remove();
         }
 
-        Iterator<Map.Entry<Component, ModelInstance>> it2 = arrowInstancesCache.entrySet().iterator();
-        while (it2.hasNext()) {
-            Map.Entry<Component, ModelInstance> item = it2.next();
+        Iterator<Map.Entry<Component, ModelInstance>> nit = arrowInstancesCache.entrySet().iterator();
+        while (nit.hasNext()) {
+            Map.Entry<Component, ModelInstance> item = nit.next();
             // Dispose the debug model
             item.getValue().model.dispose();
-            it2.remove();
+            nit.remove();
         }
     }
 
