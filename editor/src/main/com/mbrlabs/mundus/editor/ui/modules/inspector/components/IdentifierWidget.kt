@@ -27,6 +27,8 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
+import com.mbrlabs.mundus.editor.history.CommandHistory
+import com.mbrlabs.mundus.editor.history.commands.GameObjectActiveCommand
 
 /**
  * @author Marcus Brummer
@@ -39,6 +41,7 @@ class IdentifierWidget : VisTable() {
     private val tag = VisTextField("Untagged")
 
     private val projectManager: ProjectManager = Mundus.inject()
+    private val history: CommandHistory = Mundus.inject()
 
     init {
         setupUI()
@@ -67,10 +70,12 @@ class IdentifierWidget : VisTable() {
         active.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 val projectContext = projectManager.current()
-                if (projectContext.currScene.currentSelection == null) return
-                if (projectContext.currScene.currentSelection.active == active.isChecked) return
-                projectContext.currScene.currentSelection.active = active.isChecked
-                Mundus.postEvent(SceneGraphChangedEvent())
+                val go = projectContext.currScene.currentSelection ?: return
+                if (go.active == active.isChecked) return
+
+                val command = GameObjectActiveCommand(go, active.isChecked)
+                command.execute()
+                history.add(command)
             }
         })
 

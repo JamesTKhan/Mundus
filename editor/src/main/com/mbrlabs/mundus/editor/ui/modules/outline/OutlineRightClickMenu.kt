@@ -25,6 +25,8 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.events.TerrainRemovedEvent
+import com.mbrlabs.mundus.editor.history.CommandHistory
+import com.mbrlabs.mundus.editor.history.commands.GameObjectActiveCommand
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
@@ -49,6 +51,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
     private val projectManager: ProjectManager = Mundus.inject()
     private val toolManager: ToolManager = Mundus.inject()
     private val modelImporter: ModelImporter = Mundus.inject()
+    private val history : CommandHistory = Mundus.inject()
 
 
     init {
@@ -446,8 +449,9 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
 
             toggleActive.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                    currentNode!!.value.active = !currentNode!!.value.active
-                    outline.buildTree(currentNode!!.value.sceneGraph)
+                    val command = GameObjectActiveCommand(currentNode!!.value, !currentNode!!.value.active)
+                    command.execute()
+                    history.add(command)
                 }
             })
         }
