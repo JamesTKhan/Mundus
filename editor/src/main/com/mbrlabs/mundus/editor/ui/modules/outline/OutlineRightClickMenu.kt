@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute
-import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
@@ -494,6 +493,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
                     val up = Pools.vector3Pool.obtain()
                     val right = Pools.vector3Pool.obtain()
                     val q = Pools.quaternionPool.obtain()
+                    val q2 = Pools.quaternionPool.obtain()
                     val m = Pools.matrix4Pool.obtain()
 
                     // Use commands for undo/redo
@@ -525,7 +525,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
 
                     // Calc camera's world rotation
                     val cameraWorldRot =
-                        Quaternion().setFromAxes(right.x, up.x, dir.x, right.y, up.y, dir.y, right.z, up.z, dir.z)
+                        q2.setFromAxes(right.x, up.x, dir.x, right.y, up.y, dir.y, right.z, up.z, dir.z)
 
                     // Calc parent's world rotation
                     val parentWorldRot = go.parent.getRotation(q)
@@ -545,6 +545,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
                     Pools.vector3Pool.free(up)
                     Pools.vector3Pool.free(right)
                     Pools.quaternionPool.free(q)
+                    Pools.quaternionPool.free(q2)
                     Pools.matrix4Pool.free(m)
                 }
             })
