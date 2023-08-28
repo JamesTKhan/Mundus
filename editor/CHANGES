@@ -2,7 +2,10 @@
 - [BREAKING CHANGE] Migrated from Kryo to JSON for .registry and .pro files. Migration handled automatically.
 - Add dirty transform flag optimization for caching GameObject/SimpleNode world transform
 - Add OrientedBoundingBox to cullable components, update debug renderer to use it
+- Add "Align Camera to Object" and "Align Object to Camera" actions
+- Add Quaternion and Matrix4 pools
 - Fix Child terrain objects not updating on translation
+- Fix getRotation() in SimpleNode to always normalize axes
 - Refactor outline drag and drop world to local conversion code when moving game objects
 - Updated kotlin to 1.9.0
 - Updated KTX to 1.12.0-rc1
