@@ -68,7 +68,7 @@ class MaterialWidget : VisTable() {
     private val scaleUField = FloatFieldWithLabel("Scale U", -1, false)
     private val scaleVField = FloatFieldWithLabel("Scale V", -1, false)
     //slider moves in 11.25 degree steps
-    private val rotateUVField = Spinner("", SimpleFloatSpinnerModel(0f,0f, (Math.PI * 2f).toFloat(), (Math.PI / 16f).toFloat()))
+    private val rotateUVField = Spinner("", SimpleFloatSpinnerModel(0f,0f, (Math.PI * 2f).toFloat(), (Math.PI / 16f).toFloat(), 8))
     private val offsetUField = ImprovedSlider(0.0f, 1.0f, 0.01f)
     private val offsetVField = ImprovedSlider(0.0f, 1.0f, 0.01f)
 
@@ -205,7 +205,6 @@ class MaterialWidget : VisTable() {
 
         val spinnerModel = rotateUVField.model as SimpleFloatSpinnerModel
         rotateUVField.model.isWrap = true
-        spinnerModel.precision = 8
         texTable.add(ToolTipLabel("UV Rotation", "The angle in radians that the UV Texture has been rotated.")).padRight(10f)
         texTable.add(rotateUVField).growX().row()
         add(texTable).growX().row()
