@@ -23,7 +23,8 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.file.FileChooser
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.core.kryo.KryoManager
+import com.mbrlabs.mundus.editor.core.io.IOManager
+import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
@@ -42,7 +43,7 @@ class ExportSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChan
     private val compression = VisCheckBox("Compress scenes [will be ignored for now]")
 
     private val projectManager: ProjectManager = Mundus.inject()
-    private val kryoManager: KryoManager = Mundus.inject()
+    private val ioManager: IOManager = Mundus.inject<IOManagerProvider>().ioManager
 
     init {
         Mundus.registerEventListener(this)
@@ -90,7 +91,7 @@ class ExportSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChan
         exportSettings.jsonType = jsonType.selected
         exportSettings.outputFolder = FileHandle(fileChooserField.path)
 
-        kryoManager.saveProjectContext(projectManager.current())
+        ioManager.saveProjectContext(projectManager.current())
         UI.toaster.success("Settings saved")
     }
 
