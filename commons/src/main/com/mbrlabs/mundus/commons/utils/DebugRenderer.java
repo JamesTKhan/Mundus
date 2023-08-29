@@ -1,5 +1,4 @@
 package com.mbrlabs.mundus.commons.utils;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -16,7 +15,7 @@ import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.ArrowShapeBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.OrientedBoundingBox;
 import com.badlogic.gdx.utils.Array;
@@ -48,12 +47,13 @@ public class DebugRenderer implements Renderer, Disposable {
     // Shape Renderer
     private final boolean ownsShapeRenderer;
     private final ShapeRenderer shapeRenderer;
+    private Camera camera;
 
     // Bounding box and facing arrow Renderer
     private ModelBatch modelBatch;
     private final ModelBuilder modelBuilder = new ModelBuilder();
     private final Map<Component, ModelInstance> modelInstancesCache = new HashMap<>();
-    private final Map<Component, ModelInstance> arrowInstancesCache = new HashMap<>();
+    private ModelInstance arrowInstance;
     private final Array<ModelInstance> instances = new Array<>();
 
     // Debug settings
@@ -82,6 +82,7 @@ public class DebugRenderer implements Renderer, Disposable {
     @Override
     public void begin(Camera camera) {
         if (!enabled) return;
+        this.camera = camera;
 
         if (appearOnTop) {
             // Clearing depth puts the model debug lines on top of everything else
@@ -106,16 +107,6 @@ public class DebugRenderer implements Renderer, Disposable {
                 // Dispose the debug model
                 item.getValue().model.dispose();
                 it.remove();
-            }
-        }
-
-        Iterator<Map.Entry<Component, ModelInstance>> nit = modelInstancesCache.entrySet().iterator();
-        while (nit.hasNext()) {
-            Map.Entry<Component, ModelInstance> item = nit.next();
-            if (!instances.contains(item.getValue(), true)) {
-                // Dispose the debug model
-                item.getValue().model.dispose();
-                nit.remove();
             }
         }
 
@@ -148,29 +139,30 @@ public class DebugRenderer implements Renderer, Disposable {
             modelInstance.transform.set(cullableComponent.getOrientedBoundingBox().getTransform());
             instances.add(modelInstance);
 
-            if (drawFacingArrow && go == selectedGameObject){
-                if (!arrowInstancesCache.containsKey(component)) {
-                    Vector3 origin = Pools.vector3Pool.obtain();
-                    Vector3 facing = Pools.vector3Pool.obtain();
+            if (drawFacingArrow && go == selectedGameObject) {
 
-                    selectedGameObject.getForwardDirection(facing);
-                    selectedGameObject.getPosition(origin);
+                Vector3 worldPos = Pools.vector3Pool.obtain();
+                Vector3 arrowScale = Pools.vector3Pool.obtain();
+                Vector3 localPos = Pools.vector3Pool.obtain();
+                Quaternion localRot = Pools.quaternionPool.obtain();
 
-                    facing.scl((float) Math.sqrt(cullableComponent.getDimensions().len2()));
-                    facing.add(origin);
+                selectedGameObject.getPosition(worldPos);
+                selectedGameObject.getLocalPosition(localPos);
+                selectedGameObject.getLocalRotation(localRot);
 
-                    modelBuilder.begin();
-                    MeshPartBuilder meshBuilder =  modelBuilder.part("arrow", GL20.GL_TRIANGLES,
-                        (VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked), new Material());
-                    meshBuilder.setColor(Color.MAROON);
-                    ArrowShapeBuilder.build(meshBuilder, origin.x, origin.y,origin.z, facing.x,facing.y, facing.z, .03f, .5f, 20);
-                    Model arrowModel = modelBuilder.end();
-                    arrowInstancesCache.put(component, new ModelInstance(arrowModel));
-                    Pools.vector3Pool.free(origin);
-                    Pools.vector3Pool.free(facing);
-                }
-                ModelInstance arrowInstance = arrowInstancesCache.get(component);
-                arrowInstance.transform.set(go.getTransform());
+                // Scale the arrow based on distance from camera and size of bounding box
+                float scaleFactor = Math.max(camera.position.dst(worldPos) * 0.1f, cullableComponent.getRadius());
+                arrowScale.set(scaleFactor, scaleFactor, scaleFactor);
+
+                // Set the transform of the arrow in local space first, with a calculated scale
+                arrowInstance.transform.set(localPos, localRot, arrowScale);
+                // apply world transform
+                arrowInstance.transform.mulLeft(go.getParent().getTransform());
+
+                Pools.vector3Pool.free(worldPos);
+                Pools.vector3Pool.free(arrowScale);
+                Pools.vector3Pool.free(localPos);
+                Pools.quaternionPool.free(localRot);
                 instances.add(arrowInstance);
             }
         }
@@ -218,14 +210,6 @@ public class DebugRenderer implements Renderer, Disposable {
             item.getValue().model.dispose();
             it.remove();
         }
-
-        Iterator<Map.Entry<Component, ModelInstance>> nit = arrowInstancesCache.entrySet().iterator();
-        while (nit.hasNext()) {
-            Map.Entry<Component, ModelInstance> item = nit.next();
-            // Dispose the debug model
-            item.getValue().model.dispose();
-            nit.remove();
-        }
     }
 
     /**
@@ -254,7 +238,12 @@ public class DebugRenderer implements Renderer, Disposable {
 
     public boolean isAppearOnTop() { return appearOnTop; }
 
-    public void setShowFacingArrow(boolean showFacingArrow) { this.drawFacingArrow = showFacingArrow; }
+    public void setShowFacingArrow(boolean showFacingArrow) {
+        this.drawFacingArrow = showFacingArrow;
+        if (drawFacingArrow && arrowInstance == null) {
+            buildArrowModel();
+        }
+    }
 
     public boolean isShowFacingArrow() { return drawFacingArrow; }
 
@@ -264,5 +253,15 @@ public class DebugRenderer implements Renderer, Disposable {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    private void buildArrowModel() {
+        modelBuilder.begin();
+        MeshPartBuilder meshBuilder =  modelBuilder.part("arrow", GL20.GL_TRIANGLES,
+                (VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked), new Material());
+        meshBuilder.setColor(Color.MAROON);
+        ArrowShapeBuilder.build(meshBuilder, 0, 0, 0, 0, 0, 5f, .03f, .5f, 20);
+        Model arrowModel = modelBuilder.end();
+        arrowInstance = new ModelInstance(arrowModel);
     }
 }
