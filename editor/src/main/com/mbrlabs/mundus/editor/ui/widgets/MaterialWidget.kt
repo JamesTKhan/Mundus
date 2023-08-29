@@ -203,7 +203,6 @@ class MaterialWidget : VisTable() {
         texTable.add(VisLabel("Offset V")).padRight(10f)
         texTable.add(offsetVField).growX().row()
 
-        val spinnerModel = rotateUVField.model as SimpleFloatSpinnerModel
         rotateUVField.model.isWrap = true
         texTable.add(ToolTipLabel("UV Rotation", "The angle in radians that the UV Texture has been rotated.")).padRight(10f)
         texTable.add(rotateUVField).growX().row()
