@@ -260,7 +260,7 @@ public class DebugRenderer implements Renderer, Disposable {
         MeshPartBuilder meshBuilder =  modelBuilder.part("arrow", GL20.GL_TRIANGLES,
                 (VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked), new Material());
         meshBuilder.setColor(Color.MAROON);
-        ArrowShapeBuilder.build(meshBuilder, 0, 0, 0, 0, 0, 5f, .03f, .5f, 20);
+        ArrowShapeBuilder.build(meshBuilder, 0, 0, 0, 0, 0, 5f, .03f, .5f, 50);
         Model arrowModel = modelBuilder.end();
         arrowInstance = new ModelInstance(arrowModel);
     }
