@@ -1,7 +1,6 @@
 package com.mbrlabs.mundus.editor.ui.modules.dialogs
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
@@ -17,6 +16,7 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
 
     private val minHeight = FloatFieldWithLabel("", -1, true)
     private val maxHeight = FloatFieldWithLabel("", -1, true)
+    private val generateBtn = VisTextButton("Generate")
 
     private val noiseGeneratorWidget : NoiseGeneratorWidget = NoiseGeneratorWidget()
 
@@ -43,7 +43,9 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
         leftTable.add(ToolTipLabel("Max height", "The maximum height any point on the generated terrain will have.")).left()
         leftTable.add(maxHeight).left().row()
 
-        root.add(leftTable).top().fillX().expandX()
+        leftTable.add(generateBtn).expandY().fillX().bottom()
+
+        root.add(leftTable).top().fillX().expandX().fillY().expandY()
         root.addSeparator(true)
 
         // Center table
