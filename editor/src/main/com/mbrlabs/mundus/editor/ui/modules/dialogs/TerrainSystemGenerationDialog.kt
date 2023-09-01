@@ -26,12 +26,17 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
         isResizable = true
 
         setupUI()
+        setupListeners()
     }
 
     private fun setupUI() {
         val root = VisTable()
         root.padTop(6f).padRight(6f).padBottom(22f)
         add(root).expand().fill().row()
+
+        // TODO load these values from previous settings
+        minHeight.text = (-50f).toString()
+        maxHeight.text = 50f.toString()
 
         // left table
         val leftTable = VisTable()
@@ -57,6 +62,20 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
 
         root.addSeparator(true)
         root.add(modifierTable).top()
+    }
+
+    private fun setupListeners() {
+        generateBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent, x: Float, y: Float) {
+                super.clicked(event, x, y)
+                noiseGeneratorWidget.generator
+                        .minHeight(minHeight.float)
+                        .maxHeight(maxHeight.float)
+
+//                dialog.createTerrainChunk(vertexResolution.int, terrainWidth.int, gridX.int, gridZ.int, name.text)
+                // TODO terraform
+            }
+        })
     }
 
     private fun buildModifierTable() {
