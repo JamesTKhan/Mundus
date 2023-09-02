@@ -56,6 +56,7 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         }
 
         showBoundingBoxesOnTop.isChecked = debugRenderer.isAppearOnTop
+        showFacingArrow.isChecked = debugRenderer.isShowFacingArrow
 
         return super.show(stage)
     }
