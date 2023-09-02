@@ -25,6 +25,7 @@
 - Updated libGDX to 1.12.0
 - Fix Previous project's inspector data persists after switching project
 - Fix transform tools scale with camera distance
+- Added forward facing arrow to selected game object (enable in debug menu)
 
 [0.5.0] ~ 06/28/2023
 - [Breaking Change] Lighting systems updated, visibly different. See PR#184

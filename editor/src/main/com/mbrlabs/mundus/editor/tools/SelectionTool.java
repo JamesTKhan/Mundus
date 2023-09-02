@@ -23,6 +23,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
+import com.mbrlabs.mundus.commons.utils.DebugRenderer;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent;
@@ -53,6 +54,7 @@ public class SelectionTool extends Tool {
 
     public void gameObjectSelected(GameObject selection) {
         getProjectManager().current().currScene.currentSelection = selection;
+        DebugRenderer.setSelectedGameObject(selection);
     }
 
     @Override
