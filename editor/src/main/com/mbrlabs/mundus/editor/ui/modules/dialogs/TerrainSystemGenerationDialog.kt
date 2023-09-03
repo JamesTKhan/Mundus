@@ -4,6 +4,13 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
+import com.mbrlabs.mundus.commons.assets.TerrainAsset
+import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
+import com.mbrlabs.mundus.commons.terrain.Terrain
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.terrain.noise.modifiers.ElevationModifier
 import com.mbrlabs.mundus.editor.terrain.noise.modifiers.NoiseModifier
 import com.mbrlabs.mundus.editor.terrain.noise.modifiers.TerrainModifier
@@ -72,8 +79,37 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
                         .minHeight(minHeight.float)
                         .maxHeight(maxHeight.float)
 
-//                dialog.createTerrainChunk(vertexResolution.int, terrainWidth.int, gridX.int, gridZ.int, name.text)
-                // TODO terraform
+                val selectedGameObject = UI.outline.getSelectedGameObject()
+                if (selectedGameObject == null) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR,"There is no selected game object on Outline!"))
+                    return
+                }
+
+                val terrainManagerComponent = selectedGameObject.findComponentByType(Component.Type.TERRAIN_MANAGER) as TerrainManagerComponent
+                val firstTerrain = terrainManagerComponent.findFirstTerrainChild()
+
+                var terrainAsset : TerrainAsset
+                var terrain : Terrain
+                var j = 0
+                var firstInRowTerrain = firstTerrain
+                do {
+                    var i = 0
+                    var t = firstInRowTerrain
+
+                    do {
+                        terrainAsset = t.terrainAsset
+                        terrain = terrainAsset.terrain
+
+                        noiseGeneratorWidget.generator.offset(i, j).setTerrain(terrain).terraform()
+                        terrainAsset.applyDependencies()
+
+                        t = t.leftNeighbor
+                        i++
+                    } while (t != null)
+
+                    firstInRowTerrain = firstInRowTerrain.topNeighbor
+                    j++
+                } while (firstInRowTerrain != null)
             }
         })
     }

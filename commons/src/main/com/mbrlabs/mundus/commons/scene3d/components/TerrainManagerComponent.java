@@ -59,4 +59,19 @@ public class TerrainManagerComponent extends AbstractComponent {
         }
     }
 
+    /**
+     * @return The first terrain child which has not right and bottom neighbor terrain.
+     */
+    public TerrainComponent findFirstTerrainChild() {
+        final Array<GameObject> childTerrains = gameObject.findChildrenByComponent(Type.TERRAIN);
+        for (GameObject childTerrain : childTerrains) {
+            final TerrainComponent terrainComponent = (TerrainComponent) childTerrain.findComponentByType(Type.TERRAIN);
+            if (terrainComponent.getRightNeighbor() == null && terrainComponent.getBottomNeighbor() == null) {
+                return terrainComponent;
+            }
+        }
+
+        return null;
+    }
+
 }
