@@ -85,8 +85,16 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
                     return
                 }
 
-                val terrainManagerComponent = selectedGameObject.findComponentByType(Component.Type.TERRAIN_MANAGER) as TerrainManagerComponent
+                val terrainManagerComponent = selectedGameObject.findComponentByType(Component.Type.TERRAIN_MANAGER) as TerrainManagerComponent?
+                if (terrainManagerComponent == null) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "The selected object has not Terrain Manager Component!"))
+                    return
+                }
                 val firstTerrain = terrainManagerComponent.findFirstTerrainChild()
+                if (firstTerrain == null) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "The selected object has not terrain child!"))
+                    return
+                }
 
                 var terrainAsset : TerrainAsset
                 var terrain : Terrain
