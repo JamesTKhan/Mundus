@@ -1225,6 +1225,13 @@ public class MundusGL30Interceptor extends MundusGLInterceptor implements GL30{
     }
 
     @Override
+    public void glTexImage2D(int target, int level, int internalformat, int width, int height, int border, int format, int type, int offset) {
+        incrementCalls();
+        gl30.glTexImage2D(target, level, internalformat, width, height, border, format, type, offset);
+        check();
+    }
+
+    @Override
     public void glTexImage3D (int target, int level, int internalformat, int width, int height, int depth, int border, int format,
                               int type, Buffer pixels) {
         incrementCalls();
@@ -1237,6 +1244,13 @@ public class MundusGL30Interceptor extends MundusGLInterceptor implements GL30{
                               int type, int offset) {
         incrementCalls();
         gl30.glTexImage3D(target, level, internalformat, width, height, depth, border, format, type, offset);
+        check();
+    }
+
+    @Override
+    public void glTexSubImage2D(int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, int offset) {
+        incrementCalls();
+        gl30.glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, offset);
         check();
     }
 

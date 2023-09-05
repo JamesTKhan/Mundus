@@ -19,7 +19,6 @@ package com.mbrlabs.mundus.editor.shader
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.shaders.DepthShader
-import com.mbrlabs.mundus.commons.shaders.ShadowMapShader
 import com.mbrlabs.mundus.commons.shaders.SkyboxShader
 import com.mbrlabs.mundus.editor.tools.picker.PickerShader
 
@@ -34,7 +33,6 @@ object Shaders : Disposable {
     val skyboxShader: SkyboxShader
     val pickerShader: PickerShader
     val depthShader: DepthShader
-    val shadowMapShader: ShadowMapShader
 
     init {
         ShaderProgram.pedantic = false
@@ -46,8 +44,6 @@ object Shaders : Disposable {
         pickerShader.init()
         depthShader = DepthShader()
         depthShader.init()
-        shadowMapShader = ShadowMapShader()
-        shadowMapShader.init()
     }
 
     override fun dispose() {

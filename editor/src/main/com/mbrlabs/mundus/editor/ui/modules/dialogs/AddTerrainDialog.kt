@@ -31,7 +31,8 @@ import com.mbrlabs.mundus.commons.terrain.SplatMapResolution
 import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
-import com.mbrlabs.mundus.editor.core.kryo.KryoManager
+import com.mbrlabs.mundus.editor.core.io.IOManager
+import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
@@ -63,12 +64,12 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
     private val generateBtn = VisTextButton("Generate Terrain")
 
     private var projectManager : ProjectManager
-    private var kryoManager : KryoManager
+    private var ioManager : IOManager
 
     init {
         isResizable = true
         projectManager = Mundus.inject()
-        kryoManager = Mundus.inject()
+        ioManager = Mundus.inject<IOManagerProvider>().ioManager
         setupUI()
         setDefaults()
         setupListeners()
@@ -159,7 +160,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                 val goID = projectManager.current().obtainID()
 
                 // Save context here so that the ID above is persisted in .pro file
-                kryoManager.saveProjectContext(projectManager.current())
+                ioManager.saveProjectContext(projectManager.current())
 
                 val asset: TerrainAsset
                 try {
@@ -174,6 +175,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                 }
 
                 asset.load()
+                asset.resolveDependencies(context.assetManager.assetMap)
                 asset.applyDependencies()
 
                 val terrainGO = createTerrainGO(sceneGraph, goID, terrainName, asset)

@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -45,7 +46,6 @@ import com.mbrlabs.mundus.commons.scene3d.components.CullableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.RenderableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.commons.shaders.DepthShader;
-import com.mbrlabs.mundus.commons.shaders.ShadowMapShader;
 import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight;
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.skybox.Skybox;
@@ -75,6 +75,7 @@ public class Scene implements Disposable {
     public MundusEnvironment environment;
     public Skybox skybox;
     public String skyboxAssetId;
+    public boolean hasGLContext;
 
     public Camera cam;
     public ModelBatch batch;
@@ -84,9 +85,9 @@ public class Scene implements Disposable {
     protected FrameBuffer fboWaterReflection;
     protected FrameBuffer fboWaterRefraction;
     protected FrameBuffer fboDepthRefraction;
+    private boolean isMRTRefraction = false;
 
     private DepthShader depthShader;
-    private ShadowMapShader shadowMapShader;
 
     protected Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     protected Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
@@ -110,6 +111,7 @@ public class Scene implements Disposable {
      * @param hasGLContext normally this should be true, false if you are not on main thread
      */
     public Scene(boolean hasGLContext) {
+        this.hasGLContext = hasGLContext;
         environment = new MundusEnvironment();
         settings = new SceneSettings();
         modelCacheManager = new ModelCacheManager(this);
@@ -165,27 +167,50 @@ public class Scene implements Disposable {
         }
     }
 
+    /**
+     * This is the primary render method. It handles rendering everything. This should be used
+     * unless you need more control over the rendering process.
+     */
     public void render() {
         render(Gdx.graphics.getDeltaTime());
     }
 
+    /**
+     * This is the primary render method. It handles rendering everything. This should be used
+     * unless you need more control over the rendering process.
+     * @param delta time since last frame
+     */
     public void render(float delta) {
+        renderWaterFBOs();
+        renderShadowMap();
+        renderScene(delta);
+    }
+
+    /**
+     * Gets updated Reflection and Refraction textures for water, and captures depth for refraction if needed.
+     */
+    public void renderWaterFBOs() {
         if (fboWaterReflection == null) {
             Vector2 res = settings.waterResolution.getResolutionValues();
             initFrameBuffers((int) res.x, (int) res.y);
         }
 
-        modelCacheManager.update(delta);
-
         if (sceneGraph.isContainsWater()) {
-            if (!Gdx.graphics.isGL30Available()) {
+            if (!isMRTRefraction) {
                 captureDepth();
             }
             captureReflectionFBO();
             captureRefractionFBO();
         }
+    }
 
-        renderShadowMap();
+    /**
+     * Renders the actual 3D scene. This is called by the render method normally, but if using post-processing
+     * you may want to call this method directly.
+     * @param delta time since last frame
+     */
+    public void renderScene(float delta) {
+        modelCacheManager.update(delta);
         batch.begin(cam);
         renderObjects();
         renderSkybox();
@@ -297,7 +322,11 @@ public class Scene implements Disposable {
         }
     }
 
-    protected void renderShadowMap() {
+    /**
+     * Render models to the shadow map .This is called by the render method normally, but if using post-processing
+     * you may want to call this method directly.
+     */
+    public void renderShadowMap() {
         if (dirLight == null) {
             setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
         }
@@ -313,30 +342,27 @@ public class Scene implements Disposable {
         dirLight.begin();
         depthBatch.begin(dirLight.getCamera());
         setClippingPlane(clippingPlaneDisable, 0);
-        renderComponents(depthBatch, sceneGraph.getRoot(), shadowMapShader, true);
+        renderComponents(depthBatch, sceneGraph.getRoot(), null, true);
         modelCacheManager.triggerBeforeDepthRenderEvent();
-        depthBatch.render(modelCacheManager.modelCache, environment, shadowMapShader);
+        depthBatch.render(modelCacheManager.modelCache, environment);
         depthBatch.end();
         dirLight.end();
     }
 
     protected void initFrameBuffers(int width, int height) {
+        fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
 
-        if (isRuntime){
-            fboWaterReflection = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
-            fboWaterRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
-            fboDepthRefraction = new FrameBuffer(Pixmap.Format.RGB888, width, height, true);
+        // Despite supporting MRT on WebGL2, the depth precision is far worse then doing a separate depth pass frustratingly.
+        isMRTRefraction = Gdx.graphics.isGL30Available() && Gdx.app.getType() != Application.ApplicationType.WebGL;
+
+        if (isMRTRefraction) {
+            NestableFrameBuffer.NestableFrameBufferBuilder frameBufferBuilder = new NestableFrameBuffer.NestableFrameBufferBuilder(width, height);
+            frameBufferBuilder.addBasicColorTextureAttachment(Pixmap.Format.RGB888);
+            frameBufferBuilder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_UNSIGNED_INT);
+            fboWaterRefraction = frameBufferBuilder.build();
         } else {
-            fboWaterReflection = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-            if (Gdx.graphics.isGL30Available()) {
-                NestableFrameBuffer.NestableFrameBufferBuilder frameBufferBuilder = new NestableFrameBuffer.NestableFrameBufferBuilder(width, height);
-                frameBufferBuilder.addBasicColorTextureAttachment(Pixmap.Format.RGB888);
-                frameBufferBuilder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_UNSIGNED_SHORT);
-                fboWaterRefraction = frameBufferBuilder.build();
-            } else {
-                fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-                fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
-            }
+            fboWaterRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
+            fboDepthRefraction = new NestableFrameBuffer(Pixmap.Format.RGB888, width, height, true);
         }
     }
 
@@ -439,10 +465,6 @@ public class Scene implements Disposable {
         this.depthShader = depthShader;
     }
 
-    public void setShadowMapShader(ShadowMapShader shadowMapShader) {
-        this.shadowMapShader = shadowMapShader;
-    }
-
     private Texture getReflectionTexture() {
         return settings.enableWaterReflections ? fboWaterReflection.getColorBufferTexture() : null;
     }
@@ -453,7 +475,7 @@ public class Scene implements Disposable {
 
     private Texture getRefractionDepthTexture() {
         Texture refractionDepth;
-        if (Gdx.graphics.isGL30Available()) {
+        if (isMRTRefraction) {
             refractionDepth = fboWaterRefraction.getTextureAttachments().get(DEPTH_ATTACHMENT);
         } else {
             refractionDepth = fboDepthRefraction.getColorBufferTexture();

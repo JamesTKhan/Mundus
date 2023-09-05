@@ -28,23 +28,25 @@ import com.mbrlabs.mundus.editor.tools.picker.PickerIDAttribute;
  * @version June 01, 2022
  */
 public class PickableLightComponent extends LightComponent implements PickableComponent {
-    private final ModelInstance modelInstance;
-
+    private ModelInstance modelInstance;
     public PickableLightComponent(GameObject go, LightType lightType) {
         super(go, lightType);
 
-        Material material = new Material();
-        material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.BLUE));
+        if (gameObject.sceneGraph.scene.hasGLContext) {
+            Material material = new Material();
+            material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.BLUE));
 
-        // Build simple cube as a workaround for making lights pickable
-        ModelBuilder modelBuilder = new ModelBuilder();
-        modelBuilder.begin();
-        MeshPartBuilder builder = modelBuilder.part("ID"+go.id, GL20.GL_TRIANGLES, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal, material);
-        BoxShapeBuilder.build(builder, 0,0,0, 12f, 16f, 10f);
-        Model model = modelBuilder.end();
-        modelInstance = new ModelInstance(model);
+            // Build simple cube as a workaround for making lights pickable
+            ModelBuilder modelBuilder = new ModelBuilder();
+            modelBuilder.begin();
+            MeshPartBuilder builder = modelBuilder.part("ID"+go.id, GL20.GL_TRIANGLES, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal, material);
+            BoxShapeBuilder.build(builder, 0,0,0, 12f, 16f, 10f);
+            Model model = modelBuilder.end();
+            modelInstance = new ModelInstance(model);
 
-        encodeRaypickColorId();
+            encodeRaypickColorId();
+        }
+
     }
 
     @Override
@@ -60,6 +62,7 @@ public class PickableLightComponent extends LightComponent implements PickableCo
 
     @Override
     public void encodeRaypickColorId() {
+        if (modelInstance == null) return;
         PickerIDAttribute goIDa = PickerColorEncoder.encodeRaypickColorId(gameObject);
         modelInstance.materials.first().set(goIDa);
     }

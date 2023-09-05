@@ -29,6 +29,12 @@ public class DirectionalLightConverter {
         light.color.set(dto.getColor());
         light.intensity = dto.getIntensity();
 
+        if (light.direction.x == 0.0 && light.direction.z == 0.0) {
+            // avoid zero direction as it will cause issues with shadows if X and Z are both zero
+            // Not a Mundus issue, present in libgdx as well
+            light.direction.x = 0.1f;
+        }
+
         return light;
     }
 

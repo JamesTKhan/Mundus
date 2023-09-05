@@ -44,7 +44,7 @@ import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
 import com.mbrlabs.mundus.editor.core.EditorScene;
 import com.mbrlabs.mundus.editor.core.converter.GameObjectConverter;
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter;
-import com.mbrlabs.mundus.editor.core.kryo.KryoManager;
+import com.mbrlabs.mundus.editor.core.io.IOManager;
 import com.mbrlabs.mundus.editor.core.registry.ProjectRef;
 import com.mbrlabs.mundus.editor.core.registry.Registry;
 import com.mbrlabs.mundus.editor.core.scene.SceneManager;
@@ -81,13 +81,13 @@ public class ProjectManager implements Disposable {
     private ProjectContext currentProject;
     private ProjectContext loadingProject;
     private Registry registry;
-    private KryoManager kryoManager;
+    private IOManager ioManager;
     private ModelBatch modelBatch;
     private ModelBatch depthBatch;
 
-    public ProjectManager(KryoManager kryoManager, Registry registry, ModelBatch modelBatch) {
+    public ProjectManager(IOManager ioManager, Registry registry, ModelBatch modelBatch) {
         this.registry = registry;
-        this.kryoManager = kryoManager;
+        this.ioManager = ioManager;
         this.modelBatch = modelBatch;
         currentProject = new ProjectContext(-1);
     }
@@ -243,12 +243,19 @@ public class ProjectManager implements Disposable {
         ref.setPath(absolutePath);
 
         try {
-            ProjectContext context = kryoManager.loadProjectContext(ref);
+            ProjectContext context = ioManager.loadProjectContext(ref);
             context.path = absolutePath;
             UI.INSTANCE.toggleLoadingScreen(true, context.name);
             ref.setName(context.name);
             registry.getProjects().add(ref);
-            kryoManager.saveRegistry(registry);
+
+            // Set this import project as last opened to prevent NPE only
+            // if no project was opened before
+            if (registry.getLastProject() == null){
+                registry.setLastProject(ref);
+            }
+
+            ioManager.saveRegistry(registry);
             startAsyncProjectLoad(absolutePath, context);
             return context;
         } catch (Exception e) {
@@ -298,7 +305,7 @@ public class ProjectManager implements Disposable {
         assetManager.createAssetsTextFile();
 
         // save current in .pro file
-        kryoManager.saveProjectContext(projectContext);
+        ioManager.saveProjectContext(projectContext);
         // save scene in .mundus file
         SceneManager.saveScene(projectContext, projectContext.currScene);
 
@@ -316,6 +323,14 @@ public class ProjectManager implements Disposable {
     public ProjectContext loadLastProjectAsync() {
         ProjectRef lastOpenedProject = registry.getLastOpenedProject();
         if (lastOpenedProject != null) {
+
+            // Check if file exists first
+            File file = new File(lastOpenedProject.getPath());
+            if (!file.exists()) {
+                Log.error(TAG, "Last opened project does not exist: " + lastOpenedProject.getPath());
+                return null;
+            }
+
             try {
                 return startAsyncProjectLoad(lastOpenedProject);
             } catch (FileNotFoundException fnf) {
@@ -342,7 +357,7 @@ public class ProjectManager implements Disposable {
      *             if project can't be found
      */
     public ProjectContext startAsyncProjectLoad(ProjectRef ref) throws FileNotFoundException, MetaFileParseException {
-        ProjectContext context = kryoManager.loadProjectContext(ref);
+        ProjectContext context = ioManager.loadProjectContext(ref);
         context.path = ref.getPath();
         context.name = ref.getName();
 
@@ -381,7 +396,7 @@ public class ProjectManager implements Disposable {
      * Opens a project.
      *
      * Opens a project. If a project is already open it will be disposed.
-     * 
+     *
      * @param context
      *            project context to open
      */
@@ -405,7 +420,7 @@ public class ProjectManager implements Disposable {
         registry.getLastOpenedProject().setName(context.name);
         registry.getLastOpenedProject().setPath(context.path);
 
-        kryoManager.saveRegistry(registry);
+        ioManager.saveRegistry(registry);
 
         Gdx.graphics.setTitle(constructWindowTitle());
         Mundus.INSTANCE.postEvent(new ProjectChangedEvent(context));
@@ -461,7 +476,6 @@ public class ProjectManager implements Disposable {
 
         scene.batch = modelBatch;
 
-        scene.setShadowMapShader(Shaders.INSTANCE.getShadowMapShader());
         scene.setDepthShader(Shaders.INSTANCE.getDepthShader());
 
         SceneGraph sceneGraph = scene.sceneGraph;

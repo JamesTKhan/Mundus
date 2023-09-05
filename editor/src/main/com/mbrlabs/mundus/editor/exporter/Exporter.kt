@@ -28,7 +28,7 @@ import com.mbrlabs.mundus.commons.dto.SceneDTO
 import com.mbrlabs.mundus.commons.dto.TerrainComponentDTO
 import com.mbrlabs.mundus.commons.importer.JsonScene
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter
-import com.mbrlabs.mundus.editor.core.kryo.KryoManager
+import com.mbrlabs.mundus.editor.core.io.IOManager
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.scene.SceneManager
@@ -40,7 +40,7 @@ import java.io.Writer
  * @author Marcus Brummer
  * @version 26-10-2016
  */
-class Exporter(val kryo: KryoManager, val project: ProjectContext) {
+class Exporter(val ioManager: IOManager, val project: ProjectContext) {
 
     /**
      *
@@ -120,8 +120,8 @@ class Exporter(val kryo: KryoManager, val project: ProjectContext) {
     }
 
     private fun exportScene(scene: SceneDTO, file: FileHandle, jsonType: JsonWriter.OutputType) {
-        val writer = file.writer(false);
-        exportScene(scene, writer, jsonType);
+        val writer = file.writer(false)
+        exportScene(scene, writer, jsonType)
     }
 
     fun exportScene(scene: SceneDTO, writer: Writer, jsonType: JsonWriter.OutputType) {

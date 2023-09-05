@@ -335,18 +335,21 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         super.setLocalScale(x, y, z);
         // We track when the scale has changed, for recalculating bounds for things like frustum culling
         scaleChanged = true;
+        updateChildrenScaleChanged(this);
     }
 
     @Override
     public void scale(Vector3 v) {
         super.scale(v);
         scaleChanged = true;
+        updateChildrenScaleChanged(this);
     }
 
     @Override
     public void scale(float x, float y, float z) {
         super.scale(x,y,z);
         scaleChanged = true;
+        updateChildrenScaleChanged(this);
     }
 
     @Override
@@ -377,6 +380,15 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
     @Override
     public String toString() {
         return name;
+    }
+
+    private void updateChildrenScaleChanged(GameObject go) {
+        if (go.getChildren() == null) return;
+        // Update all children recursively
+        for (GameObject child : go.getChildren()) {
+            child.scaleChanged = true;
+            updateChildrenScaleChanged(child);
+        }
     }
 
 }

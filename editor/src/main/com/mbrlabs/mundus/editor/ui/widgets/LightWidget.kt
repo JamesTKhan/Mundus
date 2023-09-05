@@ -2,7 +2,6 @@ package com.mbrlabs.mundus.editor.ui.widgets
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.Environment
-import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Align
@@ -15,13 +14,11 @@ import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
 import com.mbrlabs.mundus.commons.env.lights.LightType
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.utils.LightUtils
-import com.mbrlabs.mundus.commons.utils.MathUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import net.mgsx.gltf.scene3d.lights.PointLightEx
 import net.mgsx.gltf.scene3d.lights.SpotLightEx
-import kotlin.math.roundToInt
 
 class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
 
@@ -30,18 +27,12 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
     private val colorPickerField = ColorPickerField()
     private val diffuseIntensityField = VisTextField()
 
-    private val leftRightSlider = ImprovedSlider(0f, 359f, 1.0f)
-    private val upDownSlider = ImprovedSlider(1f, 179f, 1.0f)
     private val coneSlider = ImprovedSlider(1f, 90f, 1.0f)
 
     private val linearField = VisTextField()
     private val exponentialField = VisTextField()
 
-    private var currentLeftRightValue = 0f
-    private var currentUpDownValue = 90f
-
     init {
-        upDownSlider.value = 90f
         spotlightCheckbox.isChecked = lightComponent.lightType == LightType.SPOT_LIGHT
 
         align(Align.topLeft)
@@ -97,24 +88,6 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
             }
         }
 
-        leftRightSlider.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent, actor: Actor) {
-                if (lightComponent.light is SpotLightEx) {
-                    (lightComponent.light as SpotLightEx).direction.rotate(Vector3.Y, currentLeftRightValue - leftRightSlider.value)
-                    currentLeftRightValue = leftRightSlider.value
-                }
-            }
-        })
-
-        upDownSlider.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent, actor: Actor) {
-                if (lightComponent.light is SpotLightEx) {
-                    MathUtils.rotateUpDown((lightComponent.light as SpotLightEx).direction, currentUpDownValue - upDownSlider.value)
-                    currentUpDownValue = upDownSlider.value
-                }
-            }
-        })
-
         coneSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 if (lightComponent.light is SpotLightEx) {
@@ -151,10 +124,6 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
         // Light sliders
         val directionTable = VisTable()
         directionTable.defaults().padBottom(5f).padRight(6f)
-        directionTable.add(VisLabel("Up/Down:")).left().padRight(2f)
-        directionTable.add(upDownSlider).row()
-        directionTable.add(VisLabel("Left/Right:")).left().padRight(2f)
-        directionTable.add(leftRightSlider).row()
         directionTable.add(VisLabel("Cone")).left().padRight(2f)
         directionTable.add(coneSlider).row()
         spotlightSection.add(directionTable).colspan(2).left().row()
@@ -183,13 +152,6 @@ class LightWidget(val lightComponent: LightComponent) : BaseWidget() {
         }
 
         if (lightComponent.light is SpotLightEx) {
-            // Convert direction to up/down angle
-            var upDownAngle = MathUtils.getAngleBetween( (lightComponent.light as SpotLightEx).direction, Vector3.Y)
-            upDownAngle = upDownAngle.roundToInt().toFloat()
-
-            currentUpDownValue = upDownAngle
-            upDownSlider.value = upDownAngle
-
             coneSlider.value = (lightComponent.light as SpotLightEx).cutoffAngle
             spotLightWrapper.isVisible = true
         } else {

@@ -30,7 +30,7 @@ import org.kohsuke.args4j.Option
 
 const private val TAG = "Main"
 
-const val VERSION = "v0.4.2"
+const val VERSION = "v0.5.1"
 const val TITLE = "Mundus $VERSION"
 
 /**
@@ -48,6 +48,9 @@ class LaunchOptions {
 
     @Option(name="-noShaderCache", usage="Disable shader preprocessor caching, useful for hot reloads during shader development")
     var noShaderCache = false
+
+    @Option(name="-fpsLimit", usage="Set FPS limit")
+    var fps = 60 // Default to 60 FPS limit (ex -fpsLimit=30)
 }
 
 fun main(arg: Array<String>) {
@@ -86,6 +89,7 @@ private fun launchEditor(options: LaunchOptions) {
     config.setWindowSizeLimits(1350, 1, 9999, 9999)
     config.setWindowPosition(-1, -1)
     config.setWindowIcon("icon/logo.png")
+    config.setForegroundFPS(options.fps)
 
     if (options.useGL30) {
         if (SharedLibraryLoader.isMac) {

@@ -45,12 +45,22 @@ fun createTerrainGO(sg: SceneGraph, goID: Int, goName: String,
 
 fun getRayIntersection(terrains: Array<TerrainComponent>, ray: Ray, out: Vector3): Vector3? {
     for (terrain in terrains) {
-        val terr = terrain.terrainAsset.terrain
-        terr.getRayIntersection(out, ray, terrain.modelInstance.transform)
-        if (terr.isOnTerrain(out.x, out.z, terrain.modelInstance.transform)) {
-            return out
+        val result = getRayIntersection(terrain, ray, out)
+        if (result != null) {
+            return result
         }
     }
+    return null
+}
+
+fun getRayIntersection(terrain: TerrainComponent, ray: Ray, out: Vector3): Vector3? {
+    val terr = terrain.terrainAsset.terrain
+
+    terr.getRayIntersection(out, ray, terrain.modelInstance.transform)
+    if (terr.isOnTerrain(out.x, out.z, terrain.modelInstance.transform)) {
+        return out
+    }
+
     return null
 }
 

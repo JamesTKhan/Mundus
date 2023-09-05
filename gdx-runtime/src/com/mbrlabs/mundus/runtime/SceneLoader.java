@@ -29,7 +29,6 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
-import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.runtime.converter.SceneConverter;
 
@@ -65,7 +64,6 @@ public class SceneLoader {
             scene.setSkybox(skyboxAsset, mundus.getShaders().getSkyboxShader());
         }
 
-        scene.setShadowMapShader(mundus.getShaders().getShadowMapShader());
         scene.setDepthShader(mundus.getShaders().getDepthShader());
 
         SceneGraph sceneGraph = scene.sceneGraph;

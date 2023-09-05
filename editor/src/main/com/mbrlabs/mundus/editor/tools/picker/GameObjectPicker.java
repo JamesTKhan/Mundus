@@ -42,6 +42,9 @@ public class GameObjectPicker extends BasePicker {
     }
 
     public GameObject pick(EditorScene scene, int screenX, int screenY) {
+        // Scene not initialized yet
+        if (scene.viewport == null) return null;
+
         begin(scene.viewport);
         renderPickableScene(scene.sceneGraph);
         end();
@@ -51,6 +54,8 @@ public class GameObjectPicker extends BasePicker {
         int y = screenY - (Gdx.graphics.getHeight() - (scene.viewport.getScreenY() + scene.viewport.getScreenHeight()));
 
         int id = PickerColorEncoder.decode(pm.getPixel(x, y));
+        pm.dispose();
+
         for (GameObject go : scene.sceneGraph.getGameObjects()) {
             if (id == go.id) return go;
             for (GameObject child : go) {
@@ -64,6 +69,7 @@ public class GameObjectPicker extends BasePicker {
     private void renderPickableScene(SceneGraph sceneGraph) {
         sceneGraph.scene.batch.begin(sceneGraph.scene.cam);
         for (GameObject go : sceneGraph.getGameObjects()) {
+            if (!go.active) continue;
             renderPickableGameObject(go);
         }
         sceneGraph.scene.batch.end();
@@ -78,6 +84,7 @@ public class GameObjectPicker extends BasePicker {
 
         if (go.getChildren() != null) {
             for (GameObject goc : go.getChildren()) {
+                if (!go.active) continue;
                 renderPickableGameObject(goc);
             }
         }

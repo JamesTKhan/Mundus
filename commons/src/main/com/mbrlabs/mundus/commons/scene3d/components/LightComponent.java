@@ -53,7 +53,12 @@ public class LightComponent extends AbstractComponent {
 
     @Override
     public void update(float delta) {
-        position.set(gameObject.getPosition(tmp));
+        if (gameObject.isDirty()) {
+            position.set(gameObject.getPosition(tmp));
+            if (lightType == LightType.SPOT_LIGHT) {
+                ((SpotLightEx) light).direction.set(gameObject.getForwardDirection(tmp));
+            }
+        }
     }
 
     @Override
@@ -100,7 +105,7 @@ public class LightComponent extends AbstractComponent {
 
             ((SpotLightEx) light).intensity = intensity;
             ((SpotLightEx) light).position.set(position);
-            ((SpotLightEx) light).direction.set(Vector3.Z.cpy());
+            ((SpotLightEx) light).direction.set(gameObject.getForwardDirection(tmp));
             ((SpotLightEx) light).cutoffAngle = 45;
             ((SpotLightEx) light).exponent = 30;
            // ((SpotLightEx) light).range = 100f;

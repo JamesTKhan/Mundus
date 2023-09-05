@@ -18,9 +18,11 @@ package com.mbrlabs.mundus.editor.input
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.history.CommandHistory
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 
@@ -28,7 +30,14 @@ import com.mbrlabs.mundus.editor.ui.UI
  * @author Marcus Brummer
  * @version 07-02-2016
  */
-class ShortcutController(registry: Registry, private val projectManager: ProjectManager, private val history: CommandHistory, private val toolManager: ToolManager)
+class ShortcutController(
+    registry: Registry,
+    private val projectManager: ProjectManager,
+    private val history: CommandHistory,
+    private val toolManager: ToolManager,
+    private val debugRenderer: DebugRenderer,
+    private val globalPrefManager: MundusPreferencesManager
+)
     : KeyboardLayoutInputAdapter(registry) {
 
     private var isCtrlPressed = false
@@ -80,7 +89,8 @@ class ShortcutController(registry: Registry, private val projectManager: Project
             toolManager.activateTool(toolManager.selectionTool)
             UI.toolbar.updateActiveToolButton()
         } else if (keycode == Input.Keys.F2) {
-            projectManager.current().renderDebug = !projectManager.current().renderDebug
+            debugRenderer.isEnabled = !debugRenderer.isEnabled
+            globalPrefManager.set(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_ON, debugRenderer.isEnabled)
         } else if (keycode == Input.Keys.F3) {
             projectManager.current().renderWireframe = !projectManager.current().renderWireframe
         }
