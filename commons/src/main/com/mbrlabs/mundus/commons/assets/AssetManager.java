@@ -65,8 +65,6 @@ public class AssetManager implements Disposable {
     // Tracks the highest bone count out of all loaded model assets
     public int maxNumBones = 0;
 
-    public static String MUNDUS_ASSET_FILE = "assets.txt";
-
     /**
      * Asset manager constructor.
      *
@@ -210,7 +208,7 @@ public class AssetManager implements Disposable {
             // Application will need to provide an assets.txt file listing all Mundus assets
             // in the Mundus root directory.
             // https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
-            fileList = rootFolder.child(MUNDUS_ASSET_FILE);
+            fileList = rootFolder.child("assets.txt");
 
             // Normalize line endings before reading
             files = fileList.readString().replaceAll("\\r\\n?", "\n").split("\\n");
