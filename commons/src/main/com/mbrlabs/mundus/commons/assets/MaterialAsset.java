@@ -206,7 +206,7 @@ public class MaterialAsset extends Asset {
      * @return the material with asset attributes applied
      */
     public Material applyToMaterial(Material material) {
-        return applyToMaterial(material, false);
+        return applyToMaterial(material, null);
     }
 
     /**
@@ -216,14 +216,14 @@ public class MaterialAsset extends Asset {
      * @param terrain  whether this material is for a terrain
      * @return the material with asset attributes applied
      */
-    public Material applyToMaterial(Material material, boolean terrain) {
+    public Material applyToMaterial(Material material, TerrainAsset terrain) {
         if (diffuseColor != null) {
             material.set(PBRColorAttribute.createBaseColorFactor(diffuseColor));
         }
         if (emissiveColor != null) {
             material.set(PBRColorAttribute.createEmissive(emissiveColor));
         }
-        if (!terrain) {
+        if (terrain == null) {
             // Terrain materials use these for splat base
             if (diffuseTexture != null) {
                 material.set(getTextureAttribute(PBRTextureAttribute.BaseColorTexture, diffuseTexture.getTexture(), diffuseTexCoord));
@@ -253,10 +253,17 @@ public class MaterialAsset extends Asset {
                 material.remove(PBRTextureAttribute.OcclusionTexture);
             }
         } else {
+//            if (diffuseTexture != null) {
+//                terrain.getTerrainLayerAsset().setSplatBase(diffuseTexture);
+//                material.set(attr);
+//                setTexCoordInfo(attr, diffuseTexCoord);
+//            }
             // Apply texCoords for terrains
             PBRTextureAttribute diffuse = (PBRTextureAttribute) material.get(PBRTextureAttribute.BaseColorTexture);
             if (diffuse != null) {
                 setTexCoordInfo(diffuse, diffuseTexCoord);
+                PBRTextureAttribute attr = getTextureAttribute(PBRTextureAttribute.Diffuse, diffuse.textureDescription.texture, diffuseTexCoord);
+                material.set(attr);
             }
             PBRTextureAttribute normal = (PBRTextureAttribute) material.get(PBRTextureAttribute.NormalTexture);
             if (normal != null) {

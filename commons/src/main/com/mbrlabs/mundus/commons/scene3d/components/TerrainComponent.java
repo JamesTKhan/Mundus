@@ -16,6 +16,8 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
@@ -38,7 +40,9 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
+    protected ModelInstance currentInstance;
     protected ModelInstance modelInstance;
+    protected ModelInstance lowPolyModelInstance;
     protected TerrainAsset terrainAsset;
 
     // Neighbor terrain components
@@ -52,17 +56,34 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         type = Component.Type.TERRAIN;
     }
 
+    private static Vector3 tmp = new Vector3();
+    private static Vector3 tmp2 = new Vector3();
     @Override
     public void update(float delta) {
         super.update(delta);
         if (gameObject.isDirty()) {
             modelInstance.transform.set(gameObject.getTransform());
         }
+
+        lowPolyModelInstance.transform = modelInstance.transform;
+
+        tmp.set(gameObject.sceneGraph.scene.cam.position);
+        modelInstance.transform.getTranslation(tmp2);
+        tmp2.add(terrainAsset.getTerrain().terrainWidth / 2f, 0, terrainAsset.getTerrain().terrainDepth / 2f);
+
+        float distance = tmp.dst(tmp2);
+        float threshold = 2000;
+        if (distance > threshold) {
+            lowPolyModelInstance.materials.set(0, modelInstance.materials.first());
+            currentInstance = lowPolyModelInstance;
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.F2) || distance <= threshold) {
+            currentInstance = modelInstance;
+        }
     }
 
     @Override
     public RenderableProvider getRenderableProvider() {
-        return modelInstance;
+        return currentInstance;
     }
 
     public void updateUVs(Vector2 uvScale) {
@@ -73,6 +94,14 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         this.terrainAsset = terrainAsset;
         modelInstance = new ModelInstance(terrainAsset.getTerrain().getModel());
         modelInstance.transform = gameObject.getTransform();
+
+        lowPolyModelInstance = new ModelInstance(terrainAsset.getLodModel());
+        lowPolyModelInstance.transform = gameObject.getTransform();
+        lowPolyModelInstance.materials.set(0, modelInstance.materials.first());
+        lowPolyModelInstance.nodes.get(0).parts.get(0).material = modelInstance.materials.first();
+
+        currentInstance = modelInstance;
+
         applyMaterial();
         setDimensions(modelInstance);
     }
@@ -90,7 +119,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         else
             material.remove(PBRTextureAttribute.NormalTexture);
 
-        terrainAsset.getMaterialAsset().applyToMaterial(material, true);
+        terrainAsset.getMaterialAsset().applyToMaterial(material, terrainAsset);
     }
 
     public TerrainAsset getTerrainAsset() {
@@ -164,7 +193,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     }
 
     public ModelInstance getModelInstance() {
-        return modelInstance;
+        return currentInstance;
     }
 
     /**

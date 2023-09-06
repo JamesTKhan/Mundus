@@ -106,7 +106,7 @@ public class Terrain implements Disposable {
         info.uvScale = uvScale;
 
         planeMesh = new PlaneMesh(info);
-        Mesh mesh = planeMesh.buildMesh();
+        Mesh mesh = planeMesh.buildMesh(false);
 
         MeshPart meshPart = new MeshPart(null, mesh, 0, numIndices, GL20.GL_TRIANGLES);
         meshPart.update();
@@ -319,6 +319,55 @@ public class Terrain implements Disposable {
      */
     public PlaneMesh getPlaneMesh() {
         return planeMesh;
+    }
+
+    public int findClosestFactor(int number) {
+        int half = number / 2;
+        for (int i = half; i > 0; i--) {
+            if (number % i == 0) {
+                return i;
+            }
+        }
+        return 1; // In case the number is a prime number, return 1
+    }
+
+    public Model createLod() {
+        int newResolution = findClosestFactor(vertexResolution);  // New resolution
+
+
+        float[] newHeightData = new float[newResolution * newResolution];
+
+        int step = vertexResolution / newResolution;  // In this case, step = 2
+
+        for (int i = 0; i < newResolution; i++) {
+            for (int j = 0; j < newResolution; j++) {
+                // Sampling the original heightData
+                newHeightData[j * newResolution + i] = heightData[(j * step) * vertexResolution + (i * step)];
+            }
+        }
+
+        PlaneMesh.MeshInfo info = new PlaneMesh.MeshInfo();
+        info.attribs = attribs;
+        info.vertexResolution = newResolution;
+        info.heightData = newHeightData;
+        info.width = terrainWidth;
+        info.depth = terrainDepth;
+        info.uvScale = uvScale;
+
+        PlaneMesh generator = new PlaneMesh(info);
+        Mesh mesh = generator.buildMesh(true);
+        generator.calculateAverageNormals();
+        generator.computeTangents();
+        generator.updateMeshVertices();
+        generator.resetBoundingBox();
+
+        MeshPart meshPart = new MeshPart(null, mesh, 0, mesh.getNumIndices(), GL20.GL_TRIANGLES);
+        meshPart.update();
+        ModelBuilder mb = new ModelBuilder();
+        mb.begin();
+        mb.part(meshPart, material);
+        Model lodModel = mb.end();
+        return lodModel;
     }
 
 }

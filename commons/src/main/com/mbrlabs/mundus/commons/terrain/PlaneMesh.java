@@ -50,6 +50,8 @@ public class PlaneMesh implements Disposable {
     private int minZ = Integer.MAX_VALUE;
     private int maxZ = Integer.MIN_VALUE;
 
+    private boolean generateSkirts = false;
+
     private Map<Integer, Array<Integer>> vertexToTriangleMap;
 
     private Mesh mesh;
@@ -66,7 +68,9 @@ public class PlaneMesh implements Disposable {
         this.stride = attribs.vertexSize / 4;
     }
 
-    public Mesh buildMesh() {
+    public Mesh buildMesh(boolean generateSkirts) {
+        this.generateSkirts = generateSkirts;
+
         final int numVertices = terrainMeshInfo.vertexResolution * terrainMeshInfo.vertexResolution;
         final int numIndices = (terrainMeshInfo.vertexResolution - 1) * (terrainMeshInfo.vertexResolution - 1) * 6;
 
@@ -149,9 +153,38 @@ public class PlaneMesh implements Disposable {
             }
         } else {
             // If the bounding box is empty, then we need to update all vertices.
+            float minHeight = Float.MAX_VALUE;
+            if (generateSkirts) {
+                // find min height
+                for (int i = 0; i < terrainMeshInfo.heightData.length; i++) {
+                    minHeight = Math.min(minHeight, terrainMeshInfo.heightData[i]);
+                }
+            }
+
+            float gridSizeWidth = terrainMeshInfo.width / (vertexResolution - 1);
+            float gridSizeDepth = terrainMeshInfo.depth / (vertexResolution - 1);
+
+
             for (int x = 0; x < vertexResolution; x++) {
                 for (int z = 0; z < vertexResolution; z++) {
                     calculateVertexAt(tempVertexInfo, x, z);
+
+                    if (generateSkirts) {
+                        int edgeExtension = 0;
+                        boolean isXPosEdge = x == terrainMeshInfo.vertexResolution - 1 - edgeExtension;
+                        boolean isXNegEdge = x <= edgeExtension;
+
+                        boolean isZPosEdge = z == terrainMeshInfo.vertexResolution - 1 - edgeExtension;
+                        boolean isZNegEdge = z <= edgeExtension;
+
+                        if (isXNegEdge ||isXPosEdge || isZNegEdge || isZPosEdge) {
+
+                            // push the edge down
+                            tempVertexInfo.position.y -= gridSizeDepth;
+                        }
+                    }
+
+
                     setVertex(z * vertexResolution + x, tempVertexInfo);
                 }
             }
@@ -184,7 +217,21 @@ public class PlaneMesh implements Disposable {
         final float dz = (float) z / (float) (vertexResolution - 1);
         final float height = terrainMeshInfo.heightData[z * vertexResolution + x];
 
-        out.position.set(dx * terrainMeshInfo.width, height, dz * terrainMeshInfo.depth);
+        float gridSizeWidth = terrainMeshInfo.width / (float) (vertexResolution - 1);
+        float gridSizeDepth = terrainMeshInfo.depth / (float) (vertexResolution - 1);
+
+        if (generateSkirts) {
+            float offsetX = (x == 0) ? -gridSizeWidth : (x == vertexResolution - 1) ? gridSizeWidth : 0;
+            float offsetZ = (z == 0) ? -gridSizeDepth : (z == vertexResolution - 1) ? gridSizeDepth : 0;
+            out.position.set(
+                    dx * terrainMeshInfo.width + offsetX,
+                    height,
+                    dz * terrainMeshInfo.depth + offsetZ
+            );
+        } else {
+            out.position.set(dx * terrainMeshInfo.width, height, dz * terrainMeshInfo.depth);
+        }
+
         out.uv.set(dx, dz).scl(terrainMeshInfo.uvScale);
 
         return out;
