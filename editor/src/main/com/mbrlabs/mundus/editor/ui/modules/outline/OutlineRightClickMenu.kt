@@ -30,6 +30,7 @@ import com.mbrlabs.mundus.editor.history.CommandHistory
 import com.mbrlabs.mundus.editor.history.commands.MultiCommand
 import com.mbrlabs.mundus.editor.history.commands.RotateCommand
 import com.mbrlabs.mundus.editor.history.commands.TranslateCommand
+import com.mbrlabs.mundus.editor.history.commands.GameObjectActiveCommand
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
@@ -458,8 +459,9 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
 
             toggleActive.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                    currentNode!!.value.active = !currentNode!!.value.active
-                    outline.buildTree(currentNode!!.value.sceneGraph)
+                    val command = GameObjectActiveCommand(currentNode!!.value, !currentNode!!.value.active)
+                    command.execute()
+                    history.add(command)
                 }
             })
 
