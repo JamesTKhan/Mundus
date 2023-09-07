@@ -219,4 +219,14 @@ public class TerrainStitcher {
         return worldHeight;
     }
 
+    public static Terrain determineLowerLODTerrain(Terrain terrain1, Terrain terrain2) {
+        if (terrain1.vertexResolution < terrain2.vertexResolution) {
+            return terrain1;
+        } else if (terrain1.vertexResolution > terrain2.vertexResolution) {
+            return terrain2;
+        } else {
+            return null; // Both terrains are of the same LOD
+        }
+    }
+
 }
