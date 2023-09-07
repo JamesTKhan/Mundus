@@ -1,8 +1,11 @@
 package com.mbrlabs.mundus.editor.ui.modules.dialogs
 
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
+import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
@@ -10,6 +13,7 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.UpdateNoiseTextureEvent
 import com.mbrlabs.mundus.editor.terrain.noise.modifiers.NoiseModifier
 import com.mbrlabs.mundus.editor.ui.widgets.ImprovedSlider
+import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 import com.mbrlabs.mundus.editor.utils.FastNoiseLite
 
 /**
@@ -26,6 +30,7 @@ class NoiseModifierDialog(var modifier: NoiseModifier) : BaseDialog(modifier.nam
     val domainWarpAmpsSlider = ImprovedSlider(0f, 60f, 2f, 3)
     val lacunaritySlider = ImprovedSlider(0f, 4f, 0.1f, 2)
     val gainSlider = ImprovedSlider(0f, 4f, 0.1f, 2)
+    val additiveCheckBox = VisCheckBox("")
 
     init {
         setupUI()
@@ -95,6 +100,16 @@ class NoiseModifierDialog(var modifier: NoiseModifier) : BaseDialog(modifier.nam
             }
         })
 
+        sliderTable.add(ToolTipLabel("Additive Noise?", "When checked, the noise modifier will be added to the current heightmap instead of multiplied by.").left())
+        sliderTable.add(additiveCheckBox)
+        additiveCheckBox.isChecked = modifier.noiseAdditive;
+        additiveCheckBox.addListener( object : ClickListener(){
+            override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
+                super.touchUp(event, x, y, pointer, button)
+                modifier.noiseAdditive  = !modifier.noiseAdditive
+                Mundus.postEvent(UpdateNoiseTextureEvent())
+            }
+        })
 
         add(root).expand().fill()
     }
