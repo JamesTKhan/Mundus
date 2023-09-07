@@ -1,5 +1,7 @@
 package com.mbrlabs.mundus.commons.utils;
 
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool;
@@ -33,6 +35,30 @@ public class Pools {
         @Override
         protected void reset(Vector3 object) {
             object.set(0,0,0);
+        }
+    };
+
+    public final static Pool<Quaternion> quaternionPool = new Pool<Quaternion>(2) {
+        @Override
+        protected Quaternion newObject () {
+            return new Quaternion();
+        }
+
+        @Override
+        protected void reset(Quaternion object) {
+            object.idt();
+        }
+    };
+
+    public final static Pool<Matrix4> matrix4Pool = new Pool<Matrix4>(2) {
+        @Override
+        protected Matrix4 newObject () {
+            return new Matrix4();
+        }
+
+        @Override
+        protected void reset(Matrix4 object) {
+            object.idt();
         }
     };
 

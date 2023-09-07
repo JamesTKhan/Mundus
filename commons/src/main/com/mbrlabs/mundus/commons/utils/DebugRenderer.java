@@ -1,5 +1,4 @@
 package com.mbrlabs.mundus.commons.utils;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -11,9 +10,12 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.ArrowShapeBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.OrientedBoundingBox;
 import com.badlogic.gdx.utils.Array;
@@ -38,20 +40,26 @@ import java.util.Map;
  */
 public class DebugRenderer implements Renderer, Disposable {
     private static final OrientedBoundingBox tmpObb = new OrientedBoundingBox();
+    private static CullableComponent cullableComponent;
+    //Game Object needed for rendering forward facing arrow
+    private static GameObject selectedGameObject;
 
     // Shape Renderer
     private final boolean ownsShapeRenderer;
     private final ShapeRenderer shapeRenderer;
-    private ShapeRenderer.ShapeType shapeType = ShapeRenderer.ShapeType.Line;
+    private Camera camera;
 
-    // Model Renderer
+    // Bounding box and facing arrow Renderer
     private ModelBatch modelBatch;
+    private final ModelBuilder modelBuilder = new ModelBuilder();
     private final Map<Component, ModelInstance> modelInstancesCache = new HashMap<>();
+    private ModelInstance arrowInstance;
     private final Array<ModelInstance> instances = new Array<>();
 
     // Debug settings
     private boolean appearOnTop = true;
     private boolean enabled = false;
+    private boolean drawFacingArrow = false;
 
     public DebugRenderer() {
         shapeRenderer = new ShapeRenderer();
@@ -64,13 +72,17 @@ public class DebugRenderer implements Renderer, Disposable {
         ownsShapeRenderer = false;
     }
 
+    public static void setSelectedGameObject(GameObject go){
+        selectedGameObject = go;
+    }
+
     public void setShapeType(ShapeRenderer.ShapeType shapeType) {
-        this.shapeType = shapeType;
     }
 
     @Override
     public void begin(Camera camera) {
         if (!enabled) return;
+        this.camera = camera;
 
         if (appearOnTop) {
             // Clearing depth puts the model debug lines on top of everything else
@@ -98,7 +110,6 @@ public class DebugRenderer implements Renderer, Disposable {
             }
         }
 
-
         // Any shape rendering should be done here if needed
     }
 
@@ -114,7 +125,7 @@ public class DebugRenderer implements Renderer, Disposable {
                 continue;
             }
 
-            CullableComponent cullableComponent = (CullableComponent) component;
+            cullableComponent = (CullableComponent) component;
 
             if (!modelInstancesCache.containsKey(component)) {
                 OrientedBoundingBox orientedBoundingBox = cullableComponent.getOrientedBoundingBox();
@@ -127,6 +138,33 @@ public class DebugRenderer implements Renderer, Disposable {
             ModelInstance modelInstance = modelInstancesCache.get(component);
             modelInstance.transform.set(cullableComponent.getOrientedBoundingBox().getTransform());
             instances.add(modelInstance);
+
+            if (drawFacingArrow && go == selectedGameObject) {
+
+                Vector3 worldPos = Pools.vector3Pool.obtain();
+                Vector3 arrowScale = Pools.vector3Pool.obtain();
+                Vector3 localPos = Pools.vector3Pool.obtain();
+                Quaternion localRot = Pools.quaternionPool.obtain();
+
+                selectedGameObject.getPosition(worldPos);
+                selectedGameObject.getLocalPosition(localPos);
+                selectedGameObject.getLocalRotation(localRot);
+
+                // Scale the arrow based on distance from camera and size of bounding box
+                float scaleFactor = Math.max(camera.position.dst(worldPos) * 0.1f, cullableComponent.getRadius());
+                arrowScale.set(scaleFactor, scaleFactor, scaleFactor);
+
+                // Set the transform of the arrow in local space first, with a calculated scale
+                arrowInstance.transform.set(localPos, localRot, arrowScale);
+                // apply world transform
+                arrowInstance.transform.mulLeft(go.getParent().getTransform());
+
+                Pools.vector3Pool.free(worldPos);
+                Pools.vector3Pool.free(arrowScale);
+                Pools.vector3Pool.free(localPos);
+                Pools.quaternionPool.free(localRot);
+                instances.add(arrowInstance);
+            }
         }
 
         if (go.getChildren() == null) return;
@@ -198,9 +236,16 @@ public class DebugRenderer implements Renderer, Disposable {
         this.appearOnTop = appearOnTop;
     }
 
-    public boolean isAppearOnTop() {
-        return appearOnTop;
+    public boolean isAppearOnTop() { return appearOnTop; }
+
+    public void setShowFacingArrow(boolean showFacingArrow) {
+        this.drawFacingArrow = showFacingArrow;
+        if (drawFacingArrow && arrowInstance == null) {
+            buildArrowModel();
+        }
     }
+
+    public boolean isShowFacingArrow() { return drawFacingArrow; }
 
     public boolean isEnabled() {
         return enabled;
@@ -208,5 +253,15 @@ public class DebugRenderer implements Renderer, Disposable {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    private void buildArrowModel() {
+        modelBuilder.begin();
+        MeshPartBuilder meshBuilder =  modelBuilder.part("arrow", GL20.GL_TRIANGLES,
+                (VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked), new Material());
+        meshBuilder.setColor(Color.MAROON);
+        ArrowShapeBuilder.build(meshBuilder, 0, 0, 0, 0, 0, 5f, .03f, .5f, 50);
+        Model arrowModel = modelBuilder.end();
+        arrowInstance = new ModelInstance(arrowModel);
     }
 }

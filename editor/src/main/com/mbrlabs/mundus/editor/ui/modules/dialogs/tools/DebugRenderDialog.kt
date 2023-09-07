@@ -26,6 +26,7 @@ class DebugRenderDialog : BaseDialog(TITLE) {
 
     private val showBoundingBoxes = VisCheckBox(null)
     private val showBoundingBoxesOnTop = VisCheckBox(null)
+    private val showFacingArrow = VisCheckBox(null)
     private val wireFrameMode = VisCheckBox(null)
     private val helperLines = VisCheckBox(null)
     private val rectangleRadio = VisRadioButton("Rectangle")
@@ -55,6 +56,7 @@ class DebugRenderDialog : BaseDialog(TITLE) {
         }
 
         showBoundingBoxesOnTop.isChecked = debugRenderer.isAppearOnTop
+        showFacingArrow.isChecked = debugRenderer.isShowFacingArrow
 
         return super.show(stage)
     }
@@ -79,6 +81,9 @@ class DebugRenderDialog : BaseDialog(TITLE) {
 
         table.add(ToolTipLabel("Render Debug On Top", "Whether to render debug lines with depth or not.")).left()
         table.add(showBoundingBoxesOnTop).left().padBottom(10f).row()
+
+        table.add(ToolTipLabel("Show Facing Arrow", "Renders a forward facing arrow with origin (0,0,1) form the selected game object.")).left()
+        table.add(showFacingArrow).left().padBottom(10f).row()
 
         table.add(ToolTipLabel("Wireframe Mode", "Uses OpenGL glPolygonMode with GL_LINE to show wireframe.  Hotkey: CTRL+F3")).left()
         table.add(wireFrameMode).left().padBottom(10f).row()
@@ -106,6 +111,13 @@ class DebugRenderDialog : BaseDialog(TITLE) {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 debugRenderer.isAppearOnTop = showBoundingBoxesOnTop.isChecked
                 preferencesManager.set(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_DEPTH_OFF, showBoundingBoxesOnTop.isChecked)
+            }
+        })
+
+        showFacingArrow.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                debugRenderer.isShowFacingArrow = showFacingArrow.isChecked
+                preferencesManager.set(MundusPreferencesManager.GLOB_BOOL_DEBUG_FACING_ARROW, showFacingArrow.isChecked)
             }
         })
 

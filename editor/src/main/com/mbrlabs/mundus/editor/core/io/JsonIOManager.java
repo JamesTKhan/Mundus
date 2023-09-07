@@ -34,6 +34,10 @@ public class JsonIOManager implements IOManager {
     @Override
     public Registry loadRegistry() {
         FileHandle fileHandle = getHomeDataFile();
+        if (!fileHandle.exists()) {
+            Log.info(getClass().getSimpleName(), "No registry file found. Creating new one.");
+            return new Registry();
+        }
 
         try {
             return json.fromJson(Registry.class, fileHandle);

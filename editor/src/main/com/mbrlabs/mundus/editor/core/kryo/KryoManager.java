@@ -175,7 +175,7 @@ public class KryoManager implements IOManager {
         try {
             input = new Input(new FileInputStream(Registry.HOME_DATA_FILE));
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            return false;
         }
 
         try {

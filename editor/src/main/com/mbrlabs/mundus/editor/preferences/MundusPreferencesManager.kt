@@ -23,6 +23,7 @@ class MundusPreferencesManager(preferencesKey: String) : PreferencesManager {
         // Debug renderer settings
         const val GLOB_BOOL_DEBUG_RENDERER_ON = "debug-renderer-on"
         const val GLOB_BOOL_DEBUG_RENDERER_DEPTH_OFF = "debug-renderer-depth-off"
+        const val GLOB_BOOL_DEBUG_FACING_ARROW = "debug-renderer-facingarrow-off"
 
         // Default values for global prefs
         const val GLOB_RIGHT_SELECT_BUTTON_DEFAULT_VALUE = true
