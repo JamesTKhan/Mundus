@@ -1,6 +1,5 @@
 package com.mbrlabs.mundus.editor.terrain;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -24,30 +23,23 @@ import com.mbrlabs.mundus.editor.ui.UI;
  */
 public class TerrainStitcher {
 
-    /**
-     * The number of steps to take when stitching, lower = sharper transitions
-     */
     public static int numSteps = 10;
 
-    /**
-     * Whether to include the GameObject world height when stitching
-     */
     public static boolean includeWorldHeight = false;
 
-    /**
-     * Float comparison threshold
-     */
     private static final float threshold = 0.001f;
 
+    private enum Direction {
+        TOP, BOTTOM, LEFT, RIGHT
+    }
+
     public static void stitch(ProjectContext projectContext) {
-        // Get all the terrain components
         Array<GameObject> terrainGOs = projectContext.currScene.sceneGraph.findAllByComponent(Component.Type.TERRAIN);
         Array<Terrain> terrains = new Array<>();
         Array<TerrainComponent> terrainComponents = new Array<>();
 
         for (GameObject go : terrainGOs) {
             TerrainComponent terrainComponent = (TerrainComponent) go.findComponentByType(Component.Type.TERRAIN);
-
             int length = terrainComponent.getTerrainAsset().getTerrain().vertexResolution;
             if (numSteps > length) {
                 throw new IllegalArgumentException("Number of Steps must be less than the vertex resolution of the terrain (" + length + ")");
@@ -57,23 +49,17 @@ public class TerrainStitcher {
             terrains.add(terrainComponent.getTerrainAsset().getTerrain());
         }
 
-        // Add command for undo/redo history
         TerrainStitchCommand command = new TerrainStitchCommand(terrains);
-
-        // Stitch them together
         int heightsStitched = stitch(terrainComponents);
 
         if (heightsStitched == 0) {
-            // No changes were made, so don't add to history
             return;
         }
 
-        // Execute command/apply changes to terrains
         Mundus.INSTANCE.getCommandHistory().add(command);
         command.setHeightDataAfter();
         command.execute();
 
-        // Now add to the modified assets so they can be saved
         for (TerrainComponent terrainComponent : terrainComponents) {
             projectContext.assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
             Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
@@ -83,16 +69,27 @@ public class TerrainStitcher {
     public static int stitch(Array<TerrainComponent> terrainComponents) {
         int neighbors = 0;
         int heightsStitched = 0;
-        for (TerrainComponent terrainComponent : terrainComponents) {
-            heightsStitched = stitchTopBottomNeighbors(terrainComponent);
-            if (terrainComponent.getTopNeighbor() != null) neighbors++;
-            if (terrainComponent.getBottomNeighbor() != null) neighbors++;
-        }
 
         for (TerrainComponent terrainComponent : terrainComponents) {
-            heightsStitched += stitchLeftRightNeighbors(terrainComponent);
-            if (terrainComponent.getLeftNeighbor() != null) neighbors++;
-            if (terrainComponent.getRightNeighbor() != null) neighbors++;
+            if (terrainComponent.getTopNeighbor() != null) {
+                neighbors++;
+                heightsStitched = stitchNeighbor(terrainComponent, terrainComponent.getTopNeighbor(), Direction.TOP);
+            }
+
+            if (terrainComponent.getBottomNeighbor() != null) {
+                neighbors++;
+                heightsStitched += stitchNeighbor(terrainComponent, terrainComponent.getBottomNeighbor(), Direction.BOTTOM);
+            }
+
+            if (terrainComponent.getLeftNeighbor() != null) {
+                neighbors++;
+                heightsStitched += stitchNeighbor(terrainComponent, terrainComponent.getLeftNeighbor(), Direction.LEFT);
+            }
+
+            if (terrainComponent.getRightNeighbor() != null) {
+                neighbors++;
+                heightsStitched += stitchNeighbor(terrainComponent, terrainComponent.getRightNeighbor(), Direction.RIGHT);
+            }
         }
 
         if (neighbors == 0) {
@@ -102,140 +99,75 @@ public class TerrainStitcher {
         } else {
             UI.INSTANCE.getToaster().success("Stitched " + heightsStitched + " height values.");
         }
+
         return heightsStitched;
     }
 
-    private static int stitchTopBottomNeighbors(TerrainComponent terrainComponent) {
-        int length = terrainComponent.getTerrainAsset().getTerrain().vertexResolution;
-        int last = length - 1;
+    private static int stitchNeighbor(TerrainComponent terrainComponent, TerrainComponent neighbor, Direction direction) {
+        int length = terrainComponent.getTerrainAsset().getTerrain().heightData.length;
+        int neighborLength = neighbor.getTerrainAsset().getTerrain().heightData.length;
         int heightsStitched = 0;
 
         float currWH = getWorldHeight(terrainComponent);
-
-        TerrainComponent top = terrainComponent.getTopNeighbor();
-        TerrainComponent bottom = terrainComponent.getBottomNeighbor();
+        float neighborWH = getWorldHeight(neighbor);
 
         float[] heightMap = terrainComponent.getTerrainAsset().getTerrain().heightData;
+        float[] neighborHeightMap = neighbor.getTerrainAsset().getTerrain().heightData;
 
-        if (top != null) {
-            float[] topHeightMap = top.getTerrainAsset().getTerrain().heightData;
-            float topWH = getWorldHeight(top);
+        int stepFactor = length / neighborLength;
 
-            for (int x = 0; x < length; x++) {
-                float currHeight = heightMap[last * length + x] + (includeWorldHeight ? currWH : 0);
-                float neighborHeight = topHeightMap[x] + (includeWorldHeight ? topWH : 0);
-
-                if (currHeight + threshold >= neighborHeight) continue;
-
-                float height = neighborHeight;
-                for (int step = 0; step < numSteps; step++) {
-                    int idx = (last - step) * length + x;
-                    float targetHeight = heightMap[idx] + (includeWorldHeight ? currWH : 0);
-                    height = MathUtils.lerp(height, targetHeight, (float) step / (float) numSteps);
-                    heightMap[idx] = height - (includeWorldHeight ? currWH : 0);
-                    heightsStitched++;
+        switch (direction) {
+            case TOP:
+                for (int x = 0; x < length; x++) {
+                    int idx = (length - 1) * length + x;
+                    int neighborIdx = x;
+                    heightsStitched += blendVertices(heightMap, neighborHeightMap, idx, neighborIdx, stepFactor, currWH, neighborWH);
                 }
-            }
-        }
-
-        if (bottom != null) {
-            float[] bottomHeightMap = bottom.getTerrainAsset().getTerrain().heightData;
-            float bottomWH = getWorldHeight(bottom);
-
-            for (int x = 0; x < length; x++) {
-                float neighborHeight = bottomHeightMap[last * length + x] + (includeWorldHeight ? bottomWH : 0);
-                float currHeight = heightMap[x] + (includeWorldHeight ? currWH : 0);
-
-                if (currHeight + threshold >= neighborHeight) continue;
-
-                float height = neighborHeight;
-                for (int step = 0; step < numSteps; step++) {
-                    int idx = step * length + x;
-                    float targetHeight = heightMap[idx] + (includeWorldHeight ? currWH : 0);
-                    height = MathUtils.lerp(height, targetHeight, (float) step / (float) numSteps);
-                    heightMap[idx] = height - (includeWorldHeight ? currWH : 0);
-                    heightsStitched++;
+                break;
+            case BOTTOM:
+                for (int x = 0; x < length; x++) {
+                    int idx = x;
+                    int neighborIdx = (neighborLength - 1) * neighborLength + x;
+                    heightsStitched += blendVertices(heightMap, neighborHeightMap, idx, neighborIdx, stepFactor, currWH, neighborWH);
                 }
-            }
+                break;
+            case LEFT:
+                for (int y = 0; y < length; y++) {
+                    int idx = y * length;
+                    int neighborIdx = y * neighborLength + neighborLength - 1;
+                    heightsStitched += blendVertices(heightMap, neighborHeightMap, idx, neighborIdx, stepFactor, currWH, neighborWH);
+                }
+                break;
+            case RIGHT:
+                for (int y = 0; y < length; y++) {
+                    int idx = y * length + length - 1;
+                    int neighborIdx = y * neighborLength;
+                    heightsStitched += blendVertices(heightMap, neighborHeightMap, idx, neighborIdx, stepFactor, currWH, neighborWH);
+                }
+                break;
         }
 
         return heightsStitched;
     }
 
-    private static int stitchLeftRightNeighbors(TerrainComponent terrainComponent) {
-        int length = (int) Math.sqrt(terrainComponent.getTerrainAsset().getTerrain().heightData.length);
-        int last = length - 1;
-        int heightsStitched = 0;
+    private static int blendVertices(float[] mainHeightMap, float[] neighborHeightMap, int idx, int neighborIdx, int stepFactor, float currWH, float neighborWH) {
+        float currHeight = mainHeightMap[idx] + (includeWorldHeight ? currWH : 0);
+        float neighborHeight = neighborHeightMap[neighborIdx] + (includeWorldHeight ? neighborWH : 0);
 
-        float currWH = getWorldHeight(terrainComponent);
-
-        TerrainComponent left = terrainComponent.getLeftNeighbor();
-        TerrainComponent right = terrainComponent.getRightNeighbor();
-
-        float[] heightMap = terrainComponent.getTerrainAsset().getTerrain().heightData;
-
-        if (left != null) {
-
-            float[] leftHeightMap = left.getTerrainAsset().getTerrain().heightData;
-            float leftWH = getWorldHeight(left);
-
-            for (int z = 0; z < length; z++) {
-                int factor = (int) (length / Math.sqrt(leftHeightMap.length));
-                if (factor == 0) {
-                    // Handle this case. This shouldn't happen, but this check will help debug the situation.
-                    throw new RuntimeException("Factor is zero. Length: " + length + ", LeftLength: " + leftHeightMap.length);
-                }
-                int leftIndex = z / factor;
-                float neighborHeight = leftHeightMap[leftIndex * (int)Math.sqrt(leftHeightMap.length)] + (includeWorldHeight ? leftWH : 0);
-                float currHeight = heightMap[z * length + last] + (includeWorldHeight ? currWH : 0);
-
-
-                if (currHeight + threshold >= neighborHeight && currHeight - threshold <= neighborHeight) continue;
-
-                // If left terrain is of lower LOD, then add vertexes
-                if (leftHeightMap.length < heightMap.length) {
-                    int stepFactor = heightMap.length / leftHeightMap.length;
-                    for (int x = 0; x < length; x += stepFactor) {
-                        for (int step = 0; step < numSteps; step++) {
-                            int idx = x * length + last - step;
-                            adjustVertexForStitching(heightMap, neighborHeight, idx, currWH, includeWorldHeight, step);
-                        }
-                    }
-                }
-            }
+        if (Math.abs(currHeight - neighborHeight) < threshold) {
+            return 0;
         }
 
-        if (right != null) {
-
-            float[] rightHeightMap = right.getTerrainAsset().getTerrain().heightData;
-            float rightWH = getWorldHeight(right);
-
-            for (int z = 0; z < length; z++) {
-                int factor = (int) (length / Math.sqrt(rightHeightMap.length));
-                if (factor == 0) {
-                    // Handle this case. This shouldn't happen, but this check will help debug the situation.
-                    throw new RuntimeException("Factor is zero. Length: " + length + ", RightLength: " + rightHeightMap.length);
-                }
-                int leftIndex = z / factor;
-                float neighborHeight = rightHeightMap[leftIndex * (int)Math.sqrt(rightHeightMap.length)] + (includeWorldHeight ? rightWH : 0);
-                float currHeight = heightMap[z * length] + (includeWorldHeight ? currWH : 0);
-
-                if (currHeight + threshold >= neighborHeight && currHeight - threshold <= neighborHeight) continue;
-
-                // If right terrain is of lower LOD, then add vertexes
-                if (rightHeightMap.length < heightMap.length) {
-                    int stepFactor = heightMap.length / rightHeightMap.length;
-                    for (int x = 0; x < length; x += stepFactor) {
-                        for (int step = 0; step < numSteps; step++) {
-                            int idx = x * length + last - step;
-                            adjustVertexForStitching(heightMap, neighborHeight, idx, currWH, includeWorldHeight, step);
-                        }
-                    }
-                }
+        if (stepFactor > 1) {
+            for (int step = 0; step < stepFactor; step++) {
+                int adjustmentIndex = idx - step;
+                adjustVertexForStitching(mainHeightMap, neighborHeight, adjustmentIndex, currWH, includeWorldHeight, step);
             }
+        } else {
+            adjustVertexForStitching(mainHeightMap, neighborHeight, idx, currWH, includeWorldHeight, 0);
         }
 
-        return heightsStitched;
+        return 1;
     }
 
     private static float getWorldHeight(TerrainComponent terrainComponent) {
