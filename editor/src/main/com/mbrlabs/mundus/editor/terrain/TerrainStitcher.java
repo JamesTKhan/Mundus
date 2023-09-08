@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.editor.terrain;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -23,13 +24,19 @@ import com.mbrlabs.mundus.editor.ui.UI;
  */
 public class TerrainStitcher {
 
-    /** The number of steps to take when stitching, lower = sharper transitions */
+    /**
+     * The number of steps to take when stitching, lower = sharper transitions
+     */
     public static int numSteps = 10;
 
-    /** Whether to include the GameObject world height when stitching */
+    /**
+     * Whether to include the GameObject world height when stitching
+     */
     public static boolean includeWorldHeight = false;
 
-    /** Float comparison threshold */
+    /**
+     * Float comparison threshold
+     */
     private static final float threshold = 0.001f;
 
     public static void stitch(ProjectContext projectContext) {
@@ -156,7 +163,7 @@ public class TerrainStitcher {
     }
 
     private static int stitchLeftRightNeighbors(TerrainComponent terrainComponent) {
-        int length = terrainComponent.getTerrainAsset().getTerrain().vertexResolution;
+        int length = (int) Math.sqrt(terrainComponent.getTerrainAsset().getTerrain().heightData.length);
         int last = length - 1;
         int heightsStitched = 0;
 
@@ -168,43 +175,62 @@ public class TerrainStitcher {
         float[] heightMap = terrainComponent.getTerrainAsset().getTerrain().heightData;
 
         if (left != null) {
+
             float[] leftHeightMap = left.getTerrainAsset().getTerrain().heightData;
             float leftWH = getWorldHeight(left);
 
             for (int z = 0; z < length; z++) {
+                int factor = (int) (length / Math.sqrt(leftHeightMap.length));
+                if (factor == 0) {
+                    // Handle this case. This shouldn't happen, but this check will help debug the situation.
+                    throw new RuntimeException("Factor is zero. Length: " + length + ", LeftLength: " + leftHeightMap.length);
+                }
+                int leftIndex = z / factor;
+                float neighborHeight = leftHeightMap[leftIndex * (int)Math.sqrt(leftHeightMap.length)] + (includeWorldHeight ? leftWH : 0);
                 float currHeight = heightMap[z * length + last] + (includeWorldHeight ? currWH : 0);
-                float neighborHeight = leftHeightMap[z * length] + (includeWorldHeight ? leftWH : 0);
 
-                if (currHeight + threshold >= neighborHeight) continue;
 
-                float height = neighborHeight;
-                for (int step = 0; step < numSteps; step++) {
-                    int idx = z * length + last - step;
-                    float targetHeight = heightMap[idx] + (includeWorldHeight ? currWH : 0);
-                    height = MathUtils.lerp(height, targetHeight, (float) step / (float) numSteps);
-                    heightMap[idx] = height - (includeWorldHeight ? currWH : 0);
-                    heightsStitched++;
+                if (currHeight + threshold >= neighborHeight && currHeight - threshold <= neighborHeight) continue;
+
+                // If left terrain is of lower LOD, then add vertexes
+                if (leftHeightMap.length < heightMap.length) {
+                    int stepFactor = heightMap.length / leftHeightMap.length;
+                    for (int x = 0; x < length; x += stepFactor) {
+                        for (int step = 0; step < numSteps; step++) {
+                            int idx = x * length + last - step;
+                            adjustVertexForStitching(heightMap, neighborHeight, idx, currWH, includeWorldHeight, step);
+                        }
+                    }
                 }
             }
         }
 
         if (right != null) {
+
             float[] rightHeightMap = right.getTerrainAsset().getTerrain().heightData;
             float rightWH = getWorldHeight(right);
 
             for (int z = 0; z < length; z++) {
-                float neighborHeight = rightHeightMap[z * length + last] + (includeWorldHeight ? rightWH : 0);
+                int factor = (int) (length / Math.sqrt(rightHeightMap.length));
+                if (factor == 0) {
+                    // Handle this case. This shouldn't happen, but this check will help debug the situation.
+                    throw new RuntimeException("Factor is zero. Length: " + length + ", RightLength: " + rightHeightMap.length);
+                }
+                int leftIndex = z / factor;
+                float neighborHeight = rightHeightMap[leftIndex * (int)Math.sqrt(rightHeightMap.length)] + (includeWorldHeight ? rightWH : 0);
                 float currHeight = heightMap[z * length] + (includeWorldHeight ? currWH : 0);
 
-                if (currHeight + threshold >= neighborHeight) continue;
+                if (currHeight + threshold >= neighborHeight && currHeight - threshold <= neighborHeight) continue;
 
-                float height = neighborHeight;
-                for (int step = 0; step < numSteps; step++) {
-                    int idx = z * length + step;
-                    float targetHeight = heightMap[idx] + (includeWorldHeight ? currWH : 0);
-                    height = MathUtils.lerp(height, targetHeight, (float) step / (float) numSteps);
-                    heightMap[idx] = height - (includeWorldHeight ? currWH : 0);
-                    heightsStitched++;
+                // If right terrain is of lower LOD, then add vertexes
+                if (rightHeightMap.length < heightMap.length) {
+                    int stepFactor = heightMap.length / rightHeightMap.length;
+                    for (int x = 0; x < length; x += stepFactor) {
+                        for (int step = 0; step < numSteps; step++) {
+                            int idx = x * length + last - step;
+                            adjustVertexForStitching(heightMap, neighborHeight, idx, currWH, includeWorldHeight, step);
+                        }
+                    }
                 }
             }
         }
@@ -219,14 +245,9 @@ public class TerrainStitcher {
         return worldHeight;
     }
 
-    public static Terrain determineLowerLODTerrain(Terrain terrain1, Terrain terrain2) {
-        if (terrain1.vertexResolution < terrain2.vertexResolution) {
-            return terrain1;
-        } else if (terrain1.vertexResolution > terrain2.vertexResolution) {
-            return terrain2;
-        } else {
-            return null; // Both terrains are of the same LOD
-        }
+    private static void adjustVertexForStitching(float[] mainHeightMap, float neighborHeight, int idx, float wh, boolean includeWorldHeight, int step) {
+        float targetHeight = mainHeightMap[idx] + (includeWorldHeight ? wh : 0);
+        float height = MathUtils.lerp(neighborHeight, targetHeight, (float) step / (float) numSteps);
+        mainHeightMap[idx] = height - (includeWorldHeight ? wh : 0);
     }
-
 }

@@ -52,6 +52,8 @@ public class Terrain implements Disposable {
     private static final Matrix4 tmpMatrix = new Matrix4();
 
     public float[] heightData;
+    public float[] fullHeightData;
+    public float[] lodHeightData;
     public int terrainWidth = 1200;
     public int terrainDepth = 1200;
     public int vertexResolution;
@@ -87,11 +89,12 @@ public class Terrain implements Disposable {
         material.set(TerrainMaterialAttribute.createTerrainMaterialAttribute(terrainMaterial));
     }
 
-    public Terrain(int size, float[] heightData) {
-        this((int) Math.sqrt(heightData.length));
+    public Terrain(int size, float[] fullHeightData) {
+        this((int) Math.sqrt(fullHeightData.length));
         this.terrainWidth = size;
         this.terrainDepth = size;
-        this.heightData = heightData;
+        this.fullHeightData = fullHeightData;
+        this.heightData = fullHeightData;
     }
 
     public void init() {
@@ -354,8 +357,11 @@ public class Terrain implements Disposable {
         info.depth = terrainDepth;
         info.uvScale = uvScale;
 
+        //save low lod heightmap
+        this.lodHeightData = newHeightData;
+
         PlaneMesh generator = new PlaneMesh(info);
-        Mesh mesh = generator.buildMesh(true);
+        Mesh mesh = generator.buildMesh(false);
         generator.calculateAverageNormals();
         generator.computeTangents();
         generator.updateMeshVertices();
