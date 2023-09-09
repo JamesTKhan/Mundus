@@ -112,17 +112,20 @@ public class TerrainStitcher {
         Gdx.app.log("Current length: " + currentLength, "Neighbor length: " + neighborLength);
         int heightsStitched = 0;
 
+        int width = (int) Math.sqrt(currentLength);
+        int neighborWidth = (int) Math.sqrt(neighborLength);
+
         float currWH = getWorldHeight(terrainComponent);
         float neighborWH = getWorldHeight(neighbor);
 
         float[] currentHeightMap = terrainComponent.getTerrainAsset().getTerrain().heightData;
         float[] neighborHeightMap = neighbor.getTerrainAsset().getTerrain().heightData;
 
-        float stepFactor = neighborLength / currentLength;
+        float stepFactor = (float) neighborWidth / width;
 
-        for (int i = 0; i < currentLength; i++) {
-            int currentIndex = adjustIndex(i, direction, stepFactor, currentLength);
-            int neighborIndex = adjustNeighborIndex(i, direction, stepFactor, neighborLength);
+        for (int i = 0; i < width; i++) {
+            int currentIndex = adjustIndex(i, direction, width);
+            int neighborIndex = adjustNeighborIndex(i, direction, stepFactor, neighborWidth);
             heightsStitched += blendVertices(currentHeightMap, neighborHeightMap, currentIndex, neighborIndex, stepFactor, currWH, neighborWH);
         }
 
@@ -138,7 +141,7 @@ public class TerrainStitcher {
         }
 
         if (stepFactor > 1) {
-            // Main terrain has same or lower resolution than the neighbor
+            // Main terrain has lower resolution than the neighbor
             float accumulatedHeight = 0;
 
             // Accumulate heights from the neighbor based on the step factor
@@ -149,22 +152,18 @@ public class TerrainStitcher {
 
             // Calculate the average height
             float averageNeighborHeight = accumulatedHeight / stepFactor;
-            float height = MathUtils.lerp(currHeight, averageNeighborHeight, 0.5f);  // Blend 50-50 for simplicity
-            currentHeightMap[index] = height - (includeWorldHeight ? currWH : 0);
+            currentHeightMap[index] = MathUtils.lerp(currHeight, averageNeighborHeight, 0.5f);  // Blend 50-50 for simplicity
 
         } else if (stepFactor == 1) {
             // Main terrain and neighbor have the same resolution
-            float neighborHeight = neighborHeightMap[neighborIndex] + (includeWorldHeight ? neighborWH : 0);
-            float height = MathUtils.lerp(currHeight, neighborHeight, 0.5f);  // Blend 50-50 for simplicity
-            currentHeightMap[index] = height - (includeWorldHeight ? currWH : 0);
+            currentHeightMap[index] = MathUtils.lerp(currHeight, neighborHeight, 0.5f);  // Blend 50-50 for simplicity
 
         } else {
             // stepFactor < 1 means main terrain has a higher resolution than the neighbor
 
             float height = MathUtils.lerp(neighborHeightMap[neighborIndex] + (includeWorldHeight ? neighborWH : 0), currHeight, (float) index / (float) numSteps);
-            currentHeightMap[index] = height - (includeWorldHeight ? currWH : 0);
+            currentHeightMap[index] = height;
         }
-
         return 1;
     }
 
@@ -176,70 +175,63 @@ public class TerrainStitcher {
         return worldHeight;
     }
 
-    private static int adjustIndex(int baseIndex, Direction direction, float stepFactor, int length) {
-        //we have the same or lower resolution than our neighbor, so we iterate over all our points
-        if (stepFactor >= 1)
-        {
-            switch (direction){
-                case TOP:
-                    return (length - 1) * length + baseIndex;
-                case BOTTOM:
-                    return baseIndex;
-                case LEFT:
-                    return baseIndex * length;
-                case RIGHT:
-                    return baseIndex * length + (length -1);
-            }
-            return baseIndex;
+    private static int adjustIndex(int baseIndex, Direction direction, int width) {
+        //we always iterate over all the points of the heightmap that we are scaling
+        switch (direction){
+            case TOP:
+                return width * width - width + baseIndex;
+            case BOTTOM:
+                return baseIndex;
+            case LEFT:
+                return baseIndex * width;
+            case RIGHT:
+                return baseIndex * width + width - 1;
         }
-
-        else {
-            // Main terrain has higher resolution so need to scale
-            int offset = (int) (1.0f / stepFactor);
-            switch (direction) {
-                case TOP:
-                    return ((length - 1) * length + baseIndex) / offset;
-                case BOTTOM:
-                    return baseIndex / offset;
-                case LEFT:
-                    return baseIndex * length / offset;
-                case RIGHT:
-                    return (baseIndex * length + (length - 1)) / offset;
-            }
-        }
-
         throw new IllegalArgumentException("Invalid direction: " + direction);
     }
 
-    private static int adjustNeighborIndex(int baseIndex, Direction direction, float stepFactor, int neighborLength) {
+    private static int adjustNeighborIndex(int baseIndex, Direction direction, float stepFactor, int neighborWidth) {
 
-        if (stepFactor <= 1) {
-            // Neighbor has same or lower resolution than current terrain
-
+        if (stepFactor < 1) {
+            // Neighbor has lower resolution than current terrain being processed
+            int offset = (int) (1f / stepFactor);
             switch (direction) {
                 case TOP:
-                    return baseIndex;
-                case BOTTOM:
-                    return (neighborLength - 1) * neighborLength + baseIndex;
-                case LEFT:
-                    return baseIndex * neighborLength + (neighborLength -1);
-                case RIGHT:
-                    return baseIndex * neighborLength;
-            }
-        }
-
-        else {
-            // Neighbor terrain has higher resolution as current
-            int offset = (int) (stepFactor);
-            switch (direction) {
-                case TOP:
-                    return ((neighborLength - 1) * neighborLength + baseIndex) / offset;
+                    return (neighborWidth * neighborWidth - neighborWidth + baseIndex) / offset;
                 case BOTTOM:
                     return baseIndex / offset;
                 case LEFT:
-                    return (baseIndex * neighborLength + (neighborLength - 1)) / offset;
+                    return baseIndex * neighborWidth / offset;
                 case RIGHT:
-                    return baseIndex* neighborLength / offset;
+                    return (baseIndex * neighborWidth + neighborWidth - 1) / offset;
+            }
+        }
+
+        else if (stepFactor > 1) {
+            // Neighbor terrain has higher resolution than current terrain being processed
+            int offset = (int) (stepFactor);
+            switch (direction) {
+                case TOP:
+                    return baseIndex * offset;
+                case BOTTOM:
+                    return (neighborWidth * neighborWidth - neighborWidth + baseIndex) * offset;
+                case LEFT:
+                    return (baseIndex * neighborWidth + neighborWidth - 1) * offset;
+                case RIGHT:
+                    return baseIndex * neighborWidth * offset;
+            }
+        }
+        else{
+            //same resolution size terrains
+            switch (direction){
+                case TOP:
+                    return baseIndex;
+                case BOTTOM:
+                    return neighborWidth * neighborWidth - neighborWidth + baseIndex;
+                case LEFT:
+                    return baseIndex * neighborWidth + neighborWidth -1;
+                case RIGHT:
+                    return baseIndex * neighborWidth;
             }
         }
         throw new IllegalArgumentException("Invalid direction: " + direction);
