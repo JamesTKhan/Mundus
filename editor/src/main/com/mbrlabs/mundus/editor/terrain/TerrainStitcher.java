@@ -1,6 +1,5 @@
 package com.mbrlabs.mundus.editor.terrain;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -14,6 +13,7 @@ import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
 import com.mbrlabs.mundus.editor.history.commands.TerrainStitchCommand;
 import com.mbrlabs.mundus.editor.ui.UI;
+import com.mbrlabs.mundus.editor.utils.Log;
 
 /**
  * Utility class to stitch all terrains within a scene together based on their neighbors.
@@ -109,7 +109,8 @@ public class TerrainStitcher {
         int currentLength = terrainComponent.getTerrainAsset().getTerrain().heightData.length;
         int neighborLength = neighbor.getTerrainAsset().getTerrain().heightData.length;
 
-        Gdx.app.log("Current length: " + currentLength, "Neighbor length: " + neighborLength);
+        Log.debug("Current length: " + currentLength, "Neighbor length: " + neighborLength);
+
         int heightsStitched = 0;
 
         int width = (int) Math.sqrt(currentLength);
@@ -125,11 +126,39 @@ public class TerrainStitcher {
 
         for (int i = 0; i < width; i++) {
             int currentIndex = adjustIndex(i, direction, width);
-            int neighborIndex = adjustNeighborIndex(i, direction, stepFactor, neighborWidth);
+            int neighborIndex = adjustNeighborIndex(i, direction, neighborWidth);
             heightsStitched += blendVertices(currentHeightMap, neighborHeightMap, currentIndex, neighborIndex, stepFactor, currWH, neighborWH);
         }
 
         return heightsStitched;
+    }
+
+    private static int adjustIndex(int baseIndex, Direction direction, int width) {
+        switch (direction){
+            case TOP:
+                return width * width - width + baseIndex;
+            case BOTTOM:
+                return baseIndex;
+            case LEFT:
+                return baseIndex * width;
+            case RIGHT:
+                return baseIndex * width + width - 1;
+        }
+        throw new IllegalArgumentException("Invalid direction: " + direction);
+    }
+
+    private static int adjustNeighborIndex(int baseIndex, Direction direction, int neighborWidth) {
+        switch (direction){
+            case TOP:
+                return baseIndex;
+            case BOTTOM:
+                return neighborWidth * neighborWidth - neighborWidth + baseIndex;
+            case LEFT:
+                return baseIndex * neighborWidth + neighborWidth -1;
+            case RIGHT:
+                return baseIndex * neighborWidth;
+            }
+        throw new IllegalArgumentException("Invalid direction: " + direction);
     }
 
     private static int blendVertices(float[] currentHeightMap, float[] neighborHeightMap, int index, int neighborIndex, float stepFactor, float currWH, float neighborWH) {
@@ -173,67 +202,5 @@ public class TerrainStitcher {
         float worldHeight = terrainComponent.getGameObject().getTransform().getTranslation(tmp).y;
         Pools.vector3Pool.free(tmp);
         return worldHeight;
-    }
-
-    private static int adjustIndex(int baseIndex, Direction direction, int width) {
-        //we always iterate over all the points of the heightmap that we are scaling
-        switch (direction){
-            case TOP:
-                return width * width - width + baseIndex;
-            case BOTTOM:
-                return baseIndex;
-            case LEFT:
-                return baseIndex * width;
-            case RIGHT:
-                return baseIndex * width + width - 1;
-        }
-        throw new IllegalArgumentException("Invalid direction: " + direction);
-    }
-
-    private static int adjustNeighborIndex(int baseIndex, Direction direction, float stepFactor, int neighborWidth) {
-
-        if (stepFactor < 1) {
-            // Neighbor has lower resolution than current terrain being processed
-            int offset = (int) (1f / stepFactor);
-            switch (direction) {
-                case TOP:
-                    return (neighborWidth * neighborWidth - neighborWidth + baseIndex) / offset;
-                case BOTTOM:
-                    return baseIndex / offset;
-                case LEFT:
-                    return baseIndex * neighborWidth / offset;
-                case RIGHT:
-                    return (baseIndex * neighborWidth + neighborWidth - 1) / offset;
-            }
-        }
-
-        else if (stepFactor > 1) {
-            // Neighbor terrain has higher resolution than current terrain being processed
-            int offset = (int) (stepFactor);
-            switch (direction) {
-                case TOP:
-                    return baseIndex * offset;
-                case BOTTOM:
-                    return (neighborWidth * neighborWidth - neighborWidth + baseIndex) * offset;
-                case LEFT:
-                    return (baseIndex * neighborWidth + neighborWidth - 1) * offset;
-                case RIGHT:
-                    return baseIndex * neighborWidth * offset;
-            }
-        }
-        else{
-            //same resolution size terrains
-            switch (direction){
-                case TOP:
-                    return baseIndex;
-                case BOTTOM:
-                    return neighborWidth * neighborWidth - neighborWidth + baseIndex;
-                case LEFT:
-                    return baseIndex * neighborWidth + neighborWidth -1;
-                case RIGHT:
-                    return baseIndex * neighborWidth;
-            }
-        }
-        throw new IllegalArgumentException("Invalid direction: " + direction);
     }
 }
