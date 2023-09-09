@@ -120,6 +120,7 @@ public class TerrainStitcher {
         float neighborWH = getWorldHeight(neighbor);
 
         float[] currentHeightMap = terrain.getTerrainAsset().getTerrain().heightData;
+        float[] fullHeightMap = terrain.getTerrainAsset().getTerrain().fullHeightData;
         float[] neighborHeightMap = neighbor.getTerrainAsset().getTerrain().heightData;
 
         int stepFactor = width / neighborWidth;
@@ -132,7 +133,7 @@ public class TerrainStitcher {
             for (int i = 0; i < width; i++) {
                 int currentIndex = adjustIndex(i, direction, width);
                 int neighborIndex = adjustNeighborIndex(i, direction, neighborWidth);
-                heightsStitched += blendVertices(currentHeightMap, neighborHeightMap, currentIndex, neighborIndex, terrainWH, neighborWH);
+                heightsStitched += blendVertices(currentHeightMap, neighborHeightMap, fullHeightMap, currentIndex, neighborIndex, terrainWH, neighborWH);
             }
             return heightsStitched;
         }
@@ -143,7 +144,7 @@ public class TerrainStitcher {
                 int x = i / stepFactor;
                 int currentIndex = adjustIndex(i, direction, width);
                 int neighborIndex = adjustNeighborIndex(x, direction, neighborWidth);
-                heightsStitched += blendVertices(currentHeightMap, neighborHeightMap, currentIndex, neighborIndex, terrainWH, neighborWH);
+                heightsStitched += blendVertices(currentHeightMap, neighborHeightMap, fullHeightMap, currentIndex, neighborIndex, terrainWH, neighborWH);
             }
             return heightsStitched;
         }
@@ -177,10 +178,11 @@ public class TerrainStitcher {
         throw new IllegalArgumentException("Invalid direction: " + direction);
     }
 
-    private static int blendVertices(float[] currentHeightMap, float[] neighborHeightMap, int index, int neighborIndex, float currWH, float neighborWH) {
+    private static int blendVertices(float[] currentHeightMap, float[] neighborHeightMap, float[] fullHeightMap, int index, int neighborIndex, float currWH, float neighborWH) {
         float currHeight = currentHeightMap[index] + (includeWorldHeight ? currWH : 0);
         float neighborHeight = neighborHeightMap[neighborIndex] + (includeWorldHeight ? neighborWH: 0);
         currentHeightMap[index] = neighborHeight;
+        fullHeightMap[index] = neighborHeight;
         return 1;
     }
 

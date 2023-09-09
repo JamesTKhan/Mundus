@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.commons.terrain;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
@@ -57,7 +56,9 @@ public class Terrain implements Disposable {
     public float[] lodHeightData;
     public int terrainWidth = 1200;
     public int terrainDepth = 1200;
+    public int fullVertexResolution;
     public int vertexResolution;
+    public int lodVertexResolution;
 
     // used for building the mesh
     private final VertexAttributes attribs;
@@ -90,12 +91,13 @@ public class Terrain implements Disposable {
         material.set(TerrainMaterialAttribute.createTerrainMaterialAttribute(terrainMaterial));
     }
 
-    public Terrain(int size, float[] fullHeightData) {
-        this((int) Math.sqrt(fullHeightData.length));
+    public Terrain(int size, float[] heightData) {
+        this((int) Math.sqrt(heightData.length));
         this.terrainWidth = size;
         this.terrainDepth = size;
-        this.fullHeightData = fullHeightData;
-        this.heightData = fullHeightData;
+        this.heightData = heightData;
+        this.fullHeightData = heightData;
+        this.fullVertexResolution = vertexResolution;
     }
 
     public void init() {
@@ -360,6 +362,7 @@ public class Terrain implements Disposable {
 
         //save low lod heightmap
         this.lodHeightData = newHeightData;
+        this.lodVertexResolution = newResolution;
 
         PlaneMesh generator = new PlaneMesh(info);
         Mesh mesh = generator.buildMesh(false);

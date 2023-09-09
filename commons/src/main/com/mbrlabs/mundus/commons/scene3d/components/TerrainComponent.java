@@ -77,9 +77,11 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
             lowPolyModelInstance.materials.set(0, modelInstance.materials.first());
             currentInstance = lowPolyModelInstance;
             this.getTerrainAsset().getTerrain().heightData = this.getTerrainAsset().getTerrain().lodHeightData;
+            this.getTerrainAsset().getTerrain().vertexResolution = this.getTerrainAsset().getTerrain().lodVertexResolution;
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.F2) || distance <= threshold) {
             currentInstance = modelInstance;
             this.getTerrainAsset().getTerrain().heightData = this.getTerrainAsset().getTerrain().fullHeightData;
+            this.getTerrainAsset().getTerrain().vertexResolution = this.getTerrainAsset().getTerrain().fullVertexResolution;
         }
     }
 
