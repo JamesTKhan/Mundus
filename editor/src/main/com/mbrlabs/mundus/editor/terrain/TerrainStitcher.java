@@ -45,7 +45,6 @@ public class TerrainStitcher {
             if (numSteps > length) {
                 throw new IllegalArgumentException("Number of Steps must be less than the vertex resolution of the terrain (" + length + ")");
             }
-
             terrainComponents.add(terrainComponent);
             terrains.add(terrainComponent.getTerrainAsset().getTerrain());
         }
@@ -100,13 +99,12 @@ public class TerrainStitcher {
         } else {
             UI.INSTANCE.getToaster().success("Stitched " + heightsStitched + " height values.");
         }
-
         return heightsStitched;
     }
 
-    private static int stitchNeighbor(TerrainComponent terrainComponent, TerrainComponent neighbor, Direction direction) {
+    private static int stitchNeighbor(TerrainComponent terrain, TerrainComponent neighbor, Direction direction) {
         //need to use heightMaps because that is what we are keeping current in terrainComponent.update wrt mesh size
-        int currentLength = terrainComponent.getTerrainAsset().getTerrain().heightData.length;
+        int currentLength = terrain.getTerrainAsset().getTerrain().heightData.length;
         int neighborLength = neighbor.getTerrainAsset().getTerrain().heightData.length;
 
         Log.debug("Current length: " + currentLength, "Neighbor length: " + neighborLength);
@@ -115,22 +113,40 @@ public class TerrainStitcher {
 
         int width = (int) Math.sqrt(currentLength);
         int neighborWidth = (int) Math.sqrt(neighborLength);
+        Log.debug("Current width: " + width, "Neighbor width: " + neighborWidth);
 
-        float currWH = getWorldHeight(terrainComponent);
+
+        float terrainWH = getWorldHeight(terrain);
         float neighborWH = getWorldHeight(neighbor);
 
-        float[] currentHeightMap = terrainComponent.getTerrainAsset().getTerrain().heightData;
+        float[] currentHeightMap = terrain.getTerrainAsset().getTerrain().heightData;
         float[] neighborHeightMap = neighbor.getTerrainAsset().getTerrain().heightData;
 
-        float stepFactor = (float) neighborWidth / width;
+        int stepFactor = width / neighborWidth;
 
-        for (int i = 0; i < width; i++) {
-            int currentIndex = adjustIndex(i, direction, width);
-            int neighborIndex = adjustNeighborIndex(i, direction, neighborWidth);
-            heightsStitched += blendVertices(currentHeightMap, neighborHeightMap, currentIndex, neighborIndex, stepFactor, currWH, neighborWH);
+        // Main terrain has lower resolution than the neighbor skip it and let neighbor process
+        if (stepFactor < 1) return 0;
+
+        // Same size stitch
+        else if (stepFactor == 1) {
+            for (int i = 0; i < width; i++) {
+                int currentIndex = adjustIndex(i, direction, width);
+                int neighborIndex = adjustNeighborIndex(i, direction, neighborWidth);
+                heightsStitched += blendVertices(currentHeightMap, neighborHeightMap, currentIndex, neighborIndex, terrainWH, neighborWH);
+            }
+            return heightsStitched;
         }
 
-        return heightsStitched;
+        // Main terrain is larger, so we need to scale to neighbor's indices
+        else{
+            for (int i = 0; i < width; i++) {
+                int x = i / stepFactor;
+                int currentIndex = adjustIndex(i, direction, width);
+                int neighborIndex = adjustNeighborIndex(x, direction, neighborWidth);
+                heightsStitched += blendVertices(currentHeightMap, neighborHeightMap, currentIndex, neighborIndex, terrainWH, neighborWH);
+            }
+            return heightsStitched;
+        }
     }
 
     private static int adjustIndex(int baseIndex, Direction direction, int width) {
@@ -161,38 +177,10 @@ public class TerrainStitcher {
         throw new IllegalArgumentException("Invalid direction: " + direction);
     }
 
-    private static int blendVertices(float[] currentHeightMap, float[] neighborHeightMap, int index, int neighborIndex, float stepFactor, float currWH, float neighborWH) {
+    private static int blendVertices(float[] currentHeightMap, float[] neighborHeightMap, int index, int neighborIndex, float currWH, float neighborWH) {
         float currHeight = currentHeightMap[index] + (includeWorldHeight ? currWH : 0);
         float neighborHeight = neighborHeightMap[neighborIndex] + (includeWorldHeight ? neighborWH: 0);
-
-        if (Math.abs(currHeight - neighborHeight) < threshold) {
-            return 0; //vertices are close enough
-        }
-
-        if (stepFactor > 1) {
-            // Main terrain has lower resolution than the neighbor
-            float accumulatedHeight = 0;
-
-            // Accumulate heights from the neighbor based on the step factor
-            for (int step = 0; step < stepFactor; step++) {
-                int adjustedNeighborIdx = neighborIndex + step;
-                accumulatedHeight += neighborHeightMap[adjustedNeighborIdx] + (includeWorldHeight ? neighborWH : 0);
-            }
-
-            // Calculate the average height
-            float averageNeighborHeight = accumulatedHeight / stepFactor;
-            currentHeightMap[index] = MathUtils.lerp(currHeight, averageNeighborHeight, 0.5f);  // Blend 50-50 for simplicity
-
-        } else if (stepFactor == 1) {
-            // Main terrain and neighbor have the same resolution
-            currentHeightMap[index] = MathUtils.lerp(currHeight, neighborHeight, 0.5f);  // Blend 50-50 for simplicity
-
-        } else {
-            // stepFactor < 1 means main terrain has a higher resolution than the neighbor
-
-            float height = MathUtils.lerp(neighborHeightMap[neighborIndex] + (includeWorldHeight ? neighborWH : 0), currHeight, (float) index / (float) numSteps);
-            currentHeightMap[index] = height;
-        }
+        currentHeightMap[index] = neighborHeight;
         return 1;
     }
 
