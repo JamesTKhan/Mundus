@@ -303,13 +303,13 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
                     terrainComponents[x][y]!!.topNeighbor = terrainComponents[x][y+1]
                 }
                 if (x-1 >= 0) {
-                    terrainComponents[x][y]!!.rightNeighbor = terrainComponents[x-1][y]
+                    terrainComponents[x][y]!!.leftNeighbor = terrainComponents[x-1][y]
                 }
                 if (y-1 >= 0) {
                     terrainComponents[x][y]!!.bottomNeighbor = terrainComponents[x][y-1]
                 }
                 if (x+1 < terrainComponents.size) {
-                    terrainComponents[x][y]!!.leftNeighbor = terrainComponents[x+1][y]
+                    terrainComponents[x][y]!!.rightNeighbor = terrainComponents[x+1][y]
                 }
             }
         }
