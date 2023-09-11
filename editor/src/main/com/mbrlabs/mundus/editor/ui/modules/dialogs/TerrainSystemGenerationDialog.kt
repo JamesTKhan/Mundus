@@ -43,6 +43,8 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
     }
 
     override fun show(stage: Stage?): VisDialog {
+        noiseGeneratorWidget.generator.modifiers.clear()
+
         val selectedGameObject = UI.outline.getSelectedGameObject()
         terrainManagerComponent = selectedGameObject!!.findComponentByType(Component.Type.TERRAIN_MANAGER) as TerrainManagerComponent
 
