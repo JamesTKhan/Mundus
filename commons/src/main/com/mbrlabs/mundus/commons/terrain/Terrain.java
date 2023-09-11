@@ -365,7 +365,7 @@ public class Terrain implements Disposable {
         this.lodVertexResolution = newResolution;
 
         PlaneMesh generator = new PlaneMesh(info);
-        Mesh mesh = generator.buildMesh(false);
+        Mesh mesh = generator.buildMesh(true);
         generator.calculateAverageNormals();
         generator.computeTangents();
         generator.updateMeshVertices();
