@@ -33,11 +33,11 @@ public class ElevationModifier extends NoiseModifier {
     public void modify(TerrainNoiseData terrainNoiseData, float x, float y) {
         super.modify(terrainNoiseData, x, y);
 
-        // TODO maybe additive vs multiply setting?
         if (terrainNoiseData.elevation == 0)
             terrainNoiseData.elevation = noise.GetNoise(fVector2.x, fVector2.y);
-        else {
+        else if (!additive)
             terrainNoiseData.elevation *= noise.GetNoise(fVector2.x, fVector2.y);
-        }
+        else
+            terrainNoiseData.elevation+= noise.GetNoise(fVector2.x, fVector2.y);
     }
 }

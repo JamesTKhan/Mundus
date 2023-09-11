@@ -40,12 +40,10 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
 
     private lateinit var modifierTable: VisTable
     private val generateBtn = VisTextButton("Generate Terrain")
-    private val noiseGeneratorWidget : NoiseGeneratorWidget
+    private val noiseGeneratorWidget : NoiseGeneratorWidget = NoiseGeneratorWidget(true)
     private val name = VisTextField("Terrain")
 
     init {
-        noiseGeneratorWidget = NoiseGeneratorWidget(true)
-
         setupUI()
         setupListeners()
     }
@@ -159,7 +157,6 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
                 super.clicked(event, x, y)
             }
         })
-
         modifierTable.add(button).left().row()
     }
 

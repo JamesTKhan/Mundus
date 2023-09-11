@@ -18,6 +18,7 @@ public abstract class NoiseModifier implements TerrainModifier {
     protected FastNoiseLite.DomainWarpType domainType;
     protected float domainWarpAmps = 0.0f;
     protected float frequency = 0.0f;
+    protected boolean additive = false;
 
     public FastNoiseLite getNoiseGenerator() {
         return noise;
@@ -87,4 +88,8 @@ public abstract class NoiseModifier implements TerrainModifier {
     public void setDomainWarpFrequency(float domainWarpFrequency) {
         this.domainWarpFrequency = domainWarpFrequency;
     }
+
+    public boolean getNoiseAdditive() {return this.additive;}
+
+    public void setNoiseAdditive(boolean additive) {this.additive = additive;}
 }
