@@ -97,8 +97,8 @@ public class TerrainManagerComponent extends AbstractComponent {
             public float frequency;
             public float domainWarpFrequency;
             public float domainWarpAmps;
-            public float lacunarity;
-            public float gain;
+            public float fractalLacunarity;
+            public float fractalGain;
             public boolean additive;
         }
 

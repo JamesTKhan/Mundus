@@ -82,20 +82,20 @@ class NoiseModifierDialog(var modifier: NoiseModifier) : BaseDialog(modifier.nam
 
         sliderTable.add(VisLabel("Lacunarity: ")).left()
         sliderTable.add(lacunaritySlider).row()
-        lacunaritySlider.value = modifier.noiseGenerator.GetFractalLacunarity()
+        lacunaritySlider.value = modifier.fractalLacunarity
         lacunaritySlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                modifier.noiseGenerator.SetFractalLacunarity(lacunaritySlider.value)
+                modifier.fractalLacunarity = lacunaritySlider.value
                 Mundus.postEvent(UpdateNoiseTextureEvent())
             }
         })
 
         sliderTable.add(VisLabel("Gain: ")).left()
         sliderTable.add(gainSlider).row()
-        gainSlider.value = modifier.noiseGenerator.GetFractalGain()
+        gainSlider.value = modifier.fractalGain
         gainSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                modifier.noiseGenerator.SetFractalGain(gainSlider.value)
+                modifier.fractalGain = gainSlider.value
                 Mundus.postEvent(UpdateNoiseTextureEvent())
             }
         })

@@ -89,6 +89,22 @@ public abstract class NoiseModifier implements TerrainModifier {
         this.domainWarpFrequency = domainWarpFrequency;
     }
 
+    public void setFractalGain(float gain) {
+        this.noise.SetFractalGain(gain);
+    }
+
+    public float getFractalGain() {
+        return noise.GetFractalGain();
+    }
+
+    public void setFractalLacunarity(float lacunariy) {
+        this.noise.SetFractalLacunarity(lacunariy);
+    }
+
+    public float getFractalLacunarity() {
+        return noise.GetFractalLacunarity();
+    }
+
     public boolean getNoiseAdditive() {return this.additive;}
 
     public void setNoiseAdditive(boolean additive) {this.additive = additive;}

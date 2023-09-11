@@ -193,7 +193,6 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
             val modifiers = proceduralTerrainTab.getModifiers()
             for (modifier in modifiers) {
                 if (modifier is NoiseModifier) {
-                    val noiseGenerator = modifier.noiseGenerator
                     val elevation = Elevation()
                     elevation.noiseType = modifier.type.name
                     elevation.fractalType = modifier.fractalType.name
@@ -201,8 +200,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
                     elevation.frequency = modifier.frequency
                     elevation.domainWarpFrequency = modifier.domainWarpFrequency
                     elevation.domainWarpAmps = modifier.domainWarpAmps
-                    elevation.lacunarity = noiseGenerator.GetFractalLacunarity()
-                    elevation.gain = noiseGenerator.GetFractalGain()
+                    elevation.fractalLacunarity = modifier.fractalLacunarity
+                    elevation.fractalGain = modifier.fractalGain
                     elevation.additive = modifier.noiseAdditive
 
                     generation.elevations.add(elevation)
