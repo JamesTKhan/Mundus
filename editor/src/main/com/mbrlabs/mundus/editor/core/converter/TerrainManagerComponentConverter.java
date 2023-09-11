@@ -30,6 +30,6 @@ public class TerrainManagerComponentConverter {
     }
 
     public static TerrainManagerComponent convert(TerrainManagerComponentDTO dto, GameObject go) {
-        return new TerrainManagerComponent(go);
+        return new TerrainManagerComponent(go, null);
     }
 }

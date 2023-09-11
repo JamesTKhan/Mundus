@@ -13,6 +13,10 @@ public abstract class NoiseModifier implements TerrainModifier {
     protected static final FastNoiseLite.Vector2 fVector2 = new FastNoiseLite.Vector2(0,0);
     protected FastNoiseLite noise = new FastNoiseLite();
     protected float domainWarpFrequency = 0.0f;
+    protected FastNoiseLite.NoiseType type;
+    protected FastNoiseLite.FractalType fractalType;
+    protected FastNoiseLite.DomainWarpType domainType;
+    protected float domainWarpAmps = 0.0f;
     protected float frequency = 0.0f;
 
     public FastNoiseLite getNoiseGenerator() {
@@ -30,6 +34,42 @@ public abstract class NoiseModifier implements TerrainModifier {
 
         // Reset regular frequency
         noise.SetFrequency(frequency);
+    }
+
+    public FastNoiseLite.NoiseType getType() {
+        return type;
+    }
+
+    public void setType(final FastNoiseLite.NoiseType type) {
+        this.type = type;
+        noise.SetNoiseType(type);
+    }
+
+    public FastNoiseLite.FractalType getFractalType() {
+        return fractalType;
+    }
+
+    public void setFractalType(final FastNoiseLite.FractalType fractalType) {
+        this.fractalType = fractalType;
+        noise.SetFractalType(fractalType);
+    }
+
+    public FastNoiseLite.DomainWarpType getDomainType() {
+        return domainType;
+    }
+
+    public void setDomainType(final FastNoiseLite.DomainWarpType domainType) {
+        this.domainType = domainType;
+        noise.SetDomainWarpType(domainType);
+    }
+
+    public float getDomainWarpAmps() {
+        return domainWarpAmps;
+    }
+
+    public void setDomainWarpAmps(final float domainWarpAmps) {
+        this.domainWarpAmps = domainWarpAmps;
+        noise.SetDomainWarpAmp(domainWarpAmps);
     }
 
     public float getFrequency() {

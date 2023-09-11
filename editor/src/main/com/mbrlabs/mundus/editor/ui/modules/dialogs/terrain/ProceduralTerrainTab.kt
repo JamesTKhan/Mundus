@@ -44,7 +44,7 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
     private val name = VisTextField("Terrain")
 
     init {
-        noiseGeneratorWidget = NoiseGeneratorWidget()
+        noiseGeneratorWidget = NoiseGeneratorWidget(true)
 
         setupUI()
         setupListeners()
@@ -166,6 +166,11 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
     fun terraform(xOffset: Int, yOffset: Int, terrain: TerrainComponent) {
         noiseGeneratorWidget.generator.offset(xOffset, yOffset).setTerrain(terrain.terrainAsset.terrain).terraform()
     }
+
+    fun getMinHeightValue() : Float = minHeight.float
+    fun getMaxHeightValue() : Float = maxHeight.float
+
+    fun getModifiers(): ArrayList<TerrainModifier> = noiseGeneratorWidget.generator.modifiers
 
     override fun getTabTitle(): String {
         return "Procedural Terrain"

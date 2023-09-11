@@ -18,6 +18,8 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.Generation
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.Generation.Elevation
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -27,6 +29,7 @@ import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
+import com.mbrlabs.mundus.editor.terrain.noise.modifiers.NoiseModifier
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.HeightMapTerrainTab
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.ProceduralTerrainTab
@@ -139,7 +142,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         kryoManager.saveProjectContext(projectManager.current())
 
         parentGO = GameObject(context.currScene.sceneGraph, "$terrainName Manager", goID)
-        parentGO.addComponent(TerrainManagerComponent(parentGO))
+        parentGO.addComponent(createTerrainManagerComponent(parentGO))
 
         val layerName = "${terrainName}.layer"
         if (projectManager.current().assetManager.assetExists(layerName)) {
@@ -176,6 +179,38 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
 
         sceneGraph.addGameObject(parentGO)
         Mundus.postEvent(SceneGraphChangedEvent())
+    }
+
+    private fun createTerrainManagerComponent(parentGO: GameObject): TerrainManagerComponent {
+        var generation: Generation? = null
+        if (tabbedPane.activeTab is ProceduralTerrainTab) {
+            val proceduralTerrainTab = tabbedPane.activeTab as ProceduralTerrainTab
+
+            generation = Generation()
+            generation.minHeight = proceduralTerrainTab.getMinHeightValue()
+            generation.maxHeight = proceduralTerrainTab.getMaxHeightValue()
+
+            val modifiers = proceduralTerrainTab.getModifiers()
+            for (modifier in modifiers) {
+                if (modifier is NoiseModifier) {
+                    val noiseGenerator = modifier.noiseGenerator
+                    val elevation = Elevation()
+                    elevation.noiseType = modifier.type.name
+                    elevation.fractalType = modifier.fractalType.name
+                    elevation.domainType = modifier.domainType.name
+                    elevation.frequency = modifier.frequency
+                    elevation.domainWarpFrequency = modifier.domainWarpFrequency
+                    elevation.domainWarpAmps = modifier.domainWarpAmps
+                    elevation.lacunarity = noiseGenerator.GetFractalLacunarity()
+                    elevation.gain = noiseGenerator.GetFractalGain()
+
+                    generation.elevations.add(elevation)
+                }
+            }
+        }
+
+
+        return TerrainManagerComponent(parentGO, generation)
     }
 
     private fun runCreationThreads() {

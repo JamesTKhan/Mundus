@@ -4,6 +4,9 @@ import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Allows you to manage certain aspects of all child terrains that fall under this component.
  * @author JamesTKhan
@@ -11,8 +14,11 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
  */
 public class TerrainManagerComponent extends AbstractComponent {
 
-    public TerrainManagerComponent(GameObject go) {
+    private Generation generation;
+
+    public TerrainManagerComponent(final GameObject go, final Generation generation) {
         super(go);
+        this.generation = generation;
         type = Type.TERRAIN_MANAGER;
     }
 
@@ -72,6 +78,33 @@ public class TerrainManagerComponent extends AbstractComponent {
         }
 
         return null;
+    }
+
+    public Generation getGeneration() {
+        return generation;
+    }
+
+    public void setGeneration(final Generation generation) {
+        this.generation = generation;
+    }
+
+    public static class Generation {
+
+        public static class Elevation {
+            public String noiseType;
+            public String fractalType;
+            public String domainType;
+            public float frequency;
+            public float domainWarpFrequency;
+            public float domainWarpAmps;
+            public float lacunarity;
+            public float gain;
+        }
+
+        public float minHeight;
+        public float maxHeight;
+
+        public List<Elevation> elevations = new ArrayList<>();
     }
 
 }

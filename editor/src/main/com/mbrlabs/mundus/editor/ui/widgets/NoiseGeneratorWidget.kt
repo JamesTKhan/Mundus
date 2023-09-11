@@ -15,7 +15,7 @@ import com.mbrlabs.mundus.editor.terrain.noise.modifiers.ElevationModifier
  * @author JamesTKhan
  * @version October 24, 2022
  */
-class NoiseGeneratorWidget : BaseWidget(), UpdateNoiseTextureEvent.UpdateNoiseTextureListener  {
+class NoiseGeneratorWidget(createModifier: Boolean) : BaseWidget(), UpdateNoiseTextureEvent.UpdateNoiseTextureListener  {
     var generator: FastNoiseGenerator
     var renderWidget: RenderWidget
 
@@ -34,8 +34,10 @@ class NoiseGeneratorWidget : BaseWidget(), UpdateNoiseTextureEvent.UpdateNoiseTe
 
         generator = Terraformer.fastNoise(null)
 
-        // Add one modifier to the generator
-        generator.modifiers.add(ElevationModifier())
+        if (createModifier) {
+            // Add one modifier to the generator
+            generator.modifiers.add(ElevationModifier())
+        }
 
         listener = object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {

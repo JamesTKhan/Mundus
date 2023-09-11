@@ -1,7 +1,9 @@
 package com.mbrlabs.mundus.editor.ui.modules.dialogs
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.TerrainAsset
@@ -11,6 +13,7 @@ import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
+import com.mbrlabs.mundus.editor.events.UpdateNoiseTextureEvent
 import com.mbrlabs.mundus.editor.terrain.noise.modifiers.ElevationModifier
 import com.mbrlabs.mundus.editor.terrain.noise.modifiers.NoiseModifier
 import com.mbrlabs.mundus.editor.terrain.noise.modifiers.TerrainModifier
@@ -18,6 +21,7 @@ import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FloatFieldWithLabel
 import com.mbrlabs.mundus.editor.ui.widgets.NoiseGeneratorWidget
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
+import com.mbrlabs.mundus.editor.utils.FastNoiseLite
 
 class TerrainSystemGenerationDialog : BaseDialog("Generation") {
 
@@ -25,9 +29,11 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
     private val maxHeight = FloatFieldWithLabel("", -1, true)
     private val generateBtn = VisTextButton("Generate")
 
-    private val noiseGeneratorWidget : NoiseGeneratorWidget = NoiseGeneratorWidget()
+    private val noiseGeneratorWidget : NoiseGeneratorWidget = NoiseGeneratorWidget(false)
 
     private lateinit var modifierTable: VisTable
+
+    private var terrainManagerComponent : TerrainManagerComponent? = null
 
     init {
         isResizable = true
@@ -36,14 +42,54 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
         setupListeners()
     }
 
+    override fun show(stage: Stage?): VisDialog {
+        val selectedGameObject = UI.outline.getSelectedGameObject()
+        terrainManagerComponent = selectedGameObject!!.findComponentByType(Component.Type.TERRAIN_MANAGER) as TerrainManagerComponent
+
+        val generation = terrainManagerComponent!!.generation
+
+        if (generation != null) {
+            minHeight.text = generation.minHeight.toString()
+            maxHeight.text = generation.maxHeight.toString()
+
+            if (generation.elevations.isNotEmpty()) {
+                for (elevation in generation.elevations) {
+                    val modifier = ElevationModifier()
+                    modifier.type = FastNoiseLite.NoiseType.valueOf(elevation.noiseType)
+                    modifier.fractalType = FastNoiseLite.FractalType.valueOf(elevation.fractalType)
+                    modifier.domainType = FastNoiseLite.DomainWarpType.valueOf(elevation.domainType)
+                    modifier.frequency = elevation.frequency
+                    modifier.domainWarpFrequency = elevation.domainWarpFrequency
+                    modifier.domainWarpAmps = elevation.domainWarpAmps
+                    modifier.noiseGenerator.SetFractalLacunarity(elevation.lacunarity)
+                    modifier.noiseGenerator.SetFractalGain(elevation.gain)
+                    noiseGeneratorWidget.generator.modifiers.add(modifier)
+                }
+            } else {
+                noiseGeneratorWidget.generator.modifiers.add(ElevationModifier())
+            }
+        } else {
+            minHeight.text = (-50f).toString()
+            maxHeight.text = 50f.toString()
+
+            noiseGeneratorWidget.generator.modifiers.add(ElevationModifier())
+        }
+
+        buildModifierTable()
+        Mundus.postEvent(UpdateNoiseTextureEvent())
+
+        return super.show(stage)
+    }
+
+    override fun close() {
+        super.close()
+        terrainManagerComponent = null
+    }
+
     private fun setupUI() {
         val root = VisTable()
         root.padTop(6f).padRight(6f).padBottom(22f)
         add(root).expand().fill().row()
-
-        // TODO load these values from previous settings
-        minHeight.text = (-50f).toString()
-        maxHeight.text = 50f.toString()
 
         // left table
         val leftTable = VisTable()
@@ -79,18 +125,7 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
                         .minHeight(minHeight.float)
                         .maxHeight(maxHeight.float)
 
-                val selectedGameObject = UI.outline.getSelectedGameObject()
-                if (selectedGameObject == null) {
-                    Mundus.postEvent(LogEvent(LogType.ERROR,"There is no selected game object on Outline!"))
-                    return
-                }
-
-                val terrainManagerComponent = selectedGameObject.findComponentByType(Component.Type.TERRAIN_MANAGER) as TerrainManagerComponent?
-                if (terrainManagerComponent == null) {
-                    Mundus.postEvent(LogEvent(LogType.ERROR, "The selected object has not Terrain Manager Component!"))
-                    return
-                }
-                val firstTerrain = terrainManagerComponent.findFirstTerrainChild()
+                val firstTerrain = terrainManagerComponent!!.findFirstTerrainChild()
                 if (firstTerrain == null) {
                     Mundus.postEvent(LogEvent(LogType.ERROR, "The selected object has not terrain child!"))
                     return
