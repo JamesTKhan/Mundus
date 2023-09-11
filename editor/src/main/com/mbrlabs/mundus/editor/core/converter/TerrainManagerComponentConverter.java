@@ -26,10 +26,10 @@ import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent;
  */
 public class TerrainManagerComponentConverter {
     public static TerrainManagerComponentDTO convert(TerrainManagerComponent c) {
-        return new TerrainManagerComponentDTO();
+        return new TerrainManagerComponentDTO(c.getProceduralGeneration());
     }
 
     public static TerrainManagerComponent convert(TerrainManagerComponentDTO dto, GameObject go) {
-        return new TerrainManagerComponent(go, null);
+        return new TerrainManagerComponent(go, dto.getProceduralGeneration());
     }
 }
