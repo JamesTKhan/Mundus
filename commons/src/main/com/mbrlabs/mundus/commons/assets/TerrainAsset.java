@@ -166,7 +166,7 @@ public class TerrainAsset extends Asset {
         if (lodModel != null) {
             lodModel.dispose();
         }
-        lodModel = terrain.createLod(2);
+        lodModel = terrain.createLod(1);
     }
 
     public Model getLodModel() {

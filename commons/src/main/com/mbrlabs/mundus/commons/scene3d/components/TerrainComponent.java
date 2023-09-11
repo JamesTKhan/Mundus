@@ -73,7 +73,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         tmp2.add(terrainAsset.getTerrain().terrainWidth / 2f, 0, terrainAsset.getTerrain().terrainDepth / 2f);
 
         float distance = tmp.dst(tmp2);
-        float threshold = 2000;
+        float threshold = 500;
         if (distance > threshold) {
             lowPolyModelInstance.materials.set(0, modelInstance.materials.first());
             currentInstance = lowPolyModelInstance;
