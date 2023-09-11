@@ -14,11 +14,11 @@ import java.util.List;
  */
 public class TerrainManagerComponent extends AbstractComponent {
 
-    private Generation generation;
+    private ProceduralGeneration proceduralGeneration;
 
-    public TerrainManagerComponent(final GameObject go, final Generation generation) {
+    public TerrainManagerComponent(final GameObject go, final ProceduralGeneration proceduralGeneration) {
         super(go);
-        this.generation = generation;
+        this.proceduralGeneration = proceduralGeneration;
         type = Type.TERRAIN_MANAGER;
     }
 
@@ -80,17 +80,17 @@ public class TerrainManagerComponent extends AbstractComponent {
         return null;
     }
 
-    public Generation getGeneration() {
-        return generation;
+    public ProceduralGeneration getProceduralGeneration() {
+        return proceduralGeneration;
     }
 
-    public void setGeneration(final Generation generation) {
-        this.generation = generation;
+    public void setProceduralGeneration(final ProceduralGeneration proceduralGeneration) {
+        this.proceduralGeneration = proceduralGeneration;
     }
 
-    public static class Generation {
+    public static class ProceduralGeneration {
 
-        public static class Elevation {
+        public static class ProceduralNoiseModifier {
             public String noiseType;
             public String fractalType;
             public String domainType;
@@ -105,7 +105,7 @@ public class TerrainManagerComponent extends AbstractComponent {
         public float minHeight;
         public float maxHeight;
 
-        public List<Elevation> elevations = new ArrayList<>();
+        public List<ProceduralNoiseModifier> noiseModifiers = new ArrayList<>();
     }
 
 }

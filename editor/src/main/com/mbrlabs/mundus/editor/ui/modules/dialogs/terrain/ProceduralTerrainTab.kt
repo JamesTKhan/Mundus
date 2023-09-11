@@ -167,7 +167,7 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
     fun getMinHeightValue() : Float = minHeight.float
     fun getMaxHeightValue() : Float = maxHeight.float
 
-    fun getModifiers(): ArrayList<TerrainModifier> = noiseGeneratorWidget.generator.modifiers
+    fun getNoiseModifiers(): ArrayList<TerrainModifier> = noiseGeneratorWidget.generator.modifiers
 
     override fun getTabTitle(): String {
         return "Procedural Terrain"

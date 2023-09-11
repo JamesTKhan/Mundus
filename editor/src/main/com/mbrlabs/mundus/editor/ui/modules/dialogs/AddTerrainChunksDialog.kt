@@ -18,8 +18,8 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
-import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.Generation
-import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.Generation.Elevation
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.ProceduralGeneration
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.ProceduralGeneration.ProceduralNoiseModifier
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -182,35 +182,35 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
     }
 
     private fun createTerrainManagerComponent(parentGO: GameObject): TerrainManagerComponent {
-        var generation: Generation? = null
+        var proceduralGeneration: ProceduralGeneration? = null
         if (tabbedPane.activeTab is ProceduralTerrainTab) {
             val proceduralTerrainTab = tabbedPane.activeTab as ProceduralTerrainTab
 
-            generation = Generation()
-            generation.minHeight = proceduralTerrainTab.getMinHeightValue()
-            generation.maxHeight = proceduralTerrainTab.getMaxHeightValue()
+            proceduralGeneration = ProceduralGeneration()
+            proceduralGeneration.minHeight = proceduralTerrainTab.getMinHeightValue()
+            proceduralGeneration.maxHeight = proceduralTerrainTab.getMaxHeightValue()
 
-            val modifiers = proceduralTerrainTab.getModifiers()
+            val modifiers = proceduralTerrainTab.getNoiseModifiers()
             for (modifier in modifiers) {
                 if (modifier is NoiseModifier) {
-                    val elevation = Elevation()
-                    elevation.noiseType = modifier.type.name
-                    elevation.fractalType = modifier.fractalType.name
-                    elevation.domainType = modifier.domainType.name
-                    elevation.frequency = modifier.frequency
-                    elevation.domainWarpFrequency = modifier.domainWarpFrequency
-                    elevation.domainWarpAmps = modifier.domainWarpAmps
-                    elevation.fractalLacunarity = modifier.fractalLacunarity
-                    elevation.fractalGain = modifier.fractalGain
-                    elevation.additive = modifier.noiseAdditive
+                    val proceduralNoiseModifier = ProceduralNoiseModifier()
+                    proceduralNoiseModifier.noiseType = modifier.type.name
+                    proceduralNoiseModifier.fractalType = modifier.fractalType.name
+                    proceduralNoiseModifier.domainType = modifier.domainType.name
+                    proceduralNoiseModifier.frequency = modifier.frequency
+                    proceduralNoiseModifier.domainWarpFrequency = modifier.domainWarpFrequency
+                    proceduralNoiseModifier.domainWarpAmps = modifier.domainWarpAmps
+                    proceduralNoiseModifier.fractalLacunarity = modifier.fractalLacunarity
+                    proceduralNoiseModifier.fractalGain = modifier.fractalGain
+                    proceduralNoiseModifier.additive = modifier.noiseAdditive
 
-                    generation.elevations.add(elevation)
+                    proceduralGeneration.noiseModifiers.add(proceduralNoiseModifier)
                 }
             }
         }
 
 
-        return TerrainManagerComponent(parentGO, generation)
+        return TerrainManagerComponent(parentGO, proceduralGeneration)
     }
 
     private fun runCreationThreads() {

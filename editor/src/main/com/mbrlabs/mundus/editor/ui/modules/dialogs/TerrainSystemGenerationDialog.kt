@@ -46,14 +46,14 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
         val selectedGameObject = UI.outline.getSelectedGameObject()
         terrainManagerComponent = selectedGameObject!!.findComponentByType(Component.Type.TERRAIN_MANAGER) as TerrainManagerComponent
 
-        val generation = terrainManagerComponent!!.generation
+        val proceduralGeneration = terrainManagerComponent!!.proceduralGeneration
 
-        if (generation != null) {
-            minHeight.text = generation.minHeight.toString()
-            maxHeight.text = generation.maxHeight.toString()
+        if (proceduralGeneration != null) {
+            minHeight.text = proceduralGeneration.minHeight.toString()
+            maxHeight.text = proceduralGeneration.maxHeight.toString()
 
-            if (generation.elevations.isNotEmpty()) {
-                for (elevation in generation.elevations) {
+            if (proceduralGeneration.noiseModifiers.isNotEmpty()) {
+                for (elevation in proceduralGeneration.noiseModifiers) {
                     val modifier = ElevationModifier()
                     modifier.type = FastNoiseLite.NoiseType.valueOf(elevation.noiseType)
                     modifier.fractalType = FastNoiseLite.FractalType.valueOf(elevation.fractalType)
