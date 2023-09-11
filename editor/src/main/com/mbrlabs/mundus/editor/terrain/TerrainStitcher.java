@@ -103,16 +103,12 @@ public class TerrainStitcher {
     }
 
     private static int stitchNeighbor(TerrainComponent terrain, TerrainComponent neighbor, Direction direction) {
-        //need to use heightMaps because that is what we are keeping current in terrainComponent.update wrt mesh size
-        int currentLength = terrain.getTerrainAsset().getTerrain().heightData.length;
-        int neighborLength = neighbor.getTerrainAsset().getTerrain().heightData.length;
 
-        Log.debug("Current length: " + currentLength, "Neighbor length: " + neighborLength);
+        int width = terrain.getTerrainAsset().getTerrain().vertexResolution;
+        int neighborWidth = neighbor.getTerrainAsset().getTerrain().vertexResolution;
 
         int heightsStitched = 0;
 
-        int width = (int) Math.sqrt(currentLength);
-        int neighborWidth = (int) Math.sqrt(neighborLength);
         Log.debug("Current width: " + width, "Neighbor width: " + neighborWidth);
 
 

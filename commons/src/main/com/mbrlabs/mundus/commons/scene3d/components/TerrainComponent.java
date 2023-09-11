@@ -44,6 +44,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     protected ModelInstance modelInstance;
     protected ModelInstance lowPolyModelInstance;
     protected TerrainAsset terrainAsset;
+    protected boolean lowres;
 
     // Neighbor terrain components
     private TerrainComponent topNeighbor;
@@ -76,10 +77,12 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         if (distance > threshold) {
             lowPolyModelInstance.materials.set(0, modelInstance.materials.first());
             currentInstance = lowPolyModelInstance;
+            lowres = true;
             this.getTerrainAsset().getTerrain().heightData = this.getTerrainAsset().getTerrain().lodHeightData;
             this.getTerrainAsset().getTerrain().vertexResolution = this.getTerrainAsset().getTerrain().lodVertexResolution;
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.F2) || distance <= threshold) {
             currentInstance = modelInstance;
+            lowres = false;
             this.getTerrainAsset().getTerrain().heightData = this.getTerrainAsset().getTerrain().fullHeightData;
             this.getTerrainAsset().getTerrain().vertexResolution = this.getTerrainAsset().getTerrain().fullVertexResolution;
         }
