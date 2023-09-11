@@ -78,7 +78,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         tmp2.add(terrainAsset.getTerrain().terrainWidth / 2f, 0, terrainAsset.getTerrain().terrainDepth / 2f);
 
         float distance = tmp.dst(tmp2);
-        float threshold = 1200;
+        float threshold = 200;
         //if we are moving outside our lod draw distance swap the model and heightmap data to low res
         if (distance > threshold && !atLodDistance) {
             lowPolyModelInstance.materials.set(0, modelInstance.materials.first());
