@@ -337,8 +337,8 @@ public class Terrain implements Disposable {
         return 1; // In case the number is a prime number, return 1
     }
 
-    public Model createLod() {
-        int newResolution = findClosestFactor(vertexResolution);  // New resolution
+    public Model createLod(int severity) {
+        int newResolution = findClosestFactor(vertexResolution / severity);  // New resolution
 
 
         float[] newHeightData = new float[newResolution * newResolution];
