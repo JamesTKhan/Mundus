@@ -44,13 +44,18 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     protected ModelInstance modelInstance;
     protected ModelInstance lowPolyModelInstance;
     protected TerrainAsset terrainAsset;
-    protected boolean lowres;
 
     // Neighbor terrain components
     private TerrainComponent topNeighbor;
     private TerrainComponent rightNeighbor;
     private TerrainComponent bottomNeighbor;
     private TerrainComponent leftNeighbor;
+    private boolean topStitched;
+    private boolean bottomStitched;
+    private boolean leftStitched;
+    private boolean rightStitched;
+    private boolean atLodDistance;
+
 
     public TerrainComponent(GameObject go) {
         super(go);
@@ -73,18 +78,21 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         tmp2.add(terrainAsset.getTerrain().terrainWidth / 2f, 0, terrainAsset.getTerrain().terrainDepth / 2f);
 
         float distance = tmp.dst(tmp2);
-        float threshold = 500;
-        if (distance > threshold) {
+        float threshold = 1200;
+        //if we are moving outside our lod draw distance swap the model and heightmap data to low res
+        if (distance > threshold && !atLodDistance) {
             lowPolyModelInstance.materials.set(0, modelInstance.materials.first());
             currentInstance = lowPolyModelInstance;
-            lowres = true;
             this.getTerrainAsset().getTerrain().heightData = this.getTerrainAsset().getTerrain().lodHeightData;
             this.getTerrainAsset().getTerrain().vertexResolution = this.getTerrainAsset().getTerrain().lodVertexResolution;
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.F2) || distance <= threshold) {
+            atLodDistance = true;
+        }
+        //if we are moving inside our lod draw distance swap the model and heightmap data to high res
+        else if (distance <= threshold && atLodDistance) {
             currentInstance = modelInstance;
-            lowres = false;
             this.getTerrainAsset().getTerrain().heightData = this.getTerrainAsset().getTerrain().fullHeightData;
             this.getTerrainAsset().getTerrain().vertexResolution = this.getTerrainAsset().getTerrain().fullVertexResolution;
+            atLodDistance = false;
         }
     }
 
@@ -178,6 +186,38 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         if (bottomNeighbor != null) out.add(bottomNeighbor);
         if (leftNeighbor != null) out.add(leftNeighbor);
         return out;
+    }
+
+    public boolean getTopStitched(){
+        return topStitched;
+    }
+
+    public boolean getBottomStitched(){
+        return bottomStitched;
+    }
+
+    public boolean getLeftStitched(){
+        return leftStitched;
+    }
+
+    public boolean getRightStitched(){
+        return rightStitched;
+    }
+
+    public void setTopStitched(boolean stitched){
+        topStitched = stitched;
+    }
+
+    public void setBottomStitched(boolean stitched){
+        bottomStitched = stitched;
+    }
+
+    public void setLeftStitched(boolean stitched){
+        leftStitched = stitched;
+    }
+
+    public void setRightStitched(boolean stitched){
+        rightStitched = stitched;
     }
 
     @Override

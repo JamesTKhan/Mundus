@@ -1,6 +1,5 @@
 package com.mbrlabs.mundus.editor.terrain;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -42,9 +41,9 @@ public class TerrainStitcher {
         for (GameObject go : terrainGOs) {
             TerrainComponent terrainComponent = (TerrainComponent) go.findComponentByType(Component.Type.TERRAIN);
             int length = terrainComponent.getTerrainAsset().getTerrain().vertexResolution;
-            if (numSteps > length) {
-                throw new IllegalArgumentException("Number of Steps must be less than the vertex resolution of the terrain (" + length + ")");
-            }
+            //if (numSteps > length) {
+            //    throw new IllegalArgumentException("Number of Steps must be less than the vertex resolution of the terrain (" + length + ")");
+            //}
             terrainComponents.add(terrainComponent);
             terrains.add(terrainComponent.getTerrainAsset().getTerrain());
         }
@@ -69,26 +68,45 @@ public class TerrainStitcher {
     public static int stitch(Array<TerrainComponent> terrainComponents) {
         int neighbors = 0;
         int heightsStitched = 0;
+        int components = 0;
+        int skipped = 0;
 
         for (TerrainComponent terrainComponent : terrainComponents) {
+            components++;
             if (terrainComponent.getTopNeighbor() != null) {
                 neighbors++;
-                heightsStitched = stitchNeighbor(terrainComponent, terrainComponent.getTopNeighbor(), Direction.TOP);
+                if (!terrainComponent.getTopNeighbor().getBottomStitched()){
+                    heightsStitched += stitchNeighbor(terrainComponent, terrainComponent.getTopNeighbor(), Direction.TOP);
+                    terrainComponent.setTopStitched(true);
+                }
+                else skipped++;
             }
 
             if (terrainComponent.getBottomNeighbor() != null) {
                 neighbors++;
-                heightsStitched += stitchNeighbor(terrainComponent, terrainComponent.getBottomNeighbor(), Direction.BOTTOM);
+                if (!terrainComponent.getBottomNeighbor().getTopStitched()) {
+                    heightsStitched += stitchNeighbor(terrainComponent, terrainComponent.getBottomNeighbor(), Direction.BOTTOM);
+                    terrainComponent.setBottomStitched(true);
+                }
+                else skipped++;
             }
 
             if (terrainComponent.getLeftNeighbor() != null) {
                 neighbors++;
-                heightsStitched += stitchNeighbor(terrainComponent, terrainComponent.getLeftNeighbor(), Direction.LEFT);
+                if (!terrainComponent.getLeftNeighbor().getRightStitched()) {
+                    heightsStitched += stitchNeighbor(terrainComponent, terrainComponent.getLeftNeighbor(), Direction.LEFT);
+                    terrainComponent.setLeftStitched(true);
+                }
+                else skipped++;
             }
 
             if (terrainComponent.getRightNeighbor() != null) {
                 neighbors++;
-                heightsStitched += stitchNeighbor(terrainComponent, terrainComponent.getRightNeighbor(), Direction.RIGHT);
+                if (!terrainComponent.getRightNeighbor().getLeftStitched()) {
+                    heightsStitched += stitchNeighbor(terrainComponent, terrainComponent.getRightNeighbor(), Direction.RIGHT);
+                    terrainComponent.setRightStitched(true);
+                }
+                else skipped++;
             }
         }
 
@@ -97,7 +115,7 @@ public class TerrainStitcher {
         } else if (heightsStitched == 0) {
             UI.INSTANCE.getToaster().info("No terrains needed stitching.");
         } else {
-            UI.INSTANCE.getToaster().success("Stitched " + heightsStitched + " height values.");
+            UI.INSTANCE.getToaster().success("Stitched " + components + " terrain components with " + skipped + " neighbors skipped, "+ heightsStitched + " height values stitched.");
         }
         return heightsStitched;
     }
@@ -111,12 +129,10 @@ public class TerrainStitcher {
 
         Log.debug("Current width: " + width, "Neighbor width: " + neighborWidth);
 
-
         float terrainWH = getWorldHeight(terrain);
         float neighborWH = getWorldHeight(neighbor);
 
         float[] currentHeightMap = terrain.getTerrainAsset().getTerrain().heightData;
-        float[] fullHeightMap = terrain.getTerrainAsset().getTerrain().fullHeightData;
         float[] neighborHeightMap = neighbor.getTerrainAsset().getTerrain().heightData;
 
         int stepFactor = width / neighborWidth;
@@ -129,7 +145,7 @@ public class TerrainStitcher {
             for (int i = 0; i < width; i++) {
                 int currentIndex = adjustIndex(i, direction, width);
                 int neighborIndex = adjustNeighborIndex(i, direction, neighborWidth);
-                heightsStitched += blendVertices(currentHeightMap, neighborHeightMap, fullHeightMap, currentIndex, neighborIndex, terrainWH, neighborWH);
+                heightsStitched += setVertices(currentHeightMap, neighborHeightMap, currentIndex, neighborIndex, terrainWH, neighborWH);
             }
             return heightsStitched;
         }
@@ -140,10 +156,20 @@ public class TerrainStitcher {
                 int x = i / stepFactor;
                 int currentIndex = adjustIndex(i, direction, width);
                 int neighborIndex = adjustNeighborIndex(x, direction, neighborWidth);
-                heightsStitched += blendVertices(currentHeightMap, neighborHeightMap, fullHeightMap, currentIndex, neighborIndex, terrainWH, neighborWH);
+                heightsStitched += setVertices(currentHeightMap, neighborHeightMap,currentIndex, neighborIndex, terrainWH, neighborWH);
             }
             return heightsStitched;
         }
+    }
+
+    private static int setVertices(float[] currentHeightMap, float[] neighborHeightMap, int index, int neighborIndex, float currWH, float neighborWH) {
+        float currHeight = currentHeightMap[index] + (includeWorldHeight ? currWH : 0);
+        float neighborHeight = neighborHeightMap[neighborIndex] + (includeWorldHeight ? neighborWH: 0);
+        if (currHeight != neighborHeight){
+            currentHeightMap[index] = neighborHeight;
+            return 1;
+        }
+        else return 0;
     }
 
     private static int adjustIndex(int baseIndex, Direction direction, int width) {
@@ -173,15 +199,6 @@ public class TerrainStitcher {
             }
         throw new IllegalArgumentException("Invalid direction: " + direction);
     }
-
-    private static int blendVertices(float[] currentHeightMap, float[] neighborHeightMap, float[] fullHeightMap, int index, int neighborIndex, float currWH, float neighborWH) {
-        float currHeight = currentHeightMap[index] + (includeWorldHeight ? currWH : 0);
-        float neighborHeight = neighborHeightMap[neighborIndex] + (includeWorldHeight ? neighborWH: 0);
-        currentHeightMap[index] = neighborHeight;
-        fullHeightMap[index] = neighborHeight;
-        return 1;
-    }
-
 
     private static float getWorldHeight(TerrainComponent terrainComponent) {
         Vector3 tmp = Pools.vector3Pool.obtain();
