@@ -63,6 +63,7 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
                     modifier.domainWarpAmps = elevation.domainWarpAmps
                     modifier.noiseGenerator.SetFractalLacunarity(elevation.lacunarity)
                     modifier.noiseGenerator.SetFractalGain(elevation.gain)
+                    modifier.noiseAdditive = elevation.additive
                     noiseGeneratorWidget.generator.modifiers.add(modifier)
                 }
             } else {

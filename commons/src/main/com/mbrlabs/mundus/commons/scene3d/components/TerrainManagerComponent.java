@@ -99,6 +99,7 @@ public class TerrainManagerComponent extends AbstractComponent {
             public float domainWarpAmps;
             public float lacunarity;
             public float gain;
+            public boolean additive;
         }
 
         public float minHeight;

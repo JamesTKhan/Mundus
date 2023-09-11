@@ -203,6 +203,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
                     elevation.domainWarpAmps = modifier.domainWarpAmps
                     elevation.lacunarity = noiseGenerator.GetFractalLacunarity()
                     elevation.gain = noiseGenerator.GetFractalGain()
+                    elevation.additive = modifier.noiseAdditive
 
                     generation.elevations.add(elevation)
                 }
