@@ -119,6 +119,7 @@ class NoiseModifierDialog(var modifier: NoiseModifier) : BaseDialog(modifier.nam
         for (type in FastNoiseLite.DomainWarpType.values())
             noiseTypes.add(type)
         domainTypeSelect.items = noiseTypes
+        domainTypeSelect.selected = modifier.domainType
 
         selectTable.add(VisLabel("Domain Type: "))
         selectTable.add(domainTypeSelect).row()
@@ -152,6 +153,7 @@ class NoiseModifierDialog(var modifier: NoiseModifier) : BaseDialog(modifier.nam
         for (type in FastNoiseLite.NoiseType.values())
             noiseTypes.add(type)
         noiseTypeSelect.items = noiseTypes
+        noiseTypeSelect.selected = modifier.type
 
         selectTable.add(VisLabel("Noise Type: "))
         selectTable.add(noiseTypeSelect).row()
