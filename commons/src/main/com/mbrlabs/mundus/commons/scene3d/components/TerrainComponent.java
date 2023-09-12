@@ -39,6 +39,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
+    protected ModelInstance[] modelInstances = new ModelInstance[Terrain.LOD_LEVELS];
     protected ModelInstance currentInstance;
     protected TerrainAsset terrainAsset;
 
@@ -69,11 +70,14 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         tmp2.add(terrainAsset.getTerrain().terrainWidth / 2f, 0, terrainAsset.getTerrain().terrainDepth / 2f);
         float distance = tmp.dst(tmp2);
 
-        for (int i = 0; i < Terrain.LOD_LEVELS; i++){
-            float drawDistance = i * 500 + 500;
+        for (int i = Terrain.LOD_LEVELS - 1; i >= 0 ; i--){
+            float drawDistance = i * 1000 + 1000;
             //we are moving inside of the current lod level's draw distance
             if (distance < drawDistance && lodLevel != i){
-                currentInstance = new ModelInstance(terrainAsset.getTerrain().getModel(i));
+                if (modelInstances[i] == null)
+                    modelInstances[i] = new ModelInstance(terrainAsset.getTerrain().getModel(i));
+
+                currentInstance = modelInstances[i];
                 applyMaterial();
                 lodLevel = i;
             }
