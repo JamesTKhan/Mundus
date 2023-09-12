@@ -46,7 +46,6 @@ public class TerrainAsset extends Asset {
     private MaterialAsset materialAsset;
 
     private Terrain terrain;
-    private Model lodModel;
 
     public TerrainAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
@@ -161,17 +160,8 @@ public class TerrainAsset extends Asset {
     public void applyDependencies() {
         updateTerrainMaterial();
         terrain.update();
-
-        // update lod model
-        if (lodModel != null) {
-            lodModel.dispose();
-        }
-        lodModel = terrain.createLod(1);
     }
 
-    public Model getLodModel() {
-        return lodModel;
-    }
 
     public void updateTerrainMaterial() {
         TerrainMaterial terrainMaterial = terrain.getTerrainTexture();

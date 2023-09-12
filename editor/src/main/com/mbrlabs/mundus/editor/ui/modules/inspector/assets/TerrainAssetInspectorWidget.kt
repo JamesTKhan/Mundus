@@ -94,7 +94,7 @@ class TerrainAssetInspectorWidget : BaseInspectorWidget(TITLE) {
     }
 
     private fun updateUI() {
-        val model = terrainAsset!!.terrain.model
+        val model = terrainAsset!!.terrain.getModel(0)
 
         name.setText("Name: " + terrainAsset!!.name)
         vertexCount.setText("Vertices: " + ModelUtils.getVerticesCount(model))

@@ -21,7 +21,8 @@ public class ObjExporter {
     private static final Vector3 tmpVec = new Vector3();
 
     public static void exportToObj(String fileName, Terrain terrain) throws GdxRuntimeException {
-        Model model = terrain.getModel();
+        //export highest resolution model
+        Model model = terrain.getModel(0);
         int vertexResolution = terrain.vertexResolution;
         final int w = vertexResolution - 1;
         final int h = vertexResolution - 1;

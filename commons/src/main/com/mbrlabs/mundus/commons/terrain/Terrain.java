@@ -42,6 +42,7 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_SIZE = 1200;
     public static final int DEFAULT_VERTEX_RESOLUTION = 180;
     public static final int DEFAULT_UV_SCALE = 60;
+    public static final int LOD_LEVELS = 3;
 
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();
@@ -53,7 +54,6 @@ public class Terrain implements Disposable {
 
     public float[] heightData;
     public float[] fullHeightData;
-    public float[] lodHeightData;
     public int terrainWidth = 1200;
     public int terrainDepth = 1200;
     public int fullVertexResolution;
@@ -69,7 +69,7 @@ public class Terrain implements Disposable {
     private final Material material;
 
     // Mesh
-    private Model model;
+    private Model[] model = new Model[LOD_LEVELS];
     private PlaneMesh planeMesh;
 
     private Terrain(int vertexResolution) {
@@ -101,25 +101,9 @@ public class Terrain implements Disposable {
     }
 
     public void init() {
-        final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
-
-        PlaneMesh.MeshInfo info = new PlaneMesh.MeshInfo();
-        info.attribs = attribs;
-        info.vertexResolution = vertexResolution;
-        info.heightData = heightData;
-        info.width = terrainWidth;
-        info.depth = terrainDepth;
-        info.uvScale = uvScale;
-
-        planeMesh = new PlaneMesh(info);
-        Mesh mesh = planeMesh.buildMesh(false);
-
-        MeshPart meshPart = new MeshPart(null, mesh, 0, numIndices, GL20.GL_TRIANGLES);
-        meshPart.update();
-        ModelBuilder mb = new ModelBuilder();
-        mb.begin();
-        mb.part(meshPart, material);
-        model = mb.end();
+        for (int i = 0; i < LOD_LEVELS; i++){
+            model[i] = createLod(i);
+        }
     }
 
 
@@ -309,13 +293,14 @@ public class Terrain implements Disposable {
         planeMesh.resetBoundingBox();
     }
 
-    public Model getModel() {
-        return model;
+    public Model getModel(int index) {
+        return model[index];
     }
 
     @Override
     public void dispose() {
-        model.dispose();
+        for (int i = 0; i < LOD_LEVELS; i++)
+            model[i].dispose();
         planeMesh.dispose();
     }
 
@@ -337,9 +322,13 @@ public class Terrain implements Disposable {
         return 1; // In case the number is a prime number, return 1
     }
 
-    public Model createLod(int severity) {
+    public Model createLod(int lodLevel) {
         //scale to new lower resolution
-        int newResolution = findClosestFactor(vertexResolution / (severity * severity));  // New resolution
+        int newResolution;
+        if (lodLevel != 0)
+            newResolution = findClosestFactor(vertexResolution / (lodLevel * lodLevel));  // New resolution
+        else
+            newResolution = vertexResolution;
 
         float[] newHeightData = new float[newResolution * newResolution];
 
@@ -360,12 +349,10 @@ public class Terrain implements Disposable {
         info.depth = terrainDepth;
         info.uvScale = uvScale;
 
-        //save low lod heightmap in case we are stitching terrain in lieu of skirts
-        this.lodHeightData = newHeightData;
-        this.lodVertexResolution = newResolution;
-
         PlaneMesh generator = new PlaneMesh(info);
-        Mesh mesh = generator.buildMesh(false);
+            if (lodLevel ==0)
+                planeMesh = generator;
+        Mesh mesh = generator.buildMesh(true);
         generator.calculateAverageNormals();
         generator.computeTangents();
         generator.updateMeshVertices();

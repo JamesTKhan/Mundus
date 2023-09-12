@@ -69,57 +69,32 @@ public class TerrainStitcher {
         int neighbors = 0;
         int heightsStitched = 0;
         int components = 0;
-        int skipped = 0;
+        int stitchStep = 0;
 
         for (TerrainComponent terrainComponent : terrainComponents) {
             components++;
             if (terrainComponent.getTopNeighbor() != null) {
                 neighbors++;
-                int stitchStep = 0;
-                if (!terrainComponent.getTopNeighbor().getBottomStitched()){
-                    stitchStep = stitchNeighbor(terrainComponent, terrainComponent.getTopNeighbor(), Direction.TOP);
-                    heightsStitched += stitchStep;
-                    if (stitchStep > 0)
-                        terrainComponent.setTopStitched(true);
-                }
-                else skipped++;
+                stitchStep = stitchNeighbor(terrainComponent, terrainComponent.getTopNeighbor(), Direction.TOP);
+                heightsStitched += stitchStep;
             }
 
             if (terrainComponent.getBottomNeighbor() != null) {
                 neighbors++;
-                int stitchStep = 0;
-                if (!terrainComponent.getBottomNeighbor().getTopStitched()) {
-                    stitchStep = stitchNeighbor(terrainComponent, terrainComponent.getBottomNeighbor(), Direction.BOTTOM);
-                    heightsStitched += stitchStep;
-                    // if we performed any stitching make sure we don't overwrite it
-                    if (stitchStep > 0)
-                        terrainComponent.setBottomStitched(true);
-                }
-                else skipped++;
+                stitchStep = stitchNeighbor(terrainComponent, terrainComponent.getBottomNeighbor(), Direction.BOTTOM);
+                heightsStitched += stitchStep;
             }
 
             if (terrainComponent.getLeftNeighbor() != null) {
                 neighbors++;
-                int stitchStep = 0;
-                if (!terrainComponent.getLeftNeighbor().getRightStitched()) {
-                    stitchStep = stitchNeighbor(terrainComponent, terrainComponent.getLeftNeighbor(), Direction.LEFT);
-                    heightsStitched += stitchStep;
-                    if (stitchStep > 0)
-                        terrainComponent.setLeftStitched(true);
-                }
-                else skipped++;
+                stitchStep = stitchNeighbor(terrainComponent, terrainComponent.getLeftNeighbor(), Direction.LEFT);
+                heightsStitched += stitchStep;
             }
 
             if (terrainComponent.getRightNeighbor() != null) {
-                int stitchStep = 0;
                 neighbors++;
-                if (!terrainComponent.getRightNeighbor().getLeftStitched()) {
-                    stitchStep = stitchNeighbor(terrainComponent, terrainComponent.getRightNeighbor(), Direction.RIGHT);
-                    heightsStitched += stitchStep;
-                    if (stitchStep > 0)
-                        terrainComponent.setRightStitched(true);
-                }
-                else skipped++;
+                stitchStep = stitchNeighbor(terrainComponent, terrainComponent.getRightNeighbor(), Direction.RIGHT);
+                heightsStitched += stitchStep;
             }
         }
 
@@ -128,7 +103,7 @@ public class TerrainStitcher {
         } else if (heightsStitched == 0) {
             UI.INSTANCE.getToaster().info("No terrains needed stitching.");
         } else {
-            UI.INSTANCE.getToaster().success("Stitched " + components + " terrain components with " + skipped + " neighbors skipped, "+ heightsStitched + " height values stitched.");
+            UI.INSTANCE.getToaster().success("Stitched " + components + " terrain components with " + neighbors + " neighbors, "+ heightsStitched + " height values stitched.");
         }
         return heightsStitched;
     }
