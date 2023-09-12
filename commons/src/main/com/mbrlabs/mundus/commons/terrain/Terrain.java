@@ -338,12 +338,12 @@ public class Terrain implements Disposable {
     }
 
     public Model createLod(int severity) {
-        int newResolution = findClosestFactor(vertexResolution / severity);  // New resolution
-
+        //scale to new lower resolution
+        int newResolution = findClosestFactor(vertexResolution / (severity * severity));  // New resolution
 
         float[] newHeightData = new float[newResolution * newResolution];
 
-        int step = vertexResolution / newResolution;  // In this case, step = 2
+        int step = vertexResolution / newResolution;
 
         for (int i = 0; i < newResolution; i++) {
             for (int j = 0; j < newResolution; j++) {
@@ -360,12 +360,12 @@ public class Terrain implements Disposable {
         info.depth = terrainDepth;
         info.uvScale = uvScale;
 
-        //save low lod heightmap
+        //save low lod heightmap in case we are stitching terrain in lieu of skirts
         this.lodHeightData = newHeightData;
         this.lodVertexResolution = newResolution;
 
         PlaneMesh generator = new PlaneMesh(info);
-        Mesh mesh = generator.buildMesh(true);
+        Mesh mesh = generator.buildMesh(false);
         generator.calculateAverageNormals();
         generator.computeTangents();
         generator.updateMeshVertices();
