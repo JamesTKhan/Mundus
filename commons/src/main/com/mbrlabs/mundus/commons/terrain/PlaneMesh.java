@@ -33,6 +33,8 @@ public class PlaneMesh implements Disposable {
 
     private final int vertexResolution;
 
+    private boolean generateSkirts;
+
     private final MeshInfo terrainMeshInfo;
     private VertexAttributes attribs;
 
@@ -66,7 +68,9 @@ public class PlaneMesh implements Disposable {
         this.stride = attribs.vertexSize / 4;
     }
 
-    public Mesh buildMesh() {
+    public Mesh buildMesh(boolean generateSkirts) {
+        this.generateSkirts = generateSkirts;
+
         final int numVertices = terrainMeshInfo.vertexResolution * terrainMeshInfo.vertexResolution;
         final int numIndices = (terrainMeshInfo.vertexResolution - 1) * (terrainMeshInfo.vertexResolution - 1) * 6;
 
@@ -149,9 +153,36 @@ public class PlaneMesh implements Disposable {
             }
         } else {
             // If the bounding box is empty, then we need to update all vertices.
+            float minHeight = Float.MAX_VALUE;
+            if (generateSkirts) {
+                // find min height
+                for (int i = 0; i < terrainMeshInfo.heightData.length; i++) {
+                    minHeight = Math.min(minHeight, terrainMeshInfo.heightData[i]);
+                }
+            }
+
+            float gridSizeWidth = terrainMeshInfo.width / (vertexResolution - 1);
+            float gridSizeDepth = terrainMeshInfo.depth / (vertexResolution - 1);
+
+
             for (int x = 0; x < vertexResolution; x++) {
                 for (int z = 0; z < vertexResolution; z++) {
                     calculateVertexAt(tempVertexInfo, x, z);
+
+                    if (generateSkirts) {
+                        int edgeExtension = 0;
+                        boolean isXPosEdge = x == terrainMeshInfo.vertexResolution - 1 - edgeExtension;
+                        boolean isXNegEdge = x <= edgeExtension;
+
+                        boolean isZPosEdge = z == terrainMeshInfo.vertexResolution - 1 - edgeExtension;
+                        boolean isZNegEdge = z <= edgeExtension;
+
+                        //TODO: Make edges extend for steep dropoffs.
+                        if (isXNegEdge ||isXPosEdge || isZNegEdge || isZPosEdge) {
+                            // push the edge down
+                            tempVertexInfo.position.y -= gridSizeDepth;
+                        }
+                    }
                     setVertex(z * vertexResolution + x, tempVertexInfo);
                 }
             }

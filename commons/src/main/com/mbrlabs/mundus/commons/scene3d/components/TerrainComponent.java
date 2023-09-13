@@ -26,6 +26,7 @@ import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.terrain.Terrain;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
@@ -38,7 +39,9 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
-    protected ModelInstance modelInstance;
+    // Array of lod models per terrain
+    protected ModelInstance[] modelInstances = new ModelInstance[Terrain.LOD_LEVELS];
+    protected ModelInstance currentInstance;
     protected TerrainAsset terrainAsset;
 
     // Neighbor terrain components
@@ -46,6 +49,12 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private TerrainComponent rightNeighbor;
     private TerrainComponent bottomNeighbor;
     private TerrainComponent leftNeighbor;
+
+    // Index of the current lod model being rendered
+    private int lodLevel = 0;
+
+    private static Vector3 cameraV3 = new Vector3();
+    private static Vector3 instanceV3 = new Vector3();
 
     public TerrainComponent(GameObject go) {
         super(go);
@@ -56,13 +65,30 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     public void update(float delta) {
         super.update(delta);
         if (gameObject.isDirty()) {
-            modelInstance.transform.set(gameObject.getTransform());
+            currentInstance.transform.set(gameObject.getTransform());
+        }
+        cameraV3.set(gameObject.sceneGraph.scene.cam.position);
+        currentInstance.transform.getTranslation(instanceV3);
+        instanceV3.add(terrainAsset.getTerrain().terrainWidth / 2f, 0, terrainAsset.getTerrain().terrainDepth / 2f);
+        float distance = cameraV3.dst(instanceV3);
+
+        for (int i = Terrain.LOD_LEVELS - 1; i >= 0 ; i--){
+            float drawDistance = i * 1000 + 1000;
+            //we are moving inside of the current lod level's draw distance
+            if (distance < drawDistance && lodLevel != i){
+                if (modelInstances[i] == null)
+                    modelInstances[i] = new ModelInstance(terrainAsset.getTerrain().getModel(i));
+
+                currentInstance = modelInstances[i];
+                applyMaterial();
+                lodLevel = i;
+            }
         }
     }
 
     @Override
     public RenderableProvider getRenderableProvider() {
-        return modelInstance;
+        return currentInstance;
     }
 
     public void updateUVs(Vector2 uvScale) {
@@ -71,16 +97,16 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     public void setTerrainAsset(TerrainAsset terrainAsset) {
         this.terrainAsset = terrainAsset;
-        modelInstance = new ModelInstance(terrainAsset.getTerrain().getModel());
-        modelInstance.transform = gameObject.getTransform();
+        currentInstance = new ModelInstance(terrainAsset.getTerrain().getModel(lodLevel));
+        currentInstance.transform = gameObject.getTransform();
         applyMaterial();
-        setDimensions(modelInstance);
+        setDimensions(currentInstance);
     }
 
     public void applyMaterial() {
         if (terrainAsset.getMaterialAsset() == null) return;
 
-        Material material = modelInstance.materials.first();
+        Material material = currentInstance.materials.first();
 
         // Apply base textures to this instances material because we use base color/normal for splat base
         final TerrainLayerAsset terrainLayerAsset = terrainAsset.getTerrainLayerAsset();
@@ -164,7 +190,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     }
 
     public ModelInstance getModelInstance() {
-        return modelInstance;
+        return currentInstance;
     }
 
     /**
@@ -175,7 +201,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
      * @return float height value
      */
     public float getHeightAtWorldCoord(float worldX, float worldZ) {
-        return terrainAsset.getTerrain().getHeightAtWorldCoord(worldX, worldZ, modelInstance.transform);
+        return terrainAsset.getTerrain().getHeightAtWorldCoord(worldX, worldZ, currentInstance.transform);
     }
 
     /**
@@ -192,7 +218,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
      *         returns default <code>Vector.Y<code> normal.
      */
     public Vector3 getNormalAtWordCoordinate(Vector3 out, float worldX, float worldZ) {
-        return terrainAsset.getTerrain().getNormalAtWordCoordinate(out, worldX, worldZ, modelInstance.transform);
+        return terrainAsset.getTerrain().getNormalAtWordCoordinate(out, worldX, worldZ, currentInstance.transform);
     }
 
     /**
@@ -202,6 +228,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
      * @return boolean true if within the terrains boundary, else false
      */
     public boolean isOnTerrain(float worldX, float worldZ) {
-        return terrainAsset.getTerrain().isOnTerrain(worldX, worldZ, modelInstance.transform);
+        return terrainAsset.getTerrain().isOnTerrain(worldX, worldZ, currentInstance.transform);
     }
 }

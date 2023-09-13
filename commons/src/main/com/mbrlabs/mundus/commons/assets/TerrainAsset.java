@@ -20,6 +20,7 @@ import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
@@ -159,6 +160,10 @@ public class TerrainAsset extends Asset {
     public void applyDependencies() {
         updateTerrainMaterial();
         terrain.update();
+    }
+
+    public Model getBaseModel(){
+        return terrain.getModel(0);
     }
 
     public void updateTerrainMaterial() {
