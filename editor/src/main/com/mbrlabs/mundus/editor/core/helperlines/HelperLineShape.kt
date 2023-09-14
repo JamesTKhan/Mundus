@@ -16,21 +16,41 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
-import com.badlogic.gdx.graphics.*
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.Mesh
+import com.badlogic.gdx.graphics.VertexAttribute
+import com.badlogic.gdx.graphics.VertexAttributes
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.model.MeshPart
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
+import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
+import com.badlogic.gdx.utils.Pool
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-abstract class HelperLineShape(width: Int, val terrainComponent: TerrainComponent) : Disposable {
+abstract class HelperLineShape(val width: Int,
+                               val counterOffsetX: Int,
+                               val counterOffsetY: Int,
+                               val terrainComponent: TerrainComponent) : Disposable {
+
+    companion object {
+        val helperLineCenterObjectPool = object : Pool<HelperLineCenterObject>() {
+            override fun newObject(): HelperLineCenterObject = HelperLineCenterObject()
+        }
+
+        val tmpV3 = Vector3()
+    }
 
     val mesh: Mesh
     val modelInstance: ModelInstance
+
+    val centerOfHelperObjects: Array<HelperLineCenterObject>
 
     init {
         val attribs = VertexAttributes(
@@ -63,15 +83,35 @@ abstract class HelperLineShape(width: Int, val terrainComponent: TerrainComponen
         val model = mb.end()
         modelInstance = ModelInstance(model)
         modelInstance.transform = terrainComponent.modelInstance.transform
-    }
 
-    fun updateVertices() {
-        mesh.setVertices(terrainComponent.terrainAsset.terrain.vertices)
+        centerOfHelperObjects = calculateCenterOfHelperObjects()
     }
 
     abstract fun calculateIndicesNum(width: Int, terrain: Terrain): Int
 
     abstract fun fillIndices(width: Int, indices: ShortArray, vertexResolution: Int)
+
+    abstract fun calculateCenterOfHelperObjects(): Array<HelperLineCenterObject>
+
+    fun updateVertices() {
+        mesh.setVertices(terrainComponent.terrainAsset.terrain.vertices)
+    }
+
+    fun findNearestCenterObject(pos: Vector3): HelperLineCenterObject {
+        var nearest = centerOfHelperObjects.first()
+        var nearestDistance = pos.dst(nearest.position.x, 0f, nearest.position.z)
+
+        for (helperLineCenterObject in centerOfHelperObjects) {
+            val distance = pos.dst(helperLineCenterObject.position.x, 0f, helperLineCenterObject.position.z)
+
+            if (distance < nearestDistance) {
+                nearest = helperLineCenterObject
+                nearestDistance = distance
+            }
+        }
+
+        return nearest
+    }
 
     private fun buildIndices(width: Int, numIndices: Int, terrain: Terrain): ShortArray {
         val indices = ShortArray(numIndices)
@@ -83,6 +123,10 @@ abstract class HelperLineShape(width: Int, val terrainComponent: TerrainComponen
     }
 
     override fun dispose() {
+        while (centerOfHelperObjects.notEmpty()) {
+            helperLineCenterObjectPool.free(centerOfHelperObjects.removeIndex(0))
+        }
+
         modelInstance.model!!.dispose()
     }
 

@@ -21,7 +21,8 @@ import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisProgressBar
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.core.kryo.KryoManager
+import com.mbrlabs.mundus.editor.core.io.IOManager
+import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.exporter.Exporter
 import com.mbrlabs.mundus.editor.ui.UI
@@ -40,7 +41,7 @@ class ExportDialog : VisDialog("Exporting") {
     private val progressBar = VisProgressBar(0f, 100f, 1f, false)
 
     private val projectManager: ProjectManager = Mundus.inject()
-    private val kryoManager: KryoManager = Mundus.inject()
+    private val ioManager: IOManager = Mundus.inject<IOManagerProvider>().ioManager
 
     init {
         isModal = true
@@ -68,7 +69,7 @@ class ExportDialog : VisDialog("Exporting") {
 
         show(UI)
 
-        Exporter(kryoManager, projectManager.current()).exportAsync(export.outputFolder, object: AsyncTaskListener {
+        Exporter(ioManager, projectManager.current()).exportAsync(export.outputFolder, object: AsyncTaskListener {
             private var error = false
 
             override fun progressChanged(newProgressPercent: Int) {

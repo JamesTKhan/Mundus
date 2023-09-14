@@ -150,6 +150,13 @@ public interface Node<T extends Node> {
     Matrix4 getTransform();
 
     /**
+     * Gets the current forward direction, assumes the default forward direction is Z+.
+     *
+     * @param out out vector to be populated with direction
+     */
+    Vector3 getForwardDirection(Vector3 out);
+
+    /**
      * Translates the position of this node.
      *
      * @param v

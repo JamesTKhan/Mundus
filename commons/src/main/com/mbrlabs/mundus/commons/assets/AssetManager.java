@@ -15,7 +15,6 @@
  */
 package com.mbrlabs.mundus.commons.assets;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
@@ -205,7 +204,7 @@ public class AssetManager implements Disposable {
             gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(new AbsoluteFileHandleResolver());
         }
 
-        if (isRuntime && Gdx.app.getType() == Application.ApplicationType.Desktop) {
+        if (isRuntime) {
             // Desktop applications cannot use .list() for internal jar files.
             // Application will need to provide an assets.txt file listing all Mundus assets
             // in the Mundus root directory.
@@ -214,11 +213,6 @@ public class AssetManager implements Disposable {
 
             // Normalize line endings before reading
             files = fileList.readString().replaceAll("\\r\\n?", "\n").split("\\n");
-            metaFiles = getMetaFiles(files);
-        } else if (isRuntime && Gdx.app.getType() == Application.ApplicationType.WebGL) {
-            // For WebGL we use a native split method for string split
-            fileList = rootFolder.child("assets.txt");
-            files = split(fileList.readString().replaceAll("\\r\\n?", "\n"), "\n");
             metaFiles = getMetaFiles(files);
         } else {
             // Editor uses this block to load meta files
@@ -474,6 +468,8 @@ public class AssetManager implements Disposable {
 
     /**
      * Native JavaScript string split method for GWT support
+     *
+     * No longer needed: dead code
      */
     public static final native String[] split(String string, String separator) /*-{
         return string.split(separator);

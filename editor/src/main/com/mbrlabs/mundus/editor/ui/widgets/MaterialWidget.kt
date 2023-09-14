@@ -26,6 +26,8 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
+import com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel
+import com.kotcrab.vis.ui.widget.spinner.Spinner
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
 import com.mbrlabs.mundus.commons.assets.TexCoordInfo
@@ -65,10 +67,10 @@ class MaterialWidget : VisTable() {
 
     private val scaleUField = FloatFieldWithLabel("Scale U", -1, false)
     private val scaleVField = FloatFieldWithLabel("Scale V", -1, false)
-
+    //slider moves in 11.25 degree steps
+    private val rotateUVField = Spinner("", SimpleFloatSpinnerModel(0f,0f, (Math.PI * 2f).toFloat(), (Math.PI / 16f).toFloat(), 8))
     private val offsetUField = ImprovedSlider(0.0f, 1.0f, 0.01f)
     private val offsetVField = ImprovedSlider(0.0f, 1.0f, 0.01f)
-    private val rotateUVField = ImprovedSlider(0.0f, 6.3f, 0.01f)
 
     private val cullFaceSelectBox: VisSelectBox<CullFace> = VisSelectBox()
 
@@ -108,9 +110,11 @@ class MaterialWidget : VisTable() {
 
                 scaleUField.textField.text = value.diffuseTexCoord.scaleU.toString()
                 scaleVField.textField.text = value.diffuseTexCoord.scaleV.toString()
+
                 offsetUField.value = value.diffuseTexCoord.offsetU
                 offsetVField.value = value.diffuseTexCoord.offsetV
-                rotateUVField.value = value.diffuseTexCoord.rotationUV
+                val spinnerModel = rotateUVField.model as SimpleFloatSpinnerModel
+                spinnerModel.value = value.diffuseTexCoord.rotationUV
             }
         }
 
@@ -194,13 +198,14 @@ class MaterialWidget : VisTable() {
         val texTable = VisTable()
         texTable.defaults().padBottom(10f)
 
-        texTable.add(VisLabel("Offset U")).growX()
+        texTable.add(VisLabel("Offset U")).padRight(10f)
         texTable.add(offsetUField).growX().row()
-        texTable.add(VisLabel("Offset V")).growX()
+        texTable.add(VisLabel("Offset V")).padRight(10f)
         texTable.add(offsetVField).growX().row()
-        texTable.add(VisLabel("Rotate UV")).growX()
-        texTable.add(rotateUVField).growX().row()
 
+        rotateUVField.model.isWrap = true
+        texTable.add(ToolTipLabel("UV Rotation", "The angle in radians that the UV Texture has been rotated.")).padRight(10f)
+        texTable.add(rotateUVField).growX().row()
         add(texTable).growX().row()
 
         add(scaleUField).growX().row()
@@ -386,7 +391,8 @@ class MaterialWidget : VisTable() {
         diffuseTexCoord?.scaleV = scaleVField.float
         diffuseTexCoord?.offsetU = offsetUField.value
         diffuseTexCoord?.offsetV = offsetVField.value
-        diffuseTexCoord?.rotationUV = rotateUVField.value
+        val spinnerModel = rotateUVField.model as SimpleFloatSpinnerModel
+        diffuseTexCoord?.rotationUV = spinnerModel.value
     }
 
     // TODO find better solution than iterating through all components

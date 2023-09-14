@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.OrientedBoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.event.Event;
 import com.mbrlabs.mundus.commons.event.EventType;
@@ -48,6 +49,7 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
     protected final Vector3 center = new Vector3();
     protected final Vector3 dimensions = new Vector3();
+    private final OrientedBoundingBox orientedBoundingBox = new OrientedBoundingBox();
     protected float radius;
 
     // Render calls since last cull check
@@ -68,6 +70,10 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
         if (gameObject.scaleChanged) {
             setDimensions(modelInstance);
+        }
+
+        if (gameObject.isDirty()) {
+            orientedBoundingBox.setTransform(modelInstance.transform);
         }
 
         if (!gameObject.sceneGraph.scene.settings.useFrustumCulling) {
@@ -144,6 +150,11 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         gameObject.getScale(tmpScale);
         dimensions.scl(tmpScale);
         radius = dimensions.len() / 2f;
+        orientedBoundingBox.set(tmpBounds, modelInstance.transform);
+    }
+
+    public OrientedBoundingBox getOrientedBoundingBox() {
+        return orientedBoundingBox;
     }
 
     private void triggerEvent(final EventType eventType) {
