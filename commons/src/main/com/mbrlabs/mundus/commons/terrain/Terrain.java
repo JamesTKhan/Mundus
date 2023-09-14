@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.terrain;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
@@ -115,6 +116,7 @@ public class Terrain implements Disposable {
         mb.begin();
         mb.part(meshPart, material);
         model[0] = mb.end();
+        Gdx.app.log("Terrain", "Base Model Built");
     }
 
     public Vector3 getVertexPosition(Vector3 out, int x, int z) {
@@ -341,6 +343,8 @@ public class Terrain implements Disposable {
         else
             newResolution = vertexResolution;
 
+        Gdx.app.log("Terrain", "VR: " + vertexResolution);
+
         float[] newHeightData = new float[newResolution * newResolution];
 
         int step = vertexResolution / newResolution;
@@ -361,8 +365,6 @@ public class Terrain implements Disposable {
         info.uvScale = uvScale;
 
         PlaneMesh generator = new PlaneMesh(info);
-        if (lodLevel ==0)
-            planeMesh = generator;
         Mesh mesh = generator.buildMesh(true);
         generator.calculateAverageNormals();
         generator.computeTangents();
@@ -375,6 +377,7 @@ public class Terrain implements Disposable {
         mb.begin();
         mb.part(meshPart, material);
         Model lodModel = mb.end();
+        Gdx.app.log("Terrain", "Lod model built: " + lodLevel);
         return lodModel;
     }
 

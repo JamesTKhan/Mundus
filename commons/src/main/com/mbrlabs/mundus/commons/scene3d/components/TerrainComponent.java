@@ -42,7 +42,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     // Array of lod models per terrain
     protected ModelInstance[] modelInstances = new ModelInstance[Terrain.LOD_LEVELS];
     protected ModelInstance currentInstance;
-    protected ModelInstance baseModelInstance;
     protected TerrainAsset terrainAsset;
 
     // Neighbor terrain components
@@ -74,14 +73,13 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         float distance = cameraV3.dst(instanceV3);
 
         for (int i = Terrain.LOD_LEVELS - 1; i >= 0 ; i--){
-            float drawDistance = i * 1000 + 1000;
+            float drawDistance = i * 500 + 500;
             //we are moving inside of the current lod level's draw distance
             if (distance < drawDistance && lodLevel != i){
                 if (modelInstances[i] == null) {
                     modelInstances[i] = new ModelInstance(terrainAsset.getTerrain().createLod(i));
                     modelInstances[i].transform.set(gameObject.getTransform());
                 }
-
                 currentInstance = modelInstances[i];
                 applyMaterial();
                 lodLevel = i;
@@ -100,11 +98,11 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     public void setTerrainAsset(TerrainAsset terrainAsset) {
         this.terrainAsset = terrainAsset;
-        baseModelInstance = new ModelInstance(terrainAsset.getTerrain().getModel(0));
-        baseModelInstance.transform = gameObject.getTransform();
-        currentInstance = baseModelInstance;
+        modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().getModel(0));
+        modelInstances[0].transform = gameObject.getTransform();
+        currentInstance = modelInstances[0];
         applyMaterial();
-        setDimensions(currentInstance);
+        setDimensions(modelInstances[0]);
     }
 
     public void applyMaterial() {

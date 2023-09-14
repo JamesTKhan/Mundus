@@ -177,9 +177,20 @@ public class PlaneMesh implements Disposable {
                         boolean isZPosEdge = z == terrainMeshInfo.vertexResolution - 1 - edgeExtension;
                         boolean isZNegEdge = z <= edgeExtension;
 
-                        //TODO: Make edges extend for steep dropoffs.
-                        if (isXNegEdge ||isXPosEdge || isZNegEdge || isZPosEdge) {
-                            // push the edge down
+                        if (isXNegEdge){
+                            tempVertexInfo.position.x -= gridSizeDepth * 2;
+                            tempVertexInfo.position.y -= gridSizeDepth;
+                        }
+                        else if (isXPosEdge){
+                            tempVertexInfo.position.x += gridSizeDepth * 2;
+                            tempVertexInfo.position.y -= gridSizeDepth;
+                        }
+                        else if (isZNegEdge){
+                            tempVertexInfo.position.z -= gridSizeDepth * 2;
+                            tempVertexInfo.position.y -= gridSizeDepth;
+                        }
+                        else if (isZPosEdge){
+                            tempVertexInfo.position.z += gridSizeDepth * 2;
                             tempVertexInfo.position.y -= gridSizeDepth;
                         }
                     }
