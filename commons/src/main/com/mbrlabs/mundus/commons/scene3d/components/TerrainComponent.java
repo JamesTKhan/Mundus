@@ -42,6 +42,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     // Array of lod models per terrain
     protected ModelInstance[] modelInstances = new ModelInstance[Terrain.LOD_LEVELS];
     protected ModelInstance currentInstance;
+    protected ModelInstance baseModelInstance;
     protected TerrainAsset terrainAsset;
 
     // Neighbor terrain components
@@ -76,8 +77,10 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
             float drawDistance = i * 1000 + 1000;
             //we are moving inside of the current lod level's draw distance
             if (distance < drawDistance && lodLevel != i){
-                if (modelInstances[i] == null)
-                    modelInstances[i] = new ModelInstance(terrainAsset.getTerrain().getModel(i));
+                if (modelInstances[i] == null) {
+                    modelInstances[i] = new ModelInstance(terrainAsset.getTerrain().createLod(i));
+                    modelInstances[i].transform.set(gameObject.getTransform());
+                }
 
                 currentInstance = modelInstances[i];
                 applyMaterial();
@@ -97,8 +100,9 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     public void setTerrainAsset(TerrainAsset terrainAsset) {
         this.terrainAsset = terrainAsset;
-        currentInstance = new ModelInstance(terrainAsset.getTerrain().getModel(lodLevel));
-        currentInstance.transform = gameObject.getTransform();
+        baseModelInstance = new ModelInstance(terrainAsset.getTerrain().getModel(0));
+        baseModelInstance.transform = gameObject.getTransform();
+        currentInstance = baseModelInstance;
         applyMaterial();
         setDimensions(currentInstance);
     }

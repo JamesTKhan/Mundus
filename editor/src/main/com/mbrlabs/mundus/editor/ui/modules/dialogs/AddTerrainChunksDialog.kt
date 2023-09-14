@@ -261,6 +261,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         val grid = assetsToTerraform.entries.first().key
         val component = assetsToTerraform.entries.first().value
         val asset = component.terrainAsset
+
         assetsToTerraform.remove(grid)
 
         terraformExecutor?.submit {

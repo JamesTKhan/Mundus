@@ -96,11 +96,26 @@ public class Terrain implements Disposable {
     }
 
     public void init() {
-        for (int i = 0; i < LOD_LEVELS; i++){
-            model[i] = createLod(i);
-        }
-    }
+        final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
 
+        PlaneMesh.MeshInfo info = new PlaneMesh.MeshInfo();
+        info.attribs = attribs;
+        info.vertexResolution = vertexResolution;
+        info.heightData = heightData;
+        info.width = terrainWidth;
+        info.depth = terrainDepth;
+        info.uvScale = uvScale;
+
+        planeMesh = new PlaneMesh(info);
+        Mesh mesh = planeMesh.buildMesh(false);
+
+        MeshPart meshPart = new MeshPart(null, mesh, 0, numIndices, GL20.GL_TRIANGLES);
+        meshPart.update();
+        ModelBuilder mb = new ModelBuilder();
+        mb.begin();
+        mb.part(meshPart, material);
+        model[0] = mb.end();
+    }
 
     public Vector3 getVertexPosition(Vector3 out, int x, int z) {
         final float dx = (float) x / (float) (vertexResolution - 1);
