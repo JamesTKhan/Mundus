@@ -19,7 +19,6 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.ProceduralGeneration
-import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.ProceduralGeneration.ProceduralNoiseModifier
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -29,7 +28,6 @@ import com.mbrlabs.mundus.editor.core.kryo.KryoManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
-import com.mbrlabs.mundus.editor.terrain.noise.modifiers.NoiseModifier
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.HeightMapTerrainTab
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.ProceduralTerrainTab
@@ -190,23 +188,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
             proceduralGeneration.minHeight = proceduralTerrainTab.getMinHeightValue()
             proceduralGeneration.maxHeight = proceduralTerrainTab.getMaxHeightValue()
 
-            val modifiers = proceduralTerrainTab.getNoiseModifiers()
-            for (modifier in modifiers) {
-                if (modifier is NoiseModifier) {
-                    val proceduralNoiseModifier = ProceduralNoiseModifier()
-                    proceduralNoiseModifier.noiseType = modifier.type.name
-                    proceduralNoiseModifier.fractalType = modifier.fractalType.name
-                    proceduralNoiseModifier.domainType = modifier.domainType.name
-                    proceduralNoiseModifier.frequency = modifier.frequency
-                    proceduralNoiseModifier.domainWarpFrequency = modifier.domainWarpFrequency
-                    proceduralNoiseModifier.domainWarpAmps = modifier.domainWarpAmps
-                    proceduralNoiseModifier.fractalLacunarity = modifier.fractalLacunarity
-                    proceduralNoiseModifier.fractalGain = modifier.fractalGain
-                    proceduralNoiseModifier.additive = modifier.noiseAdditive
-
-                    proceduralGeneration.noiseModifiers.add(proceduralNoiseModifier)
-                }
-            }
+            proceduralTerrainTab.uploadNoiseModifiers(proceduralGeneration.noiseModifiers)
         }
 
 

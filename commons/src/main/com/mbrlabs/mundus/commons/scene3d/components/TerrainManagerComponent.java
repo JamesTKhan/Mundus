@@ -4,8 +4,6 @@ import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Allows you to manage certain aspects of all child terrains that fall under this component.
@@ -105,7 +103,7 @@ public class TerrainManagerComponent extends AbstractComponent {
         public float minHeight;
         public float maxHeight;
 
-        public List<ProceduralNoiseModifier> noiseModifiers = new ArrayList<>();
+        public Array<ProceduralNoiseModifier> noiseModifiers = new Array<>();
     }
 
 }
