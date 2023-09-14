@@ -206,6 +206,6 @@ class FreeCamController(private val projectManager: ProjectManager, private val 
             }
         }
 
-        return true
+        return false
     }
 }
