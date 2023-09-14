@@ -205,7 +205,8 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
      * @return The out Vector3 which contains the intersect point.
      */
     public Vector3 getRayIntersection(Vector3 out, Ray ray) {
-        return terrainAsset.getTerrain().getRayIntersection(out, ray, modelInstance.transform);
+        terrainAsset.getTerrain().getRayIntersection(out, ray, modelInstance.transform);
+        return out;
     }
 
     /**
