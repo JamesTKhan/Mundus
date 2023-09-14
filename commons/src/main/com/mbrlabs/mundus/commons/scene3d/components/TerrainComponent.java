@@ -56,6 +56,8 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private static Vector3 cameraV3 = new Vector3();
     private static Vector3 instanceV3 = new Vector3();
 
+    private final static int DRAW_FACTOR = 500;
+
     public TerrainComponent(GameObject go) {
         super(go);
         type = Component.Type.TERRAIN;
@@ -73,7 +75,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         float distance = cameraV3.dst(instanceV3);
 
         for (int i = Terrain.LOD_LEVELS - 1; i >= 0 ; i--){
-            float drawDistance = i * 500 + 500;
+            float drawDistance = i * i * DRAW_FACTOR + DRAW_FACTOR;
             //we are moving inside of the current lod level's draw distance
             if (distance < drawDistance && lodLevel != i){
                 if (modelInstances[i] == null) {
