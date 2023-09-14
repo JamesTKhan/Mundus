@@ -23,10 +23,10 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.NoiseModifierDialog
 import com.mbrlabs.mundus.editor.utils.FastNoiseLite
 
 
-class ProceduralWidget(private val nameFieldVisible: Boolean,
-                       private val vertexResolutionFieldVisible: Boolean,
-                       private val terrainWidthFieldVisible: Boolean,
-                       private val iterationFieldsVisible: Boolean) : Table() {
+class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
+                                 private val vertexResolutionFieldVisible: Boolean,
+                                 private val terrainWidthFieldVisible: Boolean,
+                                 private val iterationFieldsVisible: Boolean) : Table() {
 
     private val root = VisTable()
 

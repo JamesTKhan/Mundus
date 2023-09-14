@@ -9,11 +9,11 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
-import com.mbrlabs.mundus.editor.ui.widgets.ProceduralWidget
+import com.mbrlabs.mundus.editor.ui.widgets.ProceduralGenerationWidget
 
 class TerrainSystemGenerationDialog : BaseDialog("Generation") {
 
-    private val root = ProceduralWidget(false, false, false, false)
+    private val root = ProceduralGenerationWidget(false, false, false, false)
 
     private var terrainManagerComponent : TerrainManagerComponent? = null
 
@@ -49,7 +49,7 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
     }
 
     private fun setupListeners() {
-        root.generateButtonListener = object : ProceduralWidget.GenerateButtonListener {
+        root.generateButtonListener = object : ProceduralGenerationWidget.GenerateButtonListener {
             override fun generate() {
                 generateTerrain()
             }

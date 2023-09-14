@@ -6,7 +6,7 @@ import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.AddTerrainChunksDialog
-import com.mbrlabs.mundus.editor.ui.widgets.ProceduralWidget
+import com.mbrlabs.mundus.editor.ui.widgets.ProceduralGenerationWidget
 
 /**
  * @author JamesTKhan
@@ -14,10 +14,10 @@ import com.mbrlabs.mundus.editor.ui.widgets.ProceduralWidget
  */
 class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false) {
 
-    private val root = ProceduralWidget(true, true, true, true)
+    private val root = ProceduralGenerationWidget(true, true, true, true)
 
     init {
-        root.generateButtonListener = object : ProceduralWidget.GenerateButtonListener {
+        root.generateButtonListener = object : ProceduralGenerationWidget.GenerateButtonListener {
             override fun generate() {
                 generateTerrain()
             }
