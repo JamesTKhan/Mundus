@@ -15,6 +15,7 @@
  */
 package com.mbrlabs.mundus.editor.tools;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -22,6 +23,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
+import com.mbrlabs.mundus.commons.utils.DebugRenderer;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent;
@@ -52,6 +54,7 @@ public class SelectionTool extends Tool {
 
     public void gameObjectSelected(GameObject selection) {
         getProjectManager().current().currScene.currentSelection = selection;
+        DebugRenderer.setSelectedGameObject(selection);
     }
 
     @Override
@@ -72,6 +75,7 @@ public class SelectionTool extends Tool {
     @Override
     public void render() {
         if (getProjectManager().current().currScene.currentSelection != null) {
+            Gdx.gl.glLineWidth(globalPreferencesManager.getFloat(MundusPreferencesManager.GLOB_LINE_WIDTH_SELECTION, MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE));
             getProjectManager().getModelBatch().begin(getProjectManager().current().currScene.cam);
             for (GameObject go : getProjectManager().current().currScene.currentSelection) {
                 // model component
@@ -93,6 +97,7 @@ public class SelectionTool extends Tool {
                 }
             }
             getProjectManager().getModelBatch().end();
+            Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE);
         }
     }
 

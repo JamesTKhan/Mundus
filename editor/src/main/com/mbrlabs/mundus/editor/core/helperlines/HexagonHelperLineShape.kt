@@ -16,10 +16,15 @@
 
 package com.mbrlabs.mundus.editor.core.helperlines
 
+import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.Array
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.Terrain
 
-class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : HelperLineShape(width, terrainComponent) {
+class HexagonHelperLineShape(width: Int,
+                             counterOffsetX: Int,
+                             counterOffsetY: Int,
+                             terrainComponent: TerrainComponent) : HelperLineShape(width, counterOffsetX, counterOffsetY, terrainComponent) {
 
     enum class Vector {
         BOTTOM_RIGHT,
@@ -44,6 +49,86 @@ class HexagonHelperLineShape(width: Int, terrainComponent: TerrainComponent) : H
     override fun fillIndices(width: Int, indices: ShortArray, vertexResolution: Int) {
         var i = 0
         calculate(width, vertexResolution) {pos -> indices[i++] = pos}
+    }
+
+    override fun calculateCenterOfHelperObjects(): Array<HelperLineCenterObject> {
+        val centerOfHelperObjects = Array<HelperLineCenterObject>()
+
+        val terrain = terrainComponent.terrainAsset.terrain
+        val vertexResolution = terrain.vertexResolution
+
+        val widthOffset = width * terrain.terrainWidth.toFloat() / (vertexResolution - 1).toFloat()
+        val depthOffset = width * terrain.terrainDepth.toFloat() / (vertexResolution - 1).toFloat()
+
+        addTopHalfHexagonHelperLineObjects(centerOfHelperObjects, widthOffset)
+        addLeftHalfHexagonHelperLineObjects(centerOfHelperObjects, widthOffset, depthOffset)
+
+        var terrainY = 2 * depthOffset
+        var cellY = 0
+
+        while (terrainY - depthOffset <= terrain.terrainDepth) {
+            var terrainX = 0f
+            var cellX = 0
+
+            while (terrainX + 1 <= terrain.terrainWidth) {
+                val posX = terrainX + 1.5f * widthOffset
+                val posY = 0f
+                val posZ = if (cellX % 2 == 1) terrainY - depthOffset else terrainY
+                val fullCell = posZ + depthOffset <= terrain.terrainWidth && posX + 1.5f * widthOffset <= terrain.terrainWidth
+                val pos = Vector3(posX, posY, posZ)
+                // Convert to world position
+                pos.mul(terrainComponent.modelInstance.transform)
+
+                val helperLineCenterObject = helperLineCenterObjectPool.obtain().initialize(cellX + counterOffsetX, cellY + counterOffsetY, pos, fullCell)
+                centerOfHelperObjects.add(helperLineCenterObject)
+
+                ++cellX
+                terrainX += 2 * widthOffset
+            }
+
+            ++cellY
+            terrainY += 2 * depthOffset
+        }
+
+        return centerOfHelperObjects
+    }
+
+    private fun addTopHalfHexagonHelperLineObjects(centerOfHelperObjects: Array<HelperLineCenterObject>, widthOffset: Float) {
+        val terrain = terrainComponent.terrainAsset.terrain
+
+        var terrainX = 0f
+        var cellX = 0
+
+        while (terrainX +1 <= terrain.terrainWidth) {
+            val pos = Vector3(terrainX + 1.5f * widthOffset, 0f, 0f)
+            // Convert to world position
+            pos.mul(terrainComponent.modelInstance.transform)
+
+            val helperLineCenterObject = helperLineCenterObjectPool.obtain().initialize(cellX + counterOffsetX, 0 + counterOffsetY, pos, false)
+            centerOfHelperObjects.add(helperLineCenterObject)
+
+            cellX += 2
+            terrainX += 4 * widthOffset
+        }
+    }
+
+    private fun addLeftHalfHexagonHelperLineObjects(centerOfHelperObjects: Array<HelperLineCenterObject>, widthOffset: Float, depthOffset: Float) {
+        val terrain = terrainComponent.terrainAsset.terrain
+
+        var terrainY = depthOffset
+        var cellY = 0
+
+        while (terrainY +1 <= terrain.terrainDepth) {
+            val pos = Vector3(-.5f * widthOffset, 0f, terrainY)
+            // Convert to world position
+            pos.mul(terrainComponent.modelInstance.transform)
+
+            val helperLineCenterObject = helperLineCenterObjectPool.obtain().initialize(-1 + counterOffsetX, cellY + counterOffsetY, pos, false)
+            centerOfHelperObjects.add(helperLineCenterObject)
+
+            cellY += 2
+            terrainY += 2 * depthOffset
+        }
     }
 
     private fun calculate(width: Int, vertexResolution: Int, method: (pos: Short) -> Unit) {

@@ -1,11 +1,19 @@
 [0.6.0] ~
+- [BREAKING CHANGE] Migrated from Kryo to JSON for .registry and .pro files. Migration handled automatically.
 - [Breaking Changes] Old Projects must be reopened in Editor to generate Terrain Layers
 - Add dirty transform flag optimization for caching GameObject/SimpleNode world transform
+- Add OrientedBoundingBox to cullable components, update debug renderer to use it
+- Add "Align Camera to Object" and "Align Object to Camera" actions
+- Add Quaternion and Matrix4 pools
 - Fix Child terrain objects not updating on translation
+- Fix getRotation() in SimpleNode to always normalize axes
 - Refactor outline drag and drop world to local conversion code when moving game objects
 - Updated kotlin to 1.9.0
 - Updated KTX to 1.12.0-rc1
 - Updated VisUI to 1.5.2
+- Adjustable line (selection, wireframe, helper lines) width
+- Changed UV slider to SimpleFloatSpinner in PI/16 (11.25 degree) increments
+- Counter for helper lines
 - Fix Terrain Cloning, now works as expected
 - Added optional ignore filter to GameObjectPicker
 - Added loading priorities for assets
@@ -21,6 +29,9 @@
 - Fix Material culling value being reset to GL_NONE by editor
 - Fix crash on Asset Usage tool when Light Component in scene
 - Updated libGDX to 1.12.0
+- Fix Previous project's inspector data persists after switching project
+- Fix transform tools scale with camera distance
+- Added forward facing arrow to selected game object (enable in debug menu)
 
 [0.5.0] ~ 06/28/2023
 - [Breaking Change] Lighting systems updated, visibly different. See PR#184
