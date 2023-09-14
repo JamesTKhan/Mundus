@@ -43,7 +43,7 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_SIZE = 1200;
     public static final int DEFAULT_VERTEX_RESOLUTION = 180;
     public static final int DEFAULT_UV_SCALE = 60;
-    public static final int LOD_LEVELS = 3;
+    public static final int LOD_LEVELS = 5;
 
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();
@@ -336,14 +336,9 @@ public class Terrain implements Disposable {
     }
 
     public Model createLod(int lodLevel) {
-        int newResolution;
-        if (lodLevel != 0)
-            //scale to new lower resolution
-            newResolution = findClosestFactor(vertexResolution / (lodLevel * lodLevel));  // New resolution
-        else
-            newResolution = vertexResolution;
+        int newResolution = vertexResolution / (lodLevel + 1);
 
-        Gdx.app.log("Terrain", "VR: " + vertexResolution);
+        Gdx.app.log("Terrain", "VR: " + newResolution);
 
         float[] newHeightData = new float[newResolution * newResolution];
 

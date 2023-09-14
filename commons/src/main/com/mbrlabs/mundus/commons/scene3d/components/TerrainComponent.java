@@ -51,12 +51,13 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private TerrainComponent leftNeighbor;
 
     // Index of the current lod model being rendered
-    private int lodLevel = 0;
+    private int currentLodLevel = 0;
 
     private static Vector3 cameraV3 = new Vector3();
     private static Vector3 instanceV3 = new Vector3();
 
-    private final static int DRAW_FACTOR = 500;
+    private final static double DRAW_FACTOR = 1200;
+    private static final float[] LOD_DISTANCES = computeThresholds();
 
     public TerrainComponent(GameObject go) {
         super(go);
@@ -74,20 +75,37 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         instanceV3.add(terrainAsset.getTerrain().terrainWidth / 2f, 0, terrainAsset.getTerrain().terrainDepth / 2f);
         float distance = cameraV3.dst(instanceV3);
 
-        for (int i = Terrain.LOD_LEVELS - 1; i >= 0 ; i--){
-            float drawDistance = i * i * DRAW_FACTOR + DRAW_FACTOR;
-            //we are moving inside of the current lod level's draw distance
-            if (distance < drawDistance && lodLevel != i){
-                if (modelInstances[i] == null) {
-                    modelInstances[i] = new ModelInstance(terrainAsset.getTerrain().createLod(i));
-                    modelInstances[i].transform.set(gameObject.getTransform());
+        int lodLevel = determineLODLevel(distance);
+
+        //we are moving to a new draw distance
+        if (lodLevel != currentLodLevel){
+                if (modelInstances[lodLevel] == null) {
+                    modelInstances[lodLevel] = new ModelInstance(terrainAsset.getTerrain().createLod(lodLevel));
+                    modelInstances[lodLevel].transform.set(gameObject.getTransform());
                 }
-                currentInstance = modelInstances[i];
+                currentInstance = modelInstances[lodLevel];
                 applyMaterial();
-                lodLevel = i;
+                currentLodLevel = lodLevel;
+            }
+    }
+
+    public static int determineLODLevel(float distance) {
+        for (int i = 0; i < LOD_DISTANCES.length; i++) {
+            if (distance < LOD_DISTANCES[i]) {
+                return i;
             }
         }
+        return LOD_DISTANCES.length;  // If beyond all thresholds, consider it the furthest LOD level
     }
+
+    public static float[] computeThresholds() {
+        float[] thresholds = new float[Terrain.LOD_LEVELS];
+        for (int i = 0; i < Terrain.LOD_LEVELS; i++) {
+            thresholds[i] = (float) (DRAW_FACTOR * (float) Math.pow(2, i));
+        }
+        return thresholds;
+    }
+
 
     @Override
     public RenderableProvider getRenderableProvider() {
