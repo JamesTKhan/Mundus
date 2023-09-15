@@ -22,7 +22,8 @@ import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.core.kryo.KryoManager
+import com.mbrlabs.mundus.editor.core.io.IOManager
+import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
 import com.mbrlabs.mundus.editor.core.registry.KeyboardLayout
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.SettingsChangedEvent
@@ -41,7 +42,7 @@ class GeneralSettingsTable : BaseSettingsTable() {
     private val keyboardLayouts = VisSelectBox<KeyboardLayout>()
     private val rightButtonSelectCheckBox = VisCheckBox("")
 
-    private val kryoManager: KryoManager = Mundus.inject()
+    private val ioManager: IOManager = Mundus.inject<IOManagerProvider>().ioManager
     private val registry: Registry = Mundus.inject()
     private val globalPreferencesManager : MundusPreferencesManager = Mundus.inject()
 
@@ -87,7 +88,7 @@ class GeneralSettingsTable : BaseSettingsTable() {
     override fun onSave() {
         val fbxPath = fbxBinary.path
         registry.settings.fbxConvBinary = fbxPath
-        kryoManager.saveRegistry(registry)
+        ioManager.saveRegistry(registry)
 
         globalPreferencesManager.set(MundusPreferencesManager.GLOB_RIGHT_BUTTON_SELECT, rightButtonSelectCheckBox.isChecked)
 

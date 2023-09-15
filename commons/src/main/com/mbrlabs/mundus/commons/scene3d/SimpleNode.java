@@ -30,6 +30,8 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
 
     static boolean WORLD_SPACE_TRANSFORM = true;
 
+    private static final Vector3 LOCAL_FORWARD = new Vector3(0, 0, 1);
+
     private final Vector3 localPosition;
     private final Quaternion localRotation;
     private final Vector3 localScale;
@@ -86,7 +88,7 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
 
     @Override
     public Quaternion getRotation(Quaternion out) {
-        return getTransform().getRotation(out);
+        return getTransform().getRotation(out, true);
     }
 
     @Override
@@ -104,6 +106,11 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
             isTransformDirty = false;
         }
         return combined;
+    }
+
+    @Override
+    public Vector3 getForwardDirection(Vector3 out) {
+        return out.set(LOCAL_FORWARD).rot(getTransform()).nor();
     }
 
     @Override

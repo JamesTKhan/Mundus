@@ -184,6 +184,8 @@ public class ScaleTool extends TransformTool {
 
         if (selection!= null) {
             translateHandles();
+            scaleHandles();
+
             if (state == TransformState.IDLE) {
                 return;
             }

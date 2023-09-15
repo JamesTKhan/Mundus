@@ -38,6 +38,7 @@ import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.input.FreeCamController
 import com.mbrlabs.mundus.editor.input.InputManager
 import com.mbrlabs.mundus.editor.input.ShortcutController
+import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
 import com.mbrlabs.mundus.editor.shader.EditorShaderProvider
 import com.mbrlabs.mundus.editor.tools.ToolManager
@@ -78,6 +79,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var glProfiler: MundusGLProfiler
     private lateinit var shapeRenderer: ShapeRenderer
     private lateinit var debugRenderer: DebugRenderer
+    private lateinit var globalPreferencesManager: MundusPreferencesManager
 
     override fun create() {
         Mundus.registerEventListener(this)
@@ -90,10 +92,13 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         gizmoManager = Mundus.inject()
         glProfiler = Mundus.inject()
         shapeRenderer = Mundus.inject()
+        debugRenderer = Mundus.inject()
+        globalPreferencesManager = Mundus.inject()
         setupInput()
 
-        debugRenderer = DebugRenderer(shapeRenderer)
-
+        debugRenderer.isEnabled = globalPreferencesManager.getBoolean(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_ON, false)
+        debugRenderer.isAppearOnTop = globalPreferencesManager.getBoolean(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_DEPTH_OFF, false)
+        debugRenderer.isShowFacingArrow = globalPreferencesManager.getBoolean(MundusPreferencesManager.GLOB_BOOL_DEBUG_FACING_ARROW, false)
         // TODO dispose this
         val axesModel = UsefulMeshs.createAxes()
         axesInstance = ModelInstance(axesModel)
@@ -147,24 +152,27 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         UI.sceneWidget.setCam(context.currScene.cam)
         UI.sceneWidget.setRenderer {
             val renderWireframe = projectManager.current().renderWireframe
-            val renderDebug = projectManager.current().renderDebug
 
+            Gdx.gl.glLineWidth(globalPreferencesManager.getFloat(MundusPreferencesManager.GLOB_LINE_WIDTH_WIREFRAME, MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE))
             glProfiler.resume()
             sg.update()
             if (renderWireframe) GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE)
             scene.render()
             if (renderWireframe) GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL)
             glProfiler.pause()
+            Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
 
-            if (renderDebug) {
+            if (debugRenderer.isEnabled) {
                 debugRenderer.begin(scene.cam)
                 debugRenderer.render(sg.gameObjects)
                 debugRenderer.end()
             }
 
+            Gdx.gl.glLineWidth(globalPreferencesManager.getFloat(MundusPreferencesManager.GLOB_LINE_WIDTH_HELPER_LINE, MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE))
             scene.batch.begin(scene.cam)
             context.helperLines.render(scene.batch)
             scene.batch.end()
+            Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
 
 
             toolManager.render()
