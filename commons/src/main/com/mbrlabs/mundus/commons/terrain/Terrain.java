@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.terrain;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
@@ -29,6 +30,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
@@ -42,8 +44,6 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_SIZE = 1200;
     public static final int DEFAULT_VERTEX_RESOLUTION = 180;
     public static final int DEFAULT_UV_SCALE = 60;
-    public static final int LOD_LEVELS = 5;
-
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();
     private static final Vector3 c10 = new Vector3();
@@ -56,6 +56,8 @@ public class Terrain implements Disposable {
     public int terrainWidth = 1200;
     public int terrainDepth = 1200;
     public int vertexResolution;
+    public float lodDrawDistance;
+    public int lodLevels;
 
     // used for building the mesh
     private final VertexAttributes attribs;
@@ -66,7 +68,8 @@ public class Terrain implements Disposable {
     private final Material material;
 
     // Mesh
-    private Model[] model = new Model[LOD_LEVELS];
+    private Array<Model> models = new Array<>();
+    private static float[] thresholds;
     private PlaneMesh planeMesh;
 
     private Terrain(int vertexResolution) {
@@ -113,8 +116,7 @@ public class Terrain implements Disposable {
         meshPart.update();
         ModelBuilder mb = new ModelBuilder();
         mb.begin();
-        mb.part(meshPart, material);
-        model[0] = mb.end();
+        models.add(mb.end());
     }
 
     public Vector3 getVertexPosition(Vector3 out, int x, int z) {
@@ -304,13 +306,12 @@ public class Terrain implements Disposable {
     }
 
     public Model getModel(int index) {
-        return model[index];
+        return models.get(index);
     }
 
     @Override
     public void dispose() {
-        for (int i = 0; i < LOD_LEVELS; i++)
-            model[i].dispose();
+        models.clear();
         planeMesh.dispose();
     }
 
@@ -333,42 +334,49 @@ public class Terrain implements Disposable {
         return 1; // In case the number is a prime number, return 1
     }
 
-    public Model createLod(int lodLevel) {
-        int newResolution = vertexResolution / (lodLevel + 1);
+    public void createLods() {
+        for (int i = 1; i < lodLevels; i++) {
+            int newResolution = vertexResolution / (lodLevels + 1);
 
-        float[] newHeightData = new float[newResolution * newResolution];
+            float[] newHeightData = new float[newResolution * newResolution];
 
-        int step = vertexResolution / newResolution;
+            int step = vertexResolution / newResolution;
 
-        for (int i = 0; i < newResolution; i++) {
             for (int j = 0; j < newResolution; j++) {
-                // Sampling the original heightData
-                newHeightData[j * newResolution + i] = heightData[(j * step) * vertexResolution + (i * step)];
+                for (int k = 0; k < newResolution; k++) {
+                    // Sampling the original heightData
+                    newHeightData[k * newResolution + j] = heightData[(k * step) * vertexResolution + (j * step)];
+                }
             }
+
+            PlaneMesh.MeshInfo info = new PlaneMesh.MeshInfo();
+            info.attribs = attribs;
+            info.vertexResolution = newResolution;
+            info.heightData = newHeightData;
+            info.width = terrainWidth;
+            info.depth = terrainDepth;
+            info.uvScale = uvScale;
+
+            PlaneMesh generator = new PlaneMesh(info);
+            Mesh mesh = generator.buildMesh(true);
+            generator.calculateAverageNormals();
+            generator.computeTangents();
+            generator.updateMeshVertices();
+            generator.resetBoundingBox();
+
+            MeshPart meshPart = new MeshPart(null, mesh, 0, mesh.getNumIndices(), GL20.GL_TRIANGLES);
+            meshPart.update();
+            ModelBuilder mb = new ModelBuilder();
+            mb.begin();
+            mb.part(meshPart, material);
+            models.add(mb.end());
         }
-
-        PlaneMesh.MeshInfo info = new PlaneMesh.MeshInfo();
-        info.attribs = attribs;
-        info.vertexResolution = newResolution;
-        info.heightData = newHeightData;
-        info.width = terrainWidth;
-        info.depth = terrainDepth;
-        info.uvScale = uvScale;
-
-        PlaneMesh generator = new PlaneMesh(info);
-        Mesh mesh = generator.buildMesh(true);
-        generator.calculateAverageNormals();
-        generator.computeTangents();
-        generator.updateMeshVertices();
-        generator.resetBoundingBox();
-
-        MeshPart meshPart = new MeshPart(null, mesh, 0, mesh.getNumIndices(), GL20.GL_TRIANGLES);
-        meshPart.update();
-        ModelBuilder mb = new ModelBuilder();
-        mb.begin();
-        mb.part(meshPart, material);
-        Model lodModel = mb.end();
-        return lodModel;
     }
-
+    public void computeThresholds() {
+        thresholds = new float[models.size];
+        for (int i = models.size - 1; i >= 0; i--) {
+            thresholds[i] = (float) (lodDrawDistance * (i + 1));
+            Gdx.app.log("TC", "threshold generated for " + i + " : " + thresholds[i]);
+        }
+    }
 }

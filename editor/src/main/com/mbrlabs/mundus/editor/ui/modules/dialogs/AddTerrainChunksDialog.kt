@@ -87,6 +87,9 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
     private var executor: ExecutorService? = null
     private var terraformExecutor: ExecutorService? = null
 
+    private var lodDrawDistance = 1200f
+    private var lodLevels = 3
+
     override fun draw(batch: Batch?, parentAlpha: Float) {
         val assetsToCreate = assetsToCreate.size > 0
 
@@ -127,10 +130,12 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         super.draw(batch, parentAlpha)
     }
 
-    fun createTerrainChunk(res: Int, width: Int, xIteration: Int, yIteration: Int, name: String) {
+    fun createTerrainChunk(res: Int, width: Int, xIteration: Int, yIteration: Int, name: String, levels: Int, distance: Float) {
         terrainName = name
         executor = Executors.newFixedThreadPool(4)
         terraformExecutor = Executors.newSingleThreadExecutor()
+        lodLevels = levels
+        lodDrawDistance = distance
 
         val context = projectManager.current()
         val sceneGraph = context.currScene.sceneGraph
@@ -277,6 +282,10 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
             // post a Runnable to the rendering thread that processes the result
             Gdx.app.postRunnable {
                 asset.applyDependencies()
+                asset.terrain.lodLevels = lodLevels
+                asset.terrain.createLods()
+                asset.terrain.lodDrawDistance = lodDrawDistance
+                asset.terrain.computeThresholds()
                 terraformingThreads.decrementAndGet()
             }
         }

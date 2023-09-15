@@ -177,7 +177,8 @@ class HeightMapTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false
         // Now, calculate the vertex resolution
         val resolution = originalMap.width / chunks - 1
         // Create terrain
-        dialog.createTerrainChunk(resolution, width, chunks, chunks, name.text)
+        //TODO: fix below
+        dialog.createTerrainChunk(resolution, width, chunks, chunks, name.text, 3, 1200f)
 
         originalMap.dispose()
     }
