@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
@@ -58,7 +59,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private static Vector3 cameraV3 = new Vector3();
     private static Vector3 instanceV3 = new Vector3();
 
-    private final static double DRAW_FACTOR = 1200;
+    private final static double DRAW_FACTOR = 3600;
     private static final float[] LOD_DISTANCES = computeThresholds();
 
     public TerrainComponent(GameObject go) {
@@ -92,18 +93,19 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     }
 
     public static int determineLODLevel(float distance) {
-        for (int i = 0; i < LOD_DISTANCES.length; i++) {
+        for (int i = 0; i < LOD_DISTANCES.length - 1; i++) {
             if (distance < LOD_DISTANCES[i]) {
                 return i;
             }
         }
-        return LOD_DISTANCES.length;  // If beyond all thresholds, consider it the furthest LOD level
+        return LOD_DISTANCES.length - 1;  // If beyond all thresholds, consider it the furthest LOD level
     }
 
     public static float[] computeThresholds() {
         float[] thresholds = new float[Terrain.LOD_LEVELS];
-        for (int i = 0; i < Terrain.LOD_LEVELS; i++) {
-            thresholds[i] = (float) (DRAW_FACTOR * (float) Math.pow(2, i));
+        for (int i = Terrain.LOD_LEVELS - 1; i >= 0; i--) {
+            thresholds[i] = (float) (DRAW_FACTOR * (i + 1));
+            Gdx.app.log("TC", "threshold generated for " + i + " : " + thresholds[i]);
         }
         return thresholds;
     }

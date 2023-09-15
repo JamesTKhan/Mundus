@@ -178,19 +178,19 @@ public class PlaneMesh implements Disposable {
                         boolean isZNegEdge = z <= edgeExtension;
 
                         if (isXNegEdge){
-                            tempVertexInfo.position.x -= gridSizeDepth * 2;
+                            tempVertexInfo.position.x -= gridSizeDepth;
                             tempVertexInfo.position.y -= gridSizeDepth;
                         }
                         else if (isXPosEdge){
-                            tempVertexInfo.position.x += gridSizeDepth * 2;
+                            tempVertexInfo.position.x += gridSizeDepth;
                             tempVertexInfo.position.y -= gridSizeDepth;
                         }
                         else if (isZNegEdge){
-                            tempVertexInfo.position.z -= gridSizeDepth * 2;
+                            tempVertexInfo.position.z -= gridSizeDepth;
                             tempVertexInfo.position.y -= gridSizeDepth;
                         }
                         else if (isZPosEdge){
-                            tempVertexInfo.position.z += gridSizeDepth * 2;
+                            tempVertexInfo.position.z += gridSizeDepth;
                             tempVertexInfo.position.y -= gridSizeDepth;
                         }
                     }
