@@ -80,6 +80,9 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
         gridX.text = "2"
         gridZ.text = "2"
 
+        lodSize.text = "3"
+        lodDrawDistance.text = 1200f.toString()
+
         root.padTop(6f).padRight(6f).padBottom(22f)
 
         // left table
