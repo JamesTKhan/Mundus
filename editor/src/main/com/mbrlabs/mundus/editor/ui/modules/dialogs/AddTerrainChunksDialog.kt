@@ -282,10 +282,6 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
             // post a Runnable to the rendering thread that processes the result
             Gdx.app.postRunnable {
                 asset.applyDependencies()
-                asset.terrain.lodLevels = lodLevels
-                asset.terrain.createLods()
-                asset.terrain.lodDrawDistance = lodDrawDistance
-                asset.terrain.computeThresholds()
                 terraformingThreads.decrementAndGet()
             }
         }
@@ -295,9 +291,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         // create asset
         val asset: TerrainAsset = projectManager.current().assetManager.createTerraAssetAsync(
             "${terrainName}$i-$j",
-            resolution, width, 512
-        )
-
+            resolution, width, 512, lodLevels,lodDrawDistance)
         return asset
     }
 

@@ -43,7 +43,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
     // Array of lod models per terrain
-    protected Array<ModelInstance> modelInstances = new Array<>();
+    protected ModelInstance[] modelInstances = new ModelInstance[Terrain.MAX_LODS];
     protected ModelInstance currentInstance;
     protected TerrainAsset terrainAsset;
 
@@ -70,6 +70,10 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         if (gameObject.isDirty()) {
             currentInstance.transform.set(gameObject.getTransform());
         }
+
+        if (modelInstances[0] == null)
+            modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().createLod(0));
+
         cameraV3.set(gameObject.sceneGraph.scene.cam.position);
         currentInstance.transform.getTranslation(instanceV3);
         instanceV3.add(terrainAsset.getTerrain().terrainWidth / 2f, 0, terrainAsset.getTerrain().terrainDepth / 2f);
@@ -79,11 +83,12 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
         //we are moving to a new draw distance
         if (lodLevel != currentLodLevel){
-                if (modelInstances.get(lodLevel) == null) {
-                    modelInstances.add(new ModelInstance(terrainAsset.getTerrain().getModel(lodLevel)));
-                    modelInstances.get(lodLevel).transform.set(gameObject.getTransform());
+
+                if (modelInstances[lodLevel] == null) {
+                    modelInstances[lodLevel] = new ModelInstance(terrainAsset.getTerrain().getModel(lodLevel));
+                    modelInstances[lodLevel].transform.set(gameObject.getTransform());
                 }
-                currentInstance = modelInstances.get(lodLevel);
+                currentInstance = modelInstances[lodLevel];
                 applyMaterial();
                 currentLodLevel = lodLevel;
             }
@@ -91,7 +96,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     private int determineLODLevel(float distance) {
         for (int i = 0; i <  terrainAsset.getTerrain().lodLevels - 1; i++) {
-            if (distance < terrainAsset.getTerrain().lodDrawDistance) {
+            if (distance < terrainAsset.getTerrain().thresholds[i]) {
                 return i;
             }
         }
@@ -109,15 +114,18 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     public void setTerrainAsset(TerrainAsset terrainAsset) {
         this.terrainAsset = terrainAsset;
-        modelInstances.add(new ModelInstance(terrainAsset.getTerrain().getModel(0)));
-        modelInstances.first().transform = gameObject.getTransform();
-        currentInstance = modelInstances.first();
+        modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().getModel(0));
+        modelInstances[0].transform = gameObject.getTransform();
+        currentInstance = modelInstances[0];
         applyMaterial();
-        setDimensions(modelInstances.first());
+        setDimensions(modelInstances[0]);
     }
 
     public void applyMaterial() {
         if (terrainAsset.getMaterialAsset() == null) return;
+
+       // if (currentInstance.materials.isEmpty())
+       //     currentInstance.materials.add(terrainAsset.getTerrain().getMaterial());
 
         Material material = currentInstance.materials.first();
 

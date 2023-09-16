@@ -59,6 +59,9 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
     private val positionX = FloatFieldWithLabel("", -1, true)
     private val positionY = FloatFieldWithLabel("", -1, true)
     private val positionZ = FloatFieldWithLabel("", -1, true)
+    private val lodLevels = IntegerFieldWithLabel("", -1, false)
+    private val drawDistance = FloatFieldWithLabel("", -1, false)
+
     private val splatMapSelectBox: VisSelectBox<String> = VisSelectBox()
 
     private val generateBtn = VisTextButton("Generate Terrain")
@@ -81,6 +84,8 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         positionX.text = "0"
         positionY.text = "0"
         positionZ.text = "0"
+        lodLevels.text = "3"
+        drawDistance.text = 1200f.toString()
     }
 
     private fun setupUI() {
@@ -106,6 +111,10 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         content.add(positionY).fillX().expandX().row()
         content.add(VisLabel("Position on z-axis: ")).left().padBottom(10f)
         content.add(positionZ).fillX().expandX().row()
+        content.add(ToolTipLabel("LOD Levels", "The number of reduced resolution LOD models to create")).left().padBottom(10f)
+        content.add(lodLevels).fillX().expandX().row()
+        content.add(ToolTipLabel("LOD Draw Distance", "The distance in meters when the renderer will switch to the next lower LOD model")).left().padBottom(10f)
+        content.add(drawDistance)
 
         val selectorsTable = VisTable(true)
         splatMapSelectBox.setItems(
@@ -149,6 +158,9 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
             val posX: Float = positionX.float
             val posY: Float = positionY.float
             val posZ: Float = positionZ.float
+            val lodLevels = lodLevels.int
+            val drawDistance = drawDistance.float
+
             val splatMapResolution = SplatMapResolution.valueFromString(splatMapSelectBox.selected).resolutionValues
 
             if (res == 0 || width == 0) return terrainComponent
@@ -173,7 +185,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                     // create asset
                     asset = context.assetManager.createTerraAsset(
                         terrainName,
-                        res, width, splatMapResolution
+                        res, width, splatMapResolution, lodLevels, drawDistance
                     )
                 } catch (ex: AssetAlreadyExistsException) {
                     Dialogs.showErrorDialog(stage, "An asset with that name already exists.")

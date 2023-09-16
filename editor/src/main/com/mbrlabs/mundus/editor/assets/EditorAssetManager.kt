@@ -322,8 +322,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      * @throws IOException
      */
     @Throws(IOException::class, AssetAlreadyExistsException::class)
-    fun createTerraAsset(name: String, vertexResolution: Int, size: Int, splatMapResolution: Int): TerrainAsset {
-        val asset = createTerraAssetAsync(name, vertexResolution, size, splatMapResolution)
+    fun createTerraAsset(name: String, vertexResolution: Int, size: Int, splatMapResolution: Int, lodLevels: Int, drawDistance: Float): TerrainAsset {
+        val asset = createTerraAssetAsync(name, vertexResolution, size, splatMapResolution, lodLevels, drawDistance)
 
         val terrainLayerAsset = createTerrainLayerAsset(name)
         // set base texture
@@ -341,7 +341,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         return asset
     }
 
-    fun createTerraAssetAsync(name: String, vertexResolution: Int, size: Int, splatMapResolution: Int): TerrainAsset {
+    fun createTerraAssetAsync(name: String, vertexResolution: Int, size: Int, splatMapResolution: Int, lodLevels: Int, drawDistance: Float): TerrainAsset {
         val terraFilename = "$name.terra"
         val metaFilename = "$terraFilename.meta"
 
@@ -352,6 +352,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         meta.terrain.size = size
         meta.terrain.splatMapResolution = splatMapResolution
         meta.terrain.uv = 60f
+        meta.terrain.drawDistance = drawDistance
+        meta.terrain.lod = lodLevels
         metaSaver.save(meta)
 
         // create terra file

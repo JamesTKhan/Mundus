@@ -44,6 +44,7 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_SIZE = 1200;
     public static final int DEFAULT_VERTEX_RESOLUTION = 180;
     public static final int DEFAULT_UV_SCALE = 60;
+    public static final int MAX_LODS = 10;
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();
     private static final Vector3 c10 = new Vector3();
@@ -68,8 +69,8 @@ public class Terrain implements Disposable {
     private final Material material;
 
     // Mesh
-    private Array<Model> models = new Array<>();
-    private static float[] thresholds;
+    private Model[] models; //= new Model[MAX_LODS];
+    public static float[] thresholds;// = new float[MAX_LODS];
     private PlaneMesh planeMesh;
 
     private Terrain(int vertexResolution) {
@@ -100,6 +101,8 @@ public class Terrain implements Disposable {
 
     public void init() {
         final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
+        models = new Model[lodLevels];
+        thresholds = new float[lodLevels];
 
         PlaneMesh.MeshInfo info = new PlaneMesh.MeshInfo();
         info.attribs = attribs;
@@ -110,13 +113,6 @@ public class Terrain implements Disposable {
         info.uvScale = uvScale;
 
         planeMesh = new PlaneMesh(info);
-        Mesh mesh = planeMesh.buildMesh(false);
-
-        MeshPart meshPart = new MeshPart(null, mesh, 0, numIndices, GL20.GL_TRIANGLES);
-        meshPart.update();
-        ModelBuilder mb = new ModelBuilder();
-        mb.begin();
-        models.add(mb.end());
     }
 
     public Vector3 getVertexPosition(Vector3 out, int x, int z) {
@@ -218,6 +214,11 @@ public class Terrain implements Disposable {
         this.uvScale = uvScale;
     }
 
+    public void updateLodData(int lodLevels, float drawDistance){
+        this.lodLevels = lodLevels;
+        this.lodDrawDistance = drawDistance;
+    }
+
     public Vector2 getUvScale() {
         return uvScale;
     }
@@ -306,12 +307,16 @@ public class Terrain implements Disposable {
     }
 
     public Model getModel(int index) {
-        return models.get(index);
+        if (models[index] == null){
+            models[index] = createLod(index);
+        }
+        return models[index];
     }
 
     @Override
     public void dispose() {
-        models.clear();
+        for (int i = 0; i < lodLevels; i++)
+            models[i].dispose();
         planeMesh.dispose();
     }
 
@@ -334,9 +339,8 @@ public class Terrain implements Disposable {
         return 1; // In case the number is a prime number, return 1
     }
 
-    public void createLods() {
-        for (int i = 1; i < lodLevels; i++) {
-            int newResolution = vertexResolution / (lodLevels + 1);
+    public Model createLod(int index) {
+            int newResolution = vertexResolution / (index + 1);
 
             float[] newHeightData = new float[newResolution * newResolution];
 
@@ -369,12 +373,12 @@ public class Terrain implements Disposable {
             ModelBuilder mb = new ModelBuilder();
             mb.begin();
             mb.part(meshPart, material);
-            models.add(mb.end());
-        }
+            computeThresholds();
+            return mb.end();
+
     }
     public void computeThresholds() {
-        thresholds = new float[models.size];
-        for (int i = models.size - 1; i >= 0; i--) {
+        for (int i = lodLevels - 1; i >= 0; i--) {
             thresholds[i] = (float) (lodDrawDistance * (i + 1));
             Gdx.app.log("TC", "threshold generated for " + i + " : " + thresholds[i]);
         }
