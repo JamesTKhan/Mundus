@@ -182,6 +182,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
         val nodePosX = node.actor.x
         val nodePosY = node.actor.y
         renameDialog.setPosition(nodePosX, nodePosY)
+        renameDialog.setText(selectedGO.toString())
     }
     //endregion Main Menu
 
