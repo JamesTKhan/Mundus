@@ -51,12 +51,9 @@ public class PickableLightComponent extends LightComponent implements PickableCo
 
     @Override
     public void update(float delta) {
-        super.update(delta);
-        // Update position of cube for picking
-        gameObject.getPosition(tmp);
-        modelInstance.transform.setToTranslation(tmp);
-
         // Keeping this here for debugging if we need to render this cube
+        //gameObject.getPosition(tmp);
+        //modelInstance.transform.setToTranslation(tmp);
         //gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment));
     }
 
@@ -69,6 +66,8 @@ public class PickableLightComponent extends LightComponent implements PickableCo
 
     @Override
     public void renderPick() {
+        gameObject.getPosition(tmp);
+        modelInstance.transform.setToTranslation(tmp);
         gameObject.sceneGraph.scene.batch.render(modelInstance, Shaders.INSTANCE.getPickerShader());
     }
 }
