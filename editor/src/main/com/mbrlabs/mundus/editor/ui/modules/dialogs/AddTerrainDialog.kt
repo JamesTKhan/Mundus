@@ -114,7 +114,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         content.add(ToolTipLabel("LOD Levels", "The number of reduced resolution LOD models to create")).left().padBottom(10f)
         content.add(lodLevels).fillX().expandX().row()
         content.add(ToolTipLabel("LOD Draw Distance", "The distance in meters when the renderer will switch to the next lower LOD model")).left().padBottom(10f)
-        content.add(drawDistance)
+        content.add(drawDistance).fillX().expandX().row()
 
         val selectorsTable = VisTable(true)
         splatMapSelectBox.setItems(

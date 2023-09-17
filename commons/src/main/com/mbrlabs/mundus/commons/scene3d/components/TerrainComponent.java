@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons.scene3d.components;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
@@ -55,6 +56,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     // Index of the current lod model being rendered
     private int currentLodLevel = 0;
+    private boolean lodInit = false;
 
     private static Vector3 cameraV3 = new Vector3();
     private static Vector3 instanceV3 = new Vector3();
@@ -71,9 +73,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
             currentInstance.transform.set(gameObject.getTransform());
         }
 
-        if (modelInstances[0] == null)
-            modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().createLod(0));
-
         cameraV3.set(gameObject.sceneGraph.scene.cam.position);
         currentInstance.transform.getTranslation(instanceV3);
         instanceV3.add(terrainAsset.getTerrain().terrainWidth / 2f, 0, terrainAsset.getTerrain().terrainDepth / 2f);
@@ -81,6 +80,10 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
         int lodLevel = determineLODLevel(distance);
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
+            modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().createLod(0));
+            Gdx.app.log("TC", "YEET");
+        }
         //we are moving to a new draw distance
         if (lodLevel != currentLodLevel){
 
@@ -114,7 +117,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     public void setTerrainAsset(TerrainAsset terrainAsset) {
         this.terrainAsset = terrainAsset;
-        modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().getModel(0));
+        modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().createLod(0));
         modelInstances[0].transform = gameObject.getTransform();
         currentInstance = modelInstances[0];
         applyMaterial();
@@ -123,9 +126,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     public void applyMaterial() {
         if (terrainAsset.getMaterialAsset() == null) return;
-
-       // if (currentInstance.materials.isEmpty())
-       //     currentInstance.materials.add(terrainAsset.getTerrain().getMaterial());
 
         Material material = currentInstance.materials.first();
 

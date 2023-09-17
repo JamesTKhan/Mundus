@@ -170,27 +170,26 @@ public class PlaneMesh implements Disposable {
                     calculateVertexAt(tempVertexInfo, x, z);
 
                     if (generateSkirts) {
-                        int edgeExtension = 0;
-                        boolean isXPosEdge = x == terrainMeshInfo.vertexResolution - 1 - edgeExtension;
-                        boolean isXNegEdge = x <= edgeExtension;
+                        boolean isXPosEdge = x == terrainMeshInfo.vertexResolution - 1;
+                        boolean isXNegEdge = x == 0;
 
-                        boolean isZPosEdge = z == terrainMeshInfo.vertexResolution - 1 - edgeExtension;
-                        boolean isZNegEdge = z <= edgeExtension;
+                        boolean isZPosEdge = z == terrainMeshInfo.vertexResolution - 1;
+                        boolean isZNegEdge = z == 0;
 
                         if (isXNegEdge){
-                            tempVertexInfo.position.x -= gridSizeDepth;
+                            tempVertexInfo.position.x -= gridSizeDepth * 2;
                             tempVertexInfo.position.y -= gridSizeDepth;
                         }
                         else if (isXPosEdge){
-                            tempVertexInfo.position.x += gridSizeDepth;
+                            tempVertexInfo.position.x += gridSizeDepth * 2;
                             tempVertexInfo.position.y -= gridSizeDepth;
                         }
                         else if (isZNegEdge){
-                            tempVertexInfo.position.z -= gridSizeDepth;
+                            tempVertexInfo.position.z -= gridSizeDepth * 2;
                             tempVertexInfo.position.y -= gridSizeDepth;
                         }
                         else if (isZPosEdge){
-                            tempVertexInfo.position.z += gridSizeDepth;
+                            tempVertexInfo.position.z += gridSizeDepth * 2;
                             tempVertexInfo.position.y -= gridSizeDepth;
                         }
                     }
@@ -202,6 +201,7 @@ public class PlaneMesh implements Disposable {
 
     private void setVertex(int index, MeshPartBuilder.VertexInfo info) {
         index *= stride;
+
         if (posPos >= 0) {
             vertices[index + posPos] = info.position.x;
             vertices[index + posPos + 1] = info.position.y;

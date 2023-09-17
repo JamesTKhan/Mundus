@@ -100,7 +100,6 @@ public class Terrain implements Disposable {
     }
 
     public void init() {
-        final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
         models = new Model[lodLevels];
         thresholds = new float[lodLevels];
 
@@ -113,6 +112,8 @@ public class Terrain implements Disposable {
         info.uvScale = uvScale;
 
         planeMesh = new PlaneMesh(info);
+        //generate initial vertices
+        planeMesh.buildMesh(false);
     }
 
     public Vector3 getVertexPosition(Vector3 out, int x, int z) {
@@ -362,7 +363,7 @@ public class Terrain implements Disposable {
             info.uvScale = uvScale;
 
             PlaneMesh generator = new PlaneMesh(info);
-            Mesh mesh = generator.buildMesh(true);
+            Mesh mesh = generator.buildMesh(index == 0 ? false : true);
             generator.calculateAverageNormals();
             generator.computeTangents();
             generator.updateMeshVertices();
