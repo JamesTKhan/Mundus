@@ -185,8 +185,10 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
     @Override
     public void onDirty() {
-        orientedBoundingBox.setTransform(modelInstance.transform);
         // Force update of transform so that model instance transform is also updated
         gameObject.getTransform();
+
+        if (modelInstance == null) return;
+        orientedBoundingBox.setTransform(modelInstance.transform);
     }
 }
