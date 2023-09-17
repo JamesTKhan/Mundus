@@ -374,7 +374,6 @@ public class Terrain implements Disposable {
             ModelBuilder mb = new ModelBuilder();
             mb.begin();
             mb.part(meshPart, material);
-            computeThresholds();
             return mb.end();
 
     }

@@ -56,7 +56,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     // Index of the current lod model being rendered
     private int currentLodLevel = 0;
-    private boolean lodInit = false;
 
     private static Vector3 cameraV3 = new Vector3();
     private static Vector3 instanceV3 = new Vector3();
@@ -80,10 +79,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
         int lodLevel = determineLODLevel(distance);
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
-            modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().createLod(0));
-            Gdx.app.log("TC", "YEET");
-        }
         //we are moving to a new draw distance
         if (lodLevel != currentLodLevel){
 
@@ -117,6 +112,8 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     public void setTerrainAsset(TerrainAsset terrainAsset) {
         this.terrainAsset = terrainAsset;
+        //this is called before terrafroming so the model is flat
+        terrainAsset.getTerrain().computeThresholds();
         modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().createLod(0));
         modelInstances[0].transform = gameObject.getTransform();
         currentInstance = modelInstances[0];
