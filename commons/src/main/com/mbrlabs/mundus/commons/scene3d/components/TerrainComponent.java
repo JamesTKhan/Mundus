@@ -112,7 +112,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     public void setTerrainAsset(TerrainAsset terrainAsset) {
         this.terrainAsset = terrainAsset;
-        //this is called before terrafroming so the model is flat
+        //this is called before terrafroming so the model is flat until reload
         terrainAsset.getTerrain().computeThresholds();
         modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().createLod(0));
         modelInstances[0].transform = gameObject.getTransform();

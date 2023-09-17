@@ -30,7 +30,6 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
@@ -69,8 +68,8 @@ public class Terrain implements Disposable {
     private final Material material;
 
     // Mesh
-    private Model[] models; //= new Model[MAX_LODS];
-    public static float[] thresholds;// = new float[MAX_LODS];
+    private Model[] models;
+    public static float[] thresholds;
     private PlaneMesh planeMesh;
 
     private Terrain(int vertexResolution) {
