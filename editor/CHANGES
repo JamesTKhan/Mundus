@@ -13,6 +13,7 @@
 - Adjustable line (selection, wireframe, helper lines) width
 - Changed UV slider to SimpleFloatSpinner in PI/16 (11.25 degree) increments
 - Counter for helper lines
+- Updated current name when renamed
 - Add DirtyObservable and DirtyListener to SimpleNode
 
 [0.5.1] ~ 08/08/2023
