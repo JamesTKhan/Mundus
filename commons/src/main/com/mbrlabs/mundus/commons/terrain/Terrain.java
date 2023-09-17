@@ -40,10 +40,12 @@ import com.mbrlabs.mundus.commons.utils.MathUtils;
  */
 public class Terrain implements Disposable {
 
-    public static final int DEFAULT_SIZE = 1200;
-    public static final int DEFAULT_VERTEX_RESOLUTION = 180;
+    public static final int DEFAULT_SIZE = 400;
+    public static final int DEFAULT_VERTEX_RESOLUTION = 64;
     public static final int DEFAULT_UV_SCALE = 60;
-    public static final int MAX_LODS = 10;
+    public static final int DEFAULT_LODS = 3;
+    public static final float DEFAULT_DRAW_DISTANCE = 1200f;
+
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();
     private static final Vector3 c10 = new Vector3();
@@ -53,11 +55,12 @@ public class Terrain implements Disposable {
     private static final Matrix4 tmpMatrix = new Matrix4();
 
     public float[] heightData;
-    public int terrainWidth = 1200;
-    public int terrainDepth = 1200;
+    public int terrainWidth = DEFAULT_SIZE;
+    public int terrainDepth = DEFAULT_SIZE;
     public int vertexResolution;
     public float lodDrawDistance;
     public int lodLevels;
+    public int currentLod;
 
     // used for building the mesh
     private final VertexAttributes attribs;
@@ -111,8 +114,19 @@ public class Terrain implements Disposable {
         info.uvScale = uvScale;
 
         planeMesh = new PlaneMesh(info);
-        //generate initial vertices
-        planeMesh.buildMesh(false);
+        //generate base model vertices
+        Mesh mesh = planeMesh.buildMesh(false);
+        planeMesh.calculateAverageNormals();
+        planeMesh.computeTangents();
+        planeMesh.updateMeshVertices();
+        planeMesh.resetBoundingBox();
+
+        MeshPart meshPart = new MeshPart(null, mesh, 0, mesh.getNumIndices(), GL20.GL_TRIANGLES);
+        meshPart.update();
+        ModelBuilder mb = new ModelBuilder();
+        mb.begin();
+        mb.part(meshPart, material);
+        models[0] = mb.end();
     }
 
     public Vector3 getVertexPosition(Vector3 out, int x, int z) {
@@ -216,6 +230,7 @@ public class Terrain implements Disposable {
 
     public void updateLodData(int lodLevels, float drawDistance){
         this.lodLevels = lodLevels;
+        this.currentLod = 0;
         this.lodDrawDistance = drawDistance;
     }
 
@@ -328,7 +343,7 @@ public class Terrain implements Disposable {
         return planeMesh;
     }
 
-    //find closest divisible factor
+    //find closest divisible factor (not currently implemented, will be helpful to align vertices in the future)
     public int findClosestFactor(int number) {
         int half = number / 2;
         for (int i = half; i > 0; i--) {
@@ -374,12 +389,10 @@ public class Terrain implements Disposable {
             mb.begin();
             mb.part(meshPart, material);
             return mb.end();
-
     }
     public void computeThresholds() {
         for (int i = lodLevels - 1; i >= 0; i--) {
             thresholds[i] = (float) (lodDrawDistance * (i + 1));
-            Gdx.app.log("TC", "threshold generated for " + i + " : " + thresholds[i]);
         }
     }
 }

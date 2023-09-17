@@ -31,6 +31,7 @@ import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
+import com.mbrlabs.mundus.editor.ui.widgets.LodWidget
 import com.mbrlabs.mundus.editor.ui.widgets.MaterialSelectWidget
 import com.mbrlabs.mundus.editor.ui.widgets.MaterialWidget
 
@@ -44,6 +45,7 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
     private val tabbedPane = TabbedPane()
     private val tabContainer = VisTable()
     private val materialContainer = VisTable()
+    private val lodContainer = VisTable()
     private val projectManager: ProjectManager = Mundus.inject()
     private val toolManager: ToolManager = Mundus.inject()
 
@@ -72,6 +74,9 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
         collapsibleContent.addSeparator().row()
         collapsibleContent.add(materialContainer).grow().row()
         buildMaterials()
+        collapsibleContent.addSeparator().row()
+        collapsibleContent.add(lodContainer)
+        buildLod()
         tabbedPane.switchTab(0)
         initializing = false
     }
@@ -88,6 +93,11 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
                 assetManager.addModifiedAsset(component.terrainAsset)
             }
         }
+    }
+
+    private fun buildLod(){
+        val lodWidget = LodWidget(component.terrainAsset)
+        lodContainer.add(lodWidget)
     }
 
     override fun setValues(go: GameObject) {

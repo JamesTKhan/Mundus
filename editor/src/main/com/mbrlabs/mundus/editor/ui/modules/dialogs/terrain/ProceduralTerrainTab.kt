@@ -71,7 +71,7 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
     }
 
     private fun setupUI() {
-        vertexResolution.text = 64.toString()
+        vertexResolution.text = Terrain.DEFAULT_UV_SCALE.toString()
         terrainWidth.text = Terrain.DEFAULT_SIZE.toString()
 
         minHeight.text = (-50f).toString()
@@ -80,8 +80,8 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
         gridX.text = "2"
         gridZ.text = "2"
 
-        lodSize.text = "3"
-        lodDrawDistance.text = 1200f.toString()
+        lodSize.text = Terrain.DEFAULT_LODS.toString()
+        lodDrawDistance.text = Terrain.DEFAULT_DRAW_DISTANCE.toString()
 
         root.padTop(6f).padRight(6f).padBottom(22f)
 
@@ -115,7 +115,7 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
 
         leftTable.add(ToolTipLabel("LOD Levels", "The number of reduced resolution LOD models to create")).left()
         leftTable.add(lodSize).left().row()
-        leftTable.add(ToolTipLabel("LOD Draw Distance", "The distance in meters when the renderer will switch to the next lower LOD model")).left()
+        leftTable.add(ToolTipLabel("LOD Draw Distance", "Distance from terrain in meters when the renderer will switch to the next lower LOD model")).left()
         leftTable.add(lodDrawDistance).left().row()
 
         leftTable.add(generateBtn).fillX()

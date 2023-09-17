@@ -18,6 +18,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
+import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -87,8 +88,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
     private var executor: ExecutorService? = null
     private var terraformExecutor: ExecutorService? = null
 
-    private var lodDrawDistance = 1200f
-    private var lodLevels = 3
+    private var lodDrawDistance = Terrain.DEFAULT_DRAW_DISTANCE
+    private var lodLevels = Terrain.DEFAULT_LODS
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
         val assetsToCreate = assetsToCreate.size > 0

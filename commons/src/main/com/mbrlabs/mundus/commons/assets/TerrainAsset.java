@@ -154,12 +154,13 @@ public class TerrainAsset extends Asset {
             }
 
         }
+        updateTerrainMaterial();
     }
 
     @Override
     public void applyDependencies() {
-        updateTerrainMaterial();
         terrain.update();
+        terrain.terraformed = true;
     }
 
     public Model getBaseModel(){

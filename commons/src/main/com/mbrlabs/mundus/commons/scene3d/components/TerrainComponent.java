@@ -16,21 +16,17 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.terrain.Terrain;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
@@ -44,7 +40,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
     // Array of lod models per terrain
-    protected ModelInstance[] modelInstances = new ModelInstance[Terrain.MAX_LODS];
+    protected ModelInstance[] modelInstances;
     protected ModelInstance currentInstance;
     protected TerrainAsset terrainAsset;
 
@@ -55,10 +51,8 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private TerrainComponent leftNeighbor;
 
     // Index of the current lod model being rendered
-    private int currentLodLevel = 0;
-
-    private static Vector3 cameraV3 = new Vector3();
-    private static Vector3 instanceV3 = new Vector3();
+    private static final Vector3 cameraV3 = new Vector3();
+    private static final Vector3 instanceV3 = new Vector3();
 
     public TerrainComponent(GameObject go) {
         super(go);
@@ -80,7 +74,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         int lodLevel = determineLODLevel(distance);
 
         //we are moving to a new draw distance
-        if (lodLevel != currentLodLevel){
+        if (lodLevel != terrainAsset.getTerrain().currentLod){
 
                 if (modelInstances[lodLevel] == null) {
                     modelInstances[lodLevel] = new ModelInstance(terrainAsset.getTerrain().getModel(lodLevel));
@@ -88,7 +82,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
                 }
                 currentInstance = modelInstances[lodLevel];
                 applyMaterial();
-                currentLodLevel = lodLevel;
+                terrainAsset.getTerrain().currentLod = lodLevel;
             }
     }
 
@@ -112,9 +106,10 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     public void setTerrainAsset(TerrainAsset terrainAsset) {
         this.terrainAsset = terrainAsset;
-        //this is called before terrafroming so the model is flat until reload
+        //this is called before terraforming so the model is initially flat
         terrainAsset.getTerrain().computeThresholds();
-        modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().createLod(0));
+        modelInstances = new ModelInstance[terrainAsset.getTerrain().lodLevels];
+        modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().getModel(0));
         modelInstances[0].transform = gameObject.getTransform();
         currentInstance = modelInstances[0];
         applyMaterial();
