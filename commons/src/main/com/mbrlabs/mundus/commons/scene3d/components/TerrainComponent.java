@@ -16,6 +16,8 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
@@ -54,6 +56,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private static final Vector3 cameraV3 = new Vector3();
     private static final Vector3 instanceV3 = new Vector3();
 
+    private boolean x = false;
     public TerrainComponent(GameObject go) {
         super(go);
         type = Component.Type.TERRAIN;
@@ -61,6 +64,9 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     @Override
     public void update(float delta) {
+        if (!terrainAsset.getTerrain().terraformed)
+            return;
+
         super.update(delta);
         if (gameObject.isDirty()) {
             currentInstance.transform.set(gameObject.getTransform());

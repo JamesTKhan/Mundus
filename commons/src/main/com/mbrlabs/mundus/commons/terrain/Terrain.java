@@ -61,6 +61,7 @@ public class Terrain implements Disposable {
     public float lodDrawDistance;
     public int lodLevels;
     public int currentLod;
+    public boolean terraformed;
 
     // used for building the mesh
     private final VertexAttributes attribs;
