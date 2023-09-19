@@ -38,6 +38,7 @@ public class Meta {
     public static final String JSON_WATER = "wat";
     public static final String JSON_MODEL = "mdl";
     public static final String JSON_SKY_BOX = "sky";
+    public static final String JSON_TEXTURE = "tex";
 
     private int version;
     private long lastModified;
@@ -46,6 +47,7 @@ public class Meta {
 
     private MetaModel model;
     private MetaTerrain terrain;
+    private MetaTexture texture;
 
     private final FileHandle file;
 
@@ -103,6 +105,14 @@ public class Meta {
 
     public void setTerrain(MetaTerrain terrain) {
         this.terrain = terrain;
+    }
+
+    public MetaTexture getTexture() {
+        return texture;
+    }
+
+    public void setTexture(MetaTexture texture) {
+        this.texture = texture;
     }
 
     @Override

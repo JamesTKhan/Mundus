@@ -37,16 +37,24 @@ public class TextureAsset extends Asset implements TextureProvider {
 
     public TextureAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
+        generateMipMaps = meta.getTexture().isUseMipMaps();
     }
 
     public TextureAsset generateMipmaps(boolean mipmaps) {
         this.generateMipMaps = mipmaps;
+        meta.getTexture().setUseMipMaps(mipmaps);
         return this;
     }
 
     public TextureAsset setTileable(boolean tileable) {
         this.tileable = tileable;
         return this;
+    }
+
+    public void setFilter(Texture.TextureFilter minFilter, Texture.TextureFilter magFilter) {
+        texture.setFilter(minFilter, magFilter);
+        meta.getTexture().setMinFilter(minFilter);
+        meta.getTexture().setMagFilter(magFilter);
     }
 
     @Override
@@ -62,6 +70,7 @@ public class TextureAsset extends Asset implements TextureProvider {
             texture = new Texture(file);
         }
 
+        texture.setFilter(meta.getTexture().getMinFilterEnum(), meta.getTexture().getMagFilterEnum());
         if (tileable) {
             texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         }
@@ -71,6 +80,7 @@ public class TextureAsset extends Asset implements TextureProvider {
     public void load(AssetManager assetManager) {
         texture = assetManager.get(meta.getFile().pathWithoutExtension());
 
+        texture.setFilter(meta.getTexture().getMinFilterEnum(), meta.getTexture().getMagFilterEnum());
         if (tileable) {
             texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         }

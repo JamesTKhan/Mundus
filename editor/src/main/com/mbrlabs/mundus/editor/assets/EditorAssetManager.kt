@@ -536,6 +536,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             saveWaterAsset(asset)
         } else if (asset is SkyboxAsset) {
             saveSkyboxAsset(asset)
+        } else if (asset is TextureAsset) {
+            saveTextureAsset(asset)
         }
         // TODO other assets ?
     }
@@ -886,6 +888,11 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         fileOutputStream.close()
 
         // save meta file
+        metaSaver.save(asset.meta)
+    }
+
+    private fun saveTextureAsset(asset: TextureAsset) {
+        // save meta file, Mundus does not alter texture files currently
         metaSaver.save(asset.meta)
     }
 

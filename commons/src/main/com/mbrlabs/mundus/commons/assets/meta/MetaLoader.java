@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons.assets.meta;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.mbrlabs.mundus.commons.assets.AssetType;
@@ -42,6 +43,8 @@ public class MetaLoader {
             parseTerrain(meta, json.get(Meta.JSON_TERRAIN));
         } else if(meta.getType() == AssetType.MODEL) {
             parseModel(meta, json.get(Meta.JSON_MODEL));
+        } else if(meta.getType() == AssetType.TEXTURE) {
+            parseTexture(meta, json.get(Meta.JSON_TEXTURE));
         }
 
         return meta;
@@ -95,6 +98,24 @@ public class MetaLoader {
         }
 
         meta.setModel(model);
+    }
+
+    private void parseTexture(Meta meta, JsonValue jsonTexture) {
+        final MetaTexture texture = new MetaTexture();
+
+        if (jsonTexture == null) {
+            texture.setUseMipMaps(true);
+            texture.setMinFilter(MetaTexture.DEFAULT_MIN_FILTER.getGLEnum());
+            texture.setMagFilter(MetaTexture.DEFAULT_MAG_FILTER.getGLEnum());
+            meta.setTexture(texture);
+            return;
+        }
+
+        texture.setUseMipMaps(jsonTexture.getBoolean(MetaTexture.JSON_MIP_MAP, true));
+        texture.setMinFilter(jsonTexture.getInt(MetaTexture.JSON_MIN_FILTER, Texture.TextureFilter.MipMapLinearLinear.getGLEnum()));
+        texture.setMagFilter(jsonTexture.getInt(MetaTexture.JSON_MAG_FILTER, Texture.TextureFilter.Linear.getGLEnum()));
+
+        meta.setTexture(texture);
     }
 
     /**

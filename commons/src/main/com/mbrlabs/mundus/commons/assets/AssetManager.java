@@ -243,9 +243,9 @@ public class AssetManager implements Disposable {
             case TEXTURE:
                 // These are hard coded for now
                 TextureLoader.TextureParameter param = new TextureLoader.TextureParameter();
-                param.genMipMaps = true;
-                param.minFilter = Texture.TextureFilter.MipMapLinearLinear;
-                param.magFilter = Texture.TextureFilter.Linear;
+                param.genMipMaps = m.getTexture().isUseMipMaps();
+                param.minFilter = m.getTexture().getMinFilterEnum();
+                param.magFilter = m.getTexture().getMagFilterEnum();
 
                 gdxAssetManager.load(filePath, Texture.class, param);
                 break;
@@ -420,7 +420,6 @@ public class AssetManager implements Disposable {
         TextureAsset asset = new TextureAsset(meta, assetFile);
         // TODO parse special texture instead of always setting them
         asset.setTileable(true);
-        asset.generateMipmaps(true);
         asset.load(gdxAssetManager);
         return asset;
     }
