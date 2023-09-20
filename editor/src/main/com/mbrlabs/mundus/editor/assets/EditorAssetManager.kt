@@ -38,6 +38,7 @@ import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.WaterAsset
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
+import com.mbrlabs.mundus.commons.assets.meta.MetaTexture
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
@@ -409,7 +410,10 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      */
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createTextureAsset(texture: FileHandle): TextureAsset {
+        val metaTexture = MetaTexture()
         val meta = createMetaFileFromAsset(texture, AssetType.TEXTURE)
+        meta.texture = metaTexture
+
         val importedAssetFile = copyToAssetFolder(texture)
 
         val asset = TextureAsset(meta, importedAssetFile)

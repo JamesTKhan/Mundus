@@ -14,9 +14,9 @@ public class MetaTexture {
     public static final String JSON_MIN_FILTER = "minFilter";
     public static final String JSON_MAG_FILTER = "magFilter";
 
-    private boolean useMipMaps;
-    private int minFilter;
-    private int magFilter;
+    private boolean useMipMaps = true;
+    private int minFilter = DEFAULT_MIN_FILTER.getGLEnum();
+    private int magFilter = DEFAULT_MAG_FILTER.getGLEnum();
 
     public boolean isUseMipMaps() {
         return useMipMaps;
