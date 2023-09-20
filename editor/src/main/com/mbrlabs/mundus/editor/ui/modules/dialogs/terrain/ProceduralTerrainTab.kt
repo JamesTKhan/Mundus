@@ -38,7 +38,7 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
     private val gridX = IntegerFieldWithLabel("", -1, false)
     private val gridZ = IntegerFieldWithLabel("", -1, false)
     private val lodSize = IntegerFieldWithLabel("", -1, false)
-    private val lodDrawDistance = FloatFieldWithLabel("", -1, false)
+    private val lodThreshold = FloatFieldWithLabel("", -1, false)
 
     private lateinit var modifierTable: VisTable
     private val generateBtn = VisTextButton("Generate Terrain")
@@ -59,7 +59,7 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
                     .minHeight(minHeight.float)
                     .maxHeight(maxHeight.float)
 
-                dialog.createTerrainChunk(vertexResolution.int, terrainWidth.int, gridX.int, gridZ.int, name.text, lodSize.int, lodDrawDistance.float)
+                dialog.createTerrainChunk(vertexResolution.int, terrainWidth.int, gridX.int, gridZ.int, name.text, lodSize.int, lodThreshold.float)
             }
         })
 
@@ -81,7 +81,7 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
         gridZ.text = "2"
 
         lodSize.text = Terrain.DEFAULT_LODS.toString()
-        lodDrawDistance.text = Terrain.DEFAULT_DRAW_DISTANCE.toString()
+        lodThreshold.text = Terrain.DEFAULT_LOD_THRESHOLD.toString()
 
         root.padTop(6f).padRight(6f).padBottom(22f)
 
@@ -116,7 +116,7 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
         leftTable.add(ToolTipLabel("LOD Levels", "The number of reduced resolution LOD models to create")).left()
         leftTable.add(lodSize).left().row()
         leftTable.add(ToolTipLabel("LOD Draw Distance", "Distance from terrain in meters when the renderer will switch to the next lower LOD model")).left()
-        leftTable.add(lodDrawDistance).left().row()
+        leftTable.add(lodThreshold).left().row()
 
         leftTable.add(generateBtn).fillX()
 

@@ -42,14 +42,14 @@ public class MetaTerrain {
     public static final String JSON_MATERIAL = "material";
     public static final String JSON_LAYER = "layer";
     public static final String JSON_LODLEVELS = "lodLevels";
-    public static final String JSON_DRAWDISTANCE = "drawDistance";
+    public static final String JSON_LOD_THRESHOLD = "lodThreshold";
 
     private int size;
     private int splatMapResolution;
     private float uv;
     private boolean triplanar;
     private int lodLevels;
-    private float drawDistance;
+    private float lodThreshold;
     private String materialId;
     private String splatmap;
     private String splatBase;
@@ -200,10 +200,10 @@ public class MetaTerrain {
         this.lodLevels = lodLevels;
     }
 
-    public float getDrawDistance(){ return drawDistance;}
+    public float getLodThreshold(){ return lodThreshold;}
 
-    public void setDrawDistance(float drawDistance){
-        this.drawDistance = drawDistance;
+    public void setLodThreshold(float lodThreshold){
+        this.lodThreshold = lodThreshold;
     }
 
     /**
@@ -291,7 +291,7 @@ public class MetaTerrain {
                 ", uv=" + uv +
                 ", triplanar=" + triplanar +
                 ", lodLevels=" + lodLevels +
-                ", drawDistance=" + drawDistance +
+                ", lodThreshold=" + lodThreshold +
                 ", material='" + materialId + '\'' +
                 ", splatmap='" + splatmap + '\'' +
                 ", splatBase='" + splatBase + '\'' +

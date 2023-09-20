@@ -341,7 +341,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         return asset
     }
 
-    fun createTerraAssetAsync(name: String, vertexResolution: Int, size: Int, splatMapResolution: Int, lodLevels: Int, drawDistance: Float): TerrainAsset {
+    fun createTerraAssetAsync(name: String, vertexResolution: Int, size: Int, splatMapResolution: Int, lodLevels: Int, lodThreshold: Float): TerrainAsset {
         val terraFilename = "$name.terra"
         val metaFilename = "$terraFilename.meta"
 
@@ -352,7 +352,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         meta.terrain.size = size
         meta.terrain.splatMapResolution = splatMapResolution
         meta.terrain.uv = 60f
-        meta.terrain.drawDistance = drawDistance
+        meta.terrain.lodThreshold = lodThreshold
         meta.terrain.lod = lodLevels
         metaSaver.save(meta)
 

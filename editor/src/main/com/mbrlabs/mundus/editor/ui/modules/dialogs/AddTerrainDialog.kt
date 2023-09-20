@@ -85,7 +85,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         positionY.text = "0"
         positionZ.text = "0"
         lodLevels.text = "3"
-        drawDistance.text = 1200f.toString()
+        drawDistance.text = 0.5f.toString()
     }
 
     private fun setupUI() {
@@ -113,7 +113,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         content.add(positionZ).fillX().expandX().row()
         content.add(ToolTipLabel("LOD Levels", "The number of reduced resolution LOD models to create")).left().padBottom(10f)
         content.add(lodLevels).fillX().expandX().row()
-        content.add(ToolTipLabel("LOD Draw Distance", "The distance in meters when the renderer will switch to the next lower LOD model")).left().padBottom(10f)
+        content.add(ToolTipLabel("LOD Threshold", "The ratio of model size versus camera size when the renderer will switch to a lower LOD model")).left().padBottom(10f)
         content.add(drawDistance).fillX().expandX().row()
 
         val selectorsTable = VisTable(true)

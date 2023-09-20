@@ -88,7 +88,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
     private var executor: ExecutorService? = null
     private var terraformExecutor: ExecutorService? = null
 
-    private var lodDrawDistance = Terrain.DEFAULT_DRAW_DISTANCE
+    private var lodDrawDistance = Terrain.DEFAULT_LOD_THRESHOLD
     private var lodLevels = Terrain.DEFAULT_LODS
 
     override fun draw(batch: Batch?, parentAlpha: Float) {

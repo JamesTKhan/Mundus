@@ -44,7 +44,7 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_VERTEX_RESOLUTION = 64;
     public static final int DEFAULT_UV_SCALE = 60;
     public static final int DEFAULT_LODS = 3;
-    public static final float DEFAULT_DRAW_DISTANCE = 1200f;
+    public static final float DEFAULT_LOD_THRESHOLD = .5f;
 
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();
@@ -58,9 +58,10 @@ public class Terrain implements Disposable {
     public int terrainWidth = DEFAULT_SIZE;
     public int terrainDepth = DEFAULT_SIZE;
     public int vertexResolution;
-    public float lodDrawDistance;
+    public float lodThreshold;
     public int lodLevels;
     public int currentLod;
+    public int lastLod;
     public boolean terraformed;
 
     // used for building the mesh
@@ -229,10 +230,10 @@ public class Terrain implements Disposable {
         this.uvScale = uvScale;
     }
 
-    public void updateLodData(int lodLevels, float drawDistance){
+    public void updateLodData(int lodLevels, float lodThreshold){
         this.lodLevels = lodLevels;
         this.currentLod = 0;
-        this.lodDrawDistance = drawDistance;
+        this.lodThreshold = lodThreshold;
     }
 
     public Vector2 getUvScale() {
@@ -392,8 +393,15 @@ public class Terrain implements Disposable {
             return mb.end();
     }
     public void computeThresholds() {
-        for (int i = lodLevels - 1; i >= 0; i--) {
-            thresholds[i] = (float) (lodDrawDistance * (i + 1));
+        thresholds = new float[lodLevels];
+        thresholds[0] = lodThreshold;
+
+        float currentThreshold = lodThreshold;
+
+        //we will half the LOD thresholds
+        for (int i = 1; i < lodLevels; i++){
+            currentThreshold /= 2;
+            thresholds[i] = currentThreshold;
         }
     }
 }
