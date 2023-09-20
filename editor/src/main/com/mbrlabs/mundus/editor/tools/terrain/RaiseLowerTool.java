@@ -31,6 +31,7 @@ public class RaiseLowerTool extends RadiusTerrainTool {
     private static final TerrainBrush.TerrainModifyAction modifier = (brush, terrain, x, z, localBrushPos, vertexPos) -> {
         float elevation = brush.getValueOfBrushPixmap(localBrushPos.x, localBrushPos.z, vertexPos.x, vertexPos.z, brush.getRadius());
         terrain.heightData[z * terrain.vertexResolution + x] += dir * elevation * TerrainBrush.getStrength();
+        terrain.dispodeLodModels();
     };
 
     public void act(TerrainBrush brush) {

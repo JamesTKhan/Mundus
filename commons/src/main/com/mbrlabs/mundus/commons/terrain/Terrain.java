@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -31,8 +32,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Logger;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
+
+import javax.security.auth.login.LoginContext;
+
+import static com.badlogic.gdx.math.MathUtils.lerp;
 
 /**
  * @author Marcus Brummer
@@ -61,7 +67,7 @@ public class Terrain implements Disposable {
     public float lodThreshold;
     public int lodLevels;
     public int currentLod;
-    public int lastLod;
+    public int previousLod;
     public boolean terraformed;
 
     // used for building the mesh
@@ -72,8 +78,9 @@ public class Terrain implements Disposable {
     private TerrainMaterial terrainMaterial;
     private final Material material;
 
-    // Mesh
+    // Model and mesh
     private Model[] models;
+    private ModelInstance[] modelInstances;
     public static float[] thresholds;
     private PlaneMesh planeMesh;
 
@@ -104,7 +111,9 @@ public class Terrain implements Disposable {
     }
 
     public void init() {
+        Gdx.app.log("T", "Init");
         models = new Model[lodLevels];
+        modelInstances = new ModelInstance[lodLevels];
         thresholds = new float[lodLevels];
 
         PlaneMesh.MeshInfo info = new PlaneMesh.MeshInfo();
@@ -129,6 +138,8 @@ public class Terrain implements Disposable {
         mb.begin();
         mb.part(meshPart, material);
         models[0] = mb.end();
+        modelInstances[0] = new ModelInstance(models[0]);
+        computeThresholds();
     }
 
     public Vector3 getVertexPosition(Vector3 out, int x, int z) {
@@ -330,10 +341,27 @@ public class Terrain implements Disposable {
         return models[index];
     }
 
+    public ModelInstance getModelInstance(int index) {
+        if (modelInstances[index] == null){
+            modelInstances[index] = new ModelInstance(getModel(index));
+        }
+        return modelInstances[index];
+    }
+
+    public void dispodeLodModels(){
+        for (int i = 1; i < lodLevels; i++) {
+            modelInstances[i] = null;
+            if (models[i] != null)
+                models[i].dispose();
+
+        }
+    }
+
     @Override
     public void dispose() {
         for (int i = 0; i < lodLevels; i++)
-            models[i].dispose();
+            if (models[i] != null)
+                models[i].dispose();
         planeMesh.dispose();
     }
 
@@ -396,12 +424,10 @@ public class Terrain implements Disposable {
         thresholds = new float[lodLevels];
         thresholds[0] = lodThreshold;
 
-        float currentThreshold = lodThreshold;
-
-        //we will half the LOD thresholds
+        //lerp thresholds to 0
         for (int i = 1; i < lodLevels; i++){
-            currentThreshold /= 2;
-            thresholds[i] = currentThreshold;
+            thresholds[i] = lerp(thresholds[i-1], 0, 0.5f);
+            Gdx.app.log("T", "Threshold: " + thresholds[i]);
         }
     }
 }

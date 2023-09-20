@@ -26,11 +26,11 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
-import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.terrain.Terrain;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
@@ -44,10 +44,10 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private static final String TAG = TerrainComponent.class.getSimpleName();
 
     // Array of lod models per terrain
-    protected ModelInstance[] modelInstances;
     protected ModelInstance currentInstance;
     protected ModelInstance lodInstance;
     protected TerrainAsset terrainAsset;
+    protected Terrain terrain;
 
     // Neighbor terrain components
     private TerrainComponent topNeighbor;
@@ -73,20 +73,21 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
             currentInstance.transform.set(gameObject.getTransform());
         }
 
-        lodInstance = screenSizeLod();
+        lodInstance = calculateLodLevel();
         if (lodInstance != currentInstance){
             currentInstance = lodInstance;
             applyMaterial();
         }
     }
-    private ModelInstance screenSizeLod(){
+    private ModelInstance calculateLodLevel(){
 
         int camWidth = Gdx.graphics.getWidth();
         int camHeight = Gdx.graphics.getHeight();
         int lodLevels = terrainAsset.getTerrain().lodLevels;
-        int lodLevel = terrainAsset.getTerrain().lastLod;
+        int lodLevel = terrainAsset.getTerrain().previousLod;
 
-        modelInstances[terrainAsset.getTerrain().lastLod].calculateBoundingBox(bb);
+        //we need to use the bounding box of the previous lod level to prevent stuttering at LOD thresholds
+        terrain.getModelInstance(terrain.previousLod).calculateBoundingBox(bb);
 
         //have to get all corners, cant use bb.min and max because of rotation
         Vector3[] corners = new Vector3[8];
@@ -123,19 +124,14 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
         for (int i = lodLevels - 1; i >= 0; i--) {
             //we need to check these separately in case we are close to the x or z horizon
-            if (widthRatio > terrainAsset.getTerrain().thresholds[i])
+            if (widthRatio > terrain.thresholds[i])
                 lodLevel = i;
-            else if (heightRatio > terrainAsset.getTerrain().thresholds[i])
+            else if (heightRatio > terrain.thresholds[i])
                 lodLevel = i;
         }
 
-        terrainAsset.getTerrain().currentLod = lodLevel;
-
-        if (modelInstances[lodLevel] == null) {
-            modelInstances[lodLevel] = new ModelInstance(terrainAsset.getTerrain().getModel(lodLevel));
-            modelInstances[lodLevel].transform.set(gameObject.getTransform());
-        }
-        return modelInstances[lodLevel];
+        terrain.currentLod = lodLevel;
+        return terrain.getModelInstance(lodLevel);
     }
 
     @Override
@@ -148,15 +144,14 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     }
 
     public void setTerrainAsset(TerrainAsset terrainAsset) {
+        Gdx.app.log("TC", "Set Terrain Asset");
         this.terrainAsset = terrainAsset;
+        this.terrain = terrainAsset.getTerrain();
         //this is called before terraforming so the model is initially flat
-        terrainAsset.getTerrain().computeThresholds();
-        modelInstances = new ModelInstance[terrainAsset.getTerrain().lodLevels];
-        modelInstances[0] = new ModelInstance(terrainAsset.getTerrain().getModel(0));
-        modelInstances[0].transform = gameObject.getTransform();
-        currentInstance = modelInstances[0];
+        currentInstance = terrain.getModelInstance(0);
+        currentInstance.transform = gameObject.getTransform();
         applyMaterial();
-        setDimensions(modelInstances[0]);
+        setDimensions(currentInstance);
     }
 
     public void applyMaterial() {
