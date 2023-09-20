@@ -45,7 +45,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     // Array of lod models per terrain
     protected ModelInstance currentInstance;
-    protected ModelInstance lodInstance;
+    private ModelInstance[] modelInstances;
     protected TerrainAsset terrainAsset;
     protected Terrain terrain;
 
@@ -58,6 +58,8 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     // Bounding box to determine what LOD to render
     private static final BoundingBox bb = new BoundingBox();
 
+    private int previousLod = 0;
+
     public TerrainComponent(GameObject go) {
         super(go);
         type = Component.Type.TERRAIN;
@@ -65,29 +67,36 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     @Override
     public void update(float delta) {
-        if (!terrainAsset.getTerrain().terraformed)
+        if (!terrainAsset.getTerrain().terraformed) {
             return;
+        }
 
         super.update(delta);
         if (gameObject.isDirty()) {
             currentInstance.transform.set(gameObject.getTransform());
         }
 
-        lodInstance = calculateLodLevel();
-        if (lodInstance != currentInstance){
-            currentInstance = lodInstance;
+        int newLod = calculateLodLevel();
+        if (newLod != terrain.currentLod){
+            previousLod = terrain.currentLod;
+            terrain.currentLod = newLod;
+            if (modelInstances[newLod] == null){
+                modelInstances[newLod] = new ModelInstance(terrain.getModel(newLod));
+                modelInstances[newLod].transform.set(gameObject.getTransform());
+            }
+            currentInstance = modelInstances[newLod];
             applyMaterial();
         }
     }
-    private ModelInstance calculateLodLevel(){
+    private int calculateLodLevel(){
 
         int camWidth = Gdx.graphics.getWidth();
         int camHeight = Gdx.graphics.getHeight();
         int lodLevels = terrainAsset.getTerrain().lodLevels;
-        int lodLevel = terrainAsset.getTerrain().previousLod;
+        int lodLevel = previousLod;
 
         //we need to use the bounding box of the previous lod level to prevent stuttering at LOD thresholds
-        terrain.getModelInstance(terrain.previousLod).calculateBoundingBox(bb);
+        modelInstances[previousLod].calculateBoundingBox(bb);
 
         //have to get all corners, cant use bb.min and max because of rotation
         Vector3[] corners = new Vector3[8];
@@ -130,8 +139,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
                 lodLevel = i;
         }
 
-        terrain.currentLod = lodLevel;
-        return terrain.getModelInstance(lodLevel);
+        return lodLevel;
     }
 
     @Override
@@ -144,14 +152,17 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     }
 
     public void setTerrainAsset(TerrainAsset terrainAsset) {
-        Gdx.app.log("TC", "Set Terrain Asset");
         this.terrainAsset = terrainAsset;
         this.terrain = terrainAsset.getTerrain();
+        modelInstances = new ModelInstance[terrain.lodLevels];
         //this is called before terraforming so the model is initially flat
-        currentInstance = terrain.getModelInstance(0);
-        currentInstance.transform = gameObject.getTransform();
+        modelInstances[0] = new ModelInstance(terrain.getModel(0));
+        modelInstances[0].transform = gameObject.getTransform();
+        currentInstance = modelInstances[0];
         applyMaterial();
-        setDimensions(currentInstance);
+        setDimensions(modelInstances[0]);
+
+
     }
 
     public void applyMaterial() {

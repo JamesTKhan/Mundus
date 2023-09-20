@@ -64,7 +64,6 @@ public class Terrain implements Disposable {
     public float lodThreshold;
     public int lodLevels;
     public int currentLod;
-    public int previousLod;
     public boolean terraformed;
 
     // used for building the mesh
@@ -77,7 +76,6 @@ public class Terrain implements Disposable {
 
     // Model and mesh
     private Model[] models;
-    private ModelInstance[] modelInstances;
     public static float[] thresholds;
     private PlaneMesh planeMesh;
 
@@ -110,7 +108,6 @@ public class Terrain implements Disposable {
     public void init() {
         Gdx.app.log("T", "Init");
         models = new Model[lodLevels];
-        modelInstances = new ModelInstance[lodLevels];
         thresholds = new float[lodLevels];
 
         PlaneMesh.MeshInfo info = new PlaneMesh.MeshInfo();
@@ -135,7 +132,6 @@ public class Terrain implements Disposable {
         mb.begin();
         mb.part(meshPart, material);
         models[0] = mb.end();
-        modelInstances[0] = new ModelInstance(models[0]);
         computeThresholds();
     }
 
@@ -240,8 +236,8 @@ public class Terrain implements Disposable {
 
     public void updateLodData(int lodLevels, float lodThreshold){
         this.lodLevels = lodLevels;
-        this.currentLod = 0;
         this.lodThreshold = lodThreshold;
+        this.currentLod = 0;
     }
 
     public Vector2 getUvScale() {
@@ -338,16 +334,9 @@ public class Terrain implements Disposable {
         return models[index];
     }
 
-    public ModelInstance getModelInstance(int index) {
-        if (modelInstances[index] == null){
-            modelInstances[index] = new ModelInstance(getModel(index));
-        }
-        return modelInstances[index];
-    }
 
     public void clearLodModels(){
         for (int i = 1; i < lodLevels; i++) {
-            modelInstances[i] = null;
             models[i] = null;
         }
     }
