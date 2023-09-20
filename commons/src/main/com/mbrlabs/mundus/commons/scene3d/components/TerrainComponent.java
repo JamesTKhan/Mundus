@@ -84,7 +84,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         int camWidth = Gdx.graphics.getWidth();
         int camHeight = Gdx.graphics.getHeight();
         int lodLevels = terrainAsset.getTerrain().lodLevels;
-        int lodLevel =0;
+        int lodLevel = terrainAsset.getTerrain().lastLod;
 
         modelInstances[terrainAsset.getTerrain().lastLod].calculateBoundingBox(bb);
 

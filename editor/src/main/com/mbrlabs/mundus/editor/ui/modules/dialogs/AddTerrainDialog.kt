@@ -84,7 +84,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         positionX.text = "0"
         positionY.text = "0"
         positionZ.text = "0"
-        lodLevels.text = "3"
+        lodLevels.text = "5"
         drawDistance.text = 0.5f.toString()
     }
 

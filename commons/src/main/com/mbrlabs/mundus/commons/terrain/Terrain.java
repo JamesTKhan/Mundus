@@ -43,7 +43,7 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_SIZE = 400;
     public static final int DEFAULT_VERTEX_RESOLUTION = 64;
     public static final int DEFAULT_UV_SCALE = 60;
-    public static final int DEFAULT_LODS = 3;
+    public static final int DEFAULT_LODS = 5;
     public static final float DEFAULT_LOD_THRESHOLD = .5f;
 
     private static final Vector3 c00 = new Vector3();
