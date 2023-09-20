@@ -38,6 +38,7 @@ public class SmoothTool extends RadiusTerrainTool {
         float elevation = brush.getValueOfBrushPixmap(tVec2.x, tVec2.z, vertexPos.x, vertexPos.z, brush.getRadius());
         float smoothedHeight = Interpolation.smooth2.apply(heightAtIndex, averageHeight, elevation * TerrainBrush.getStrength());
         terrain.heightData[index] = smoothedHeight;
+        terrain.clearLodModels();
     };
 
     @Override

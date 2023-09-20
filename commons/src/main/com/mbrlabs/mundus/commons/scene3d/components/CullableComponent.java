@@ -62,7 +62,6 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
     public CullableComponent(GameObject go) {
         super(go);
-        this.type = Type.CULLABLE;
     }
 
     @Override

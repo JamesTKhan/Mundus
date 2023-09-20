@@ -32,11 +32,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.Logger;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
-
-import javax.security.auth.login.LoginContext;
 
 import static com.badlogic.gdx.math.MathUtils.lerp;
 
@@ -348,12 +345,10 @@ public class Terrain implements Disposable {
         return modelInstances[index];
     }
 
-    public void dispodeLodModels(){
+    public void clearLodModels(){
         for (int i = 1; i < lodLevels; i++) {
             modelInstances[i] = null;
-            if (models[i] != null)
-                models[i].dispose();
-
+            models[i] = null;
         }
     }
 

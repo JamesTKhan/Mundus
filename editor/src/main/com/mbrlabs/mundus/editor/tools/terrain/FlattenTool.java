@@ -26,6 +26,7 @@ public class FlattenTool extends RadiusTerrainTool {
 
             }
         }
+        terrain.clearLodModels();
     };
 
     @Override

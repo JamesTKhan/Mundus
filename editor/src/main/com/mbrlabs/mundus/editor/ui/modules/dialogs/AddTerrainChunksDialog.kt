@@ -244,6 +244,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
 
                     terrainGO.setLocalPosition((i * width).toFloat(), 0f, (j * width).toFloat())
                     val component = terrainGO.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
+                    terrainGO.scaleChanged = true
 
                     context.currScene.terrains.add(component)
                     projectManager.current().assetManager.addNewAsset(asset)
