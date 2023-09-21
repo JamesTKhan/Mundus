@@ -20,6 +20,7 @@
 - Added new TerrainLayerAsset to decouple splat textures from terrains
 - Added PlaneMesh, decouples terrain mesh generation logic from terrain class
 - Updated Terrain getRayIntersection to use binary search
+- Added LOD system
 
 [0.5.1] ~ 08/08/2023
 - Added FPS launcher argument, always call setForegroundFPS

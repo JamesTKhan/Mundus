@@ -46,8 +46,8 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_SIZE = 400;
     public static final int DEFAULT_VERTEX_RESOLUTION = 64;
     public static final int DEFAULT_UV_SCALE = 60;
-    public static final int DEFAULT_LODS = 5;
-    public static final float DEFAULT_LOD_THRESHOLD = .5f;
+    public static final int DEFAULT_LODS = 4;
+    public static final float DEFAULT_LOD_THRESHOLD = 1200f;
 
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();
@@ -65,6 +65,7 @@ public class Terrain implements Disposable {
     public int lodLevels;
     public int currentLod;
     public boolean terraformed;
+    public boolean terrainModified;
 
     // used for building the mesh
     private final VertexAttributes attribs;
@@ -336,6 +337,7 @@ public class Terrain implements Disposable {
 
 
     public void clearLodModels(){
+        terrainModified = true;
         for (int i = 1; i < lodLevels; i++) {
             models[i] = null;
         }
@@ -408,9 +410,8 @@ public class Terrain implements Disposable {
         thresholds = new float[lodLevels];
         thresholds[0] = lodThreshold;
 
-        //lerp thresholds to 0
         for (int i = 1; i < lodLevels; i++){
-            thresholds[i] = lerp(thresholds[i-1], 0, 0.5f);
+            thresholds[i] = thresholds[i-1] * (i+1);
             Gdx.app.log("T", "Threshold: " + thresholds[i]);
         }
     }

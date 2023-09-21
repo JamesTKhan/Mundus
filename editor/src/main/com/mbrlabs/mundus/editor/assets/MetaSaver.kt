@@ -80,6 +80,8 @@ class MetaSaver {
         json.writeValue(MetaTerrain.JSON_SPLAT_BASE64, terrain.splatBase64)
         json.writeValue(MetaTerrain.JSON_MATERIAL, terrain.materialId)
         json.writeValue(MetaTerrain.JSON_LAYER, terrain.terrainLayerAssetId)
+        json.writeValue(MetaTerrain.JSON_LODLEVELS, terrain.lod)
+        json.writeValue(MetaTerrain.JSON_LOD_THRESHOLD, terrain.lodThreshold)
         if (terrain.splatmap != null) json.writeValue(MetaTerrain.JSON_SPLATMAP, terrain.splatmap)
         json.writeObjectEnd()
     }

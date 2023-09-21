@@ -65,8 +65,8 @@ public class MetaLoader {
         terrain.setSplatmap(jsonTerrain.getString(MetaTerrain.JSON_SPLATMAP, null));
         terrain.setSplatBase64(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_BASE64, null));
         terrain.setTerrainLayerAssetId(jsonTerrain.getString(MetaTerrain.JSON_LAYER, null));
-        terrain.setLod(jsonTerrain.getInt(MetaTerrain.JSON_LODLEVELS, 5));
-        terrain.setLodThreshold(jsonTerrain.getFloat(MetaTerrain.JSON_LOD_THRESHOLD, 0.5f));
+        terrain.setLod(jsonTerrain.getInt(MetaTerrain.JSON_LODLEVELS, 4));
+        terrain.setLodThreshold(jsonTerrain.getFloat(MetaTerrain.JSON_LOD_THRESHOLD, 1200));
 
         // Deprecated with TerrainLayer feature, left for Backward compatibility for the time being
         terrain.setSplatBase(jsonTerrain.getString(MetaTerrain.JSON_SPLAT_BASE, null));

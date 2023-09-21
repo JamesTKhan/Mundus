@@ -115,7 +115,7 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
 
         leftTable.add(ToolTipLabel("LOD Levels", "The number of reduced resolution LOD models to create")).left()
         leftTable.add(lodSize).left().row()
-        leftTable.add(ToolTipLabel("LOD Draw Distance", "Distance from terrain in meters when the renderer will switch to the next lower LOD model")).left()
+        leftTable.add(ToolTipLabel("LOD Draw Distance", "First distance between camara and terrain when the renderer will switch to the next lower LOD model")).left()
         leftTable.add(lodThreshold).left().row()
 
         leftTable.add(generateBtn).fillX()
