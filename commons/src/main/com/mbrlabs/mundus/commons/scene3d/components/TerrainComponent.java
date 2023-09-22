@@ -59,6 +59,9 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private static final Vector3 tempV1 = new Vector3();
     private static final Vector3 tempV2 = new Vector3();
 
+    private BoundingBox bb = new BoundingBox();
+    private int previousLod;
+
     public TerrainComponent(GameObject go) {
         super(go);
         type = Component.Type.TERRAIN;
@@ -102,6 +105,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     }
 
     private int determineLODLevel(float distance) {
+
         for (int i = 0; i <  terrainAsset.getTerrain().lodLevels - 1; i++) {
             if (distance < terrainAsset.getTerrain().thresholds[i]) {
                 return i;
@@ -109,7 +113,67 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         }
         return terrainAsset.getTerrain().lodLevels - 1;  // If beyond all thresholds, consider it the furthest LOD level
     }
+    int counter = 0;
 
+    private int calculateLodLevel(){
+
+        int camWidth = Gdx.graphics.getWidth();
+        int camHeight = Gdx.graphics.getHeight();
+        int lodLevels = terrainAsset.getTerrain().lodLevels;
+        //we need to use the bounding box of the previous lod level to prevent stuttering at LOD thresholds
+        int lodLevel = previousLod;
+
+        modelInstances[lodLevel].calculateBoundingBox(bb);
+        bb.mul(modelInstances[lodLevel].transform);
+
+        //have to get all corners, cant use bb.min and max because of rotation
+        Vector3[] corners = new Vector3[8];
+        for (int i = 0; i < 8; i++) {
+            corners[i] = new Vector3();
+        }
+        bb.getCorner000(corners[0]);
+        bb.getCorner001(corners[1]);
+        bb.getCorner010(corners[2]);
+        bb.getCorner011(corners[3]);
+        bb.getCorner100(corners[4]);
+        bb.getCorner101(corners[5]);
+        bb.getCorner110(corners[6]);
+        bb.getCorner111(corners[7]);
+
+        Matrix4 combinedMatrix = gameObject.sceneGraph.scene.cam.combined;
+
+        Vector2 minScreenCoord = new Vector2(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
+        Vector2 maxScreenCoord = new Vector2(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
+
+        for (Vector3 corner : corners) {
+            corner.prj(combinedMatrix);
+            minScreenCoord.x = Math.min(minScreenCoord.x, corner.x);
+            minScreenCoord.y = Math.min(minScreenCoord.y, corner.y);
+            maxScreenCoord.x = Math.max(maxScreenCoord.x, corner.x);
+            maxScreenCoord.y = Math.max(maxScreenCoord.y, corner.y);
+        }
+
+        float width = Math.min((maxScreenCoord.x - minScreenCoord.x) * 0.5f * camWidth, camWidth);
+        float height =Math.min((maxScreenCoord.y - minScreenCoord.y) * 0.5f * camHeight, camHeight);
+
+       counter ++;
+       if (counter == 200) {
+            Gdx.app.log("TC: " + terrainAsset.toString(), "| W: " + width + "H: " + height);
+            counter = 0;
+        }
+        float widthRatio = width / camWidth;
+        float heightRatio = height / camHeight;
+
+        for (int i = lodLevels - 1; i >= 0; i--) {
+            //we need to check these separately in case we are close to the x or z horizon
+            if (widthRatio > terrain.thresholds[i])
+                lodLevel = i;
+            else if (heightRatio > terrain.thresholds[i])
+                lodLevel = i;
+        }
+        previousLod = lodLevel;
+        return lodLevel;
+    }
 
     @Override
     public RenderableProvider getRenderableProvider() {
@@ -129,6 +193,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         modelInstances[0].transform = gameObject.getTransform();
         currentInstance = modelInstances[0];
         applyMaterial();
+
         setDimensions(modelInstances[0]);
 
 
