@@ -573,14 +573,21 @@ public abstract class TerrainBrush extends Tool {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        if (terrainAsset != null) {
+        if (terrainComponent != null) {
             Ray ray = getProjectManager().current().currScene.viewport.getPickRay(screenX, screenY);
-            terrainAsset.getTerrain().getRayIntersection(brushPos, ray, terrainComponent.getModelInstance().transform);
+            terrainComponent.getRayIntersection(brushPos, ray);
         }
 
         mouseMoved = true;
 
         EditorPBRTerrainShader.setPickerPosition(brushPos.x, brushPos.y, brushPos.z);
+
+        // Show mouse position if it is on terrain
+        if (terrainComponent.isOnTerrain(brushPos.x, brushPos.z)) {
+            UI.INSTANCE.getStatusBar().setMousePos(brushPos.x, brushPos.y, brushPos.z);
+        } else {
+            UI.INSTANCE.getStatusBar().clearMousePos();
+        }
 
         return false;
     }

@@ -25,6 +25,7 @@ abstract class BaseBrushTab(private val parent: TerrainComponentWidget,
         if (toolManager.activeTool is TerrainBrush) {
             toolManager.activateTool(toolManager.translateTool)
             projectManager.current().currScene.currentSelection = UI.outline.getSelectedGameObject()
+            UI.statusBar.clearMousePos()
         }
 
         terrainBrushGrid.clearSelectedButtonStyle()
