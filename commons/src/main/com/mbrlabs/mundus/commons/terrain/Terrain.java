@@ -107,7 +107,6 @@ public class Terrain implements Disposable {
     }
 
     public void init() {
-        Gdx.app.log("T", "Init");
         models = new Model[lodLevels];
         thresholds = new float[lodLevels];
 
@@ -409,10 +408,12 @@ public class Terrain implements Disposable {
     public void computeThresholds() {
         thresholds = new float[lodLevels];
         thresholds[0] = lodThreshold;
-
+        int currentDif = (int) lodThreshold / 2;
         for (int i = 1; i < lodLevels; i++){
-            thresholds[i] = lerp(thresholds[i-1], 0, .5f);
-            Gdx.app.log("T", "Threshold: " + thresholds[i]);
+            thresholds[i] = thresholds[i-1] + currentDif;
+            currentDif /=2;
+            Gdx.app.log("", "Thr: " + thresholds[i]);
         }
+
     }
 }

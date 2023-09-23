@@ -92,7 +92,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         tempV2.add(terrainAsset.getTerrain().terrainWidth / 2f, 0, terrainAsset.getTerrain().terrainDepth / 2f);
         float distance = tempV1.dst(tempV2);
 
-        int lodLevel = calculateLodLevel();
+        int lodLevel = determineLodLevel(distance);
 
         if (lodLevel != terrain.currentLod){
             terrain.currentLod = lodLevel;
@@ -105,7 +105,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         }
     }
 
-    private int determineLODLevel(float distance) {
+    private int determineLodLevel(float distance) {
 
         for (int i = 0; i <  terrainAsset.getTerrain().lodLevels - 1; i++) {
             if (distance < terrainAsset.getTerrain().thresholds[i]) {
@@ -116,82 +116,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     }
     int counter = 0;
 
-    private int calculateLodLevel(){
 
-        int lodLevel;
-        float camWidth = gameObject.sceneGraph.scene.cam.viewportWidth;
-        float camHeight = gameObject.sceneGraph.scene.cam.viewportHeight;
-        int lodLevels = terrainAsset.getTerrain().lodLevels;
-
-        //we need to use the bounding box of the previous lod level to prevent stuttering at LOD thresholds
-        modelInstances[previousLod].calculateBoundingBox(bb);
-        //bb.mul(modelInstances[previousLod].transform);
-
-        //have to get all corners, cant use bb.min and max because of rotation
-        Vector3[] corners = new Vector3[8];
-        for (int i = 0; i < 8; i++) {
-            corners[i] = new Vector3();
-        }
-        bb.getCorner000(corners[0]);
-        bb.getCorner001(corners[1]);
-        bb.getCorner010(corners[2]);
-        bb.getCorner011(corners[3]);
-        bb.getCorner100(corners[4]);
-        bb.getCorner101(corners[5]);
-        bb.getCorner110(corners[6]);
-        bb.getCorner111(corners[7]);
-
-        Matrix4 combinedMatrix = gameObject.sceneGraph.scene.cam.combined;
-
-        Vector2 minScreenCoord = new Vector2(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
-        Vector2 maxScreenCoord = new Vector2(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
-
-        //find max and min x and y coordinates for the bounding box
-        for (Vector3 corner : corners) {
-            corner.prj(combinedMatrix);
-            minScreenCoord.x = Math.min(minScreenCoord.x, corner.x);
-            minScreenCoord.y = Math.min(minScreenCoord.y, corner.y);
-            maxScreenCoord.x = Math.max(maxScreenCoord.x, corner.x);
-            maxScreenCoord.y = Math.max(maxScreenCoord.y, corner.y);
-        }
-
-        //Model is completely off the screen
-        if (minScreenCoord.x >= 1f || maxScreenCoord.x <= -1f || minScreenCoord.y >= 1f || maxScreenCoord.y <= -1f) {
-            minScreenCoord.set(0, 0);
-            maxScreenCoord.set(0, 0);
-        }
-
-        maxScreenCoord.x = Math.min(maxScreenCoord.x, 1f);
-        maxScreenCoord.y = Math.min(maxScreenCoord.y, 1f);
-        minScreenCoord.x = Math.max(minScreenCoord.x, -1f);
-        minScreenCoord.y = Math.max(minScreenCoord.y, -1f);
-
-        float width = Math.min((maxScreenCoord.x - minScreenCoord.x) * camWidth / 2f, camWidth);
-        float height = Math.min((maxScreenCoord.y - minScreenCoord.y) * camHeight / 2f, camHeight);
-
-       counter ++;
-       if (counter == 200) {
-            Gdx.app.log("TC: " + terrainAsset.toString(), "| mX: " + minScreenCoord.x + " | MX: " + maxScreenCoord.x);
-           Gdx.app.log("TC: " + terrainAsset.toString(), "| mY: " + minScreenCoord.y + " | MY: " + maxScreenCoord.y);
-           Gdx.app.log("Width: " + width, " | Height: " +height);
-           Gdx.app.log("CamWidth: " + camWidth, " | CamHeight: " + camHeight);
-            counter = 0;
-        }
-        float widthRatio = width / camWidth;
-        float heightRatio = height / camHeight;
-        lodLevel = 0;
-        for (int i = 0; i < lodLevels; i++) {
-            //we need to check these separately in case we are close to the x or z horizon
-            if (widthRatio > terrain.thresholds[i] || heightRatio > terrain.thresholds[i]) {
-                lodLevel = i;
-                break;
-            }
-            else
-                lodLevel = lodLevels - 1;
-        }
-        previousLod = lodLevel;
-        return lodLevel;
-    }
 
     @Override
     public RenderableProvider getRenderableProvider() {
@@ -213,8 +138,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         applyMaterial();
 
         setDimensions(modelInstances[0]);
-
-
     }
 
     public void applyMaterial() {
