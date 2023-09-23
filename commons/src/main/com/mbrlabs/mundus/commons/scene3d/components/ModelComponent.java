@@ -48,15 +48,6 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Mod
     }
 
     @Override
-    public void update(float delta) {
-        super.update(delta);
-        if (gameObject.isDirty()) {
-            // Force update of transform. No need to re-assign it to modelInstance.transform
-            gameObject.getTransform();
-        }
-    }
-
-    @Override
     public RenderableProvider getRenderableProvider() {
         return modelInstance;
     }

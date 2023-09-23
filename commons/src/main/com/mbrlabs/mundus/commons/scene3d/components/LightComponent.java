@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.env.lights.LightType;
+import com.mbrlabs.mundus.commons.scene3d.DirtyListener;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
 import net.mgsx.gltf.scene3d.lights.PointLightEx;
@@ -20,7 +21,7 @@ import net.mgsx.gltf.scene3d.lights.SpotLightEx;
  * @author JamesTKhan
  * @version May 30, 2022
  */
-public class LightComponent extends AbstractComponent {
+public class LightComponent extends AbstractComponent implements DirtyListener {
     private static final String TAG = LightComponent.class.getSimpleName();
 
     private BaseLight light;
@@ -30,6 +31,8 @@ public class LightComponent extends AbstractComponent {
 
     public LightComponent(GameObject go, LightType lightType) {
         super(go);
+        go.addDirtyListener(this);
+
         type = Type.LIGHT;
         this.lightType = lightType;
 
@@ -53,11 +56,14 @@ public class LightComponent extends AbstractComponent {
 
     @Override
     public void update(float delta) {
-        if (gameObject.isDirty()) {
-            position.set(gameObject.getPosition(tmp));
-            if (lightType == LightType.SPOT_LIGHT) {
-                ((SpotLightEx) light).direction.set(gameObject.getForwardDirection(tmp));
-            }
+        // nothing to do here
+    }
+
+    @Override
+    public void onDirty() {
+        position.set(gameObject.getPosition(tmp));
+        if (lightType == LightType.SPOT_LIGHT) {
+            ((SpotLightEx) light).direction.set(gameObject.getForwardDirection(tmp));
         }
     }
 
