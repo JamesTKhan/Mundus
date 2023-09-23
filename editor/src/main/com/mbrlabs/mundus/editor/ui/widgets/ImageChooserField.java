@@ -82,6 +82,7 @@ public class ImageChooserField extends VisTable {
 
     public void removeImage() {
         img.setDrawable(PLACEHOLDER_IMG);
+        this.fileHandle = null;
     }
 
     public void setButtonText(String text) {
