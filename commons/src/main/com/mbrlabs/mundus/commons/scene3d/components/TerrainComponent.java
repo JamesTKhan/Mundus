@@ -20,6 +20,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -91,7 +92,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         tempV2.add(terrainAsset.getTerrain().terrainWidth / 2f, 0, terrainAsset.getTerrain().terrainDepth / 2f);
         float distance = tempV1.dst(tempV2);
 
-        int lodLevel = determineLODLevel(distance);
+        int lodLevel = calculateLodLevel();
 
         if (lodLevel != terrain.currentLod){
             terrain.currentLod = lodLevel;
@@ -117,14 +118,14 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     private int calculateLodLevel(){
 
-        int camWidth = Gdx.graphics.getWidth();
-        int camHeight = Gdx.graphics.getHeight();
+        int lodLevel;
+        float camWidth = gameObject.sceneGraph.scene.cam.viewportWidth;
+        float camHeight = gameObject.sceneGraph.scene.cam.viewportHeight;
         int lodLevels = terrainAsset.getTerrain().lodLevels;
-        //we need to use the bounding box of the previous lod level to prevent stuttering at LOD thresholds
-        int lodLevel = previousLod;
 
-        modelInstances[lodLevel].calculateBoundingBox(bb);
-        bb.mul(modelInstances[lodLevel].transform);
+        //we need to use the bounding box of the previous lod level to prevent stuttering at LOD thresholds
+        modelInstances[previousLod].calculateBoundingBox(bb);
+        //bb.mul(modelInstances[previousLod].transform);
 
         //have to get all corners, cant use bb.min and max because of rotation
         Vector3[] corners = new Vector3[8];
@@ -145,6 +146,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         Vector2 minScreenCoord = new Vector2(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
         Vector2 maxScreenCoord = new Vector2(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
 
+        //find max and min x and y coordinates for the bounding box
         for (Vector3 corner : corners) {
             corner.prj(combinedMatrix);
             minScreenCoord.x = Math.min(minScreenCoord.x, corner.x);
@@ -153,23 +155,39 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
             maxScreenCoord.y = Math.max(maxScreenCoord.y, corner.y);
         }
 
-        float width = Math.min((maxScreenCoord.x - minScreenCoord.x) * 0.5f * camWidth, camWidth);
-        float height =Math.min((maxScreenCoord.y - minScreenCoord.y) * 0.5f * camHeight, camHeight);
+        //Model is completely off the screen
+        if (minScreenCoord.x >= 1f || maxScreenCoord.x <= -1f || minScreenCoord.y >= 1f || maxScreenCoord.y <= -1f) {
+            minScreenCoord.set(0, 0);
+            maxScreenCoord.set(0, 0);
+        }
+
+        maxScreenCoord.x = Math.min(maxScreenCoord.x, 1f);
+        maxScreenCoord.y = Math.min(maxScreenCoord.y, 1f);
+        minScreenCoord.x = Math.max(minScreenCoord.x, -1f);
+        minScreenCoord.y = Math.max(minScreenCoord.y, -1f);
+
+        float width = Math.min((maxScreenCoord.x - minScreenCoord.x) * camWidth / 2f, camWidth);
+        float height = Math.min((maxScreenCoord.y - minScreenCoord.y) * camHeight / 2f, camHeight);
 
        counter ++;
        if (counter == 200) {
-            Gdx.app.log("TC: " + terrainAsset.toString(), "| W: " + width + "H: " + height);
+            Gdx.app.log("TC: " + terrainAsset.toString(), "| mX: " + minScreenCoord.x + " | MX: " + maxScreenCoord.x);
+           Gdx.app.log("TC: " + terrainAsset.toString(), "| mY: " + minScreenCoord.y + " | MY: " + maxScreenCoord.y);
+           Gdx.app.log("Width: " + width, " | Height: " +height);
+           Gdx.app.log("CamWidth: " + camWidth, " | CamHeight: " + camHeight);
             counter = 0;
         }
         float widthRatio = width / camWidth;
         float heightRatio = height / camHeight;
-
-        for (int i = lodLevels - 1; i >= 0; i--) {
+        lodLevel = 0;
+        for (int i = 0; i < lodLevels; i++) {
             //we need to check these separately in case we are close to the x or z horizon
-            if (widthRatio > terrain.thresholds[i])
+            if (widthRatio > terrain.thresholds[i] || heightRatio > terrain.thresholds[i]) {
                 lodLevel = i;
-            else if (heightRatio > terrain.thresholds[i])
-                lodLevel = i;
+                break;
+            }
+            else
+                lodLevel = lodLevels - 1;
         }
         previousLod = lodLevel;
         return lodLevel;

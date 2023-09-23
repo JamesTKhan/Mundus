@@ -411,7 +411,7 @@ public class Terrain implements Disposable {
         thresholds[0] = lodThreshold;
 
         for (int i = 1; i < lodLevels; i++){
-            thresholds[i] = thresholds[i-1] * (i+1);
+            thresholds[i] = lerp(thresholds[i-1], 0, .5f);
             Gdx.app.log("T", "Threshold: " + thresholds[i]);
         }
     }
