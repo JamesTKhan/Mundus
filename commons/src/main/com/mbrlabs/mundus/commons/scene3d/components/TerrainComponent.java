@@ -114,9 +114,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         }
         return terrainAsset.getTerrain().lodLevels - 1;  // If beyond all thresholds, consider it the furthest LOD level
     }
-    int counter = 0;
-
-
 
     @Override
     public RenderableProvider getRenderableProvider() {

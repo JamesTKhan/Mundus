@@ -120,7 +120,7 @@ public class Terrain implements Disposable {
 
         planeMesh = new PlaneMesh(info);
         //generate base model vertices
-        Mesh mesh = planeMesh.buildMesh(false);
+        Mesh mesh = planeMesh.buildMesh(false, 0);
         planeMesh.calculateAverageNormals();
         planeMesh.computeTangents();
         planeMesh.updateMeshVertices();
@@ -370,18 +370,9 @@ public class Terrain implements Disposable {
     }
 
     public Model createLod(int index) {
-            int newResolution = vertexResolution / (index + 1);
+            int newResolution = (int)(vertexResolution * (1 - index * .2));
 
-            float[] newHeightData = new float[newResolution * newResolution];
-
-            int step = vertexResolution / newResolution;
-
-            for (int j = 0; j < newResolution; j++) {
-                for (int k = 0; k < newResolution; k++) {
-                    // Sampling the original heightData
-                    newHeightData[k * newResolution + j] = heightData[(k * step) * vertexResolution + (j * step)];
-                }
-            }
+            float[] newHeightData = rescaleHeightMap (heightData, vertexResolution, (float) (1 - index * .2));
 
             PlaneMesh.MeshInfo info = new PlaneMesh.MeshInfo();
             info.attribs = attribs;
@@ -392,7 +383,7 @@ public class Terrain implements Disposable {
             info.uvScale = uvScale;
 
             PlaneMesh generator = new PlaneMesh(info);
-            Mesh mesh = generator.buildMesh(index == 0 ? false : true);
+            Mesh mesh = generator.buildMesh(index == 0 ? false : true, index);
             generator.calculateAverageNormals();
             generator.computeTangents();
             generator.updateMeshVertices();
@@ -415,5 +406,47 @@ public class Terrain implements Disposable {
             Gdx.app.log("", "Thr: " + thresholds[i]);
         }
 
+    }
+
+    public float[] rescaleHeightMap(float[] original, int vertexResolution, float percentage) {
+        // Ensure the percentage is between 0 and 1.
+        if (percentage <= 0 || percentage > 1) {
+            throw new IllegalArgumentException("Percentage should be between 0 and 1");
+        }
+
+        int newSize = (int) (vertexResolution * percentage);
+
+        if (newSize < 1 || newSize * newSize > original.length) {
+            throw new IllegalArgumentException("Rescaled size is invalid.");
+        }
+
+        float[] rescaled = new float[newSize * newSize];
+        float scale = (float) (vertexResolution - 1) / (newSize - 1);  // Adjusted to ensure corners align
+
+        for (int i = 0; i < newSize; i++) {
+            for (int j = 0; j < newSize; j++) {
+                // Determine the corresponding position in the original array
+                float origI = i * scale;
+                float origJ = j * scale;
+
+                // Bilinear interpolation
+                int i0 = (int) origI;
+                int i1 = Math.min(i0 + 1, vertexResolution - 1);
+                int j0 = (int) origJ;
+                int j1 = Math.min(j0 + 1, vertexResolution - 1);
+
+                float alpha = origI - i0;
+                float beta = origJ - j0;
+
+                float value = (1 - alpha) * (1 - beta) * original[i0 * vertexResolution + j0] +
+                        (1 - alpha) * beta * original[i0 * vertexResolution + j1] +
+                        alpha * (1 - beta) * original[i1 * vertexResolution + j0] +
+                        alpha * beta * original[i1 * vertexResolution + j1];
+
+                rescaled[i * newSize + j] = value;
+            }
+        }
+
+        return rescaled;
     }
 }

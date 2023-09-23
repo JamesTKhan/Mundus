@@ -34,6 +34,7 @@ public class PlaneMesh implements Disposable {
     private final int vertexResolution;
 
     private boolean generateSkirts;
+    private int lodIndex;
 
     private final MeshInfo terrainMeshInfo;
     private VertexAttributes attribs;
@@ -68,7 +69,8 @@ public class PlaneMesh implements Disposable {
         this.stride = attribs.vertexSize / 4;
     }
 
-    public Mesh buildMesh(boolean generateSkirts) {
+    public Mesh buildMesh(boolean generateSkirts, int lodIndex) {
+        this.lodIndex = lodIndex;
         this.generateSkirts = generateSkirts;
 
         final int numVertices = terrainMeshInfo.vertexResolution * terrainMeshInfo.vertexResolution;
@@ -177,20 +179,20 @@ public class PlaneMesh implements Disposable {
                         boolean isZNegEdge = z == 0;
 
                         if (isXNegEdge){
-                            tempVertexInfo.position.x -= gridSizeDepth * 2;
-                            tempVertexInfo.position.y -= gridSizeDepth;
+                            tempVertexInfo.position.x -= gridSizeDepth * lodIndex * lodIndex;
+                            tempVertexInfo.position.y -= gridSizeDepth * lodIndex * lodIndex;
                         }
                         else if (isXPosEdge){
-                            tempVertexInfo.position.x += gridSizeDepth * 2;
-                            tempVertexInfo.position.y -= gridSizeDepth;
+                            tempVertexInfo.position.x += gridSizeDepth * lodIndex * lodIndex;
+                            tempVertexInfo.position.y -= gridSizeDepth * lodIndex * lodIndex;
                         }
                         else if (isZNegEdge){
-                            tempVertexInfo.position.z -= gridSizeDepth * 2;
-                            tempVertexInfo.position.y -= gridSizeDepth;
+                            tempVertexInfo.position.z -= gridSizeDepth * lodIndex * lodIndex;
+                            tempVertexInfo.position.y -= gridSizeDepth * lodIndex * lodIndex;
                         }
                         else if (isZPosEdge){
-                            tempVertexInfo.position.z += gridSizeDepth * 2;
-                            tempVertexInfo.position.y -= gridSizeDepth;
+                            tempVertexInfo.position.z += gridSizeDepth * lodIndex * lodIndex;
+                            tempVertexInfo.position.y -= gridSizeDepth * lodIndex * lodIndex;
                         }
                     }
                     setVertex(z * vertexResolution + x, tempVertexInfo);
