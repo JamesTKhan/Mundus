@@ -23,7 +23,6 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -34,8 +33,6 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
-
-import static com.badlogic.gdx.math.MathUtils.lerp;
 
 /**
  * @author Marcus Brummer
@@ -62,7 +59,7 @@ public class Terrain implements Disposable {
     public int terrainDepth = DEFAULT_SIZE;
     public int vertexResolution;
     public float lodThreshold;
-    public int lodLevels;
+    public int lodInt;
     public int currentLod;
     public boolean terraformed;
     public boolean terrainModified;
@@ -107,8 +104,8 @@ public class Terrain implements Disposable {
     }
 
     public void init() {
-        models = new Model[lodLevels];
-        thresholds = new float[lodLevels];
+        models = new Model[DEFAULT_LODS];
+        thresholds = new float[DEFAULT_LODS];
 
         PlaneMesh.MeshInfo info = new PlaneMesh.MeshInfo();
         info.attribs = attribs;
@@ -234,8 +231,8 @@ public class Terrain implements Disposable {
         this.uvScale = uvScale;
     }
 
-    public void updateLodData(int lodLevels, float lodThreshold){
-        this.lodLevels = lodLevels;
+    public void updateLodData(int lodInt, float lodThreshold){
+        this.lodInt = lodInt;
         this.lodThreshold = lodThreshold;
         this.currentLod = 0;
     }
@@ -337,14 +334,14 @@ public class Terrain implements Disposable {
 
     public void clearLodModels(){
         terrainModified = true;
-        for (int i = 1; i < lodLevels; i++) {
+        for (int i = 1; i < DEFAULT_LODS; i++) {
             models[i] = null;
         }
     }
 
     @Override
     public void dispose() {
-        for (int i = 0; i < lodLevels; i++)
+        for (int i = 0; i < DEFAULT_LODS; i++)
             if (models[i] != null)
                 models[i].dispose();
         planeMesh.dispose();
@@ -397,15 +394,14 @@ public class Terrain implements Disposable {
             return mb.end();
     }
     public void computeThresholds() {
-        thresholds = new float[lodLevels];
+        thresholds = new float[DEFAULT_LODS];
         thresholds[0] = lodThreshold;
         int currentDif = (int) lodThreshold / 2;
-        for (int i = 1; i < lodLevels; i++){
+        for (int i = 1; i < DEFAULT_LODS; i++){
             thresholds[i] = thresholds[i-1] + currentDif;
             currentDif /=2;
             Gdx.app.log("", "Thr: " + thresholds[i]);
         }
-
     }
 
     public float[] rescaleHeightMap(float[] original, int vertexResolution, float percentage) {

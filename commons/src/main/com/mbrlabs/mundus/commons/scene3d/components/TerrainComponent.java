@@ -16,12 +16,9 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -76,7 +73,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
         //terrain has modified so regenerate LOD model instances
         if (terrain.terrainModified){
-            for (int i = 1; i < terrain.lodLevels; i++){
+            for (int i = 1; i < terrain.DEFAULT_LODS; i++){
                 modelInstances[i] = null;
             }
             terrain.terrainModified = false;
@@ -107,12 +104,12 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     private int determineLodLevel(float distance) {
 
-        for (int i = 0; i <  terrainAsset.getTerrain().lodLevels - 1; i++) {
+        for (int i = 0; i <  Terrain.DEFAULT_LODS - 1; i++) {
             if (distance < terrainAsset.getTerrain().thresholds[i]) {
                 return i;
             }
         }
-        return terrainAsset.getTerrain().lodLevels - 1;  // If beyond all thresholds, consider it the furthest LOD level
+        return Terrain.DEFAULT_LODS - 1;  // If beyond all thresholds, consider it the furthest LOD level
     }
 
     @Override
@@ -127,7 +124,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     public void setTerrainAsset(TerrainAsset terrainAsset) {
         this.terrainAsset = terrainAsset;
         this.terrain = terrainAsset.getTerrain();
-        modelInstances = new ModelInstance[terrain.lodLevels];
+        modelInstances = new ModelInstance[terrain.DEFAULT_LODS];
         //this is called before terraforming so the model is initially flat
         modelInstances[0] = new ModelInstance(terrain.getModel(0));
         modelInstances[0].transform = gameObject.getTransform();

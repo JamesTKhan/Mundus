@@ -23,7 +23,7 @@ class LodWidget(var asset : TerrainAsset) : VisTable() {
     }
 
     private fun updateUI() {
-        lodLabel.setText("LOD Levels:" + asset.terrain.lodLevels + " / Current LOD Multiplier: " + (asset.terrain.currentLod + 1))
+        lodLabel.setText("LOD Levels:" + asset.terrain.lodInt + " / Current LOD Multiplier: " + (asset.terrain.currentLod + 1))
     }
 
     override fun act(delta: Float) {
