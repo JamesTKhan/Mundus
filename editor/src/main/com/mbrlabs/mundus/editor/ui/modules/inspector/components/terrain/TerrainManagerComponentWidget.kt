@@ -1,6 +1,8 @@
 package com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain
 
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.dialog.Dialogs
@@ -19,6 +21,9 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
+import com.mbrlabs.mundus.editor.ui.widgets.ImprovedSlider
+import com.mbrlabs.mundus.editor.ui.widgets.ScrollPaneSlider
+import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 
 /**
  * @author JamesTKhan
@@ -36,6 +41,8 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     private val updateBtn: VisTextButton = VisTextButton("Change Layers")
     private val triplanarOnBtn: VisTextButton = VisTextButton("Triplanar Toggle On")
     private val triplanarOffBtn: VisTextButton = VisTextButton("Triplanar Toggle Off")
+    private val drawDistance: ImprovedSlider = ImprovedSlider(0f, 5000f, 1f, 1);
+    private val lodIndex: ImprovedSlider = ImprovedSlider(1f, 10f, .1f, 1);
 
     init {
         setupUI()
@@ -62,9 +69,16 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
         buttonTable.add(updateBtn).row()
         buttonTable.add(triplanarOnBtn).row()
         buttonTable.add(triplanarOffBtn).row()
+        buttonTable.add(ToolTipLabel("LOD Draw Distance", "Maximum distance that the highest resolution model will be drawn")).left()
+        buttonTable.add(drawDistance).row()
+        buttonTable.add(ToolTipLabel("LOD Index", "Changes distance between LOD transitions")).left()
+        buttonTable.add((lodIndex)).row()
         root.add(buttonTable).left().row()
 
         collapsibleContent.add(root).left().growX().row()
+
+        drawDistance.value = component.drawDistance
+        lodIndex.value = component.lodIndex
     }
 
     private fun setupListeners() {
@@ -104,6 +118,18 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
                 setTriplanar(false)
             }
         })
+
+        drawDistance.addListener((object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                changeDrawDistance(drawDistance.value)
+            }
+        }))
+
+        lodIndex.addListener((object: ChangeListener(){
+            override fun changed(event: ChangeEvent?, actor: Actor?){
+                changeLodIndex(lodIndex.value.toInt())
+            }
+        }))
     }
 
     private fun setTriplanar(value: Boolean) {
@@ -127,5 +153,22 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
                 projectManager.current().assetManager.createSplatmapForTerrain(terrain)
             }
         }
+    }
+
+    private fun changeDrawDistance(value: Float){
+        val modifiedTerrains = Array<TerrainComponent>()
+        component.setDrawDistance(value, modifiedTerrains)
+        for (terrain in modifiedTerrains) {
+            projectManager.current().assetManager.addModifiedAsset(terrain.terrainAsset)
+        }
+    }
+
+    private fun changeLodIndex(value: Int){
+        val modifiedTerrains = Array<TerrainComponent>()
+        component.setLodIndex(value, modifiedTerrains)
+        for (terrain in modifiedTerrains) {
+            projectManager.current().assetManager.addModifiedAsset(terrain.terrainAsset)
+        }
+
     }
 }

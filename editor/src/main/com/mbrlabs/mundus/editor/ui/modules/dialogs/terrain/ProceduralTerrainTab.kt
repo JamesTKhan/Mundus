@@ -37,8 +37,8 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
     private val maxHeight = FloatFieldWithLabel("", -1, true)
     private val gridX = IntegerFieldWithLabel("", -1, false)
     private val gridZ = IntegerFieldWithLabel("", -1, false)
-    private val lodSize = IntegerFieldWithLabel("", -1, false)
-    private val lodThreshold = FloatFieldWithLabel("", -1, false)
+    private val lodIndex = FloatFieldWithLabel("", -1, false)
+    private val drawDistance = FloatFieldWithLabel("", -1, false)
 
     private lateinit var modifierTable: VisTable
     private val generateBtn = VisTextButton("Generate Terrain")
@@ -59,7 +59,7 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
                     .minHeight(minHeight.float)
                     .maxHeight(maxHeight.float)
 
-                dialog.createTerrainChunk(vertexResolution.int, terrainWidth.int, gridX.int, gridZ.int, name.text, lodSize.int, lodThreshold.float)
+                dialog.createTerrainChunk(vertexResolution.int, terrainWidth.int, gridX.int, gridZ.int, name.text, lodIndex.float, drawDistance.float)
             }
         })
 
@@ -80,8 +80,8 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
         gridX.text = "2"
         gridZ.text = "2"
 
-        lodSize.text = Terrain.DEFAULT_LODS.toString()
-        lodThreshold.text = Terrain.DEFAULT_LOD_THRESHOLD.toString()
+        lodIndex.text = Terrain.DEFAULT_LOD_INDEX.toString()
+        drawDistance.text = Terrain.DEFAULT_LOD_THRESHOLD.toString()
 
         root.padTop(6f).padRight(6f).padBottom(22f)
 
@@ -113,10 +113,10 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
         leftTable.add(ToolTipLabel("Z Iterations", "The number of Terrain Chunks to create on the Z axis")).left()
         leftTable.add(gridZ).left().row()
 
-        leftTable.add(ToolTipLabel("LOD Levels", "The number of reduced resolution LOD models to create")).left()
-        leftTable.add(lodSize).left().row()
-        leftTable.add(ToolTipLabel("LOD Draw Distance", "First distance between camara and terrain when the renderer will switch to the next lower LOD model")).left()
-        leftTable.add(lodThreshold).left().row()
+        leftTable.add(ToolTipLabel("LOD Index", "Changes distance between LOD transitions")).left()
+        leftTable.add(lodIndex).left().row()
+        leftTable.add(ToolTipLabel("LOD Draw Distance", "Maximum distance that the highest resolution model will be drawn")).left()
+        leftTable.add(drawDistance).left().row()
 
         leftTable.add(generateBtn).fillX()
 

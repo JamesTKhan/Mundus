@@ -14,6 +14,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.editor.terrain.HeightMapGenerator
 import com.mbrlabs.mundus.editor.terrain.Terraformer
 import com.mbrlabs.mundus.editor.ui.UI
@@ -178,7 +179,7 @@ class HeightMapTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false
         val resolution = originalMap.width / chunks - 1
         // Create terrain
         //TODO: fix below
-        dialog.createTerrainChunk(resolution, width, chunks, chunks, name.text, 3, 1200f)
+        dialog.createTerrainChunk(resolution, width, chunks, chunks, name.text, Terrain.DEFAULT_LOD_INDEX, Terrain.DEFAULT_LOD_THRESHOLD)
 
         originalMap.dispose()
     }

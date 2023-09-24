@@ -59,7 +59,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
     private val positionX = FloatFieldWithLabel("", -1, true)
     private val positionY = FloatFieldWithLabel("", -1, true)
     private val positionZ = FloatFieldWithLabel("", -1, true)
-    private val lodLevels = IntegerFieldWithLabel("", -1, false)
+    private val lodIndex = FloatFieldWithLabel("", -1, false)
     private val drawDistance = FloatFieldWithLabel("", -1, false)
 
     private val splatMapSelectBox: VisSelectBox<String> = VisSelectBox()
@@ -84,7 +84,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         positionX.text = "0"
         positionY.text = "0"
         positionZ.text = "0"
-        lodLevels.text = Terrain.DEFAULT_LODS.toString()
+        lodIndex.text = Terrain.DEFAULT_LOD_INDEX.toString()
         drawDistance.text = Terrain.DEFAULT_LOD_THRESHOLD.toString()
     }
 
@@ -111,9 +111,9 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         content.add(positionY).fillX().expandX().row()
         content.add(VisLabel("Position on z-axis: ")).left().padBottom(10f)
         content.add(positionZ).fillX().expandX().row()
-        content.add(ToolTipLabel("LOD Levels", "The number of reduced resolution LOD models to create")).left().padBottom(10f)
-        content.add(lodLevels).fillX().expandX().row()
-        content.add(ToolTipLabel("LOD Draw Distance", "First distance between camara and terrain when the renderer will switch to the next lower LOD model")).left().padBottom(10f)
+        content.add(ToolTipLabel("LOD Index", "Changes distance between LOD transitions")).left().padBottom(10f)
+        content.add(lodIndex).fillX().expandX().row()
+        content.add(ToolTipLabel("LOD Draw Distance", "Maximum distance that the highest resolution model will be drawn")).left().padBottom(10f)
         content.add(drawDistance).fillX().expandX().row()
 
         val selectorsTable = VisTable(true)
@@ -158,7 +158,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
             val posX: Float = positionX.float
             val posY: Float = positionY.float
             val posZ: Float = positionZ.float
-            val lodLevels = lodLevels.int
+            val lodLevels = lodIndex.float
             val drawDistance = drawDistance.float
 
             val splatMapResolution = SplatMapResolution.valueFromString(splatMapSelectBox.selected).resolutionValues

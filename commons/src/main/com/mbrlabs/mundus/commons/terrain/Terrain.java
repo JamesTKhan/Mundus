@@ -45,6 +45,7 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_UV_SCALE = 60;
     public static final int DEFAULT_LODS = 4;
     public static final float DEFAULT_LOD_THRESHOLD = 1200f;
+    public static final float DEFAULT_LOD_INDEX = 2;
 
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();
@@ -58,8 +59,8 @@ public class Terrain implements Disposable {
     public int terrainWidth = DEFAULT_SIZE;
     public int terrainDepth = DEFAULT_SIZE;
     public int vertexResolution;
-    public float lodThreshold;
-    public int lodInt;
+    public float lodDrawThreshold;
+    public float lodIndex;
     public int currentLod;
     public boolean terraformed;
     public boolean terrainModified;
@@ -231,9 +232,9 @@ public class Terrain implements Disposable {
         this.uvScale = uvScale;
     }
 
-    public void updateLodData(int lodInt, float lodThreshold){
-        this.lodInt = lodInt;
-        this.lodThreshold = lodThreshold;
+    public void updateLodData(float lodInt, float lodThreshold){
+        this.lodIndex = lodInt;
+        this.lodDrawThreshold = lodThreshold;
         this.currentLod = 0;
     }
 
@@ -395,12 +396,9 @@ public class Terrain implements Disposable {
     }
     public void computeThresholds() {
         thresholds = new float[DEFAULT_LODS];
-        thresholds[0] = lodThreshold;
-        int currentDif = (int) lodThreshold / 2;
+        thresholds[0] = lodDrawThreshold;
         for (int i = 1; i < DEFAULT_LODS; i++){
-            thresholds[i] = thresholds[i-1] + currentDif;
-            currentDif /=2;
-            Gdx.app.log("", "Thr: " + thresholds[i]);
+            thresholds[i] = thresholds[i-1] + (lodDrawThreshold *  lodIndex);
         }
     }
 

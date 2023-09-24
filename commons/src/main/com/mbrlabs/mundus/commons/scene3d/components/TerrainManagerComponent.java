@@ -59,4 +59,40 @@ public class TerrainManagerComponent extends AbstractComponent {
         }
     }
 
+    public void setDrawDistance(float drawDistance, Array<TerrainComponent> modifiedTerrainsOut){
+        Array<GameObject> childTerrains = gameObject.findChildrenByComponent(Type.TERRAIN);
+        for (GameObject childTerrain : childTerrains) {
+            TerrainComponent terrainComponent = (TerrainComponent) childTerrain.findComponentByType(Type.TERRAIN);
+            terrainComponent.terrain.lodDrawThreshold = drawDistance;
+            terrainComponent.terrain.computeThresholds();
+            if (modifiedTerrainsOut != null) {
+                modifiedTerrainsOut.add(terrainComponent);
+            }
+        }
+    }
+
+    public float getDrawDistance(){
+        Array<GameObject> childTerrains = gameObject.findChildrenByComponent(Type.TERRAIN);
+        TerrainComponent terrainComponent = (TerrainComponent) childTerrains.first().findComponentByType(Type.TERRAIN);
+        return terrainComponent.terrain.lodDrawThreshold;
+    }
+
+    public void setLodIndex(int lodIndex, Array<TerrainComponent> modifiedTerrainsOut){
+        Array<GameObject> childTerrains = gameObject.findChildrenByComponent(Type.TERRAIN);
+        for (GameObject childTerrain : childTerrains) {
+            TerrainComponent terrainComponent = (TerrainComponent) childTerrain.findComponentByType(Type.TERRAIN);
+            terrainComponent.terrain.lodIndex = lodIndex;
+            terrainComponent.terrain.computeThresholds();
+            if (modifiedTerrainsOut != null) {
+                modifiedTerrainsOut.add(terrainComponent);
+            }
+        }
+    }
+
+    public float getLodIndex(){
+        Array<GameObject> childTerrains = gameObject.findChildrenByComponent(Type.TERRAIN);
+        TerrainComponent terrainComponent = (TerrainComponent) childTerrains.first().findComponentByType(Type.TERRAIN);
+        return terrainComponent.terrain.lodIndex;
+    }
+
 }
