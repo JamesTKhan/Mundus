@@ -595,7 +595,6 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
                 return
             }
         } else {
-            //TODO fix
             val objectsUsingAsset = findAssetUsagesInScenes(projectManager, asset)
             val assetsUsingAsset = findAssetUsagesInAssets(asset)
 
