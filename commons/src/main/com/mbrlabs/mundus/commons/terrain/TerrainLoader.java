@@ -68,7 +68,7 @@ public class TerrainLoader extends AsynchronousAssetLoader<Terrain, TerrainLoade
         }
         terrain = new Terrain(parameter.metaTerrain.getSize(), floatArray.toArray());
         terrain.updateUvScale(new Vector2(parameter.metaTerrain.getUv(), parameter.metaTerrain.getUv()));
-        terrain.updateLodData(parameter.metaTerrain.getLodIndex(), parameter.metaTerrain.getLodThreshold());
+        terrain.updateLodData(parameter.metaTerrain.getLodMax(), parameter.metaTerrain.getLodMin());
     }
 
     @Override

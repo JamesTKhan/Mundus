@@ -88,8 +88,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
     private var executor: ExecutorService? = null
     private var terraformExecutor: ExecutorService? = null
 
-    private var lodDrawDistance = Terrain.DEFAULT_LOD_THRESHOLD
-    private var lodIndex = Terrain.DEFAULT_LOD_INDEX
+    private var drawMin = Terrain.DEFAULT_LOD_MIN
+    private var drawMax = Terrain.DEFAULT_LOD_MAX
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
         val assetsToCreate = assetsToCreate.size > 0
@@ -135,8 +135,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         terrainName = name
         executor = Executors.newFixedThreadPool(4)
         terraformExecutor = Executors.newSingleThreadExecutor()
-        lodIndex = index
-        lodDrawDistance = distance
+        drawMax = index
+        drawMin = distance
 
         val context = projectManager.current()
         val sceneGraph = context.currScene.sceneGraph
@@ -292,7 +292,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         // create asset
         val asset: TerrainAsset = projectManager.current().assetManager.createTerraAssetAsync(
             "${terrainName}$i-$j",
-            resolution, width, 512, lodIndex, lodDrawDistance)
+            resolution, width, 512, drawMax, drawMin)
         return asset
     }
 

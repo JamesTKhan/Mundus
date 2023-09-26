@@ -59,8 +59,8 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
     private val positionX = FloatFieldWithLabel("", -1, true)
     private val positionY = FloatFieldWithLabel("", -1, true)
     private val positionZ = FloatFieldWithLabel("", -1, true)
-    private val lodIndex = FloatFieldWithLabel("", -1, false)
-    private val drawDistance = FloatFieldWithLabel("", -1, false)
+    private val drawMax = FloatFieldWithLabel("", -1, false)
+    private val drawMin = FloatFieldWithLabel("", -1, false)
 
     private val splatMapSelectBox: VisSelectBox<String> = VisSelectBox()
 
@@ -84,8 +84,8 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         positionX.text = "0"
         positionY.text = "0"
         positionZ.text = "0"
-        lodIndex.text = Terrain.DEFAULT_LOD_INDEX.toString()
-        drawDistance.text = Terrain.DEFAULT_LOD_THRESHOLD.toString()
+        drawMax.text = Terrain.DEFAULT_LOD_MAX.toString()
+        drawMin.text = Terrain.DEFAULT_LOD_MIN.toString()
     }
 
     private fun setupUI() {
@@ -111,10 +111,10 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         content.add(positionY).fillX().expandX().row()
         content.add(VisLabel("Position on z-axis: ")).left().padBottom(10f)
         content.add(positionZ).fillX().expandX().row()
-        content.add(ToolTipLabel("LOD Index", "Changes distance between LOD transitions")).left().padBottom(10f)
-        content.add(lodIndex).fillX().expandX().row()
-        content.add(ToolTipLabel("LOD Draw Distance", "Maximum distance that the highest resolution model will be drawn")).left().padBottom(10f)
-        content.add(drawDistance).fillX().expandX().row()
+        content.add(ToolTipLabel("LOD Draw Min", "Distance that the highest resolution model will be drawn to")).left().padBottom(10f)
+        content.add(drawMin).fillX().expandX().row()
+        content.add(ToolTipLabel("LOD Draw Min", "Distance that the lowest resolution model will be drawn from")).left().padBottom(10f)
+        content.add(drawMax).fillX().expandX().row()
 
         val selectorsTable = VisTable(true)
         splatMapSelectBox.setItems(
@@ -158,8 +158,8 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
             val posX: Float = positionX.float
             val posY: Float = positionY.float
             val posZ: Float = positionZ.float
-            val lodLevels = lodIndex.float
-            val drawDistance = drawDistance.float
+            val lodLevels = drawMax.float
+            val drawDistance = drawMin.float
 
             val splatMapResolution = SplatMapResolution.valueFromString(splatMapSelectBox.selected).resolutionValues
 

@@ -59,11 +59,11 @@ public class TerrainManagerComponent extends AbstractComponent {
         }
     }
 
-    public void setDrawDistance(float drawDistance, Array<TerrainComponent> modifiedTerrainsOut){
+    public void setDrawMin(float distance, Array<TerrainComponent> modifiedTerrainsOut){
         Array<GameObject> childTerrains = gameObject.findChildrenByComponent(Type.TERRAIN);
         for (GameObject childTerrain : childTerrains) {
             TerrainComponent terrainComponent = (TerrainComponent) childTerrain.findComponentByType(Type.TERRAIN);
-            terrainComponent.terrain.lodDrawThreshold = drawDistance;
+            terrainComponent.terrain.lodDrawMin = distance;
             terrainComponent.terrain.computeThresholds();
             if (modifiedTerrainsOut != null) {
                 modifiedTerrainsOut.add(terrainComponent);
@@ -71,17 +71,17 @@ public class TerrainManagerComponent extends AbstractComponent {
         }
     }
 
-    public float getDrawDistance(){
+    public float getDrawMin(){
         Array<GameObject> childTerrains = gameObject.findChildrenByComponent(Type.TERRAIN);
         TerrainComponent terrainComponent = (TerrainComponent) childTerrains.first().findComponentByType(Type.TERRAIN);
-        return terrainComponent.terrain.lodDrawThreshold;
+        return terrainComponent.terrain.lodDrawMin;
     }
 
-    public void setLodIndex(int lodIndex, Array<TerrainComponent> modifiedTerrainsOut){
+    public void setDrawMax(float distance, Array<TerrainComponent> modifiedTerrainsOut){
         Array<GameObject> childTerrains = gameObject.findChildrenByComponent(Type.TERRAIN);
         for (GameObject childTerrain : childTerrains) {
             TerrainComponent terrainComponent = (TerrainComponent) childTerrain.findComponentByType(Type.TERRAIN);
-            terrainComponent.terrain.lodIndex = lodIndex;
+            terrainComponent.terrain.lodDrawMax = distance;
             terrainComponent.terrain.computeThresholds();
             if (modifiedTerrainsOut != null) {
                 modifiedTerrainsOut.add(terrainComponent);
@@ -89,10 +89,10 @@ public class TerrainManagerComponent extends AbstractComponent {
         }
     }
 
-    public float getLodIndex(){
+    public float getDrawMax(){
         Array<GameObject> childTerrains = gameObject.findChildrenByComponent(Type.TERRAIN);
         TerrainComponent terrainComponent = (TerrainComponent) childTerrains.first().findComponentByType(Type.TERRAIN);
-        return terrainComponent.terrain.lodIndex;
+        return terrainComponent.terrain.lodDrawMax;
     }
 
 }

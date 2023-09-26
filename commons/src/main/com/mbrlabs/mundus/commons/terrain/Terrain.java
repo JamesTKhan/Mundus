@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.commons.terrain;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
@@ -44,8 +43,8 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_VERTEX_RESOLUTION = 64;
     public static final int DEFAULT_UV_SCALE = 60;
     public static final int DEFAULT_LODS = 4;
-    public static final float DEFAULT_LOD_THRESHOLD = 1200f;
-    public static final float DEFAULT_LOD_INDEX = 2;
+    public static final float DEFAULT_LOD_MIN = 1200f;
+    public static final float DEFAULT_LOD_MAX = 3600f;
 
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();
@@ -59,8 +58,8 @@ public class Terrain implements Disposable {
     public int terrainWidth = DEFAULT_SIZE;
     public int terrainDepth = DEFAULT_SIZE;
     public int vertexResolution;
-    public float lodDrawThreshold;
-    public float lodIndex;
+    public float lodDrawMin;
+    public float lodDrawMax;
     public int currentLod;
     public boolean terraformed;
     public boolean terrainModified;
@@ -233,8 +232,8 @@ public class Terrain implements Disposable {
     }
 
     public void updateLodData(float lodInt, float lodThreshold){
-        this.lodIndex = lodInt;
-        this.lodDrawThreshold = lodThreshold;
+        this.lodDrawMax = lodInt;
+        this.lodDrawMin = lodThreshold;
         this.currentLod = 0;
     }
 
@@ -368,9 +367,9 @@ public class Terrain implements Disposable {
     }
 
     public Model createLod(int index) {
-            int newResolution = (int)(vertexResolution * (1 - index * .2));
+            int newResolution = (int)(vertexResolution * (1 - index * .25));
 
-            float[] newHeightData = rescaleHeightMap (heightData, vertexResolution, (float) (1 - index * .2));
+            float[] newHeightData = rescaleHeightMap (heightData, vertexResolution, (float) (1 - index * .25));
 
             PlaneMesh.MeshInfo info = new PlaneMesh.MeshInfo();
             info.attribs = attribs;
@@ -396,10 +395,11 @@ public class Terrain implements Disposable {
     }
     public void computeThresholds() {
         thresholds = new float[DEFAULT_LODS];
-        thresholds[0] = lodDrawThreshold;
-        for (int i = 1; i < DEFAULT_LODS; i++){
-            thresholds[i] = thresholds[i-1] + (lodDrawThreshold *  lodIndex);
-        }
+        thresholds[0] = lodDrawMin;
+        thresholds[3] = lodDrawMax;
+        float difference = lodDrawMax - lodDrawMin;
+        thresholds[1] = thresholds[0] + difference / 3f;
+        thresholds[2] = thresholds[1] + difference * 2f / 3f;
     }
 
     public float[] rescaleHeightMap(float[] original, int vertexResolution, float percentage) {

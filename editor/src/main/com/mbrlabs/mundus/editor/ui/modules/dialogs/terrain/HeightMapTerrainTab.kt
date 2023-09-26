@@ -179,7 +179,7 @@ class HeightMapTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false
         val resolution = originalMap.width / chunks - 1
         // Create terrain
         //TODO: fix below
-        dialog.createTerrainChunk(resolution, width, chunks, chunks, name.text, Terrain.DEFAULT_LOD_INDEX, Terrain.DEFAULT_LOD_THRESHOLD)
+        dialog.createTerrainChunk(resolution, width, chunks, chunks, name.text, Terrain.DEFAULT_LOD_MAX, Terrain.DEFAULT_LOD_MIN)
 
         originalMap.dispose()
     }

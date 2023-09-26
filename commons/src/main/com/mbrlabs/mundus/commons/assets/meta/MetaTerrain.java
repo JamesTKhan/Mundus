@@ -41,15 +41,15 @@ public class MetaTerrain {
     public static final String JSON_TRIPLANAR = "triplanar";
     public static final String JSON_MATERIAL = "material";
     public static final String JSON_LAYER = "layer";
-    public static final String JSON_LOD_INDEX = "lodIndex";
-    public static final String JSON_LOD_THRESHOLD = "lodThreshold";
+    public static final String JSON_LOD_MAX = "lodMax";
+    public static final String JSON_LOD_MIN = "lodMin";
 
     private int size;
     private int splatMapResolution;
     private float uv;
     private boolean triplanar;
-    private float lodIndex;
-    private float lodThreshold;
+    private float lodMax;
+    private float lodMin;
     private String materialId;
     private String splatmap;
     private String splatBase;
@@ -194,16 +194,16 @@ public class MetaTerrain {
         this.triplanar = triplanar;
     }
 
-    public float getLodIndex() {return lodIndex;}
+    public float getLodMax() {return lodMax;}
 
-    public void setLodIndex(float lodIndex){
-        this.lodIndex = lodIndex;
+    public void setLodMax(float lodMax){
+        this.lodMax = lodMax;
     }
 
-    public float getLodThreshold(){ return lodThreshold;}
+    public float getLodMin(){ return lodMin;}
 
-    public void setLodThreshold(float lodThreshold){
-        this.lodThreshold = lodThreshold;
+    public void setLodMin(float lodMin){
+        this.lodMin = lodMin;
     }
 
     /**
@@ -290,8 +290,8 @@ public class MetaTerrain {
                 "size=" + size +
                 ", uv=" + uv +
                 ", triplanar=" + triplanar +
-                ", lodIndex=" + lodIndex +
-                ", lodThreshold=" + lodThreshold +
+                ", lodMax=" + lodMax +
+                ", lodMin=" + lodMin +
                 ", material='" + materialId + '\'' +
                 ", splatmap='" + splatmap + '\'' +
                 ", splatBase='" + splatBase + '\'' +

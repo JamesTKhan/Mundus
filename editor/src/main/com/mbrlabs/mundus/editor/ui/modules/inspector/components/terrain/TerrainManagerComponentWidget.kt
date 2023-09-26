@@ -22,7 +22,6 @@ import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
 import com.mbrlabs.mundus.editor.ui.widgets.ImprovedSlider
-import com.mbrlabs.mundus.editor.ui.widgets.ScrollPaneSlider
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 
 /**
@@ -41,8 +40,8 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     private val updateBtn: VisTextButton = VisTextButton("Change Layers")
     private val triplanarOnBtn: VisTextButton = VisTextButton("Triplanar Toggle On")
     private val triplanarOffBtn: VisTextButton = VisTextButton("Triplanar Toggle Off")
-    private val drawDistance: ImprovedSlider = ImprovedSlider(0f, 5000f, 1f, 1);
-    private val lodIndex: ImprovedSlider = ImprovedSlider(1f, 10f, .1f, 1);
+    private val lodMin: ImprovedSlider = ImprovedSlider(0f, projectManager.current().currScene.cam.far, 1f, 1);
+    private val lodMax: ImprovedSlider = ImprovedSlider(0f, projectManager.current().currScene.cam.far, 1f, 1);
 
     init {
         setupUI()
@@ -69,16 +68,16 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
         buttonTable.add(updateBtn).row()
         buttonTable.add(triplanarOnBtn).row()
         buttonTable.add(triplanarOffBtn).row()
-        buttonTable.add(ToolTipLabel("LOD Draw Distance", "Maximum distance that the highest resolution model will be drawn")).left()
-        buttonTable.add(drawDistance).row()
-        buttonTable.add(ToolTipLabel("LOD Index", "Changes distance between LOD transitions")).left()
-        buttonTable.add((lodIndex)).row()
+        buttonTable.add(ToolTipLabel("LOD Draw Distance Min", "Distance that the highest resolution model will be drawn to")).left()
+        buttonTable.add(lodMin).row()
+        buttonTable.add(ToolTipLabel("LOD Draw Distance Max", "Distance that the lowest resolution model will be drawn from")).left()
+        buttonTable.add((lodMax)).row()
         root.add(buttonTable).left().row()
 
         collapsibleContent.add(root).left().growX().row()
 
-        drawDistance.value = component.drawDistance
-        lodIndex.value = component.lodIndex
+        lodMin.value = component.drawMin
+        lodMax.value = component.drawMax
     }
 
     private fun setupListeners() {
@@ -119,15 +118,15 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
             }
         })
 
-        drawDistance.addListener((object : ChangeListener() {
+        lodMin.addListener((object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                changeDrawDistance(drawDistance.value)
+                changeLodMin(lodMin.value)
             }
         }))
 
-        lodIndex.addListener((object: ChangeListener(){
+        lodMax.addListener((object: ChangeListener(){
             override fun changed(event: ChangeEvent?, actor: Actor?){
-                changeLodIndex(lodIndex.value.toInt())
+                changeLodMax(lodMax.value)
             }
         }))
     }
@@ -155,17 +154,17 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
         }
     }
 
-    private fun changeDrawDistance(value: Float){
+    private fun changeLodMin(value: Float){
         val modifiedTerrains = Array<TerrainComponent>()
-        component.setDrawDistance(value, modifiedTerrains)
+        component.setDrawMin(value, modifiedTerrains)
         for (terrain in modifiedTerrains) {
             projectManager.current().assetManager.addModifiedAsset(terrain.terrainAsset)
         }
     }
 
-    private fun changeLodIndex(value: Int){
+    private fun changeLodMax(value: Float){
         val modifiedTerrains = Array<TerrainComponent>()
-        component.setLodIndex(value, modifiedTerrains)
+        component.setDrawMax(value, modifiedTerrains)
         for (terrain in modifiedTerrains) {
             projectManager.current().assetManager.addModifiedAsset(terrain.terrainAsset)
         }

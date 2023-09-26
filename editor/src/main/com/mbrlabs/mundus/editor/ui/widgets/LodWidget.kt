@@ -23,7 +23,7 @@ class LodWidget(var asset : TerrainAsset) : VisTable() {
     }
 
     private fun updateUI() {
-        lodLabel.setText("Draw Distance: " + asset.terrain.lodDrawThreshold + " | LOD Levels:" + asset.terrain.lodIndex + " | Current LOD Multiplier: " + (asset.terrain.currentLod + 1))
+        lodLabel.setText("Draw Distance: " + asset.terrain.lodDrawMin + " | LOD Levels:" + asset.terrain.lodDrawMax + " | Current LOD Multiplier: " + (asset.terrain.currentLod + 1))
     }
 
     override fun act(delta: Float) {
