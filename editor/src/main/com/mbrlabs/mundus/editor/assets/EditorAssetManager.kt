@@ -38,14 +38,15 @@ import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.WaterAsset
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
-import com.mbrlabs.mundus.commons.scene3d.GameObject
-import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
+import com.mbrlabs.mundus.commons.dto.GameObjectDTO
+import com.mbrlabs.mundus.commons.dto.SceneDTO
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute
 import com.mbrlabs.mundus.commons.water.attributes.WaterIntAttribute
 import com.mbrlabs.mundus.editor.Mundus.postEvent
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.core.scene.SceneManager
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
@@ -594,6 +595,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
                 return
             }
         } else {
+            //TODO fix
             val objectsUsingAsset = findAssetUsagesInScenes(projectManager, asset)
             val assetsUsingAsset = findAssetUsagesInAssets(asset)
 
@@ -643,7 +645,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     /**
      * Build a dialog displaying the usages for the asset trying to be deleted.
      */
-    private fun showUsagesFoundDialog(objectsWithAssets: HashMap<GameObject, String>, assetsUsingAsset: ArrayList<Asset>) {
+    private fun showUsagesFoundDialog(objectsWithAssets: HashMap<GameObjectDTO, String>, assetsUsingAsset: ArrayList<Asset>) {
         val iterator = objectsWithAssets.iterator()
         var details = "Scenes using asset:"
 
@@ -701,29 +703,27 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     /**
      * Searches all scenes in the current context for any usages of the given asset
      */
-    fun findAssetUsagesInScenes(projectManager: ProjectManager, asset: Asset): HashMap<GameObject, String> {
-        val objectsWithAssets = HashMap<GameObject, String>()
+    fun findAssetUsagesInScenes(projectManager: ProjectManager, asset: Asset): HashMap<GameObjectDTO, String> {
+        val objectsWithAssets = HashMap<GameObjectDTO, String>()
 
         // we check for usages in all scenes
         for (sceneName in projectManager.current().scenes) {
-            val gameObjects = projectManager.getSceneGameObjects(projectManager.current(), sceneName)
-            checkSceneForAssetUsage(sceneName, gameObjects, asset, objectsWithAssets)
+            val sceneDTO = SceneManager.loadScene(projectManager.current(), sceneName)
+            checkSceneDTOForAssetUsage(sceneDTO, sceneDTO.gameObjects, asset, projectManager, objectsWithAssets)
         }
 
         return objectsWithAssets
     }
 
-    private fun checkSceneForAssetUsage(sceneName: String, gameObjects: Array<GameObject>, asset: Asset, objectsWithAssets: HashMap<GameObject, String>) {
-        for (gameObject in gameObjects) {
-            for (component in gameObject.components) {
-                if (component is AssetUsage) {
-                    if (component.usesAsset(asset))
-                        objectsWithAssets[gameObject] = sceneName
-                }
+    private fun checkSceneDTOForAssetUsage(sceneDTO: SceneDTO, gameObjects: Array<GameObjectDTO>, asset: Asset, projectManager: ProjectManager, objectsWithAssets: HashMap<GameObjectDTO, String>){
+        for (go in gameObjects) {
+            if (go.usesAsset(asset, projectManager.current().assetManager.assetMap)) {
+                objectsWithAssets[go] = sceneDTO.name
             }
 
-            if (gameObject.children != null) {
-                checkSceneForAssetUsage(sceneName, gameObject.children, asset, objectsWithAssets)
+            // Check each child's components for usages
+            if (go.childs != null) {
+                checkSceneDTOForAssetUsage(sceneDTO, go.childs, asset, projectManager, objectsWithAssets)
             }
         }
     }
@@ -731,7 +731,6 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     private fun findSkyboxUsagesInScenes(projectManager: ProjectManager, asset: SkyboxAsset): ArrayList<String> {
         val scenesWithSkybox = ArrayList<String>()
 
-        // we check for usages in all scenes
         for (sceneName in projectManager.current().scenes) {
             val scene = projectManager.loadScene(projectManager.current(), sceneName)
             if (scene.skyboxAssetId == asset.id) {
