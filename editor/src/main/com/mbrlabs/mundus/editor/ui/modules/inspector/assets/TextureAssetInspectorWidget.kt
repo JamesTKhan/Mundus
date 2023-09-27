@@ -45,8 +45,8 @@ class TextureAssetInspectorWidget : BaseInspectorWidget(TextureAssetInspectorWid
     private val width = VisLabel()
     private val height = VisLabel()
     private val fileSize = VisLabel()
-    private val magFilterSelectBox: VisSelectBox<TextureFilter>
-    private val minFilterSelectBox: VisSelectBox<TextureFilter>
+    private lateinit var magFilterSelectBox: VisSelectBox<TextureFilter>
+    private lateinit var minFilterSelectBox: VisSelectBox<TextureFilter>
 
     private var textureAsset: TextureAsset? = null
     private var projectManager : ProjectManager = Mundus.inject()
@@ -56,6 +56,35 @@ class TextureAssetInspectorWidget : BaseInspectorWidget(TextureAssetInspectorWid
         collapsibleContent.add(width).growX().row()
         collapsibleContent.add(height).growX().row()
 
+        addFilterSection();
+    }
+
+    fun setTextureAsset(texture: TextureAsset) {
+        this.textureAsset = texture
+        updateUI()
+    }
+
+    private fun updateUI() {
+        name.setText("Name: " + textureAsset?.name)
+        width.setText("Width: " + textureAsset?.texture?.width + " px")
+        height.setText("Height: " + textureAsset?.texture?.height + " px")
+
+        val mb = FileUtils.sizeOf(textureAsset?.file?.file()) / 1000000f
+        fileSize.setText("Size: $mb mb")
+
+        minFilterSelectBox.selected = textureAsset?.texture?.minFilter
+        magFilterSelectBox.selected = textureAsset?.texture?.magFilter
+    }
+
+    override fun onDelete() {
+        // nope
+    }
+
+    override fun setValues(go: GameObject) {
+        // nope
+    }
+
+    private fun addFilterSection() {
         val minFilters = Array<TextureFilter>()
         for (filter in TextureFilter.entries)
             minFilters.add(filter)
@@ -95,31 +124,6 @@ class TextureAssetInspectorWidget : BaseInspectorWidget(TextureAssetInspectorWid
         filterTable.add(magFilterSelectBox).growX().row()
 
         collapsibleContent.add(filterTable).padTop(4f).growX().row()
-    }
-
-    fun setTextureAsset(texture: TextureAsset) {
-        this.textureAsset = texture
-        updateUI()
-    }
-
-    private fun updateUI() {
-        name.setText("Name: " + textureAsset?.name)
-        width.setText("Width: " + textureAsset?.texture?.width + " px")
-        height.setText("Height: " + textureAsset?.texture?.height + " px")
-
-        val mb = FileUtils.sizeOf(textureAsset?.file?.file()) / 1000000f
-        fileSize.setText("Size: $mb mb")
-
-        minFilterSelectBox.selected = textureAsset?.texture?.minFilter
-        magFilterSelectBox.selected = textureAsset?.texture?.magFilter
-    }
-
-    override fun onDelete() {
-        // nope
-    }
-
-    override fun setValues(go: GameObject) {
-        // nope
     }
 
 }
