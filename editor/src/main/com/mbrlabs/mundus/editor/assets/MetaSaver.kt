@@ -99,7 +99,6 @@ class MetaSaver {
     private fun addTexture(meta: Meta, json: Json) {
         val tex = meta.texture ?: return
         json.writeObjectStart(Meta.JSON_TEXTURE)
-        json.writeValue(MetaTexture.JSON_MIP_MAP, tex.isUseMipMaps)
         json.writeValue(MetaTexture.JSON_MIN_FILTER, tex.minFilter)
         json.writeValue(MetaTexture.JSON_MAG_FILTER, tex.magFilter)
     }

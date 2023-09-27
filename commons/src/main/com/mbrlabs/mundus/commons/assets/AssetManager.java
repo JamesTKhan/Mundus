@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader;
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils;
+import com.mbrlabs.mundus.commons.utils.TextureUtils;
 import net.mgsx.gltf.loaders.glb.GLBAssetLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
@@ -241,11 +242,12 @@ public class AssetManager implements Disposable {
         String filePath = m.getFile().pathWithoutExtension();
         switch (m.getType()) {
             case TEXTURE:
-                // These are hard coded for now
                 TextureLoader.TextureParameter param = new TextureLoader.TextureParameter();
-                param.genMipMaps = m.getTexture().isUseMipMaps();
-                param.minFilter = m.getTexture().getMinFilterEnum();
+                Texture.TextureFilter minFilter = m.getTexture().getMinFilterEnum();
+                param.genMipMaps = TextureUtils.isMipMapFilter(minFilter);
+                param.minFilter = minFilter;
                 param.magFilter = m.getTexture().getMagFilterEnum();
+                //TODO TextureWrap
 
                 gdxAssetManager.load(filePath, Texture.class, param);
                 break;

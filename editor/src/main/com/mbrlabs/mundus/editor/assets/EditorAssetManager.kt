@@ -419,7 +419,6 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val asset = TextureAsset(meta, importedAssetFile)
         // TODO parse special texture instead of always setting them
         asset.setTileable(true)
-        asset.generateMipmaps(true)
         asset.load()
 
         addAsset(asset)

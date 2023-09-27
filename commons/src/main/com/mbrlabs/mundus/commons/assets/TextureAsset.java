@@ -32,18 +32,10 @@ import java.util.Map;
 public class TextureAsset extends Asset implements TextureProvider {
 
     private Texture texture;
-    private boolean generateMipMaps;
     private boolean tileable;
 
     public TextureAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
-        generateMipMaps = meta.getTexture().isUseMipMaps();
-    }
-
-    public TextureAsset generateMipmaps(boolean mipmaps) {
-        this.generateMipMaps = mipmaps;
-        meta.getTexture().setUseMipMaps(mipmaps);
-        return this;
     }
 
     public TextureAsset setTileable(boolean tileable) {
@@ -52,9 +44,17 @@ public class TextureAsset extends Asset implements TextureProvider {
     }
 
     public void setFilter(Texture.TextureFilter minFilter, Texture.TextureFilter magFilter) {
-        texture.setFilter(minFilter, magFilter);
         meta.getTexture().setMinFilter(minFilter);
         meta.getTexture().setMagFilter(magFilter);
+
+        boolean usingMipMaps = texture.getTextureData().useMipMaps();
+        if (!usingMipMaps && TextureUtils.isMipMapFilter(minFilter)) {
+            // reload texture with mip maps enabled
+            texture.dispose();
+            load();
+        } else {
+            texture.setFilter(minFilter, magFilter);
+        }
     }
 
     @Override
@@ -64,13 +64,10 @@ public class TextureAsset extends Asset implements TextureProvider {
 
     @Override
     public void load() {
-        if (generateMipMaps) {
-            texture = TextureUtils.loadMipmapTexture(file, false);
-        } else {
-            texture = new Texture(file);
-        }
+        boolean useMipMaps = TextureUtils.isMipMapFilter(meta.getTexture().getMinFilter());
+        texture = new Texture(file, useMipMaps);
+        setFilter(meta.getTexture().getMinFilterEnum(), meta.getTexture().getMagFilterEnum());
 
-        texture.setFilter(meta.getTexture().getMinFilterEnum(), meta.getTexture().getMagFilterEnum());
         if (tileable) {
             texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         }
@@ -79,8 +76,8 @@ public class TextureAsset extends Asset implements TextureProvider {
     @Override
     public void load(AssetManager assetManager) {
         texture = assetManager.get(meta.getFile().pathWithoutExtension());
+        setFilter(meta.getTexture().getMinFilterEnum(), meta.getTexture().getMagFilterEnum());
 
-        texture.setFilter(meta.getTexture().getMinFilterEnum(), meta.getTexture().getMagFilterEnum());
         if (tileable) {
             texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         }

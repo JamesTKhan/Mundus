@@ -10,21 +10,10 @@ public class MetaTexture {
     public static final Texture.TextureFilter DEFAULT_MIN_FILTER = Texture.TextureFilter.MipMapLinearLinear;
     public static final Texture.TextureFilter DEFAULT_MAG_FILTER = Texture.TextureFilter.Linear;
 
-    public static final String JSON_MIP_MAP = "useMipMaps";
     public static final String JSON_MIN_FILTER = "minFilter";
     public static final String JSON_MAG_FILTER = "magFilter";
-
-    private boolean useMipMaps = true;
     private int minFilter = DEFAULT_MIN_FILTER.getGLEnum();
     private int magFilter = DEFAULT_MAG_FILTER.getGLEnum();
-
-    public boolean isUseMipMaps() {
-        return useMipMaps;
-    }
-
-    public void setUseMipMaps(boolean useMipMaps) {
-        this.useMipMaps = useMipMaps;
-    }
 
     public int getMinFilter() {
         return minFilter;
@@ -71,7 +60,6 @@ public class MetaTexture {
     @Override
     public String toString() {
         return "MetaTexture{" +
-                "useMipMaps=" + useMipMaps +
                 ", minFilter='" + minFilter + '\'' +
                 ", magFilter='" + magFilter + '\'' +
                 '}';

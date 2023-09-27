@@ -104,14 +104,12 @@ public class MetaLoader {
         final MetaTexture texture = new MetaTexture();
 
         if (jsonTexture == null) {
-            texture.setUseMipMaps(true);
             texture.setMinFilter(MetaTexture.DEFAULT_MIN_FILTER.getGLEnum());
             texture.setMagFilter(MetaTexture.DEFAULT_MAG_FILTER.getGLEnum());
             meta.setTexture(texture);
             return;
         }
 
-        texture.setUseMipMaps(jsonTexture.getBoolean(MetaTexture.JSON_MIP_MAP, true));
         texture.setMinFilter(jsonTexture.getInt(MetaTexture.JSON_MIN_FILTER, Texture.TextureFilter.MipMapLinearLinear.getGLEnum()));
         texture.setMagFilter(jsonTexture.getInt(MetaTexture.JSON_MAG_FILTER, Texture.TextureFilter.Linear.getGLEnum()));
 
