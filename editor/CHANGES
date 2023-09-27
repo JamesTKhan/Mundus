@@ -15,6 +15,7 @@
 - Counter for helper lines
 - Updated current name when renamed
 - Add DirtyObservable and DirtyListener to SimpleNode
+- Show mouse position on statusbar if using terrain brush tool
 - Optimize AssetUsage system by using DTO objects instead of loading scene
 
 [0.5.1] ~ 08/08/2023
