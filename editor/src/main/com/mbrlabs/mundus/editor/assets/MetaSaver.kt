@@ -22,6 +22,7 @@ import com.mbrlabs.mundus.commons.assets.AssetType
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
+import com.mbrlabs.mundus.commons.assets.meta.MetaTexture
 
 /**
  *
@@ -38,6 +39,8 @@ class MetaSaver {
             addTerrain(meta, json)
         } else if(meta.type == AssetType.MODEL) {
             addModel(meta, json)
+        } else if (meta.type == AssetType.TEXTURE) {
+            addTexture(meta, json)
         }
         json.writeObjectEnd()
 
@@ -91,6 +94,13 @@ class MetaSaver {
         if (terrain.splatBNormal != null) json.writeValue(MetaTerrain.JSON_SPLAT_B_NORMAL, terrain.splatBNormal)
         if (terrain.splatANormal != null) json.writeValue(MetaTerrain.JSON_SPLAT_A_NORMAL, terrain.splatANormal)
         json.writeObjectEnd()
+    }
+
+    private fun addTexture(meta: Meta, json: Json) {
+        val tex = meta.texture ?: return
+        json.writeObjectStart(Meta.JSON_TEXTURE)
+        json.writeValue(MetaTexture.JSON_MIN_FILTER, tex.minFilter)
+        json.writeValue(MetaTexture.JSON_MAG_FILTER, tex.magFilter)
     }
 
 }

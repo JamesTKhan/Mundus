@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.commons.utils;
 
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
@@ -25,20 +24,25 @@ import com.badlogic.gdx.graphics.Texture;
  */
 public class TextureUtils {
 
-    public static Texture loadMipmapTexture(FileHandle fileHandle, boolean tilable) {
-        Texture texture = new Texture(fileHandle, true);
-        texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
-
-        if (tilable) {
-            texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
-        }
-
-        return texture;
+    /**
+     * Checks if the given filter is a mip map filter.
+     * @param filter the filter
+     * @return true if the filter is a mip map filter
+     */
+    public static boolean isMipMapFilter(Texture.TextureFilter filter) {
+        return isMipMapFilter(filter.getGLEnum());
     }
 
-    // public static Texture load(FileHandle fileHandle) {
-    // Texture texture = new Texture(fileHandle, false);
-    // return texture;
-    // }
+    /**
+     * Checks if the given filter is a mip map filter.
+     * @param filter the OpenGL enum of the filter
+     * @return true if the filter is a mip map filter
+     */
+    public static boolean isMipMapFilter(int filter) {
+        return filter == Texture.TextureFilter.MipMapLinearLinear.getGLEnum() ||
+                filter == Texture.TextureFilter.MipMapLinearNearest.getGLEnum() ||
+                filter == Texture.TextureFilter.MipMapNearestLinear.getGLEnum() ||
+                filter == Texture.TextureFilter.MipMapNearestNearest.getGLEnum();
+    }
 
 }

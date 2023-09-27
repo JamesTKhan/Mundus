@@ -38,6 +38,7 @@ import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.WaterAsset
 import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
+import com.mbrlabs.mundus.commons.assets.meta.MetaTexture
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
@@ -409,13 +410,15 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      */
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createTextureAsset(texture: FileHandle): TextureAsset {
+        val metaTexture = MetaTexture()
         val meta = createMetaFileFromAsset(texture, AssetType.TEXTURE)
+        meta.texture = metaTexture
+
         val importedAssetFile = copyToAssetFolder(texture)
 
         val asset = TextureAsset(meta, importedAssetFile)
         // TODO parse special texture instead of always setting them
         asset.setTileable(true)
-        asset.generateMipmaps(true)
         asset.load()
 
         addAsset(asset)
@@ -536,6 +539,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             saveWaterAsset(asset)
         } else if (asset is SkyboxAsset) {
             saveSkyboxAsset(asset)
+        } else if (asset is TextureAsset) {
+            saveTextureAsset(asset)
         }
         // TODO other assets ?
     }
@@ -886,6 +891,11 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         fileOutputStream.close()
 
         // save meta file
+        metaSaver.save(asset.meta)
+    }
+
+    private fun saveTextureAsset(asset: TextureAsset) {
+        // save meta file, Mundus does not alter texture files currently
         metaSaver.save(asset.meta)
     }
 
