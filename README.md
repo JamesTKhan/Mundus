@@ -40,10 +40,10 @@ Below are some of the more interesting features, that already work
 
 [![Release video](https://img.youtube.com/vi/e7g5q4I1gdM/0.jpg)](https://www.youtube.com/watch?v=e7g5q4I1gdM)
 
-## LibGDX discord channel for Mundus
+## Discord Channel
 
-If you need help with Mundus go to the libGDX discord at: https://libgdx.com/community/discord/ 
-and then go to **libraries/Mundus** thread under the **SPECIFIC TOPICS** section.
+If you need help with Mundus you can check out the Mundus discord [here](https://discord.gg/7MGT9JbnJX) 
+or alternatively in the libGDX discord go to **libraries/Mundus** thread under the **SPECIFIC TOPICS** section.
 
 ## Things to consider
 - Mundus is constantly changing. Especially the internal representation of save files. At this stage of the project backwards compatability

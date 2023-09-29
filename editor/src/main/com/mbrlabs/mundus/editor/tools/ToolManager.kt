@@ -91,6 +91,7 @@ class ToolManager(private val inputManager: InputManager,
 
     fun setDefaultTool() {
         if (activeTool == null || activeTool === modelPlacementTool || activeTool is TerrainBrush) {
+            UI.statusBar.clearMousePos()
             val selectedGO = UI.outline.getSelectedGameObject()
             activateTool(translateTool)
             if (selectedGO != null) {

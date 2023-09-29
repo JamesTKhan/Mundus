@@ -16,11 +16,16 @@
 
 package com.mbrlabs.mundus.commons.dto;
 
+import com.mbrlabs.mundus.commons.assets.Asset;
+import com.mbrlabs.mundus.commons.assets.TerrainAsset;
+
+import java.util.Map;
+
 /**
  * @author Tibor Zsuro
  * @version 12-08-2021
  */
-public class TerrainComponentDTO {
+public class TerrainComponentDTO implements AssetUsageDTO {
 
     private String terrainID;
 
@@ -69,5 +74,19 @@ public class TerrainComponentDTO {
 
     public void setLeftNeighborID(Integer leftNeighborID) {
         this.leftNeighborID = leftNeighborID;
+    }
+
+    @Override
+    public boolean usesAsset(Asset assetToCheck, Map<String, Asset> assetMap) {
+        if (assetToCheck.getID().equals(terrainID)) {
+            return true;
+        }
+
+        TerrainAsset terrainAsset = (TerrainAsset) assetMap.get(terrainID);
+        if (assetToCheck == terrainAsset.getMaterialAsset()){
+            return true;
+        }
+
+        return terrainAsset.usesAsset(assetToCheck);
     }
 }

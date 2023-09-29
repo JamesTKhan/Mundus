@@ -775,6 +775,13 @@ public abstract class TerrainBrush extends Tool {
 
         EditorPBRTerrainShader.setPickerPosition(brushPos.x, brushPos.y, brushPos.z);
 
+        // Show mouse position if it is on terrain
+        if (terrainComponent.isOnTerrain(brushPos.x, brushPos.z)) {
+            UI.INSTANCE.getStatusBar().setMousePos(brushPos.x, brushPos.y, brushPos.z);
+        } else {
+            UI.INSTANCE.getStatusBar().clearMousePos();
+        }
+
         return false;
     }
 

@@ -55,14 +55,6 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     }
 
     @Override
-    public void update(float delta) {
-        super.update(delta);
-        if (gameObject.isDirty()) {
-            modelInstance.transform.set(gameObject.getTransform());
-        }
-    }
-
-    @Override
     public RenderableProvider getRenderableProvider() {
         return modelInstance;
     }

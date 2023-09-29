@@ -32,31 +32,26 @@ public class PickableLightComponent extends LightComponent implements PickableCo
     public PickableLightComponent(GameObject go, LightType lightType) {
         super(go, lightType);
 
-        if (gameObject.sceneGraph.scene.hasGLContext) {
-            Material material = new Material();
-            material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.BLUE));
+        Material material = new Material();
+        material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.BLUE));
 
-            // Build simple cube as a workaround for making lights pickable
-            ModelBuilder modelBuilder = new ModelBuilder();
-            modelBuilder.begin();
-            MeshPartBuilder builder = modelBuilder.part("ID"+go.id, GL20.GL_TRIANGLES, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal, material);
-            BoxShapeBuilder.build(builder, 0,0,0, 12f, 16f, 10f);
-            Model model = modelBuilder.end();
-            modelInstance = new ModelInstance(model);
+        // Build simple cube as a workaround for making lights pickable
+        ModelBuilder modelBuilder = new ModelBuilder();
+        modelBuilder.begin();
+        MeshPartBuilder builder = modelBuilder.part("ID"+go.id, GL20.GL_TRIANGLES, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal, material);
+        BoxShapeBuilder.build(builder, 0,0,0, 12f, 16f, 10f);
+        Model model = modelBuilder.end();
+        modelInstance = new ModelInstance(model);
 
-            encodeRaypickColorId();
-        }
+        encodeRaypickColorId();
 
     }
 
     @Override
     public void update(float delta) {
-        super.update(delta);
-        // Update position of cube for picking
-        gameObject.getPosition(tmp);
-        modelInstance.transform.setToTranslation(tmp);
-
         // Keeping this here for debugging if we need to render this cube
+        //gameObject.getPosition(tmp);
+        //modelInstance.transform.setToTranslation(tmp);
         //gameObject.sceneGraph.scene.batch.render(modelInstance, gameObject.sceneGraph.scene.environment));
     }
 
@@ -69,6 +64,8 @@ public class PickableLightComponent extends LightComponent implements PickableCo
 
     @Override
     public void renderPick() {
+        gameObject.getPosition(tmp);
+        modelInstance.transform.setToTranslation(tmp);
         gameObject.sceneGraph.scene.batch.render(modelInstance, Shaders.INSTANCE.getPickerShader());
     }
 }

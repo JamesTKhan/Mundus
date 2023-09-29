@@ -42,12 +42,16 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
     /** Flag to indicate that the transform is dirty and needs to be recalculated */
     protected boolean isTransformDirty;
 
+    /** Observable that notifies listeners when the transform is marked dirty */
+    protected DirtyObservable dirtyObservable;
+
     public SimpleNode(int id) {
         super(id);
         localPosition = new Vector3();
         localRotation = new Quaternion();
         localScale = new Vector3(1, 1, 1);
         combined = new Matrix4();
+        dirtyObservable = new DirtyObservable();
         markDirty(); // Initialize the flag as true to ensure first calculation
     }
 
@@ -63,6 +67,7 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
         this.localRotation = new Quaternion(simpleNode.localRotation);
         this.localScale = new Vector3(simpleNode.localScale);
         this.combined = new Matrix4(simpleNode.combined);
+        this.dirtyObservable = new DirtyObservable();
         this.markDirty();  // Initialize the flag as true to ensure first calculation
     }
 
@@ -175,6 +180,8 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
 
     public void markDirty() {
         isTransformDirty = true;
+        dirtyObservable.notifyListeners();
+
         if (children == null) return;
         for (T child : children) {
             child.markDirty();
@@ -183,5 +190,13 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
 
     public boolean isDirty() {
         return isTransformDirty;
+    }
+
+    public void addDirtyListener(DirtyListener listener) {
+        dirtyObservable.addListener(listener);
+    }
+
+    public void removeDirtyListener(DirtyListener listener) {
+        dirtyObservable.removeListener(listener);
     }
 }

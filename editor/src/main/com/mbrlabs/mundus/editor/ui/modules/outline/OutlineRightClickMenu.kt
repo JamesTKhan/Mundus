@@ -24,6 +24,7 @@ import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.assets.ModelImporter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
+import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.events.TerrainRemovedEvent
 import com.mbrlabs.mundus.editor.history.CommandHistory
@@ -173,12 +174,14 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
                     goNode.nameLabel.setText(input)
 
                     Mundus.postEvent(SceneGraphChangedEvent())
+                    Mundus.postEvent(GameObjectSelectedEvent(selectedGO!!))
                 }
             })
         // set position of dialog to menuItem position
         val nodePosX = node.actor.x
         val nodePosY = node.actor.y
         renameDialog.setPosition(nodePosX, nodePosY)
+        renameDialog.setText(selectedGO.toString())
     }
     //endregion Main Menu
 

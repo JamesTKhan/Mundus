@@ -1,6 +1,6 @@
 [0.6.0] ~
 - [BREAKING CHANGE] Migrated from Kryo to JSON for .registry and .pro files. Migration handled automatically.
-- [Breaking Changes] Old Projects must be reopened in Editor to generate Terrain Layers
+- [BREAKING CHANGE] Old Projects must be reopened in Editor to generate Terrain Layers
 - Add dirty transform flag optimization for caching GameObject/SimpleNode world transform
 - Add OrientedBoundingBox to cullable components, update debug renderer to use it
 - Add "Align Camera to Object" and "Align Object to Camera" actions
@@ -14,6 +14,10 @@
 - Adjustable line (selection, wireframe, helper lines) width
 - Changed UV slider to SimpleFloatSpinner in PI/16 (11.25 degree) increments
 - Counter for helper lines
+- Updated current name when renamed
+- Add DirtyObservable and DirtyListener to SimpleNode
+- Show mouse position on statusbar if using terrain brush tool
+- Optimize AssetUsage system by using DTO objects instead of loading scene
 - Fix Terrain Cloning, now works as expected
 - Added optional ignore filter to GameObjectPicker
 - Added loading priorities for assets

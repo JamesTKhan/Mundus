@@ -63,6 +63,7 @@ public class DebugRenderer implements Renderer, Disposable {
 
     public DebugRenderer() {
         shapeRenderer = new ShapeRenderer();
+        modelBatch = new ModelBatch();
         ownsShapeRenderer = true;
     }
 

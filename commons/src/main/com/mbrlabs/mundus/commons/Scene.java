@@ -75,7 +75,6 @@ public class Scene implements Disposable {
     public MundusEnvironment environment;
     public Skybox skybox;
     public String skyboxAssetId;
-    public boolean hasGLContext;
 
     public Camera cam;
     public ModelBatch batch;
@@ -97,21 +96,7 @@ public class Scene implements Disposable {
     private final Vector3 tmpCamDir = new Vector3();
     private final Vector3 tmpCamPos = new Vector3();
 
-    /**
-     * The default way to instantiate a scene. Use this constructor if you
-     * are using the runtime.
-     */
     public Scene() {
-        this(true);
-    }
-
-    /**
-     * Optionally allow instantiation of a scene without using any OpenGL context
-     * useful for when you need a scene object loaded on a different thread.
-     * @param hasGLContext normally this should be true, false if you are not on main thread
-     */
-    public Scene(boolean hasGLContext) {
-        this.hasGLContext = hasGLContext;
         environment = new MundusEnvironment();
         settings = new SceneSettings();
         modelCacheManager = new ModelCacheManager(this);
@@ -122,18 +107,16 @@ public class Scene implements Disposable {
         cam.near = CameraSettings.DEFAULT_NEAR_PLANE;
         cam.far = CameraSettings.DEFAULT_FAR_PLANE;
 
-        if (hasGLContext) {
-            dirLight = new MundusDirectionalShadowLight();
-            dirLight.color.set(LightUtils.DEFAULT_COLOR);
-            dirLight.intensity = LightUtils.DEFAULT_INTENSITY;
-            dirLight.direction.set(LightUtils.DEFAULT_DIRECTION);
-            dirLight.direction.nor();
-            environment.add(dirLight);
-            environment.set(ColorAttribute.createAmbientLight(Color.WHITE));
+        dirLight = new MundusDirectionalShadowLight();
+        dirLight.color.set(LightUtils.DEFAULT_COLOR);
+        dirLight.intensity = LightUtils.DEFAULT_INTENSITY;
+        dirLight.direction.set(LightUtils.DEFAULT_DIRECTION);
+        dirLight.direction.nor();
+        environment.add(dirLight);
+        environment.set(ColorAttribute.createAmbientLight(Color.WHITE));
 
-            initPBR();
-            setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
-        }
+        initPBR();
+        setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
 
         sceneGraph = new SceneGraph(this);
     }
