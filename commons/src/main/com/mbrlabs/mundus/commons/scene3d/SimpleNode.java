@@ -19,6 +19,7 @@ package com.mbrlabs.mundus.commons.scene3d;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.mbrlabs.mundus.commons.utils.Pools;
 
 /**
  * Very simple implementation of a scene graph node.
@@ -143,6 +144,15 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
     }
 
     @Override
+    public void rotate(float yaw, float pitch, float roll) {
+        Quaternion quaternion = getRotation(Pools.quaternionPool.obtain());
+        quaternion.setEulerAngles(yaw, pitch, roll);
+        rotate(quaternion);
+        Pools.quaternionPool.free(quaternion);
+        markDirty();
+    }
+
+    @Override
     public void scale(Vector3 v) {
         localScale.scl(v);
         markDirty();
@@ -163,6 +173,15 @@ public class SimpleNode<T extends SimpleNode> extends BaseNode<T> {
     @Override
     public void setLocalRotation(float x, float y, float z, float w) {
         localRotation.set(x, y, z, w);
+        markDirty();
+    }
+
+    @Override
+    public void setLocalRotation(float yaw, float pitch, float roll) {
+        Quaternion quaternion = getRotation(Pools.quaternionPool.obtain());
+        quaternion.setEulerAngles(yaw, pitch, roll);
+        setLocalRotation(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        Pools.quaternionPool.free(quaternion);
         markDirty();
     }
 

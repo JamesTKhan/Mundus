@@ -147,8 +147,7 @@ class TransformWidget : BaseInspectorWidget("Transformation") {
                 val rot = go.getLocalRotation(tempQuat)
                 val rotateCommand = RotateCommand(go)
                 rotateCommand.setBefore(rot)
-                rot.setEulerAngles(rot.yaw, rotX.float, rot.roll)
-                go.setLocalRotation(rot.x, rot.y, rot.z, rot.w)
+                go.setLocalRotation(rot.yaw, rotX.float, rot.roll)
                 rotateCommand.setAfter(go.getLocalRotation(tempQuat))
                 history.add(rotateCommand)
             }
@@ -160,8 +159,7 @@ class TransformWidget : BaseInspectorWidget("Transformation") {
                 val rot = go.getLocalRotation(tempQuat)
                 val rotateCommand = RotateCommand(go)
                 rotateCommand.setBefore(rot)
-                rot.setEulerAngles(rotY.float, rot.pitch, rot.roll)
-                go.setLocalRotation(rot.x, rot.y, rot.z, rot.w)
+                go.setLocalRotation(rotY.float, rot.pitch, rot.roll)
                 rotateCommand.setAfter(go.getLocalRotation(tempQuat))
                 history.add(rotateCommand)
             }
@@ -173,8 +171,7 @@ class TransformWidget : BaseInspectorWidget("Transformation") {
                 val rot = go.getLocalRotation(tempQuat)
                 val rotateCommand = RotateCommand(go)
                 rotateCommand.setBefore(rot)
-                rot.setEulerAngles(rot.yaw, rot.pitch, rotZ.float)
-                go.setLocalRotation(rot.x, rot.y, rot.z, rot.w)
+                go.setLocalRotation(rot.yaw, rot.pitch, rotZ.float)
                 rotateCommand.setAfter(go.getLocalRotation(tempQuat))
                 history.add(rotateCommand)
             }
