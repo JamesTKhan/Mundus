@@ -109,6 +109,7 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
         if (toolManager.activeTool is TerrainBrush) {
             toolManager.activateTool(toolManager.translateTool)
             projectManager.current().currScene.currentSelection = UI.outline.getSelectedGameObject()
+            UI.statusBar.clearMousePos()
         }
     }
 
