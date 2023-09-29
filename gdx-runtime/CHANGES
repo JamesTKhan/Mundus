@@ -2,6 +2,7 @@
 - [Breaking Change] Spotlights now use GameObjects forward direction
 - Made Scene.java more post-processing friendly for runtime users
 - Add 'getRayIntersection(Vector3, Ray)' method to TerrainComponent
+- Add rotate(yaw,pitch,roll) and setLocalRotation(yaw,pitch,roll) methods to game objects
 
 [0.5.1] ~ 08/08/2023
 - Updated libGDX to 1.12.0
