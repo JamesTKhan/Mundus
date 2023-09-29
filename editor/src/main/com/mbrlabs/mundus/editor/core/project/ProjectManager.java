@@ -498,26 +498,6 @@ public class ProjectManager implements Disposable {
     }
 
     /**
-     * Get all GameObjects from a scene. Partially loads the scene fast without using GL context
-     * so this can be called on a separate thread.
-     */
-    public Array<GameObject> getSceneGameObjects(ProjectContext context, String sceneName) throws FileNotFoundException {
-        SceneDTO sceneDTO = SceneManager.loadScene(context, sceneName);
-
-        Scene scene = new Scene(false);
-        for (GameObjectDTO descriptor : sceneDTO.getGameObjects()) {
-            scene.sceneGraph.addGameObject(GameObjectConverter.convert(descriptor, scene.sceneGraph, context.assetManager.getAssetMap()));
-        }
-        for (GameObject go : scene.sceneGraph.getGameObjects()) {
-            initGameObject(context, go);
-        }
-
-        scene.dispose();
-        return scene.sceneGraph.getGameObjects();
-    }
-
-
-    /**
      * Loads and opens scene
      *
      * @param projectContext

@@ -32,20 +32,18 @@ public class PickableLightComponent extends LightComponent implements PickableCo
     public PickableLightComponent(GameObject go, LightType lightType) {
         super(go, lightType);
 
-        if (gameObject.sceneGraph.scene.hasGLContext) {
-            Material material = new Material();
-            material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.BLUE));
+        Material material = new Material();
+        material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.BLUE));
 
-            // Build simple cube as a workaround for making lights pickable
-            ModelBuilder modelBuilder = new ModelBuilder();
-            modelBuilder.begin();
-            MeshPartBuilder builder = modelBuilder.part("ID"+go.id, GL20.GL_TRIANGLES, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal, material);
-            BoxShapeBuilder.build(builder, 0,0,0, 12f, 16f, 10f);
-            Model model = modelBuilder.end();
-            modelInstance = new ModelInstance(model);
+        // Build simple cube as a workaround for making lights pickable
+        ModelBuilder modelBuilder = new ModelBuilder();
+        modelBuilder.begin();
+        MeshPartBuilder builder = modelBuilder.part("ID"+go.id, GL20.GL_TRIANGLES, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal, material);
+        BoxShapeBuilder.build(builder, 0,0,0, 12f, 16f, 10f);
+        Model model = modelBuilder.end();
+        modelInstance = new ModelInstance(model);
 
-            encodeRaypickColorId();
-        }
+        encodeRaypickColorId();
 
     }
 
