@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 
+
 /**
  * Allows you to manage certain aspects of all child terrains that fall under this component.
  * @author JamesTKhan
@@ -11,8 +12,11 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
  */
 public class TerrainManagerComponent extends AbstractComponent {
 
-    public TerrainManagerComponent(GameObject go) {
+    private ProceduralGeneration proceduralGeneration;
+
+    public TerrainManagerComponent(final GameObject go, final ProceduralGeneration proceduralGeneration) {
         super(go);
+        this.proceduralGeneration = proceduralGeneration;
         type = Type.TERRAIN_MANAGER;
     }
 
@@ -57,6 +61,49 @@ public class TerrainManagerComponent extends AbstractComponent {
                 modifiedTerrainsOut.add(terrainComponent);
             }
         }
+    }
+
+    /**
+     * @return The first terrain child which has not right and bottom neighbor terrain.
+     */
+    public TerrainComponent findFirstTerrainChild() {
+        final Array<GameObject> childTerrains = gameObject.findChildrenByComponent(Type.TERRAIN);
+        for (GameObject childTerrain : childTerrains) {
+            final TerrainComponent terrainComponent = (TerrainComponent) childTerrain.findComponentByType(Type.TERRAIN);
+            if (terrainComponent.getRightNeighbor() == null && terrainComponent.getBottomNeighbor() == null) {
+                return terrainComponent;
+            }
+        }
+
+        return null;
+    }
+
+    public ProceduralGeneration getProceduralGeneration() {
+        return proceduralGeneration;
+    }
+
+    public void setProceduralGeneration(final ProceduralGeneration proceduralGeneration) {
+        this.proceduralGeneration = proceduralGeneration;
+    }
+
+    public static class ProceduralGeneration {
+
+        public static class ProceduralNoiseModifier {
+            public String noiseType;
+            public String fractalType;
+            public String domainType;
+            public float frequency;
+            public float domainWarpFrequency;
+            public float domainWarpAmps;
+            public float fractalLacunarity;
+            public float fractalGain;
+            public boolean additive;
+        }
+
+        public float minHeight;
+        public float maxHeight;
+
+        public Array<ProceduralNoiseModifier> noiseModifiers = new Array<>();
     }
 
 }

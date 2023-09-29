@@ -18,6 +18,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.ProceduralGeneration
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -140,7 +141,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         ioManager.saveProjectContext(projectManager.current())
 
         parentGO = GameObject(context.currScene.sceneGraph, "$terrainName Manager", goID)
-        parentGO.addComponent(TerrainManagerComponent(parentGO))
+        parentGO.addComponent(createTerrainManagerComponent(parentGO))
 
         val layerName = "${terrainName}.layer"
         if (projectManager.current().assetManager.assetExists(layerName)) {
@@ -177,6 +178,22 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
 
         sceneGraph.addGameObject(parentGO)
         Mundus.postEvent(SceneGraphChangedEvent())
+    }
+
+    private fun createTerrainManagerComponent(parentGO: GameObject): TerrainManagerComponent {
+        var proceduralGeneration: ProceduralGeneration? = null
+        if (tabbedPane.activeTab is ProceduralTerrainTab) {
+            val proceduralTerrainTab = tabbedPane.activeTab as ProceduralTerrainTab
+
+            proceduralGeneration = ProceduralGeneration()
+            proceduralGeneration.minHeight = proceduralTerrainTab.getMinHeightValue()
+            proceduralGeneration.maxHeight = proceduralTerrainTab.getMaxHeightValue()
+
+            proceduralTerrainTab.uploadNoiseModifiers(proceduralGeneration.noiseModifiers)
+        }
+
+
+        return TerrainManagerComponent(parentGO, proceduralGeneration)
     }
 
     private fun runCreationThreads() {

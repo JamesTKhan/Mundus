@@ -75,27 +75,27 @@ class NoiseModifierDialog(var modifier: NoiseModifier) : BaseDialog(modifier.nam
         domainWarpAmpsSlider.value = 0f
         domainWarpAmpsSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                modifier.noiseGenerator.SetDomainWarpAmp(domainWarpAmpsSlider.value)
+                modifier.domainWarpAmps = domainWarpAmpsSlider.value
                 Mundus.postEvent(UpdateNoiseTextureEvent())
             }
         })
 
         sliderTable.add(VisLabel("Lacunarity: ")).left()
         sliderTable.add(lacunaritySlider).row()
-        lacunaritySlider.value = modifier.noiseGenerator.GetFractalLacunarity()
+        lacunaritySlider.value = modifier.fractalLacunarity
         lacunaritySlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                modifier.noiseGenerator.SetFractalLacunarity(lacunaritySlider.value)
+                modifier.fractalLacunarity = lacunaritySlider.value
                 Mundus.postEvent(UpdateNoiseTextureEvent())
             }
         })
 
         sliderTable.add(VisLabel("Gain: ")).left()
         sliderTable.add(gainSlider).row()
-        gainSlider.value = modifier.noiseGenerator.GetFractalGain()
+        gainSlider.value = modifier.fractalGain
         gainSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                modifier.noiseGenerator.SetFractalGain(gainSlider.value)
+                modifier.fractalGain = gainSlider.value
                 Mundus.postEvent(UpdateNoiseTextureEvent())
             }
         })
@@ -119,12 +119,13 @@ class NoiseModifierDialog(var modifier: NoiseModifier) : BaseDialog(modifier.nam
         for (type in FastNoiseLite.DomainWarpType.values())
             noiseTypes.add(type)
         domainTypeSelect.items = noiseTypes
+        domainTypeSelect.selected = modifier.domainType
 
         selectTable.add(VisLabel("Domain Type: "))
         selectTable.add(domainTypeSelect).row()
         domainTypeSelect.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                modifier.noiseGenerator.SetDomainWarpType(domainTypeSelect.selected)
+                modifier.domainType = domainTypeSelect.selected
                 Mundus.postEvent(UpdateNoiseTextureEvent())
             }
         })
@@ -135,12 +136,13 @@ class NoiseModifierDialog(var modifier: NoiseModifier) : BaseDialog(modifier.nam
         for (type in FastNoiseLite.FractalType.values())
             noiseTypes.add(type)
         fractalTypeSelect.items = noiseTypes
+        fractalTypeSelect.selected = modifier.fractalType
 
         selectTable.add(VisLabel("Fractal Type: "))
         selectTable.add(fractalTypeSelect).row()
         fractalTypeSelect.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                modifier.noiseGenerator.SetFractalType(fractalTypeSelect.selected)
+                modifier.fractalType = fractalTypeSelect.selected
                 Mundus.postEvent(UpdateNoiseTextureEvent())
             }
         })
@@ -151,12 +153,13 @@ class NoiseModifierDialog(var modifier: NoiseModifier) : BaseDialog(modifier.nam
         for (type in FastNoiseLite.NoiseType.values())
             noiseTypes.add(type)
         noiseTypeSelect.items = noiseTypes
+        noiseTypeSelect.selected = modifier.type
 
         selectTable.add(VisLabel("Noise Type: "))
         selectTable.add(noiseTypeSelect).row()
         noiseTypeSelect.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                modifier.noiseGenerator.SetNoiseType(noiseTypeSelect.selected)
+                modifier.type = noiseTypeSelect.selected
                 Mundus.postEvent(UpdateNoiseTextureEvent())
             }
         })

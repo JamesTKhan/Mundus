@@ -13,12 +13,13 @@ public class ElevationModifier extends NoiseModifier {
         frequency = 0.01f;
 
         noise = new FastNoiseLite();
-        noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-        noise.SetFractalType(FastNoiseLite.FractalType.FBm);
+        setType(FastNoiseLite.NoiseType.OpenSimplex2);
+        setFractalType(FastNoiseLite.FractalType.FBm);
+        setDomainType(FastNoiseLite.DomainWarpType.OpenSimplex2);
         noise.SetFractalOctaves(6);
-        noise.SetFrequency(frequency);
-        noise.SetFractalGain(0.5f);
-        noise.SetFractalLacunarity(2f);
+        setFrequency(frequency);
+        setFractalGain(0.5f);
+        setFractalLacunarity(2f);
         noise.SetSeed(876509);
         noise.SetFractalWeightedStrength(0.3f);
     }

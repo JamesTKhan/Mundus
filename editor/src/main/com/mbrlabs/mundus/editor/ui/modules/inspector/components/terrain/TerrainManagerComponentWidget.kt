@@ -36,6 +36,7 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     private val updateBtn: VisTextButton = VisTextButton("Change Layers")
     private val triplanarOnBtn: VisTextButton = VisTextButton("Triplanar Toggle On")
     private val triplanarOffBtn: VisTextButton = VisTextButton("Triplanar Toggle Off")
+    private val generationBtn: VisTextButton = VisTextButton("Generation")
 
     init {
         setupUI()
@@ -62,6 +63,7 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
         buttonTable.add(updateBtn).row()
         buttonTable.add(triplanarOnBtn).row()
         buttonTable.add(triplanarOffBtn).row()
+        buttonTable.add(generationBtn).row()
         root.add(buttonTable).left().row()
 
         collapsibleContent.add(root).left().growX().row()
@@ -102,6 +104,12 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
         triplanarOffBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 setTriplanar(false)
+            }
+        })
+
+        generationBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                UI.showDialog(UI.terrainSystemGenerationDialog)
             }
         })
     }
