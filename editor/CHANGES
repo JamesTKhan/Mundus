@@ -18,6 +18,7 @@
 - Add DirtyObservable and DirtyListener to SimpleNode
 - Show mouse position on statusbar if using terrain brush tool
 - Optimize AssetUsage system by using DTO objects instead of loading scene
+- Use BufferedInputStream for faster loading of terrains
 - Fix Terrain Cloning, now works as expected
 - Added optional ignore filter to GameObjectPicker
 - Added loading priorities for assets
