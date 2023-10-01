@@ -223,7 +223,7 @@ public class Terrain implements Disposable {
 
     /**
      * Lod DTO's are only used for initial loading of the terrain
-     * @param loDDTOS
+     * @param loDDTOS the LoDDTO's to set
      */
     void setLoDDTOs(LoDDTO[] loDDTOS) {
         this.loDDTOS = loDDTOS;
@@ -231,6 +231,10 @@ public class Terrain implements Disposable {
 
     public LoDDTO[] getLoDDTOs() {
         return loDDTOS;
+    }
+
+    public void clearLoDDTOs() {
+        this.loDDTOS = null;
     }
 
     public void updateUvScale(Vector2 uvScale) {

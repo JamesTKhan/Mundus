@@ -327,5 +327,7 @@ public class TerrainAsset extends Asset {
             lodLevels[i + 1] = new LodLevel(lodMeshes);
         }
 
+        terrain.clearLoDDTOs();
+
     }
 }

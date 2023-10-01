@@ -86,23 +86,6 @@ public class LoDUtils {
     }
 
     /**
-     * Creates LoDDTOs for the given model.
-     *
-     * @param model
-     * @param multipliers
-     * @return
-     */
-    public static MeshUtils.SimplifyResult[] simplifyLoD(Model model, float[] multipliers) {
-        MeshUtils.SimplifyResult[] lodLevels = new MeshUtils.SimplifyResult[multipliers.length];
-
-        for (int i = 0; i < lodLevels.length; i++) {
-            lodLevels[i] = MeshUtils.simplify(model, multipliers[i], 0.1f);
-        }
-
-        return lodLevels;
-    }
-
-    /**
      * Converts the given SimplifyResult objects into to LoDLevels by instantiating new meshes.
      * @param model The original model
      * @param results The results of the simplification for the model
