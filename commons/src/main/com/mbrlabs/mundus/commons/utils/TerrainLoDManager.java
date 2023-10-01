@@ -55,14 +55,20 @@ public class TerrainLoDManager implements LoDManager {
     public void enable() {
         if (enabled) return;
         enabled = true;
-        setLoDLevel(currentLodIndex);
+
+        if (tc.getTerrainAsset().hasLoD(currentLodIndex)) {
+            setLoDLevel(currentLodIndex);
+        }
     }
 
     @Override
     public void disable() {
         if (!enabled) return;
         enabled = false;
-        setLoDLevel(0);
+
+        if (tc.getTerrainAsset().hasLoD(0)) {
+            setLoDLevel(0);
+        }
     }
 
     private void setLoDLevel(int lodLevel) {
