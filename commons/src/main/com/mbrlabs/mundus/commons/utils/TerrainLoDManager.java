@@ -74,11 +74,13 @@ public class TerrainLoDManager implements LoDManager {
     }
 
     private int determineLodLevel(float distance) {
+        float distanceThreshold = tc.getTerrainAsset().getTerrain().terrainWidth * 1.2f;
         for (int i = 0; i < Terrain.DEFAULT_LODS; i++) {
-            if (distance < (i) * (tc.getTerrainAsset().getTerrain().terrainWidth * 1.2f)) {
-                return i - 1;
+            if (distance < (i + 1) * distanceThreshold) {
+                return i;
             }
         }
         return Terrain.DEFAULT_LODS - 1;  // If beyond all thresholds, consider it the furthest LOD level
     }
+
 }
