@@ -6,6 +6,7 @@ import com.mbrlabs.mundus.commons.assets.TerrainAsset
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
@@ -16,6 +17,8 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
     private val root = ProceduralGenerationWidget(false, false, false, false)
 
     private var terrainManagerComponent : TerrainManagerComponent? = null
+
+    private var projectManager : ProjectManager = Mundus.inject()
 
     init {
         isResizable = true
@@ -75,6 +78,8 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
 
                 root.terraform(i, j, t)
                 terrainAsset.applyDependencies()
+
+                projectManager.current().assetManager.addModifiedAsset(terrainAsset)
 
                 t = t.leftNeighbor
                 i++
