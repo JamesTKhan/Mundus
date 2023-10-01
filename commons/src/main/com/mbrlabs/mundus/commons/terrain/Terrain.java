@@ -30,6 +30,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
+import com.mbrlabs.mundus.commons.dto.LoDDTO;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
 
@@ -42,6 +43,12 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_SIZE = 1200;
     public static final int DEFAULT_VERTEX_RESOLUTION = 180;
     public static final int DEFAULT_UV_SCALE = 60;
+
+    /** The indices multiplier for each LoD level. */
+    public static final float[] LOD_MULTIPLIERS = new float[] {.65f, .35f, .1f };
+
+    /** The number of LoD levels. +1 for base mesh */
+    public static final int DEFAULT_LODS = LOD_MULTIPLIERS.length + 1;
 
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();
@@ -67,6 +74,8 @@ public class Terrain implements Disposable {
     // Mesh
     private Model model;
     private PlaneMesh planeMesh;
+
+    private LoDDTO[] loDDTOS;
 
     private Terrain(int vertexResolution) {
         this.attribs = new VertexAttributes(
@@ -210,6 +219,18 @@ public class Terrain implements Disposable {
 
     public void modifyVertex(int x, int z) {
         planeMesh.modifyVertex(x, z);
+    }
+
+    /**
+     * Lod DTO's are only used for initial loading of the terrain
+     * @param loDDTOS
+     */
+    void setLoDDTOs(LoDDTO[] loDDTOS) {
+        this.loDDTOS = loDDTOS;
+    }
+
+    public LoDDTO[] getLoDDTOs() {
+        return loDDTOS;
     }
 
     public void updateUvScale(Vector2 uvScale) {

@@ -41,9 +41,8 @@ import com.mbrlabs.mundus.commons.assets.meta.Meta
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO
 import com.mbrlabs.mundus.commons.dto.SceneDTO
-import com.mbrlabs.mundus.commons.scene3d.GameObject
-import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.commons.terrain.TerrainSaver
 import com.mbrlabs.mundus.commons.utils.FileFormatUtils
 import com.mbrlabs.mundus.commons.water.attributes.WaterColorAttribute
 import com.mbrlabs.mundus.commons.water.attributes.WaterFloatAttribute
@@ -865,12 +864,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     @Throws(IOException::class)
     fun saveTerrainAsset(terrain: TerrainAsset) {
         // save .terra file
-        val outputStream = DataOutputStream(BufferedOutputStream(FileOutputStream(terrain.file.file())))
-        for (f in terrain.terrain.heightData) {
-            outputStream.writeFloat(f)
-        }
-        outputStream.flush()
-        outputStream.close()
+        TerrainSaver.save(terrain)
 
         // save splatmap
         val splatmap = terrain.splatmap

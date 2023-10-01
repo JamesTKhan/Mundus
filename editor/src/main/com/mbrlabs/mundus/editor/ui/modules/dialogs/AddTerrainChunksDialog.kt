@@ -19,6 +19,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.ProceduralGeneration
+import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -32,6 +33,7 @@ import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.HeightMapTerrainTab
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.ProceduralTerrainTab
+import com.mbrlabs.mundus.editor.utils.LoDUtils
 import com.mbrlabs.mundus.editor.utils.createTerrainGO
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
@@ -290,9 +292,16 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
                 heightmapTerrainTab.terraform(grid.x.toInt(), grid.y.toInt(), component)
             }
 
+            asset.applyDependencies()
+
+            // Generate simplified results for LoD
+            val results = LoDUtils.buildTerrainLod(component, Terrain.LOD_MULTIPLIERS)
+
             // post a Runnable to the rendering thread that processes the result
             Gdx.app.postRunnable {
-                asset.applyDependencies()
+                // Convert to LodLevels with actual meshes
+                asset.lodLevels = LoDUtils.convertToLodLevels(asset.terrain.model, results)
+
                 terraformingThreads.decrementAndGet()
             }
         }

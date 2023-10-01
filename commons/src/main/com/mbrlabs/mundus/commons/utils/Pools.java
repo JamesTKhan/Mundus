@@ -27,6 +27,26 @@ public class Pools {
         }
     };
 
+    /**
+     * ThreadLocal pool for Vector3 objects when accessing from other threads
+     */
+    public static ThreadLocal<Pool<Vector3>> vector3ThreadPool = new ThreadLocal<Pool<Vector3>>() {
+        @Override
+        protected Pool<Vector3> initialValue() {
+            return new Pool<Vector3>() {
+                @Override
+                protected Vector3 newObject () {
+                    return new Vector3();
+                }
+
+                @Override
+                protected void reset(Vector3 object) {
+                    object.set(0,0,0);
+                }
+            };
+        }
+    };
+
     public final static Pool<Vector3> vector3Pool = new Pool<Vector3>() {
         @Override
         protected Vector3 newObject () {

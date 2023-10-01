@@ -32,6 +32,7 @@ import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
+import com.mbrlabs.mundus.commons.terrain.LodLevel;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
@@ -53,6 +54,7 @@ import com.mbrlabs.mundus.editor.tools.terrain.RaiseLowerTool;
 import com.mbrlabs.mundus.editor.tools.terrain.SmoothTool;
 import com.mbrlabs.mundus.editor.tools.terrain.TerrainTool;
 import com.mbrlabs.mundus.editor.ui.UI;
+import com.mbrlabs.mundus.editor.utils.LoDUtils;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -500,6 +502,9 @@ public abstract class TerrainBrush extends Tool {
 
         if (!modified) return;
 
+        // Disable LoD temporarily while being modified
+        terrainComponent.getLodManager().disable();
+
         updateTerrain(terrain);
         terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
@@ -667,11 +672,15 @@ public abstract class TerrainBrush extends Tool {
 
             }
 
+            // Rebuild the LoD for all modified terrains
+            LoDUtils.buildTerrainLodInBackground(modifiedTerrains, null);
         }
+
         if (splatmapModified && paintCommand != null) {
             paintCommand.setAfter();
             getHistory().add(paintCommand);
         }
+
         splatmapModified = false;
         terrainHeightModified = false;
         heightCommand = null;

@@ -22,12 +22,13 @@ import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.utils.LoDManager;
+import com.mbrlabs.mundus.commons.utils.TerrainLoDManager;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
@@ -49,9 +50,18 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private TerrainComponent bottomNeighbor;
     private TerrainComponent leftNeighbor;
 
+    private final LoDManager lodManager;
+
     public TerrainComponent(GameObject go) {
         super(go);
         type = Component.Type.TERRAIN;
+        lodManager = new TerrainLoDManager(this);
+    }
+
+    @Override
+    public void update(float delta) {
+        super.update(delta);
+        lodManager.update(delta);
     }
 
     @Override
@@ -136,6 +146,10 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         if (bottomNeighbor != null) out.add(bottomNeighbor);
         if (leftNeighbor != null) out.add(leftNeighbor);
         return out;
+    }
+
+    public LoDManager getLodManager() {
+        return lodManager;
     }
 
     @Override

@@ -201,9 +201,9 @@ public class PlaneMesh implements Disposable {
     public void calculateAverageNormals() {
         final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
 
-        Vector3 v1 = Pools.vector3Pool.obtain();
-        Vector3 v2 = Pools.vector3Pool.obtain();
-        Vector3 v3 = Pools.vector3Pool.obtain();
+        Vector3 v1 = Pools.vector3ThreadPool.get().obtain();
+        Vector3 v2 = Pools.vector3ThreadPool.get().obtain();
+        Vector3 v3 = Pools.vector3ThreadPool.get().obtain();
 
         // Calculate face normals for each triangle and store them in an array
         Vector3[] faceNormals = new Vector3[numIndices / 3];
@@ -211,7 +211,7 @@ public class PlaneMesh implements Disposable {
             getVertexPos(v1, indices[i] & 0xFFFF);
             getVertexPos(v2, indices[i + 1] & 0xFFFF);
             getVertexPos(v3, indices[i + 2] & 0xFFFF);
-            Vector3 normal = calculateFaceNormal(Pools.vector3Pool.obtain(), v1, v2, v3);
+            Vector3 normal = calculateFaceNormal(Pools.vector3ThreadPool.get().obtain(), v1, v2, v3);
             faceNormals[i / 3] = normal;
         }
 
@@ -239,11 +239,11 @@ public class PlaneMesh implements Disposable {
             }
         }
 
-        Pools.vector3Pool.free(v1);
-        Pools.vector3Pool.free(v2);
-        Pools.vector3Pool.free(v3);
+        Pools.vector3ThreadPool.get().free(v1);
+        Pools.vector3ThreadPool.get().free(v2);
+        Pools.vector3ThreadPool.get().free(v3);
         for (Vector3 normal : faceNormals) {
-            Pools.vector3Pool.free(normal);
+            Pools.vector3ThreadPool.get().free(normal);
         }
     }
 

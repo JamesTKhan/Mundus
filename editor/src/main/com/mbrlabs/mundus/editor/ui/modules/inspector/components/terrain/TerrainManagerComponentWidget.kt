@@ -19,6 +19,8 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
+import com.mbrlabs.mundus.editor.utils.LoDUtils
+
 
 /**
  * @author JamesTKhan
@@ -37,6 +39,7 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     private val triplanarOnBtn: VisTextButton = VisTextButton("Triplanar Toggle On")
     private val triplanarOffBtn: VisTextButton = VisTextButton("Triplanar Toggle Off")
     private val generationBtn: VisTextButton = VisTextButton("Generation")
+    private val generateLoDBtn: VisTextButton = VisTextButton("Build LoDs")
 
     init {
         setupUI()
@@ -64,6 +67,7 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
         buttonTable.add(triplanarOnBtn).row()
         buttonTable.add(triplanarOffBtn).row()
         buttonTable.add(generationBtn).row()
+        buttonTable.add(generateLoDBtn).row()
         root.add(buttonTable).left().row()
 
         collapsibleContent.add(root).left().growX().row()
@@ -112,6 +116,26 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
                 UI.showDialog(UI.terrainSystemGenerationDialog)
             }
         })
+
+        generateLoDBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                buildLoDs()
+            }
+        })
+    }
+
+    private fun buildLoDs() {
+        val components = Array<Component>()
+        component.gameObject.findComponentsByType(components, Component.Type.TERRAIN, true)
+        val tcs = components.map { it as TerrainComponent }
+
+        LoDUtils.buildTerrainLodInBackground(tcs) {
+            for (tc in tcs) {
+                // After complete, add to modified assets
+                projectManager.current().assetManager.addModifiedAsset(tc.terrainAsset)
+            }
+            UI.toaster.success("Terrain Level of Details generated.")
+        }
     }
 
     private fun setTriplanar(value: Boolean) {

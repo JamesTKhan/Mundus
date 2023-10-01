@@ -20,9 +20,12 @@ import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
+import com.mbrlabs.mundus.commons.dto.LoDDTO;
+import com.mbrlabs.mundus.commons.terrain.LodLevel;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
@@ -38,6 +41,7 @@ import java.util.Map;
 public class TerrainAsset extends Asset {
 
     private float[] data;
+    private LodLevel[] lodLevels;
 
     // dependencies
     private PixmapTextureAsset splatmap;
@@ -56,6 +60,32 @@ public class TerrainAsset extends Asset {
 
     public PixmapTextureAsset getSplatmap() {
         return splatmap;
+    }
+
+    /**
+     * Returns true if the terrain has a LoD level for the given int.
+     * @param lodLevel the integer lod level to check
+     * @return true if the terrain has a LoD level for the given int
+     */
+    public boolean hasLoD(int lodLevel) {
+        return lodLevels != null && lodLevel >= 0 && lodLevel < lodLevels.length;
+    }
+
+    /**
+     * Returns the LodLevel for the given int.
+     * @param lodLevel the integer lod level to get
+     * @return the lod level
+     */
+    public LodLevel getLod(int lodLevel) {
+        // if lodLevel is out of bounds, return the last lod
+        if (lodLevel < 0 || lodLevel >= lodLevels.length)
+            return lodLevels[lodLevels.length - 1];
+
+        return lodLevels[lodLevel];
+    }
+
+    public LodLevel[] getLodLevels() {
+        return lodLevels;
     }
 
     public void setSplatmap(PixmapTextureAsset splatmap) {
@@ -105,6 +135,7 @@ public class TerrainAsset extends Asset {
         terrain = assetManager.get(meta.getFile().pathWithoutExtension());
         setTriplanar(meta.getTerrain().isTriplanar());
         data = terrain.heightData;
+        loadLodLevels();
     }
 
     public FileHandle getTerraFile() {
@@ -260,5 +291,41 @@ public class TerrainAsset extends Asset {
         }
 
         return false;
+    }
+
+    public void setLodLevels(LodLevel[] lodLevels) {
+        if (lodLevels == null || lodLevels.length == 0) {
+            return;
+        }
+        if (this.lodLevels != null) {
+            for (LodLevel level : this.lodLevels) {
+                level.dispose();
+            }
+        }
+        this.lodLevels = lodLevels;
+    }
+
+    private void loadLodLevels() {
+        LoDDTO[] loDDTOs = terrain.getLoDDTOs();
+        if (loDDTOs == null) return;
+
+        lodLevels = new LodLevel[loDDTOs.length + 1]; // +1 for base level
+
+        Mesh[] meshes = terrain.getModel().meshes.toArray(Mesh.class);
+        lodLevels[0] = new LodLevel(meshes);
+
+        // instantiate meshes for each lod level
+        for (int i = 0; i < loDDTOs.length; i++) {
+            Mesh[] lodMeshes = new Mesh[loDDTOs[i].getVertices().length];
+            for (int j = 0; j < lodMeshes.length; j++) {
+                LoDDTO dto = loDDTOs[i];
+                Mesh mesh = new Mesh(true, dto.getVertices()[j].length, dto.getIndices()[j].length, meshes[j].getVertexAttributes());
+                mesh.setVertices(dto.getVertices()[j]);
+                mesh.setIndices(dto.getIndices()[j]);
+                lodMeshes[j] = mesh;
+            }
+            lodLevels[i + 1] = new LodLevel(lodMeshes);
+        }
+
     }
 }
