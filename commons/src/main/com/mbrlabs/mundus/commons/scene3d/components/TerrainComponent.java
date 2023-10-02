@@ -21,11 +21,11 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.shaders.ClippableShader;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
@@ -127,6 +127,17 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
      */
     public Vector3 getNormalAtWordCoordinate(Vector3 out, float worldX, float worldZ) {
         return terrainAsset.getTerrain().getNormalAtWordCoordinate(out, worldX, worldZ, modelInstance.transform);
+    }
+
+    /**
+     * Casts the given ray to determine where it intersects on the terrain.
+     *
+     * @param out Vector3 to populate with intersect point with
+     * @param ray the ray to cast
+     * @return The out Vector3 which contains the intersect point.
+     */
+    public Vector3 getRayIntersection(Vector3 out, Ray ray) {
+        return terrainAsset.getTerrain().getRayIntersection(out, ray, modelInstance.transform);
     }
 
     /**

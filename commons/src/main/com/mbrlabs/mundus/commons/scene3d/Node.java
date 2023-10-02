@@ -150,6 +150,13 @@ public interface Node<T extends Node> {
     Matrix4 getTransform();
 
     /**
+     * Gets the current forward direction, assumes the default forward direction is Z+.
+     *
+     * @param out out vector to be populated with direction
+     */
+    Vector3 getForwardDirection(Vector3 out);
+
+    /**
      * Translates the position of this node.
      *
      * @param v
@@ -190,6 +197,15 @@ public interface Node<T extends Node> {
      *            w component of a quaternion
      */
     void rotate(float x, float y, float z, float w);
+
+    /**
+     * Rotates this node.
+     *
+     * @param yaw The rotation around the y axis in degrees.
+     * @param pitch The rotation around the x axis in degrees.
+     * @param roll The rotation around the z axis degrees.
+     */
+    void rotate(float yaw, float pitch, float roll);
 
     /**
      * Scales this node.
@@ -236,6 +252,15 @@ public interface Node<T extends Node> {
      *            w component of a quaternion
      */
     void setLocalRotation(float x, float y, float z, float w);
+
+    /**
+     * Sets the rotation relative to parent node.
+     *
+     * @param yaw The rotation around the y axis in degrees.
+     * @param pitch The rotation around the x axis in degrees.
+     * @param roll The rotation around the z axis degrees.
+     */
+    void setLocalRotation(float yaw, float pitch, float roll);
 
     /**
      * Sets the scale relative to the parent node.

@@ -16,11 +16,15 @@
 
 package com.mbrlabs.mundus.commons.dto;
 
+import com.mbrlabs.mundus.commons.assets.Asset;
+
+import java.util.Map;
+
 /**
  * @author Tibor Zsuro
  * @version 12-08-2021
  */
-public class WaterComponentDTO {
+public class WaterComponentDTO implements AssetUsageDTO {
 
     private String waterId;
 
@@ -32,4 +36,8 @@ public class WaterComponentDTO {
         this.waterId = id;
     }
 
+    @Override
+    public boolean usesAsset(Asset assetToCheck, Map<String, Asset> assetMap) {
+        return assetToCheck.getID().equals(waterId);
+    }
 }

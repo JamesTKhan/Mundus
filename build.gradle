@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlinVersion = '1.6.21'
+    ext.kotlinVersion = '1.9.0'
     repositories {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
@@ -27,7 +27,7 @@ allprojects {
     ext {
         appName = "Mundus"
         gdxVersion = '1.12.0'
-        visuiVersion = '1.5.0'
+        visuiVersion = '1.5.2'
         kryoVersion = '5.2.0'
         junitVersion = '4.13.2'
         mockitoVersion = '1.10.19'
@@ -36,7 +36,7 @@ allprojects {
         gltfVersion = '7d70839067'
         args4jVersion = '2.33'
 
-        ktxVersion = '1.10.0-b2'
+        ktxVersion = '1.12.0-rc1'
     }
 
     repositories {

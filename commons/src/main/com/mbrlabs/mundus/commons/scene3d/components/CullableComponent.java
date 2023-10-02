@@ -21,9 +21,11 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.OrientedBoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.event.Event;
 import com.mbrlabs.mundus.commons.event.EventType;
+import com.mbrlabs.mundus.commons.scene3d.DirtyListener;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
 import com.mbrlabs.mundus.commons.scene3d.ModelEventable;
@@ -41,13 +43,14 @@ import static com.mbrlabs.mundus.commons.utils.ModelUtils.isVisible;
  * @author JamesTKhan
  * @version July 18, 2022
  */
-public abstract class CullableComponent extends AbstractComponent implements ModelEventable {
+public abstract class CullableComponent extends AbstractComponent implements ModelEventable, DirtyListener {
     private final static BoundingBox tmpBounds = new BoundingBox();
     private final static Vector3 tmpScale = new Vector3();
     private final static short frameCullCheckInterval = 15;
 
     protected final Vector3 center = new Vector3();
     protected final Vector3 dimensions = new Vector3();
+    private final OrientedBoundingBox orientedBoundingBox = new OrientedBoundingBox();
     protected float radius;
 
     // Render calls since last cull check
@@ -60,6 +63,7 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
     public CullableComponent(GameObject go) {
         super(go);
+        go.addDirtyListener(this);
     }
 
     @Override
@@ -144,6 +148,11 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         gameObject.getScale(tmpScale);
         dimensions.scl(tmpScale);
         radius = dimensions.len() / 2f;
+        orientedBoundingBox.set(tmpBounds, modelInstance.transform);
+    }
+
+    public OrientedBoundingBox getOrientedBoundingBox() {
+        return orientedBoundingBox;
     }
 
     private void triggerEvent(final EventType eventType) {
@@ -172,5 +181,14 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
     public boolean isCulled() {
         return isCulled;
+    }
+
+    @Override
+    public void onDirty() {
+        // Force update of transform so that model instance transform is also updated
+        gameObject.getTransform();
+
+        if (modelInstance == null) return;
+        orientedBoundingBox.setTransform(modelInstance.transform);
     }
 }

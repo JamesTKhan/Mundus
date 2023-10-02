@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editor.core.helperlines
 
 import com.badlogic.gdx.graphics.g3d.ModelBatch
+import com.badlogic.gdx.math.Vector3
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
@@ -32,11 +33,14 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
     private val helperLineShapes = Array<HelperLineShape>()
     private var width = -1
     private var type: HelperLineType? = null
+    private var counterOffsetX = 0
+    private var counterOffsetY = 0
 
-
-    fun build(type: HelperLineType, width: Int, terrainComponents: Array<TerrainComponent>) {
+    fun build(type: HelperLineType, width: Int, counterOffsetX: Int, counterOffsetY: Int, terrainComponents: Array<TerrainComponent>) {
         this.type = type
         this.width = width
+        this.counterOffsetX = counterOffsetX
+        this.counterOffsetY = counterOffsetY
 
         for (terrainComponent in terrainComponents) {
             addNewHelperLineShape(terrainComponent)
@@ -50,6 +54,16 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
     }
 
     fun hasHelperLines() = helperLineShapes.notEmpty()
+
+    fun findHelperLineCenterObject(terrainComponent: TerrainComponent, pos: Vector3): HelperLineCenterObject? {
+        for (helperLineShape in helperLineShapes) {
+            if (helperLineShape.terrainComponent === terrainComponent) {
+                return helperLineShape.findNearestCenterObject(pos)
+            }
+        }
+
+        return null
+    }
 
     override fun onTerrainVerticesChanged(event: TerrainVerticesChangedEvent) {
         helperLineShapes.filter { it.terrainComponent == event.terrainComponent }.forEach { it.updateVertices() }
@@ -77,9 +91,9 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
     private fun addNewHelperLineShape(terrainComponent: TerrainComponent) {
         val helperLineShape : HelperLineShape
         if (type == HelperLineType.RECTANGLE) {
-            helperLineShape = RectangleHelperLineShape(width, terrainComponent)
+            helperLineShape = RectangleHelperLineShape(width, counterOffsetX, counterOffsetY, terrainComponent)
         } else {
-            helperLineShape = HexagonHelperLineShape(width, terrainComponent)
+            helperLineShape = HexagonHelperLineShape(width, counterOffsetX, counterOffsetY, terrainComponent)
         }
         helperLineShapes.add(helperLineShape)
     }

@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class TerrainLoader extends AsynchronousAssetLoader<Terrain, TerrainLoade
         // load height data from terra file
         DataInputStream is;
         try {
-            is = new DataInputStream(file.read());
+            is = new DataInputStream(new BufferedInputStream(file.read()));
             while (is.available() > 0) {
                 floatArray.add(is.readFloat());
             }

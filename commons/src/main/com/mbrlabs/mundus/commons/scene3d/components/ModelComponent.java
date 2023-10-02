@@ -48,12 +48,6 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Mod
     }
 
     @Override
-    public void update(float delta) {
-        super.update(delta);
-        modelInstance.transform.set(gameObject.getTransform());
-    }
-
-    @Override
     public RenderableProvider getRenderableProvider() {
         return modelInstance;
     }
@@ -117,9 +111,8 @@ public class ModelComponent extends CullableComponent implements AssetUsage, Mod
     public Component clone(GameObject go) {
         ModelComponent mc = new ModelComponent(go);
         mc.modelAsset = this.modelAsset;
-        mc.modelInstance = new ModelInstance(modelAsset.getModel());
+        mc.setModel(new ModelInstance(modelAsset.getModel()));
         mc.materials.putAll(this.materials);
-        mc.setDimensions(mc.modelInstance);
         mc.setUseModelCache(useModelCache);
         gameObject.sceneGraph.scene.modelCacheManager.requestModelCacheRebuild();
         return mc;

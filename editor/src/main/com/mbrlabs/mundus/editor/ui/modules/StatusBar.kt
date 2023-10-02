@@ -36,10 +36,16 @@ import com.mbrlabs.mundus.editor.utils.formatFloat
  */
 class StatusBar : VisTable() {
 
+    companion object {
+        const val EMPTY_TEXT = ""
+    }
+
     private val root = VisTable()
     private val left = VisTable()
     private val right = VisTable()
 
+    private val helperCell = VisLabel()
+    private val mousePos = VisLabel()
     private val fpsLabel = VisLabel()
     private val camPos = VisLabel()
 
@@ -69,6 +75,10 @@ class StatusBar : VisTable() {
         left.add(speed10)
 
         // right
+        right.add(helperCell).right()
+        right.addSeparator(true).padLeft(5f).padRight(5f)
+        right.add(mousePos).right()
+        right.addSeparator(true).padLeft(5f).padRight(5f)
         right.add(camPos).right()
         right.addSeparator(true).padLeft(5f).padRight(5f)
         right.add(fpsLabel).right()
@@ -102,13 +112,28 @@ class StatusBar : VisTable() {
         super.act(delta)
     }
 
+    fun setSelectedHelperCell(x: Int, y: Int) {
+        helperCell.setText("$x x $y")
+    }
+
+    fun clearSelectedHelperCell() {
+        helperCell.setText(EMPTY_TEXT)
+    }
+
+    fun setMousePos(x: Float, y: Float, z: Float) {
+        mousePos.setText("mousePos: ${formatFloat(x, 2)}, ${formatFloat(y, 2)}, ${formatFloat(z, 2)}")
+    }
+
+    fun clearMousePos() {
+        mousePos.setText(EMPTY_TEXT)
+    }
+
     private fun setFps(fps: Int) {
-        this.fpsLabel.setText("fps: " + fps)
+        this.fpsLabel.setText("fps: $fps")
     }
 
     private fun setCamPos(pos: Vector3) {
-        camPos.setText("camPos: " + formatFloat(pos.x, 2) + ", " + formatFloat(pos.y, 2) + ", "
-                + formatFloat(pos.z, 2))
+        camPos.setText("camPos: ${formatFloat(pos.x, 2)}, ${formatFloat(pos.y, 2)}, ${formatFloat(pos.z, 2)}")
     }
 
 }

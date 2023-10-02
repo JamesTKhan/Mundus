@@ -149,6 +149,8 @@ public class RotateTool extends TransformTool {
         ProjectContext projectContext = getProjectManager().current();
         if (projectContext.currScene.currentSelection != null) {
             translateHandles();
+            scaleHandles();
+
             if (state == TransformState.IDLE) {
                 return;
             }

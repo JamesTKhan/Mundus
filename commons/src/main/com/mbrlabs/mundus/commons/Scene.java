@@ -75,7 +75,6 @@ public class Scene implements Disposable {
     public MundusEnvironment environment;
     public Skybox skybox;
     public String skyboxAssetId;
-    public boolean hasGLContext;
 
     public Camera cam;
     public ModelBatch batch;
@@ -97,21 +96,7 @@ public class Scene implements Disposable {
     private final Vector3 tmpCamDir = new Vector3();
     private final Vector3 tmpCamPos = new Vector3();
 
-    /**
-     * The default way to instantiate a scene. Use this constructor if you
-     * are using the runtime.
-     */
     public Scene() {
-        this(true);
-    }
-
-    /**
-     * Optionally allow instantiation of a scene without using any OpenGL context
-     * useful for when you need a scene object loaded on a different thread.
-     * @param hasGLContext normally this should be true, false if you are not on main thread
-     */
-    public Scene(boolean hasGLContext) {
-        this.hasGLContext = hasGLContext;
         environment = new MundusEnvironment();
         settings = new SceneSettings();
         modelCacheManager = new ModelCacheManager(this);
@@ -122,18 +107,16 @@ public class Scene implements Disposable {
         cam.near = CameraSettings.DEFAULT_NEAR_PLANE;
         cam.far = CameraSettings.DEFAULT_FAR_PLANE;
 
-        if (hasGLContext) {
-            dirLight = new MundusDirectionalShadowLight();
-            dirLight.color.set(LightUtils.DEFAULT_COLOR);
-            dirLight.intensity = LightUtils.DEFAULT_INTENSITY;
-            dirLight.direction.set(LightUtils.DEFAULT_DIRECTION);
-            dirLight.direction.nor();
-            environment.add(dirLight);
-            environment.set(ColorAttribute.createAmbientLight(Color.WHITE));
+        dirLight = new MundusDirectionalShadowLight();
+        dirLight.color.set(LightUtils.DEFAULT_COLOR);
+        dirLight.intensity = LightUtils.DEFAULT_INTENSITY;
+        dirLight.direction.set(LightUtils.DEFAULT_DIRECTION);
+        dirLight.direction.nor();
+        environment.add(dirLight);
+        environment.set(ColorAttribute.createAmbientLight(Color.WHITE));
 
-            initPBR();
-            setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
-        }
+        initPBR();
+        setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
 
         sceneGraph = new SceneGraph(this);
     }
@@ -167,17 +150,33 @@ public class Scene implements Disposable {
         }
     }
 
+    /**
+     * This is the primary render method. It handles rendering everything. This should be used
+     * unless you need more control over the rendering process.
+     */
     public void render() {
         render(Gdx.graphics.getDeltaTime());
     }
 
+    /**
+     * This is the primary render method. It handles rendering everything. This should be used
+     * unless you need more control over the rendering process.
+     * @param delta time since last frame
+     */
     public void render(float delta) {
+        renderWaterFBOs();
+        renderShadowMap();
+        renderScene(delta);
+    }
+
+    /**
+     * Gets updated Reflection and Refraction textures for water, and captures depth for refraction if needed.
+     */
+    public void renderWaterFBOs() {
         if (fboWaterReflection == null) {
             Vector2 res = settings.waterResolution.getResolutionValues();
             initFrameBuffers((int) res.x, (int) res.y);
         }
-
-        modelCacheManager.update(delta);
 
         if (sceneGraph.isContainsWater()) {
             if (!isMRTRefraction) {
@@ -186,8 +185,15 @@ public class Scene implements Disposable {
             captureReflectionFBO();
             captureRefractionFBO();
         }
+    }
 
-        renderShadowMap();
+    /**
+     * Renders the actual 3D scene. This is called by the render method normally, but if using post-processing
+     * you may want to call this method directly.
+     * @param delta time since last frame
+     */
+    public void renderScene(float delta) {
+        modelCacheManager.update(delta);
         batch.begin(cam);
         renderObjects();
         renderSkybox();
@@ -299,7 +305,11 @@ public class Scene implements Disposable {
         }
     }
 
-    protected void renderShadowMap() {
+    /**
+     * Render models to the shadow map .This is called by the render method normally, but if using post-processing
+     * you may want to call this method directly.
+     */
+    public void renderShadowMap() {
         if (dirLight == null) {
             setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
         }
