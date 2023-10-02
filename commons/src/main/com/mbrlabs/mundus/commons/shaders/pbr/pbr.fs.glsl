@@ -183,7 +183,8 @@ void main() {
     // Directional lights calculation
     PBRLightContribs contrib0 = getDirectionalLightContribution(pbrSurface, u_dirLights[0]);
 #ifdef shadowMapFlag
-    float shadows = getShadow();
+    float slopeBias = computeSlopeBias(n, u_dirLights[0].direction, 0.003);
+    float shadows = getShadow(slopeBias);
     f_diffuse += contrib0.diffuse * shadows;
     f_specular += contrib0.specular * shadows;
     f_transmission += contrib0.transmission * shadows; // TODO does transmission affected by shadows ?
