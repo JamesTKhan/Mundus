@@ -2,10 +2,12 @@ package com.mbrlabs.mundus.editor.ui.widgets
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
+import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
@@ -35,6 +37,7 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
     private val terrainWidth = IntegerFieldWithLabel("", -1, false)
     private val minHeight = FloatFieldWithLabel("", -1, true)
     private val maxHeight = FloatFieldWithLabel("", -1, true)
+    private val multipleTerrain = VisCheckBox("")
     private val gridX = IntegerFieldWithLabel("", -1, false)
     private val gridZ = IntegerFieldWithLabel("", -1, false)
     private val generateBtn = VisTextButton("Generate Terrain")
@@ -166,10 +169,14 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
         leftTable.add(maxHeight).left().row()
 
         if (iterationFieldsVisible) {
+            leftTable.add(ToolTipLabel("Multiple Terrain", "TODO")).left()
+            leftTable.add(multipleTerrain).left().row()
             leftTable.add(ToolTipLabel("X Iterations", "The number of Terrain Chunks to create on the X axis")).left()
             leftTable.add(gridX).left().row()
+            gridX.touchable = Touchable.disabled
             leftTable.add(ToolTipLabel("Z Iterations", "The number of Terrain Chunks to create on the Z axis")).left()
             leftTable.add(gridZ).left().row()
+            gridZ.touchable = Touchable.disabled
         }
 
         leftTable.add(generateBtn).expandY().fillX().bottom()
@@ -202,6 +209,15 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
         vertexResolution.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 noiseGeneratorWidget.setNoiseTextureWidth(vertexResolution.int)
+            }
+        })
+
+        multipleTerrain.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                val newTouchableValue = if (multipleTerrain.isChecked) Touchable.enabled else Touchable.disabled
+
+                gridX.touchable = newTouchableValue
+                gridZ.touchable = newTouchableValue
             }
         })
     }
