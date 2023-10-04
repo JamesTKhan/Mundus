@@ -38,6 +38,7 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
     private val minHeight = FloatFieldWithLabel("", -1, true)
     private val maxHeight = FloatFieldWithLabel("", -1, true)
     private val multipleTerrain = VisCheckBox("")
+    private val gridFieldsTable = VisTable()
     private val gridX = IntegerFieldWithLabel("", -1, false)
     private val gridZ = IntegerFieldWithLabel("", -1, false)
     private val generateBtn = VisTextButton("Generate Terrain")
@@ -171,12 +172,15 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
         if (iterationFieldsVisible) {
             leftTable.add(ToolTipLabel("Multiple Terrain", "TODO")).left()
             leftTable.add(multipleTerrain).left().row()
-            leftTable.add(ToolTipLabel("X Iterations", "The number of Terrain Chunks to create on the X axis")).left()
-            leftTable.add(gridX).left().row()
-            gridX.touchable = Touchable.disabled
-            leftTable.add(ToolTipLabel("Z Iterations", "The number of Terrain Chunks to create on the Z axis")).left()
-            leftTable.add(gridZ).left().row()
-            gridZ.touchable = Touchable.disabled
+            gridFieldsTable.defaults().pad(4f)
+            gridFieldsTable.left().top()
+            gridFieldsTable.isVisible = false
+
+            gridFieldsTable.add(ToolTipLabel("X Iterations", "The number of Terrain Chunks to create on the X axis")).left()
+            gridFieldsTable.add(gridX).left().row()
+            gridFieldsTable.add(ToolTipLabel("Z Iterations", "The number of Terrain Chunks to create on the Z axis")).left()
+            gridFieldsTable.add(gridZ).left().row()
+            leftTable.add(gridFieldsTable).left().row()
         }
 
         leftTable.add(generateBtn).expandY().fillX().bottom()
@@ -214,10 +218,7 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
 
         multipleTerrain.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                val newTouchableValue = if (multipleTerrain.isChecked) Touchable.enabled else Touchable.disabled
-
-                gridX.touchable = newTouchableValue
-                gridZ.touchable = newTouchableValue
+                gridFieldsTable.isVisible = multipleTerrain.isChecked
             }
         })
     }
