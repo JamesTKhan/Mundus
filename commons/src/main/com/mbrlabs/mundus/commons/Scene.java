@@ -59,7 +59,6 @@ public class Scene implements Disposable {
     private SceneRenderer sceneRenderer;
 
     public SceneGraph sceneGraph;
-
     public SceneSettings settings;
     public MundusEnvironment environment;
     public Skybox skybox;
@@ -172,6 +171,10 @@ public class Scene implements Disposable {
 
     public SceneRenderer getSceneRenderer() {
         return sceneRenderer;
+    }
+
+    public void setSceneRenderer(SceneRenderer sceneRenderer) {
+        this.sceneRenderer = sceneRenderer;
     }
 
     public void setDepthShader(DepthShader depthShader) {
