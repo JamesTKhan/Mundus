@@ -1,7 +1,7 @@
 package com.mbrlabs.mundus.editor.history.commands
 
 import com.badlogic.gdx.utils.Array
-import com.mbrlabs.mundus.commons.terrain.Terrain
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.history.Command
 
 /**
@@ -13,13 +13,13 @@ import com.mbrlabs.mundus.editor.history.Command
  * @author JamesTKhan
  * @version June 26, 2023
  */
-class TerrainStitchCommand(private var terrains: Array<Terrain>) : Command {
-    private var terrainHeightCommands = HashMap<Terrain, TerrainHeightCommand>()
+class TerrainStitchCommand(private var terrains: Array<TerrainComponent>) : Command {
+    private var terrainHeightCommands = HashMap<TerrainComponent, TerrainHeightCommand>()
 
     init {
         for (terrain in terrains) {
             val command = TerrainHeightCommand(terrain)
-            command.setHeightDataBefore(terrain.heightData)
+            command.setHeightDataBefore(terrain.terrainAsset.terrain.heightData)
             terrainHeightCommands[terrain] = command
         }
     }
@@ -27,7 +27,7 @@ class TerrainStitchCommand(private var terrains: Array<Terrain>) : Command {
     fun setHeightDataAfter() {
         for (terrain in terrains) {
             val command = terrainHeightCommands[terrain]
-            command!!.setHeightDataAfter(terrain.heightData)
+            command!!.setHeightDataAfter(terrain.terrainAsset.terrain.heightData)
         }
     }
 

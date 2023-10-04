@@ -11,9 +11,9 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
+import com.mbrlabs.mundus.editor.events.TerrainLoDRebuildEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.ProceduralGenerationWidget
-import com.mbrlabs.mundus.editor.utils.LoDUtils
 
 class TerrainSystemGenerationDialog : BaseDialog("Generation") {
 
@@ -93,8 +93,9 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
             j++
         } while (firstInRowTerrain != null)
 
-        // After generation updates, rebuild LoDs as well
-        LoDUtils.buildTerrainLodInBackground(modifiedTerrains, null)
+        for (terrain in modifiedTerrains) {
+            Mundus.postEvent(TerrainLoDRebuildEvent(terrain))
+        }
         updateProceduralGenerationInfo()
     }
 

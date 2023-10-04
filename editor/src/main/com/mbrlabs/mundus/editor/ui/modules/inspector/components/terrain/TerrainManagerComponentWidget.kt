@@ -16,10 +16,10 @@ import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetTerrainLayerFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.TerrainLoDRebuildEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
-import com.mbrlabs.mundus.editor.utils.LoDUtils
 
 
 /**
@@ -127,14 +127,10 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     private fun buildLoDs() {
         val components = Array<Component>()
         component.gameObject.findComponentsByType(components, Component.Type.TERRAIN, true)
-        val tcs = components.map { it as TerrainComponent }
 
-        LoDUtils.buildTerrainLodInBackground(tcs) {
-            for (tc in tcs) {
-                // After complete, add to modified assets
-                projectManager.current().assetManager.addModifiedAsset(tc.terrainAsset)
-            }
-            UI.toaster.success("Terrain Level of Details generated.")
+        for (c in components) {
+            Mundus.postEvent(TerrainLoDRebuildEvent(c as TerrainComponent))
+            projectManager.current().assetManager.addModifiedAsset(c.terrainAsset)
         }
     }
 

@@ -351,7 +351,7 @@ public abstract class TerrainBrush extends Tool {
                 if (distanceToRampLine <= halfWidth) {
                     // If not already added, add the terrain to the list of modified terrains
                     if (modifiedTerrains.add(terrainComponent)) {
-                        heightCommand.addTerrain(terrain);
+                        heightCommand.addTerrain(terrainComponent);
                     }
 
                     // Calculate the height from the ramp line
@@ -379,7 +379,6 @@ public abstract class TerrainBrush extends Tool {
         updateTerrain(terrain);
         terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
-        Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
     private static boolean rampIntersectsTerrain(TerrainComponent terrain, Vector3 rampStart, Vector3 rampEnd) {
@@ -486,7 +485,7 @@ public abstract class TerrainBrush extends Tool {
                 if (comparison.compare(this, vertexPos, localBrushPos)) {
                     // If not already added, add the terrain to the list of modified terrains
                     if (modifiedTerrains.add(terrainComponent)) {
-                        heightCommand.addTerrain(terrain);
+                        heightCommand.addTerrain(terrainComponent);
                     }
 
                     // Call the modifier if the comparison function returns true
@@ -507,7 +506,6 @@ public abstract class TerrainBrush extends Tool {
         updateTerrain(terrain);
         terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
-        Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
     private void updateTerrain(Terrain terrain) {
@@ -671,8 +669,9 @@ public abstract class TerrainBrush extends Tool {
 
             }
 
-            // Rebuild the LoD for all modified terrains
-            LoDUtils.buildTerrainLodInBackground(modifiedTerrains, null);
+            for (TerrainComponent terrainComponent : modifiedTerrains) {
+                Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
+            }
         }
 
         if (splatmapModified && paintCommand != null) {

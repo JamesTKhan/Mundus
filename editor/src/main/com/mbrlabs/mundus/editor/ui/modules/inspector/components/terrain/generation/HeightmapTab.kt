@@ -84,7 +84,7 @@ class HeightmapTab(private val terrainComponent: TerrainComponent) : Tab(false, 
 
     private fun loadHeightMap(heightMap: FileHandle) {
         val terrain = terrainComponent.terrainAsset.terrain
-        val command = TerrainHeightCommand(terrain)
+        val command = TerrainHeightCommand(terrainComponent)
         command.setHeightDataBefore(terrain.heightData)
 
         val minMax = loadHeightMapMaxHeight.float

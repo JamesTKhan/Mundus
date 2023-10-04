@@ -16,7 +16,7 @@
 
 package com.mbrlabs.mundus.editor.history.commands
 
-import com.mbrlabs.mundus.commons.terrain.Terrain
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.history.Command
 
 /**
@@ -25,14 +25,14 @@ import com.mbrlabs.mundus.editor.history.Command
  * @version June 30, 2023
  */
 class TerrainsHeightCommand : Command {
-    private var terrainHeightCommands = HashMap<Terrain, TerrainHeightCommand>()
+    private var terrainHeightCommands = HashMap<TerrainComponent, TerrainHeightCommand>()
 
     /**
      * Add a terrain to be modified and set the height data before.
      */
-    fun addTerrain(terrain: Terrain) {
+    fun addTerrain(terrain: TerrainComponent) {
         val command = TerrainHeightCommand(terrain)
-        command.setHeightDataBefore(terrain.heightData)
+        command.setHeightDataBefore(terrain.terrainAsset.terrain.heightData)
         terrainHeightCommands[terrain] = command
     }
 
@@ -43,7 +43,7 @@ class TerrainsHeightCommand : Command {
     fun setHeightDataAfter() {
         for (terrain in terrainHeightCommands.keys) {
             val command = terrainHeightCommands[terrain]
-            command!!.setHeightDataAfter(terrain.heightData)
+            command!!.setHeightDataAfter(terrain.terrainAsset.terrain.heightData)
         }
     }
 

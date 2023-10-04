@@ -9,6 +9,7 @@ import com.mbrlabs.mundus.commons.terrain.LodLevel;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
 
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
 /**
  * @author JamesTKhan
@@ -20,15 +21,13 @@ public class LoDUtils {
         void onComplete();
     }
 
-    private static final Array<TerrainComponent> tcs = new Array<>();
-
     /**
-     * Builds the LoD levels for the given terrain components on a background thread.
+     * Returns a Callable that builds the LoD levels for the given terrain components on a background thread.
      * @param components The terrain components to build LoD levels for
      * @param callback (optional) The callback to call when the LoD levels are built
      */
-    public static void buildTerrainLodInBackground(Iterable<TerrainComponent> components, TerrainLodCallback callback) {
-        tcs.clear();
+    public static Callable<Void> createTerrainLodProcessingTask(Iterable<TerrainComponent> components, TerrainLodCallback callback) {
+        Array<TerrainComponent> tcs = new Array<>();
 
         // Copy the iterable to an array so we can access it from another thread without
         // worrying about what happens to it on the main thread
@@ -36,7 +35,7 @@ public class LoDUtils {
             tcs.add(tc);
         }
 
-        new Thread(() -> {
+        Callable<Void> callable = () -> {
             HashMap<TerrainComponent, MeshUtils.SimplifyResult[]> lodData = new HashMap<>();
             for (TerrainComponent terrain : tcs) {
                 lodData.put(terrain, buildTerrainLod(terrain, Terrain.LOD_MULTIPLIERS));
@@ -66,8 +65,9 @@ public class LoDUtils {
                     callback.onComplete();
                 }
             });
-
-        }).start();
+            return null;
+        };
+        return callable;
     }
 
     /**
