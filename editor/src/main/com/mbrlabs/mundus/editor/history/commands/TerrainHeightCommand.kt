@@ -39,13 +39,19 @@ class TerrainHeightCommand(private var terrain: Terrain?) : Command {
     }
 
     override fun execute() {
-        terrain!!.heightData = heightDataAfter
+        copyHeightData(heightDataAfter!!)
         terrain!!.update()
     }
 
     override fun undo() {
-        terrain!!.heightData = heightDataBefore
+        copyHeightData(heightDataBefore!!)
         terrain!!.update()
+    }
+
+    private fun copyHeightData(data: FloatArray) {
+        for (i in data.indices) {
+            terrain!!.heightData!![i] = data[i]
+        }
     }
 
 }
