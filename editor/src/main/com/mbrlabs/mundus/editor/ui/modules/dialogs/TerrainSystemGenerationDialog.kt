@@ -94,6 +94,7 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
         } while (firstInRowTerrain != null)
 
         for (terrain in modifiedTerrains) {
+            terrain.lodManager.disable()
             Mundus.postEvent(TerrainLoDRebuildEvent(terrain))
         }
         updateProceduralGenerationInfo()

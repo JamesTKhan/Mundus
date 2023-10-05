@@ -13,6 +13,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
+import com.mbrlabs.mundus.editor.LevelOfDetailScheduler
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetTerrainLayerFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -20,6 +21,7 @@ import com.mbrlabs.mundus.editor.events.TerrainLoDRebuildEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
+import com.mbrlabs.mundus.editor.utils.Scene2DUtils
 
 
 /**
@@ -34,6 +36,7 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
 
     var root = VisTable()
     private var projectManager : ProjectManager = Mundus.inject()
+    private var lodScheduler : LevelOfDetailScheduler = Mundus.inject()
 
     private val updateBtn: VisTextButton = VisTextButton("Change Layers")
     private val triplanarOnBtn: VisTextButton = VisTextButton("Triplanar Toggle On")
@@ -41,9 +44,17 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     private val generationBtn: VisTextButton = VisTextButton("Generation")
     private val generateLoDBtn: VisTextButton = VisTextButton("Build LoDs")
 
+    private val lodSchedulerListener = object : LevelOfDetailScheduler.LodSchedulerListener {
+        override fun onTerrainLoDRebuild(state: LevelOfDetailScheduler.State) {
+            Scene2DUtils.setButtonState(generateLoDBtn, state == LevelOfDetailScheduler.State.COMPLETE)
+        }
+    }
+
     init {
         setupUI()
         setupListeners()
+
+        lodScheduler.addListener(lodSchedulerListener)
     }
 
     override fun setValues(go: GameObject) {
@@ -125,6 +136,7 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     }
 
     private fun buildLoDs() {
+        Scene2DUtils.setButtonState(generateLoDBtn, false)
         val components = Array<Component>()
         component.gameObject.findComponentsByType(components, Component.Type.TERRAIN, true)
 
@@ -155,5 +167,10 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
                 projectManager.current().assetManager.createSplatmapForTerrain(terrain)
             }
         }
+    }
+
+    override fun remove(): Boolean {
+        lodScheduler.removeListener(lodSchedulerListener)
+        return super.remove()
     }
 }

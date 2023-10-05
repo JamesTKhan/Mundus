@@ -78,9 +78,9 @@ public class LoDUtils {
         MeshUtils.SimplifyResult[] results = new MeshUtils.SimplifyResult[simplificationFactors.length];
 
         for (int i = 0; i < simplificationFactors.length; i++) {
-            float multiplier = simplificationFactors[i];
-            float target_error = 1.5f;
-            MeshUtils.SimplifyResult result = MeshUtils.simplify(model, multiplier, target_error);
+            float factor = simplificationFactors[i];
+            float targetError = 2f;
+            MeshUtils.SimplifyResult result = MeshUtils.simplify(model, factor, targetError);
             results[i] = result;
         }
         return results;

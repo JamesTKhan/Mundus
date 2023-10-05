@@ -146,6 +146,7 @@ object Mundus {
             bindSingleton(json)
             bindSingleton(globalPrefManager)
             bindSingleton(glProfiler)
+            bindSingleton(levelOfDetailScheduler)
 
             bindSingleton(MetaSaver())
             bindSingleton(MetaLoader())

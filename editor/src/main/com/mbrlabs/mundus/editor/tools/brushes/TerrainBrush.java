@@ -376,6 +376,7 @@ public abstract class TerrainBrush extends Tool {
 
         if (!modified) return;
 
+        terrainComponent.getLodManager().disable();
         updateTerrain(terrain);
         terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());

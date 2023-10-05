@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.editor
 
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.Timer
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
@@ -20,7 +21,20 @@ class LevelOfDetailScheduler : TerrainVerticesChangedEvent.TerrainVerticesChange
     TerrainLoDRebuildEvent.TerrainLoDRebuildEventListener, Disposable {
     var executorService: ExecutorService = Executors.newSingleThreadExecutor()
 
+    enum class State {
+        PROCESSING, COMPLETE
+    }
+
+    /**
+     * Listener for LoD rebuild events.
+     */
+    interface LodSchedulerListener {
+        fun onTerrainLoDRebuild(state: State)
+    }
+
+    private var interval = 5
     private var timer: Timer.Task? = null
+    private var listeners = Array<LodSchedulerListener>()
     private var terrainSet = HashSet<TerrainComponent>()
 
     init {
@@ -31,14 +45,16 @@ class LevelOfDetailScheduler : TerrainVerticesChangedEvent.TerrainVerticesChange
 
                 if (terrainSet.isEmpty()) return
 
+                listeners.forEach { it.onTerrainLoDRebuild(State.PROCESSING) }
                 val callable = LoDUtils.createTerrainLodProcessingTask(terrainSet) {
                     UI.toaster.success("Terrain Level of Details generated.")
+                    listeners.forEach { it.onTerrainLoDRebuild(State.COMPLETE) }
                 }
 
                 executorService.submit(callable)
                 terrainSet.clear()
             }
-        }, 0f, 1f)
+        }, 0f, interval.toFloat())
 
     }
 
@@ -48,6 +64,14 @@ class LevelOfDetailScheduler : TerrainVerticesChangedEvent.TerrainVerticesChange
 
     override fun onTerrainLoDRebuild(event: TerrainLoDRebuildEvent) {
         terrainSet.add(event.terrainComponent)
+    }
+
+    fun addListener(listener: LodSchedulerListener) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: LodSchedulerListener) {
+        listeners.removeValue(listener, true)
     }
 
     override fun dispose() {
