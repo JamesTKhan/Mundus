@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListener {
     private var loadingDialog: VisDialog? = null
-    private lateinit var parentGO: GameObject
+    private var parentGO: GameObject? = null
 
     val root = VisTable()
 
@@ -128,7 +128,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         super.draw(batch, parentAlpha)
     }
 
-    fun createTerrainChunk(res: Int, width: Int, xIteration: Int, yIteration: Int, name: String) {
+    fun createTerrainChunk(res: Int, width: Int, multipleTerrain: Boolean, xIteration: Int, yIteration: Int, name: String) {
         terrainName = name
         executor = Executors.newFixedThreadPool(4)
         terraformExecutor = Executors.newSingleThreadExecutor()
@@ -140,8 +140,12 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         // Save context here so that the ID above is persisted in .pro file
         ioManager.saveProjectContext(projectManager.current())
 
-        parentGO = GameObject(context.currScene.sceneGraph, "$terrainName Manager", goID)
-        parentGO.addComponent(createTerrainManagerComponent(parentGO))
+        if (multipleTerrain) {
+            parentGO = GameObject(context.currScene.sceneGraph, "$terrainName Manager", goID)
+            parentGO!!.addComponent(createTerrainManagerComponent(parentGO!!))
+        } else {
+            parentGO = null
+        }
 
         val layerName = "${terrainName}.layer"
         if (projectManager.current().assetManager.assetExists(layerName)) {
@@ -150,21 +154,33 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         }
 
         var assetExists = false
-        for (i in 0 until xIteration) {
-            for (j in 0 until yIteration) {
+        if (multipleTerrain) {
+            for (i in 0 until xIteration) {
+                for (j in 0 until yIteration) {
 
-                // Before we start, make sure the terrain name does not already exist
-                val terraFileName = "${terrainName}$i-$j.terra.meta"
-                if (projectManager.current().assetManager.assetExists(terraFileName)) {
-                    assetExists = true
-                    assetsToCreate.clear()
-                    Dialogs.showErrorDialog(UI, "Terrain with name $terrainName already exists. Pick a different name or\nremove existing asset.")
-                    break
+                    // Before we start, make sure the terrain name does not already exist
+                    val terraFileName = "${terrainName}$i-$j.terra.meta"
+                    if (projectManager.current().assetManager.assetExists(terraFileName)) {
+                        assetExists = true
+                        assetsToCreate.clear()
+                        Dialogs.showErrorDialog(UI, "Terrain with name $terrainName already exists. Pick a different name or\nremove existing asset.")
+                        break
+                    }
+
+                    assetsToCreate.add(intArrayOf(res, width, i, j))
                 }
-
-                assetsToCreate.add(intArrayOf(res, width, i, j))
+                if (assetExists) break
             }
-            if (assetExists) break
+        } else {
+            // Before we start, make sure the terrain name does not already exist
+            val terraFileName = "${terrainName}.terra.meta"
+            if (projectManager.current().assetManager.assetExists(terraFileName)) {
+                assetExists = true
+                assetsToCreate.clear()
+                Dialogs.showErrorDialog(UI, "Terrain with name $terrainName already exists. Pick a different name or\nremove existing asset.")
+            }
+
+            assetsToCreate.add(intArrayOf(res, width, 0, 0))
         }
 
         if (assetExists) return
@@ -176,8 +192,10 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         val button = loadingDialog!!.buttonsTable.getChild(0) as VisTextButton
         button.isDisabled = true
 
-        sceneGraph.addGameObject(parentGO)
-        Mundus.postEvent(SceneGraphChangedEvent())
+        if (multipleTerrain) {
+            sceneGraph.addGameObject(parentGO)
+            Mundus.postEvent(SceneGraphChangedEvent())
+        }
     }
 
     private fun createTerrainManagerComponent(parentGO: GameObject): TerrainManagerComponent {
@@ -260,7 +278,12 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
                     projectManager.current().assetManager.addNewAsset(asset)
                     Mundus.postEvent(AssetImportEvent(asset))
 
-                    parentGO.addChild(terrainGO)
+                    if (isMultipleTerrain()) {
+                        parentGO!!.addChild(terrainGO)
+                    } else {
+                        sceneGraph.addGameObject(terrainGO)
+                        Mundus.postEvent(SceneGraphChangedEvent())
+                    }
 
                     // Now Queue it up for terraforming
                     assetsToTerraform[Vector2(i.toFloat(), j.toFloat())] = component
@@ -299,11 +322,11 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
     }
 
     private fun createTerrainAsset(resolution: Int, width: Int, i: Int, j: Int): TerrainAsset {
+        val terrainAssetName = if (isMultipleTerrain()) "${terrainName}$i-$j" else terrainName!!
+
         // create asset
         val asset: TerrainAsset = projectManager.current().assetManager.createTerraAssetAsync(
-            "${terrainName}$i-$j",
-            resolution, width, 512
-        )
+                terrainAssetName, resolution, width, 512)
 
         return asset
     }
@@ -334,6 +357,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
 
         terrainChunkMatrix = null
     }
+
+    private fun isMultipleTerrain(): Boolean = parentGO != null
 
     inner class TerrainChunkMatrix(x: Int, y: Int) {
 

@@ -109,6 +109,7 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
     fun getTerrainWidth(): Int = terrainWidth.int
     fun getMinHeightValue(): Float = minHeight.float
     fun getMaxHeightValue(): Float = maxHeight.float
+    fun isMultipleTerrain(): Boolean = multipleTerrain.isChecked
     fun getGridX(): Int = gridX.int
     fun getGridZ(): Int = gridZ.int
 
