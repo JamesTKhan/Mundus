@@ -97,7 +97,6 @@ object UI : Stage(ScreenViewport()) {
     val directionalLightDialog: DirectionalLightsDialog = DirectionalLightsDialog()
     val shadowSettingsDialog: ShadowSettingsDialog = ShadowSettingsDialog()
     val addComponentDialog: AddComponentDialog = AddComponentDialog()
-    val addTerrainDialog: AddTerrainDialog = AddTerrainDialog()
     val addWaterDialog: AddWaterDialog = AddWaterDialog()
     val addTerrainChunksDialog: AddTerrainChunksDialog = AddTerrainChunksDialog()
     val terrainSystemGenerationDialog : TerrainSystemGenerationDialog = TerrainSystemGenerationDialog()

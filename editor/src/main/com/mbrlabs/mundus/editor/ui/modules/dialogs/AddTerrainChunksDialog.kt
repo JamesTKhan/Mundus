@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * @author JamesTKhan
  * @version October 24, 2022
  */
-class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListener {
+class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
     private var loadingDialog: VisDialog? = null
     private var parentGO: GameObject? = null
 
