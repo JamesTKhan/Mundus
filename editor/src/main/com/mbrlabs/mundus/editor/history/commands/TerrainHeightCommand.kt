@@ -43,12 +43,14 @@ class TerrainHeightCommand(private var terrain: TerrainComponent?) : Command {
     override fun execute() {
         copyHeightData(heightDataAfter!!)
         terrain!!.terrainAsset.terrain.update()
+        terrain!!.lodManager.disable()
         Mundus.postEvent(TerrainVerticesChangedEvent(terrain!!))
     }
 
     override fun undo() {
         copyHeightData(heightDataBefore!!)
         terrain!!.terrainAsset.terrain.update()
+        terrain!!.lodManager.disable()
         Mundus.postEvent(TerrainVerticesChangedEvent(terrain!!))
     }
 
