@@ -9,11 +9,13 @@ import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.commons.terrain.SplatMapResolution
 import com.mbrlabs.mundus.editor.terrain.HeightMapGenerator
 import com.mbrlabs.mundus.editor.terrain.Terraformer
 import com.mbrlabs.mundus.editor.ui.UI
@@ -45,6 +47,7 @@ class HeightMapTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false
     private val maxHeightField = FloatField(true)
     private val minHeightField = FloatField(true)
     private val terrainWidth = IntegerField(false)
+    private val splatMapSelectBox: VisSelectBox<String> = VisSelectBox()
 
     private lateinit var heightMapData: FloatArray
     private var imageWidth: Int = 0
@@ -85,24 +88,39 @@ class HeightMapTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false
         leftTable.add(ToolTipLabel("Smoothing Strength: ", "The strength of the smoothing pass.")).left()
         leftTable.add(smoothingSlider).left().row()
 
+        val centerTable = VisTable()
+        centerTable.defaults().pad(5f).top()
+
+        centerTable.add(VisLabel("Name: ")).left()
+        centerTable.add(name).row()
+
+        centerTable.add(VisLabel("Width: ")).left()
+        centerTable.add(terrainWidth).left().row()
+
+        centerTable.add(VisLabel("Min Height: ")).left()
+        centerTable.add(minHeightField).left().row()
+
+        centerTable.add(VisLabel("Max Height: ")).left()
+        centerTable.add(maxHeightField).left().row()
+
         val rightTable = VisTable()
         rightTable.defaults().pad(5f).top()
 
-        rightTable.add(VisLabel("Name: ")).left()
-        rightTable.add(name).row()
+        splatMapSelectBox.setItems(
+                SplatMapResolution._512.value,
+                SplatMapResolution._1024.value,
+                SplatMapResolution._2048.value,
+        )
 
-        rightTable.add(VisLabel("Width: ")).left()
-        rightTable.add(terrainWidth).left().row()
-
-        rightTable.add(VisLabel("Min Height: ")).left()
-        rightTable.add(minHeightField).left().row()
-
-        rightTable.add(VisLabel("Max Height: ")).left()
-        rightTable.add(maxHeightField).left().row()
+        rightTable.add(ToolTipLabel("SplatMap Resolution: ", "The resolution of the splatmap for texture painting on the terrain.\n" +
+                "Higher resolution results in smoother texture painting at the cost of more memory usage and performance slowdowns when painting.\n" +
+                "If you are targeting HTML, 512 is recommended")).left()
+        rightTable.add(splatMapSelectBox).left().row()
 
         val container = VisTable()
-        container.add(leftTable).left()
-        container.add(rightTable).left()
+        container.add(leftTable).left().top()
+        container.add(centerTable).left().top()
+        container.add(rightTable).left().top()
 
         root.add(container).left().row()
 
@@ -177,7 +195,7 @@ class HeightMapTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false
         // Now, calculate the vertex resolution
         val resolution = originalMap.width / chunks - 1
         // Create terrain
-        dialog.createTerrainChunk(resolution, width, true, chunks, chunks, name.text, 512) // TODO add splatmap resolution field into heightmap tab also
+        dialog.createTerrainChunk(resolution, width, true, chunks, chunks, name.text, SplatMapResolution.valueFromString(splatMapSelectBox.selected).resolutionValues)
 
         originalMap.dispose()
     }
