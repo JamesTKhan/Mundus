@@ -153,34 +153,12 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
             return
         }
 
-        var assetExists = false
+        // Before we start, make sure the terrain name does not already exist
+        val assetExists: Boolean
         if (multipleTerrain) {
-            for (i in 0 until xIteration) {
-                for (j in 0 until yIteration) {
-
-                    // Before we start, make sure the terrain name does not already exist
-                    val terraFileName = "${terrainName}$i-$j.terra.meta"
-                    if (projectManager.current().assetManager.assetExists(terraFileName)) {
-                        assetExists = true
-                        assetsToCreate.clear()
-                        Dialogs.showErrorDialog(UI, "Terrain with name $terrainName already exists. Pick a different name or\nremove existing asset.")
-                        break
-                    }
-
-                    assetsToCreate.add(intArrayOf(res, width, i, j))
-                }
-                if (assetExists) break
-            }
+            assetExists = checkMultipleTerrainAssetsExist(res, width, xIteration, yIteration)
         } else {
-            // Before we start, make sure the terrain name does not already exist
-            val terraFileName = "${terrainName}.terra.meta"
-            if (projectManager.current().assetManager.assetExists(terraFileName)) {
-                assetExists = true
-                assetsToCreate.clear()
-                Dialogs.showErrorDialog(UI, "Terrain with name $terrainName already exists. Pick a different name or\nremove existing asset.")
-            }
-
-            assetsToCreate.add(intArrayOf(res, width, 0, 0))
+            assetExists = checkSingleTerrainAssetExists(res, width)
         }
 
         if (assetExists) return
@@ -196,6 +174,44 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
             sceneGraph.addGameObject(parentGO)
             Mundus.postEvent(SceneGraphChangedEvent())
         }
+    }
+
+    private fun checkMultipleTerrainAssetsExist(res: Int, width: Int, xIteration: Int, yIteration: Int): Boolean {
+        var assetExists = false
+
+        for (i in 0 until xIteration) {
+            for (j in 0 until yIteration) {
+
+                // Before we start, make sure the terrain name does not already exist
+                val terraFileName = "${terrainName}$i-$j.terra.meta"
+                if (projectManager.current().assetManager.assetExists(terraFileName)) {
+                    assetExists = true
+                    assetsToCreate.clear()
+                    Dialogs.showErrorDialog(UI, "Terrain with name $terrainName already exists. Pick a different name or\nremove existing asset.")
+                    break
+                }
+
+                assetsToCreate.add(intArrayOf(res, width, i, j))
+            }
+            if (assetExists) break
+        }
+
+        return assetExists
+    }
+
+    private fun checkSingleTerrainAssetExists(res: Int, width: Int): Boolean {
+        var assetExists = false
+        val terraFileName = "${terrainName}.terra.meta"
+
+        if (projectManager.current().assetManager.assetExists(terraFileName)) {
+            assetExists = true
+            assetsToCreate.clear()
+            Dialogs.showErrorDialog(UI, "Terrain with name $terrainName already exists. Pick a different name or\nremove existing asset.")
+        } else {
+            assetsToCreate.add(intArrayOf(res, width, 0, 0))
+        }
+
+        return assetExists
     }
 
     private fun createTerrainManagerComponent(parentGO: GameObject): TerrainManagerComponent {
