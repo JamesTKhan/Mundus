@@ -120,7 +120,7 @@ public abstract class TerrainBrush extends Tool {
      * An action that can modify the terrain in some way.
      */
     public interface TerrainModifyAction {
-        void modify(TerrainBrush terrainBrush, Terrain terrain, int x, int z, Vector3 localBrushPos, Vector3 vertexPos);
+        void modify(TerrainBrush terrainBrush, TerrainComponent terrain, int x, int z, Vector3 localBrushPos, Vector3 vertexPos);
     }
 
     /**
@@ -326,7 +326,7 @@ public abstract class TerrainBrush extends Tool {
         float rampLength = localStartPoint.dst(localEndPoint);
 
         // Half width for distance checking
-        float rampWidth = radius * 2f;
+        float rampWidth = getScaledRadius(terrainComponent) * 2f;
         float halfWidth = rampWidth * 0.5f;
 
         Vector3 toVertex = Pools.vector3Pool.obtain();
@@ -386,10 +386,12 @@ public abstract class TerrainBrush extends Tool {
         Vector3 terrainMax = Pools.vector3Pool.obtain();
         Vector3 rampMin = Pools.vector3Pool.obtain();
         Vector3 rampMax = Pools.vector3Pool.obtain();
+        Vector3 scale = Pools.vector3Pool.obtain();
 
         // Get the min and max coordinates of the TerrainComponent's AABB
         terrain.gameObject.getPosition(terrainMin);
-        terrainMax.set(terrainMin).add(terrain.getTerrainAsset().getTerrain().terrainWidth, 0, terrain.getTerrainAsset().getTerrain().terrainDepth);
+        terrain.gameObject.getScale(scale);
+        terrainMax.set(terrainMin).add(terrain.getTerrainAsset().getTerrain().terrainWidth * scale.x, 0, terrain.getTerrainAsset().getTerrain().terrainDepth * scale.z);
 
         // Get the min and max coordinates of the ramp and expand by the ramp's radius
         rampMin.set(Math.min(rampStart.x, rampEnd.x) - rampRadius, 0, Math.min(rampStart.z, rampEnd.z) - rampRadius);
@@ -400,12 +402,7 @@ public abstract class TerrainBrush extends Tool {
         boolean intersects = (terrainMin.x <= rampMax.x && terrainMax.x >= rampMin.x) &&
                 (terrainMin.z <= rampMax.z && terrainMax.z >= rampMin.z);
 
-        Pools.free(terrainMin, terrainMax, rampMin, rampMax);
-
-        if (!intersects && terrain.gameObject.name.equals("Terrain60-1")) {
-            int i = 0;
-            Gdx.app.log("TerrainBrush", "Terrain60-1 does not intersect ramp");
-        }
+        Pools.free(terrainMin, terrainMax, rampMin, rampMax, scale);
         return intersects;
     }
 
@@ -468,7 +465,8 @@ public abstract class TerrainBrush extends Tool {
             for (TerrainComponent neighbor : allNeighbors) {
                 if (neighbor == terrainComponent) continue;
 
-                if (brushAffectsTerrain(brushPos, radius, neighbor)) {
+                float scaledRadius = getScaledRadius(neighbor);
+                if (brushAffectsTerrain(brushPos, scaledRadius, neighbor)) {
                     modifyTerrain(neighbor, modifier, comparison, false);
                 }
             }
@@ -494,7 +492,7 @@ public abstract class TerrainBrush extends Tool {
                     }
 
                     // Call the modifier if the comparison function returns true
-                    modifier.modify(this, terrain, x, z, localBrushPos, vertexPos);
+                    modifier.modify(this, terrainComponent, x, z, localBrushPos, vertexPos);
                     terrain.modifyVertex(x, z);
                     modified = true;
                 }
@@ -572,6 +570,13 @@ public abstract class TerrainBrush extends Tool {
 
     public float getRadius() {
         return radius;
+    }
+
+    public float getScaledRadius(TerrainComponent terrainComponent) {
+        Vector3 scale = Pools.vector3Pool.obtain();
+        float scaledRadius = radius / terrainComponent.gameObject.getScale(scale).x;
+        Pools.free(scale);
+        return scaledRadius;
     }
 
     public static float getStrength() {
@@ -737,11 +742,13 @@ public abstract class TerrainBrush extends Tool {
         Vector3 center = Pools.vector3Pool.obtain();
         Vector3 min = Pools.vector3Pool.obtain();
         Vector3 max = Pools.vector3Pool.obtain();
+        Vector3 scale = Pools.vector3Pool.obtain();
         BoundingBox terrainBounds = Pools.boundingBoxPool.obtain();
         BoundingBox brushBounds = Pools.boundingBoxPool.obtain();
 
         bPos.set(brushPos).y = 0;
-        dim.set(this.terrainComponent.getDimensions()).scl(0.5f).y = 0;
+        terrainComponent.gameObject.getScale(scale);
+        dim.set(this.terrainComponent.getDimensions()).scl(scale).scl(0.5f).y = 0;
 
         terrainComponent.gameObject.getPosition(tVec1);
         center.set(terrainComponent.getCenter()).add(tVec1).y = 0;
@@ -766,6 +773,7 @@ public abstract class TerrainBrush extends Tool {
         Pools.vector3Pool.free(center);
         Pools.vector3Pool.free(min);
         Pools.vector3Pool.free(max);
+        Pools.vector3Pool.free(scale);
         Pools.boundingBoxPool.free(terrainBounds);
         Pools.boundingBoxPool.free(brushBounds);
 

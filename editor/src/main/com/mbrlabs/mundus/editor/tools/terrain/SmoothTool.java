@@ -18,6 +18,7 @@
 package com.mbrlabs.mundus.editor.tools.terrain;
 
 import com.badlogic.gdx.math.Interpolation;
+import com.mbrlabs.mundus.commons.terrain.Terrain;
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush;
 
 /**
@@ -31,11 +32,12 @@ public class SmoothTool extends RadiusTerrainTool {
     private float averageHeight = 0;
 
     // Interpolate heights to average height with falloff
-    private final TerrainBrush.TerrainModifyAction modifier = (brush, terrain, x, z, tVec2, vertexPos) -> {
+    private final TerrainBrush.TerrainModifyAction modifier = (brush, terrainComponent, x, z, tVec2, vertexPos) -> {
+        Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
         final int index = z * terrain.vertexResolution + x;
         float heightAtIndex = terrain.heightData[index];
         // Determine how much to interpolate based on distance from radius
-        float elevation = brush.getValueOfBrushPixmap(tVec2.x, tVec2.z, vertexPos.x, vertexPos.z, brush.getRadius());
+        float elevation = brush.getValueOfBrushPixmap(tVec2.x, tVec2.z, vertexPos.x, vertexPos.z, brush.getScaledRadius(terrainComponent));
         float smoothedHeight = Interpolation.smooth2.apply(heightAtIndex, averageHeight, elevation * TerrainBrush.getStrength());
         terrain.heightData[index] = smoothedHeight;
     };
