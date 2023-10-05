@@ -310,7 +310,7 @@ public abstract class TerrainBrush extends Tool {
 
             for (TerrainComponent neighbor : allNeighbors) {
                 if (neighbor == terrainComponent) continue;
-                if (!rampIntersectsTerrain(neighbor, brushPos, rampEndPoint)) continue;
+                if (!rampIntersectsTerrain(neighbor, brushPos, rampEndPoint, radius)) continue;
 
                 createRamp(neighbor, false);
             }
@@ -381,7 +381,7 @@ public abstract class TerrainBrush extends Tool {
         Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
-    private static boolean rampIntersectsTerrain(TerrainComponent terrain, Vector3 rampStart, Vector3 rampEnd) {
+    private static boolean rampIntersectsTerrain(TerrainComponent terrain, Vector3 rampStart, Vector3 rampEnd, float rampRadius) {
         Vector3 terrainMin = Pools.vector3Pool.obtain();
         Vector3 terrainMax = Pools.vector3Pool.obtain();
         Vector3 rampMin = Pools.vector3Pool.obtain();
@@ -391,9 +391,10 @@ public abstract class TerrainBrush extends Tool {
         terrain.gameObject.getPosition(terrainMin);
         terrainMax.set(terrainMin).add(terrain.getTerrainAsset().getTerrain().terrainWidth, 0, terrain.getTerrainAsset().getTerrain().terrainDepth);
 
-        // Get the min and max coordinates of the ramp
-        rampMin.set(Math.min(rampStart.x, rampEnd.x), 0, Math.min(rampStart.z, rampEnd.z));
-        rampMax.set(Math.max(rampStart.x, rampEnd.x), 0, Math.max(rampStart.z, rampEnd.z));
+        // Get the min and max coordinates of the ramp and expand by the ramp's radius
+        rampMin.set(Math.min(rampStart.x, rampEnd.x) - rampRadius, 0, Math.min(rampStart.z, rampEnd.z) - rampRadius);
+        rampMax.set(Math.max(rampStart.x, rampEnd.x) + rampRadius, 0, Math.max(rampStart.z, rampEnd.z) + rampRadius);
+
 
         // Check if the bounding boxes intersect in the x and z coordinates
         boolean intersects = (terrainMin.x <= rampMax.x && terrainMax.x >= rampMin.x) &&
@@ -401,6 +402,10 @@ public abstract class TerrainBrush extends Tool {
 
         Pools.free(terrainMin, terrainMax, rampMin, rampMax);
 
+        if (!intersects && terrain.gameObject.name.equals("Terrain60-1")) {
+            int i = 0;
+            Gdx.app.log("TerrainBrush", "Terrain60-1 does not intersect ramp");
+        }
         return intersects;
     }
 
