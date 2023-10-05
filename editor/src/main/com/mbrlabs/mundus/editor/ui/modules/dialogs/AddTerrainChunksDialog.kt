@@ -283,9 +283,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
 
                     projectManager.current().assetManager.addAsset(asset)
 
-                    val terrainGO = createTerrainGO(
-                        sceneGraph, goID, "${terrainName}$i-$j", asset
-                    )
+                    val goName = if (isMultipleTerrain()) "${terrainName}$i-$j" else "$terrainName"
+                    val terrainGO = createTerrainGO(sceneGraph, goID, goName, asset)
 
                     terrainGO.setLocalPosition((i * width).toFloat(), 0f, (j * width).toFloat())
                     val component = terrainGO.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
