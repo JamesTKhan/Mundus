@@ -44,11 +44,11 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_VERTEX_RESOLUTION = 180;
     public static final int DEFAULT_UV_SCALE = 60;
 
-    /** The indices multiplier for each LoD level. */
-    public static final float[] LOD_MULTIPLIERS = new float[] {.65f, .35f, .1f };
+    /** The simplification factors for each LoD level. */
+    public static final float[] LOD_SIMPLIFICATION_FACTORS = new float[] {.65f, .2f, .1f };
 
     /** The number of LoD levels. +1 for base mesh */
-    public static final int DEFAULT_LODS = LOD_MULTIPLIERS.length + 1;
+    public static final int DEFAULT_LODS = LOD_SIMPLIFICATION_FACTORS.length + 1;
 
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();

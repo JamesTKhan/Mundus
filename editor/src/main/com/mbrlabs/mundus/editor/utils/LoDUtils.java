@@ -38,14 +38,14 @@ public class LoDUtils {
         Callable<Void> callable = () -> {
             HashMap<TerrainComponent, MeshUtils.SimplifyResult[]> lodData = new HashMap<>();
             for (TerrainComponent terrain : tcs) {
-                lodData.put(terrain, buildTerrainLod(terrain, Terrain.LOD_MULTIPLIERS));
+                lodData.put(terrain, buildTerrainLod(terrain, Terrain.LOD_SIMPLIFICATION_FACTORS));
             }
 
             Gdx.app.postRunnable(() -> {
                 // Now we have all the lod data, convert it to libGDX meshes on main thread
                 for (TerrainComponent terrain : lodData.keySet()) {
                     MeshUtils.SimplifyResult[] results = lodData.get(terrain);
-                    LodLevel[] levels = new LodLevel[Terrain.LOD_MULTIPLIERS.length + 1]; // +1 for base lod
+                    LodLevel[] levels = new LodLevel[Terrain.LOD_SIMPLIFICATION_FACTORS.length + 1]; // +1 for base lod
 
                     // Set base lod to the original meshes
                     levels[0] = new LodLevel(terrain.getTerrainAsset().getTerrain().getModel().meshes.toArray(Mesh.class));
@@ -73,13 +73,14 @@ public class LoDUtils {
     /**
      * Simplify the given terrain based on multipliers. 0.5 = target 50% of the original indices.
      */
-    public static MeshUtils.SimplifyResult[] buildTerrainLod(TerrainComponent terrain, float[] multipliers) {
+    public static MeshUtils.SimplifyResult[] buildTerrainLod(TerrainComponent terrain, float[] simplificationFactors) {
         Model model = terrain.getTerrainAsset().getTerrain().getModel();
-        MeshUtils.SimplifyResult[] results = new MeshUtils.SimplifyResult[multipliers.length];
+        MeshUtils.SimplifyResult[] results = new MeshUtils.SimplifyResult[simplificationFactors.length];
 
-        for (int i = 0; i < multipliers.length; i++) {
-            float multiplier = multipliers[i];
-            MeshUtils.SimplifyResult result = MeshUtils.simplify(model, multiplier, 0.1f);
+        for (int i = 0; i < simplificationFactors.length; i++) {
+            float multiplier = simplificationFactors[i];
+            float target_error = 1.5f;
+            MeshUtils.SimplifyResult result = MeshUtils.simplify(model, multiplier, target_error);
             results[i] = result;
         }
         return results;

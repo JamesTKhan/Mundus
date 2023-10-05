@@ -45,11 +45,16 @@ public class MeshUtils {
      * Uses MeshOptimizer Simplfy to simplify the given model. The resulting vertices and indices are returned.
      * in a SimplifyResult object.
      * @param model The model to simplify
-     * @param indiceMultiplier The multiplier to apply to the number of indices .5 == 50% target of original indices
+     * @param simplificationFactor The multiplier to apply to the number of indices .5 == 50% target of original indices
      * @param targetError The target error to use for simplification 0.1f == 10% error
      * @return The SimplifyResult object containing the new vertices and indices
      */
-    public static SimplifyResult simplify(Model model, float indiceMultiplier, float targetError) {
+    public static SimplifyResult simplify(Model model, float simplificationFactor, float targetError) {
+        // validate simplification factor
+        if (simplificationFactor <= 0.0 || simplificationFactor > 1) {
+            throw new IllegalArgumentException("Simplification factor must be > 0 and <= 1");
+        }
+
         float[][] vertices = new float[model.meshes.size][];
         short[][] indices = new short[model.meshes.size][];
 
@@ -80,9 +85,14 @@ public class MeshUtils {
             vertBuffer.put(origVertices);
             vertBuffer.flip();
 
+            float scale = MeshOptimizer.meshopt_simplifyScale(vertBuffer, mesh.getNumVertices(), mesh.getVertexSize());
+
+            // Absolute error must be divided by the scaling factor before passing it to simplify as target_error.
+            float scaledTargetError = targetError / scale;
+
             // Actual simplification
-            int targetindexCount = (int) (mesh.getNumIndices() * indiceMultiplier);
-            long newIndicesCount = MeshOptimizer.meshopt_simplify(destination, source, vertBuffer, mesh.getNumVertices(), mesh.getVertexSize(), targetindexCount, targetError, MeshOptimizer.meshopt_SimplifyLockBorder, null);
+            int targetIndexCount = (int) (mesh.getNumIndices() * simplificationFactor);
+            long newIndicesCount = MeshOptimizer.meshopt_simplify(destination, source, vertBuffer, mesh.getNumVertices(), mesh.getVertexSize(), targetIndexCount, scaledTargetError, MeshOptimizer.meshopt_SimplifyLockBorder, null);
 
             // Optimize the new index buffer for vertex cache efficiency
             ByteBuffer newVertexBuffer = BufferUtils.newByteBuffer(mesh.getNumVertices() * mesh.getVertexSize());

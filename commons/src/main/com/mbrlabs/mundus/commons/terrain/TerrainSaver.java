@@ -44,7 +44,7 @@ public class TerrainSaver {
 
     private static void writeLoDData(TerrainAsset terrain, DataOutputStream outputStream) throws IOException {
         LodLevel[] levels = terrain.getLodLevels();
-        if (levels == null) return;
+        if (levels == null || levels.length == 0) return;
 
         outputStream.writeUTF(HEADER_LOD);
         outputStream.writeInt(levels.length - 1);

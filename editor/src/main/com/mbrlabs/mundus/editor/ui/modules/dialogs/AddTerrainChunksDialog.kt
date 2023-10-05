@@ -295,7 +295,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
             asset.applyDependencies()
 
             // Generate simplified results for LoD
-            val results = LoDUtils.buildTerrainLod(component, Terrain.LOD_MULTIPLIERS)
+            val results = LoDUtils.buildTerrainLod(component, Terrain.LOD_SIMPLIFICATION_FACTORS)
 
             // post a Runnable to the rendering thread that processes the result
             Gdx.app.postRunnable {

@@ -13,14 +13,12 @@ import com.mbrlabs.mundus.commons.terrain.Terrain;
  * @version September 30, 2023
  */
 public class TerrainLoDManager implements LoDManager {
-    private static final Vector3 tmp = new Vector3();
-    private static final Vector3 tmp2 = new Vector3();
-
+    private static final float UPDATE_INTERVAL = 0.5f;
     private int currentLodIndex = 0;
     private boolean lodDirty = false;
     private boolean enabled = true;
-
     private final TerrainComponent tc;
+    private float timeSinceLastUpdate = 0f;
 
     public TerrainLoDManager(TerrainComponent terrainComponent) {
         this.tc = terrainComponent;
@@ -28,22 +26,36 @@ public class TerrainLoDManager implements LoDManager {
 
     @Override
     public void update(float delta) {
-        if (!enabled) return;
-        if (tc.isCulled()) return;
+        if (!enabled || tc.isCulled()) return;
+        timeSinceLastUpdate += delta;
 
-        tmp.set(tc.gameObject.sceneGraph.scene.cam.position);
-        tc.gameObject.getPosition(tmp2);
+        if (timeSinceLastUpdate < UPDATE_INTERVAL) return;
+        timeSinceLastUpdate = 0f;
+
+        Vector3 terrainCenter = Pools.vector3Pool.obtain();
+        Vector3 cameraPosition = Pools.vector3Pool.obtain();
+        Vector3 scale = Pools.vector3Pool.obtain();
 
         // center of terrain
-        tmp2.add(tc.getTerrainAsset().getTerrain().terrainWidth * 0.5f, 0, tc.getTerrainAsset().getTerrain().terrainDepth * 0.5f);
-        float distance = tmp.dst(tmp2);
+        tc.gameObject.getPosition(terrainCenter);
+        tc.gameObject.getScale(scale);
+        float terrainWidth = tc.getTerrainAsset().getTerrain().terrainWidth * scale.x;
+        float terrainWidthHalved = terrainWidth * 0.5f;
+        terrainCenter.add(terrainWidthHalved, 0, terrainWidthHalved);
 
-        int lodLevel = determineLodLevel(distance);
+        cameraPosition.set(tc.gameObject.sceneGraph.scene.cam.position);
+        float distance = cameraPosition.dst(terrainCenter);
+
+        int lodLevel = determineLodLevel(distance, terrainWidth);
+        lodLevel = adjustLodBasedOnCamFar(distance, tc.gameObject.sceneGraph.scene.cam.far, lodLevel);
+
         if ((lodLevel != currentLodIndex || lodDirty) && tc.getTerrainAsset().hasLoD(lodLevel)) {
             currentLodIndex = lodLevel;
             lodDirty = false;
             setLoDLevel(lodLevel);
         }
+
+        Pools.free(terrainCenter, cameraPosition, scale);
     }
 
     @Override
@@ -79,8 +91,8 @@ public class TerrainLoDManager implements LoDManager {
         }
     }
 
-    private int determineLodLevel(float distance) {
-        float distanceThreshold = tc.getTerrainAsset().getTerrain().terrainWidth * 1.2f;
+    private int determineLodLevel(float distance, float terrainWidth) {
+        float distanceThreshold = terrainWidth * 1.2f;
         for (int i = 0; i < Terrain.DEFAULT_LODS; i++) {
             if (distance < (i + 1) * distanceThreshold) {
                 return i;
@@ -88,5 +100,16 @@ public class TerrainLoDManager implements LoDManager {
         }
         return Terrain.DEFAULT_LODS - 1;  // If beyond all thresholds, consider it the furthest LOD level
     }
+
+    private int adjustLodBasedOnCamFar(float distance, float camFar, int currentLod) {
+        float proximityToCamFar = distance / camFar;
+
+        // If within the last 20% of cam.far, use the next LOD level
+        if (proximityToCamFar > 0.8) {
+            return Math.min(currentLod + 1, Terrain.DEFAULT_LODS - 1);
+        }
+        return currentLod;
+    }
+
 
 }
