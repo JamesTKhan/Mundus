@@ -673,7 +673,7 @@ public abstract class TerrainBrush extends Tool {
                     // as calculating normals is more expensive
                     Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
 
-                    terrain.getPlaneMesh().calculateAverageNormals();
+                    terrain.getPlaneMesh().calculateAverageNormals(Pools.vector3Pool);
                     terrain.getPlaneMesh().computeTangents();
                     terrain.getPlaneMesh().updateMeshVertices();
                 }

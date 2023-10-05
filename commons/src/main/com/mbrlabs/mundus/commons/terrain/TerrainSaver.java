@@ -7,6 +7,7 @@ import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Saves a terrain to a .terra file.
@@ -20,9 +21,8 @@ public class TerrainSaver {
     public static final String HEADER_LOD = "LOD";
 
     public static void save(TerrainAsset terrain) throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream(terrain.getFile().file());
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-        DataOutputStream outputStream = new DataOutputStream(bufferedOutputStream);
+        OutputStream fileOutputStream = terrain.getFile().write(false, 8192);
+        DataOutputStream outputStream = new DataOutputStream(fileOutputStream);
 
         outputStream.writeUTF(HEADER_VERSION);
 

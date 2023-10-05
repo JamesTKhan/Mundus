@@ -30,9 +30,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Pool;
 import com.mbrlabs.mundus.commons.dto.LoDDTO;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
+import com.mbrlabs.mundus.commons.utils.Pools;
 
 /**
  * @author Marcus Brummer
@@ -321,8 +323,12 @@ public class Terrain implements Disposable {
     }
 
     public void update() {
+        update(Pools.vector3Pool);
+    }
+
+    public void update(Pool<Vector3> pool) {
         planeMesh.buildVertices();
-        planeMesh.calculateAverageNormals();
+        planeMesh.calculateAverageNormals(pool);
         planeMesh.computeTangents();
         planeMesh.updateMeshVertices();
         planeMesh.resetBoundingBox();

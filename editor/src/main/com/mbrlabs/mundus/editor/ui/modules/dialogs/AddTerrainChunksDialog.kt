@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.HeightMapTerrainTab
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.ProceduralTerrainTab
 import com.mbrlabs.mundus.editor.utils.LoDUtils
+import com.mbrlabs.mundus.editor.utils.ThreadLocalPools
 import com.mbrlabs.mundus.editor.utils.createTerrainGO
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
@@ -292,7 +293,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
                 heightmapTerrainTab.terraform(grid.x.toInt(), grid.y.toInt(), component)
             }
 
-            asset.applyDependencies()
+            asset.updateTerrainMaterial()
+            asset.terrain.update(ThreadLocalPools.vector3ThreadPool.get())
 
             // Generate simplified results for LoD
             val results = LoDUtils.buildTerrainLod(component, Terrain.LOD_SIMPLIFICATION_FACTORS)

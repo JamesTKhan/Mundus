@@ -311,7 +311,10 @@ public class TerrainAsset extends Asset {
 
         lodLevels = new LodLevel[loDDTOs.length + 1]; // +1 for base level
 
-        Mesh[] meshes = terrain.getModel().meshes.toArray(Mesh.class);
+        Mesh[] meshes = new Mesh[terrain.getModel().meshes.size];
+        for (int i = 0; i < meshes.length; i++) {
+            meshes[i] = terrain.getModel().meshes.get(i);
+        }
         lodLevels[0] = new LodLevel(meshes);
 
         // instantiate meshes for each lod level
