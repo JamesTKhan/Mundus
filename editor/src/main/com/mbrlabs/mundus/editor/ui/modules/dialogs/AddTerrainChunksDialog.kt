@@ -128,7 +128,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         super.draw(batch, parentAlpha)
     }
 
-    fun createTerrainChunk(res: Int, width: Int, multipleTerrain: Boolean, xIteration: Int, yIteration: Int, name: String) {
+    fun createTerrainChunk(res: Int, width: Int, multipleTerrain: Boolean, xIteration: Int, yIteration: Int, name: String, splatMapResolution: Int) {
         terrainName = name
         executor = Executors.newFixedThreadPool(4)
         terraformExecutor = Executors.newSingleThreadExecutor()
@@ -156,9 +156,9 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         // Before we start, make sure the terrain name does not already exist
         val assetExists: Boolean
         if (multipleTerrain) {
-            assetExists = checkMultipleTerrainAssetsExist(res, width, xIteration, yIteration)
+            assetExists = checkMultipleTerrainAssetsExist(res, width, splatMapResolution, xIteration, yIteration)
         } else {
-            assetExists = checkSingleTerrainAssetExists(res, width)
+            assetExists = checkSingleTerrainAssetExists(res, width, splatMapResolution)
         }
 
         if (assetExists) return
@@ -176,7 +176,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         }
     }
 
-    private fun checkMultipleTerrainAssetsExist(res: Int, width: Int, xIteration: Int, yIteration: Int): Boolean {
+    private fun checkMultipleTerrainAssetsExist(res: Int, width: Int, splatMapResolution: Int, xIteration: Int, yIteration: Int): Boolean {
         var assetExists = false
 
         for (i in 0 until xIteration) {
@@ -191,7 +191,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
                     break
                 }
 
-                assetsToCreate.add(intArrayOf(res, width, i, j))
+                assetsToCreate.add(intArrayOf(res, width, splatMapResolution, i, j))
             }
             if (assetExists) break
         }
@@ -199,7 +199,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         return assetExists
     }
 
-    private fun checkSingleTerrainAssetExists(res: Int, width: Int): Boolean {
+    private fun checkSingleTerrainAssetExists(res: Int, width: Int, splatMapResolution: Int): Boolean {
         var assetExists = false
         val terraFileName = "${terrainName}.terra.meta"
 
@@ -208,7 +208,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
             assetsToCreate.clear()
             Dialogs.showErrorDialog(UI, "Terrain with name $terrainName already exists. Pick a different name or\nremove existing asset.")
         } else {
-            assetsToCreate.add(intArrayOf(res, width, 0, 0))
+            assetsToCreate.add(intArrayOf(res, width, splatMapResolution, 0, 0))
         }
 
         return assetExists
@@ -257,13 +257,14 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
                 creationThreads.addAndGet(1)
                 val res = arr[0]
                 val width = arr[1]
-                val i = arr[2]
-                val j = arr[3]
+                val splatMapResolution = arr[2]
+                val i = arr[3]
+                val j = arr[4]
 
                 val asset: TerrainAsset
                 val loader: TerrainLoader
                 try {
-                    asset = createTerrainAsset(res, width, i, j)
+                    asset = createTerrainAsset(res, width, splatMapResolution, i, j)
                     asset.meta.terrain.terrainLayerAssetId = terrainLayerAsset.id
                     loader = asset.startAsyncLoad()
                 } catch (ex: AssetAlreadyExistsException) {
@@ -336,12 +337,12 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain Chunks"), TabbedPaneListe
         }
     }
 
-    private fun createTerrainAsset(resolution: Int, width: Int, i: Int, j: Int): TerrainAsset {
+    private fun createTerrainAsset(resolution: Int, width: Int, splatMapResolution: Int, i: Int, j: Int): TerrainAsset {
         val terrainAssetName = if (isMultipleTerrain()) "${terrainName}$i-$j" else terrainName!!
 
         // create asset
         val asset: TerrainAsset = projectManager.current().assetManager.createTerraAssetAsync(
-                terrainAssetName, resolution, width, 512)
+                terrainAssetName, resolution, width, splatMapResolution)
 
         return asset
     }

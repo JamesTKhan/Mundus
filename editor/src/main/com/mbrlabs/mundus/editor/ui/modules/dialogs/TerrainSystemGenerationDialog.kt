@@ -14,7 +14,7 @@ import com.mbrlabs.mundus.editor.ui.widgets.ProceduralGenerationWidget
 
 class TerrainSystemGenerationDialog : BaseDialog("Generation") {
 
-    private val root = ProceduralGenerationWidget(false, false, false, false)
+    private val root = ProceduralGenerationWidget(false, false, false, false, false)
 
     private var terrainManagerComponent : TerrainManagerComponent? = null
 
