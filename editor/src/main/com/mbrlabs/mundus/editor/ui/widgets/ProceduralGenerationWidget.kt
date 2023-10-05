@@ -188,7 +188,7 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
         }
 
         if (iterationFieldsVisible) {
-            leftTable.add(ToolTipLabel("Multiple Terrain", "TODO")).left()
+            leftTable.add(ToolTipLabel("Multiple Terrain", "Multiple terrain means terrain system that contains more then 1 terrains under a parent game object.")).left()
             leftTable.add(multipleTerrain).left().row()
             gridFieldsTable.defaults().pad(4f)
             gridFieldsTable.left().top()
