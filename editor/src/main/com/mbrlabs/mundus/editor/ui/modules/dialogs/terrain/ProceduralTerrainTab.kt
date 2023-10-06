@@ -47,6 +47,6 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
     }
 
     private fun generateTerrain() {
-        dialog.createTerrainChunk(root.getVertexResolution(), root.getTerrainWidth(), root.isMultipleTerrain(), root.getGridX(), root.getGridZ(), root.getTerrainName(), root.getSplatMapResolution())
+        dialog.createTerrainChunk(root.getVertexResolution(), root.getTerrainWidth(), root.isMultipleTerrain(), root.getGridX(), root.getGridZ(), root.getTerrainName(), root.getSplatMapResolution(), root.isGenerateLoD())
     }
 }

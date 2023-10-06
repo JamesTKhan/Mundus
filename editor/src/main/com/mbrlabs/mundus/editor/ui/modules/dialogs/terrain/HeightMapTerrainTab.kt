@@ -42,6 +42,7 @@ class HeightMapTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false
     private val smoothingPasses: IntegerField = IntegerField(false)
     private val applySmoothing: VisCheckBox = VisCheckBox("Apply smoothing")
     private val flipHeightMap: VisCheckBox = VisCheckBox("Flip heightmap")
+    private val genLoD: VisCheckBox = VisCheckBox("Generate Levels of Detail")
 
     private val name = VisTextField("Terrain")
     private val maxHeightField = FloatField(true)
@@ -71,15 +72,16 @@ class HeightMapTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false
         smoothingPasses.text = "1"
         applySmoothing.isChecked = true
         flipHeightMap.isChecked = true
+        genLoD.isChecked = true
         minHeightField.text = "0"
         maxHeightField.text = "300"
         terrainWidth.text = "1200"
 
         val leftTable = VisTable()
         leftTable.defaults().pad(5f).top()
-        leftTable.add(flipHeightMap).left().row()
 
-        leftTable.add(flipHeightMap).left().row()
+        leftTable.add(genLoD).left().row()
+        leftTable.add(flipHeightMap).left()
         leftTable.add(applySmoothing).left().row()
 
         leftTable.add(ToolTipLabel("Smoothing Passes: ", "The amount of smoothing passes to perform.")).left()
@@ -195,7 +197,7 @@ class HeightMapTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false
         // Now, calculate the vertex resolution
         val resolution = originalMap.width / chunks - 1
         // Create terrain
-        dialog.createTerrainChunk(resolution, width, true, chunks, chunks, name.text, SplatMapResolution.valueFromString(splatMapSelectBox.selected).resolutionValues)
+        dialog.createTerrainChunk(resolution, width, true, chunks, chunks, name.text, SplatMapResolution.valueFromString(splatMapSelectBox.selected).resolutionValues, genLoD.isChecked)
 
         originalMap.dispose()
     }

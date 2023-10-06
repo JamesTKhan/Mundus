@@ -19,6 +19,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.ProceduralGeneration
+import com.mbrlabs.mundus.commons.terrain.LodLevel
 import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader
 import com.mbrlabs.mundus.editor.Mundus
@@ -81,6 +82,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
     }
 
     private var generatingTerrain = false
+    private var generateLoD = false
     private var terraformingThreads: AtomicInteger = AtomicInteger(0)
     private var creationThreads: AtomicInteger = AtomicInteger(0)
     private var assetsToTerraform = ConcurrentHashMap<Vector2, TerrainComponent>()
@@ -131,10 +133,11 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
         super.draw(batch, parentAlpha)
     }
 
-    fun createTerrainChunk(res: Int, width: Int, multipleTerrain: Boolean, xIteration: Int, yIteration: Int, name: String, splatMapResolution: Int) {
+    fun createTerrainChunk(res: Int, width: Int, multipleTerrain: Boolean, xIteration: Int, yIteration: Int, name: String, splatMapResolution: Int, genLoD: Boolean) {
         terrainName = name
         executor = Executors.newFixedThreadPool(4)
         terraformExecutor = Executors.newSingleThreadExecutor()
+        generateLoD = genLoD
 
         val context = projectManager.current()
         val sceneGraph = context.currScene.sceneGraph
@@ -269,6 +272,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
                 try {
                     asset = createTerrainAsset(res, width, splatMapResolution, i, j)
                     asset.meta.terrain.terrainLayerAssetId = terrainLayerAsset.id
+                    asset.lodLevels = if (generateLoD) arrayOf<LodLevel>() else null
                     loader = asset.startAsyncLoad()
                 } catch (ex: AssetAlreadyExistsException) {
                     Dialogs.showErrorDialog(stage, "An asset with that name already exists.")
