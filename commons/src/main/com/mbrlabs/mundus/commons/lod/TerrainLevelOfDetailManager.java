@@ -13,7 +13,7 @@ import com.mbrlabs.mundus.commons.utils.Pools;
  * @author JamesTKhan
  * @version September 30, 2023
  */
-public class TerrainLoDManager implements LoDManager {
+public class TerrainLevelOfDetailManager implements LevelOfDetailManager {
     private static final float UPDATE_INTERVAL = 0.5f;
     private int currentLodIndex = 0;
     private boolean lodDirty = false;
@@ -21,7 +21,7 @@ public class TerrainLoDManager implements LoDManager {
     private final TerrainComponent tc;
     private float timeSinceLastUpdate = 0f;
 
-    public TerrainLoDManager(TerrainComponent terrainComponent) {
+    public TerrainLevelOfDetailManager(TerrainComponent terrainComponent) {
         this.tc = terrainComponent;
     }
 

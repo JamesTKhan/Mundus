@@ -27,8 +27,8 @@ import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.lod.LoDManager;
-import com.mbrlabs.mundus.commons.lod.TerrainLoDManager;
+import com.mbrlabs.mundus.commons.lod.LevelOfDetailManager;
+import com.mbrlabs.mundus.commons.lod.TerrainLevelOfDetailManager;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
@@ -50,12 +50,12 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private TerrainComponent bottomNeighbor;
     private TerrainComponent leftNeighbor;
 
-    private final LoDManager lodManager;
+    private final LevelOfDetailManager lodManager;
 
     public TerrainComponent(GameObject go) {
         super(go);
         type = Component.Type.TERRAIN;
-        lodManager = new TerrainLoDManager(this);
+        lodManager = new TerrainLevelOfDetailManager(this);
     }
 
     @Override
@@ -148,7 +148,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         return out;
     }
 
-    public LoDManager getLodManager() {
+    public LevelOfDetailManager getLodManager() {
         return lodManager;
     }
 

@@ -31,7 +31,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
-import com.mbrlabs.mundus.commons.dto.LoDDTO;
+import com.mbrlabs.mundus.commons.dto.LevelOfDetailDTO;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
 import com.mbrlabs.mundus.commons.utils.Pools;
@@ -77,7 +77,7 @@ public class Terrain implements Disposable {
     private Model model;
     private PlaneMesh planeMesh;
 
-    private LoDDTO[] loDDTOS;
+    private LevelOfDetailDTO[] loDDTOS;
 
     private Terrain(int vertexResolution) {
         this.attribs = new VertexAttributes(
@@ -227,11 +227,11 @@ public class Terrain implements Disposable {
      * Lod DTO's are only used for initial loading of the terrain
      * @param loDDTOS the LoDDTO's to set
      */
-    void setLoDDTOs(LoDDTO[] loDDTOS) {
+    void setLoDDTOs(LevelOfDetailDTO[] loDDTOS) {
         this.loDDTOS = loDDTOS;
     }
 
-    public LoDDTO[] getLoDDTOs() {
+    public LevelOfDetailDTO[] getLoDDTOs() {
         return loDDTOS;
     }
 

@@ -71,10 +71,16 @@ class LevelOfDetailScheduler : TerrainVerticesChangedEvent.TerrainVerticesChange
         }
     }
 
+    /**
+     * Adds a listener to this scheduler.
+     */
     fun addListener(listener: LodSchedulerListener) {
         listeners.add(listener)
     }
 
+    /**
+     * Removes a listener from this scheduler.
+     */
     fun removeListener(listener: LodSchedulerListener) {
         listeners.removeValue(listener, true)
     }

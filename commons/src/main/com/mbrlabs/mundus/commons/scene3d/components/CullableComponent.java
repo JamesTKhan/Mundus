@@ -151,6 +151,10 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         orientedBoundingBox.set(tmpBounds, modelInstance.transform);
     }
 
+    /**
+     * Updates the dimensions of the cullable component.
+     * This should be called only when necessary, as it is a relatively expensive operation.
+     */
     public void updateDimensions() {
         if (modelInstance == null) return;
         setDimensions(modelInstance);

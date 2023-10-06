@@ -6,7 +6,7 @@ package com.mbrlabs.mundus.commons.dto;
  * @author JamesTKhan
  * @version September 29, 2023
  */
-public class LoDDTO {
+public class LevelOfDetailDTO {
 
     // [Mesh][Vertices]
     private final float[][] vertices;
@@ -14,7 +14,7 @@ public class LoDDTO {
     // [Mesh][Indices]
     private final short[][] indices;
 
-    public LoDDTO(float[][] vertices, short[][] indices) {
+    public LevelOfDetailDTO(float[][] vertices, short[][] indices) {
         this.vertices = vertices;
         this.indices = indices;
     }

@@ -24,7 +24,7 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
-import com.mbrlabs.mundus.commons.dto.LoDDTO;
+import com.mbrlabs.mundus.commons.dto.LevelOfDetailDTO;
 import com.mbrlabs.mundus.commons.terrain.LodLevel;
 import com.mbrlabs.mundus.commons.terrain.SplatMap;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
@@ -85,6 +85,10 @@ public class TerrainAsset extends Asset {
         return lodLevels[lodLevel];
     }
 
+    /**
+     * Returns all lod levels for this terrain. May return null if this terrain does not use lod.
+     * @return all lod levels for this terrain or null if this terrain does not use lod
+     */
     public LodLevel[] getLodLevels() {
         return lodLevels;
     }
@@ -319,7 +323,7 @@ public class TerrainAsset extends Asset {
     }
 
     private void loadLodLevels() {
-        LoDDTO[] loDDTOs = terrain.getLoDDTOs();
+        LevelOfDetailDTO[] loDDTOs = terrain.getLoDDTOs();
         if (loDDTOs == null) return;
 
         lodLevels = new LodLevel[loDDTOs.length + 1]; // +1 for base level
@@ -334,7 +338,7 @@ public class TerrainAsset extends Asset {
         for (int i = 0; i < loDDTOs.length; i++) {
             Mesh[] lodMeshes = new Mesh[loDDTOs[i].getVertices().length];
             for (int j = 0; j < lodMeshes.length; j++) {
-                LoDDTO dto = loDDTOs[i];
+                LevelOfDetailDTO dto = loDDTOs[i];
                 Mesh mesh = new Mesh(true, dto.getVertices()[j].length, dto.getIndices()[j].length, meshes[j].getVertexAttributes());
                 mesh.setVertices(dto.getVertices()[j]);
                 mesh.setIndices(dto.getIndices()[j]);

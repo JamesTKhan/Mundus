@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain;
-import com.mbrlabs.mundus.commons.dto.LoDDTO;
+import com.mbrlabs.mundus.commons.dto.LevelOfDetailDTO;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -99,7 +99,7 @@ public class TerrainLoader extends AsynchronousAssetLoader<Terrain, TerrainLoade
                     break;
                 case TerrainSaver.HEADER_LOD:
                     int lodCount = is.readInt();
-                    result.loDDTOS = new LoDDTO[lodCount];
+                    result.loDDTOS = new LevelOfDetailDTO[lodCount];
                     for (int i = 0; i < lodCount; i++) {
 
                         int meshCount = is.readInt(); // Number of meshes in this LOD
@@ -121,7 +121,7 @@ public class TerrainLoader extends AsynchronousAssetLoader<Terrain, TerrainLoade
                         }
 
                         // Cannot instantiate meshes here so we store the data in a DTO
-                        result.loDDTOS[i] = new LoDDTO(lodVertices, lodIndices);
+                        result.loDDTOS[i] = new LevelOfDetailDTO(lodVertices, lodIndices);
                     }
                     break;
             }
@@ -162,7 +162,7 @@ public class TerrainLoader extends AsynchronousAssetLoader<Terrain, TerrainLoade
 
     static private class TerrainLoadResult {
         public float[] heightData;
-        public LoDDTO[] loDDTOS;
+        public LevelOfDetailDTO[] loDDTOS;
     }
 
     private String readHeader(DataInputStream is) {
