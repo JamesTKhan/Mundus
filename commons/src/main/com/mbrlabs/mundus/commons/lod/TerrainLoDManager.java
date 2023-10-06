@@ -1,10 +1,11 @@
-package com.mbrlabs.mundus.commons.utils;
+package com.mbrlabs.mundus.commons.lod;
 
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.terrain.Terrain;
+import com.mbrlabs.mundus.commons.utils.Pools;
 
 /**
  * Manages LoD levels for a terrain component by checking distance from camera.
@@ -28,6 +29,12 @@ public class TerrainLoDManager implements LoDManager {
     public void update(float delta) {
         if (!enabled || tc.isCulled()) return;
         timeSinceLastUpdate += delta;
+
+        if (tc.getTerrainAsset().getLodLevels() == null) {
+            resetBaseMesh();
+            enabled = false;
+            return;
+        }
 
         if (timeSinceLastUpdate < UPDATE_INTERVAL) return;
         timeSinceLastUpdate = 0f;
@@ -91,6 +98,14 @@ public class TerrainLoDManager implements LoDManager {
         }
     }
 
+    private void resetBaseMesh() {
+        for (Node node : tc.getModelInstance().nodes) {
+            MeshPart part = node.parts.get(0).meshPart;
+            part.mesh = tc.getTerrainAsset().getTerrain().getModel().meshes.get(0);
+            part.size = part.mesh.getNumIndices();
+        }
+    }
+
     private int determineLodLevel(float distance, float terrainWidth) {
         float distanceThreshold = terrainWidth * 1.2f;
         for (int i = 0; i < Terrain.DEFAULT_LODS; i++) {
@@ -104,8 +119,9 @@ public class TerrainLoDManager implements LoDManager {
     private int adjustLodBasedOnCamFar(float distance, float camFar, int currentLod) {
         float proximityToCamFar = distance / camFar;
 
-        // If within the last 20% of cam.far, use the next LOD level
-        if (proximityToCamFar > 0.8) {
+        if (proximityToCamFar > 0.9) {
+            return Math.min(currentLod + 2, Terrain.DEFAULT_LODS - 1);
+        } else if (proximityToCamFar > 0.7) {
             return Math.min(currentLod + 1, Terrain.DEFAULT_LODS - 1);
         }
         return currentLod;

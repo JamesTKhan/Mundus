@@ -42,19 +42,11 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     private val triplanarOnBtn: VisTextButton = VisTextButton("Triplanar Toggle On")
     private val triplanarOffBtn: VisTextButton = VisTextButton("Triplanar Toggle Off")
     private val generationBtn: VisTextButton = VisTextButton("Generation")
-    private val generateLoDBtn: VisTextButton = VisTextButton("Build LoDs")
-
-    private val lodSchedulerListener = object : LevelOfDetailScheduler.LodSchedulerListener {
-        override fun onTerrainLoDRebuild(state: LevelOfDetailScheduler.State) {
-            Scene2DUtils.setButtonState(generateLoDBtn, state == LevelOfDetailScheduler.State.COMPLETE)
-        }
-    }
+    private val levelOfDetailBtn: VisTextButton = VisTextButton("Level of Detail")
 
     init {
         setupUI()
         setupListeners()
-
-        lodScheduler.addListener(lodSchedulerListener)
     }
 
     override fun setValues(go: GameObject) {
@@ -78,7 +70,7 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
         buttonTable.add(triplanarOnBtn).row()
         buttonTable.add(triplanarOffBtn).row()
         buttonTable.add(generationBtn).row()
-        buttonTable.add(generateLoDBtn).row()
+        buttonTable.add(levelOfDetailBtn).row()
         root.add(buttonTable).left().row()
 
         collapsibleContent.add(root).left().growX().row()
@@ -128,22 +120,12 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
             }
         })
 
-        generateLoDBtn.addListener(object : ClickListener() {
+        levelOfDetailBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                buildLoDs()
+                UI.levelOfDetailDialog.setTerrainComponentManager(component)
+                UI.showDialog(UI.levelOfDetailDialog)
             }
         })
-    }
-
-    private fun buildLoDs() {
-        Scene2DUtils.setButtonState(generateLoDBtn, false)
-        val components = Array<Component>()
-        component.gameObject.findComponentsByType(components, Component.Type.TERRAIN, true)
-
-        for (c in components) {
-            Mundus.postEvent(TerrainLoDRebuildEvent(c as TerrainComponent))
-            projectManager.current().assetManager.addModifiedAsset(c.terrainAsset)
-        }
     }
 
     private fun setTriplanar(value: Boolean) {
@@ -169,8 +151,4 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
         }
     }
 
-    override fun remove(): Boolean {
-        lodScheduler.removeListener(lodSchedulerListener)
-        return super.remove()
-    }
 }

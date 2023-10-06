@@ -64,6 +64,9 @@ class LevelOfDetailScheduler : TerrainVerticesChangedEvent.TerrainVerticesChange
 
     override fun onTerrainLoDRebuild(event: TerrainLoDRebuildEvent) {
         terrainSet.add(event.terrainComponent)
+        if (event.immediate != null && event.immediate) {
+            timer?.run()
+        }
     }
 
     fun addListener(listener: LodSchedulerListener) {

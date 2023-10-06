@@ -293,10 +293,12 @@ public class TerrainAsset extends Asset {
         return false;
     }
 
+    /**
+     * Sets the lod levels for this terrain asset. Sending null will dispose the current lod levels
+     * and disable lod for this terrain.
+     * @param lodLevels the lod levels or null to disable lod
+     */
     public void setLodLevels(LodLevel[] lodLevels) {
-        if (lodLevels == null || lodLevels.length == 0) {
-            return;
-        }
         if (this.lodLevels != null) {
             for (LodLevel level : this.lodLevels) {
                 level.dispose();

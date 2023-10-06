@@ -27,8 +27,8 @@ import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.utils.LoDManager;
-import com.mbrlabs.mundus.commons.utils.TerrainLoDManager;
+import com.mbrlabs.mundus.commons.lod.LoDManager;
+import com.mbrlabs.mundus.commons.lod.TerrainLoDManager;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;

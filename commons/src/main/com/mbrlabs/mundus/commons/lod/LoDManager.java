@@ -1,4 +1,4 @@
-package com.mbrlabs.mundus.commons.utils;
+package com.mbrlabs.mundus.commons.lod;
 
 /**
  * An interface for managing Level of Detail (LoD) for a object.
