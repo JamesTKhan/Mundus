@@ -95,6 +95,7 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
 
         for (i in 0 until modifiedTerrains.size) {
             val terrain = modifiedTerrains[i]
+            terrain.updateDimensions()
             if (!terrain.terrainAsset.isUsingLod) continue
             terrain.lodManager.disable()
             val immediate = i == modifiedTerrains.size - 1

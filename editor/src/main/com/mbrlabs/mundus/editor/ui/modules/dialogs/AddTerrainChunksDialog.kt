@@ -41,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.abs
 
 
 /**
@@ -330,9 +331,15 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
         terraformExecutor?.submit {
             terraformingThreads.addAndGet(1)
 
+            var minHeight = 0f
+            var maxHeight = 0f
             if (tabbedPane.activeTab is ProceduralTerrainTab) {
+                minHeight = proceduralTerrainTab.getMinHeightValue()
+                maxHeight = proceduralTerrainTab.getMaxHeightValue()
                 proceduralTerrainTab.terraform(grid.x.toInt(), grid.y.toInt(), component)
             } else if (tabbedPane.activeTab is HeightMapTerrainTab) {
+                minHeight = heightmapTerrainTab.getMinHeightValue()
+                maxHeight = heightmapTerrainTab.getMaxHeightValue()
                 heightmapTerrainTab.terraform(grid.x.toInt(), grid.y.toInt(), component)
             }
 
@@ -340,10 +347,12 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
             asset.terrain.update(ThreadLocalPools.vector3ThreadPool.get())
 
             // Generate simplified results for LoD
-            val results = LoDUtils.buildTerrainLod(component, Terrain.LOD_SIMPLIFICATION_FACTORS)
+            val results = LoDUtils.buildTerrainLod(component, Terrain.LOD_SIMPLIFICATION_FACTORS, abs(maxHeight - minHeight))
 
             // post a Runnable to the rendering thread that processes the result
             Gdx.app.postRunnable {
+                component.updateDimensions()
+
                 // Convert to LodLevels with actual meshes
                 asset.lodLevels = LoDUtils.convertToLodLevels(asset.terrain.model, results)
 

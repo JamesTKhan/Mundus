@@ -49,6 +49,7 @@ public class TerrainLoDManager implements LoDManager {
         float terrainWidth = tc.getTerrainAsset().getTerrain().terrainWidth * scale.x;
         float terrainWidthHalved = terrainWidth * 0.5f;
         terrainCenter.add(terrainWidthHalved, 0, terrainWidthHalved);
+        terrainCenter.y += tc.getCenter().y * scale.y;
 
         cameraPosition.set(tc.gameObject.sceneGraph.scene.cam.position);
         float distance = cameraPosition.dst(terrainCenter);

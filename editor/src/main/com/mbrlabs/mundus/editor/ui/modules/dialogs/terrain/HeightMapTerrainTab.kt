@@ -237,5 +237,7 @@ class HeightMapTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false
         return flippedHeightMapData
     }
 
+    fun getMinHeightValue() : Float = minHeightField.float
+    fun getMaxHeightValue() : Float = maxHeightField.float
 
 }

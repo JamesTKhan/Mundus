@@ -3,6 +3,7 @@ package com.mbrlabs.mundus.editor.utils;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.terrain.LodLevel;
@@ -37,8 +38,18 @@ public class LoDUtils {
 
         Callable<Void> callable = () -> {
             HashMap<TerrainComponent, MeshUtils.SimplifyResult[]> lodData = new HashMap<>();
+
+            // find max height difference between all terrains
+            float maxHeightDiff = 0;
             for (TerrainComponent terrain : tcs) {
-                lodData.put(terrain, buildTerrainLod(terrain, Terrain.LOD_SIMPLIFICATION_FACTORS));
+                float maxHeight = terrain.getOrientedBoundingBox().getBounds().max.y;
+                float minHeight = terrain.getOrientedBoundingBox().getBounds().min.y;
+                float heightDiff = Math.abs(maxHeight - minHeight);
+                maxHeightDiff = Math.max(maxHeightDiff, heightDiff);
+            }
+
+            for (TerrainComponent terrain : tcs) {
+                lodData.put(terrain, buildTerrainLod(terrain, Terrain.LOD_SIMPLIFICATION_FACTORS, maxHeightDiff));
             }
 
             Gdx.app.postRunnable(() -> {
@@ -72,13 +83,31 @@ public class LoDUtils {
 
     /**
      * Simplify the given terrain based on multipliers. 0.5 = target 50% of the original indices.
+     * @param terrain The terrain to simplify
+     * @param simplificationFactors The simplification factors to use, these are applied to target indice count
+     * @param maxHeightDiff The maximum height difference between the highest and lowest points on all terrains
      */
-    public static MeshUtils.SimplifyResult[] buildTerrainLod(TerrainComponent terrain, float[] simplificationFactors) {
+    public static MeshUtils.SimplifyResult[] buildTerrainLod(TerrainComponent terrain, float[] simplificationFactors, float maxHeightDiff) {
+        // prevent divide by 0
+        if (maxHeightDiff == 0) {
+            maxHeightDiff = 0.0001f;
+        }
+
         Model model = terrain.getTerrainAsset().getTerrain().getModel();
         MeshUtils.SimplifyResult[] results = new MeshUtils.SimplifyResult[simplificationFactors.length];
 
+        // calculate scale factor based on height difference of this terrain and the max height difference of all terrains
+        // lower height difference indicates a flatter terrain, so we can use a higher simplification factor
+        float maxHeight = terrain.getOrientedBoundingBox().getBounds().max.y;
+        float minHeight = terrain.getOrientedBoundingBox().getBounds().min.y;
+        float heightDifference = Math.abs(maxHeight - minHeight); // take the absolute to ensure it's positive
+        float scaleFactor = 1.0f - (heightDifference / maxHeightDiff);
+        Gdx.app.log("LoDUtils", "Height difference: " + heightDifference + "Max height diff: " + maxHeightDiff + " Scale factor: " + scaleFactor);
+
+        scaleFactor = MathUtils.clamp(scaleFactor, 0.1f, 1.0f);
+
         for (int i = 0; i < simplificationFactors.length; i++) {
-            float factor = simplificationFactors[i];
+            float factor = simplificationFactors[i] * scaleFactor;
             float targetError = 2f;
             MeshUtils.SimplifyResult result = MeshUtils.simplify(model, factor, targetError);
             results[i] = result;
