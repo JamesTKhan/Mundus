@@ -102,7 +102,6 @@ public class LoDUtils {
         float minHeight = terrain.getOrientedBoundingBox().getBounds().min.y;
         float heightDifference = Math.abs(maxHeight - minHeight); // take the absolute to ensure it's positive
         float scaleFactor = 1.0f - (heightDifference / maxHeightDiff);
-        Gdx.app.log("LoDUtils", "Height difference: " + heightDifference + "Max height diff: " + maxHeightDiff + " Scale factor: " + scaleFactor);
 
         scaleFactor = MathUtils.clamp(scaleFactor, 0.1f, 1.0f);
 
