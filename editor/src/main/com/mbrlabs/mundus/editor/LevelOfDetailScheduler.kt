@@ -59,7 +59,9 @@ class LevelOfDetailScheduler : TerrainVerticesChangedEvent.TerrainVerticesChange
     }
 
     override fun onTerrainVerticesChanged(event: TerrainVerticesChangedEvent) {
-        terrainSet.add(event.terrainComponent)
+        if (event.terrainComponent.terrainAsset.isUsingLod) {
+            terrainSet.add(event.terrainComponent)
+        }
     }
 
     override fun onTerrainLoDRebuild(event: TerrainLoDRebuildEvent) {

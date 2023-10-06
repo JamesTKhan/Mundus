@@ -107,7 +107,7 @@ public class TerrainLoDManager implements LoDManager {
     }
 
     private int determineLodLevel(float distance, float terrainWidth) {
-        float distanceThreshold = terrainWidth * 1.2f;
+        float distanceThreshold = terrainWidth * 1.1f;
         for (int i = 0; i < Terrain.DEFAULT_LODS; i++) {
             if (distance < (i + 1) * distanceThreshold) {
                 return i;

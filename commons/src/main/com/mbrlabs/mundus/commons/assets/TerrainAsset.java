@@ -41,6 +41,7 @@ import java.util.Map;
 public class TerrainAsset extends Asset {
 
     private float[] data;
+    private boolean useLod = false;
     private LodLevel[] lodLevels;
 
     // dependencies
@@ -304,7 +305,17 @@ public class TerrainAsset extends Asset {
                 level.dispose();
             }
         }
+
+        useLod = lodLevels != null;
         this.lodLevels = lodLevels;
+    }
+
+    /**
+     * Is this terrain currently using lod?
+     * @return true if this terrain is using lod
+     */
+    public boolean isUsingLod() {
+        return useLod;
     }
 
     private void loadLodLevels() {
@@ -330,9 +341,9 @@ public class TerrainAsset extends Asset {
                 lodMeshes[j] = mesh;
             }
             lodLevels[i + 1] = new LodLevel(lodMeshes);
+            useLod = true;
         }
 
         terrain.clearLoDDTOs();
-
     }
 }

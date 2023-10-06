@@ -93,9 +93,12 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
             j++
         } while (firstInRowTerrain != null)
 
-        for (terrain in modifiedTerrains) {
+        for (i in 0 until modifiedTerrains.size) {
+            val terrain = modifiedTerrains[i]
+            if (!terrain.terrainAsset.isUsingLod) continue
             terrain.lodManager.disable()
-            Mundus.postEvent(TerrainLoDRebuildEvent(terrain))
+            val immediate = i == modifiedTerrains.size - 1
+            Mundus.postEvent(TerrainLoDRebuildEvent(terrain, immediate))
         }
         updateProceduralGenerationInfo()
     }
