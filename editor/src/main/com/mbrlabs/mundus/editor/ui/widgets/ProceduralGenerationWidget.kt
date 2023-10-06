@@ -6,12 +6,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
+import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.ProceduralGeneration
+import com.mbrlabs.mundus.commons.terrain.SplatMapResolution
 import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.UpdateNoiseTextureEvent
@@ -26,6 +29,7 @@ import com.mbrlabs.mundus.editor.utils.FastNoiseLite
 class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
                                  private val vertexResolutionFieldVisible: Boolean,
                                  private val terrainWidthFieldVisible: Boolean,
+                                 private val splatmapResolutionFieldVisible: Boolean,
                                  private val iterationFieldsVisible: Boolean) : Table() {
 
     private val root = VisTable()
@@ -35,6 +39,9 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
     private val terrainWidth = IntegerFieldWithLabel("", -1, false)
     private val minHeight = FloatFieldWithLabel("", -1, true)
     private val maxHeight = FloatFieldWithLabel("", -1, true)
+    private val splatMapSelectBox: VisSelectBox<String> = VisSelectBox()
+    private val multipleTerrain = VisCheckBox("")
+    private val gridFieldsTable = VisTable()
     private val gridX = IntegerFieldWithLabel("", -1, false)
     private val gridZ = IntegerFieldWithLabel("", -1, false)
     private val generateBtn = VisTextButton("Generate Terrain")
@@ -105,6 +112,8 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
     fun getTerrainWidth(): Int = terrainWidth.int
     fun getMinHeightValue(): Float = minHeight.float
     fun getMaxHeightValue(): Float = maxHeight.float
+    fun getSplatMapResolution(): Int = SplatMapResolution.valueFromString(splatMapSelectBox.selected).resolutionValues
+    fun isMultipleTerrain(): Boolean = multipleTerrain.isChecked
     fun getGridX(): Int = gridX.int
     fun getGridZ(): Int = gridZ.int
 
@@ -165,11 +174,31 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
         leftTable.add(ToolTipLabel("Max height", "The maximum height any point on the generated terrain will have.")).left()
         leftTable.add(maxHeight).left().row()
 
+        if (splatmapResolutionFieldVisible) {
+            splatMapSelectBox.setItems(
+                    SplatMapResolution._512.value,
+                    SplatMapResolution._1024.value,
+                    SplatMapResolution._2048.value,
+            )
+
+            leftTable.add(ToolTipLabel("SplatMap Resolution: ", "The resolution of the splatmap for texture painting on the terrain.\n" +
+                    "Higher resolution results in smoother texture painting at the cost of more memory usage and performance slowdowns when painting.\n" +
+                    "If you are targeting HTML, 512 is recommended")).left()
+            leftTable.add(splatMapSelectBox).left().row()
+        }
+
         if (iterationFieldsVisible) {
-            leftTable.add(ToolTipLabel("X Iterations", "The number of Terrain Chunks to create on the X axis")).left()
-            leftTable.add(gridX).left().row()
-            leftTable.add(ToolTipLabel("Z Iterations", "The number of Terrain Chunks to create on the Z axis")).left()
-            leftTable.add(gridZ).left().row()
+            leftTable.add(ToolTipLabel("Multiple Terrain", "Multiple terrain means terrain system that contains more then 1 terrains under a parent game object.")).left()
+            leftTable.add(multipleTerrain).left().row()
+            gridFieldsTable.defaults().pad(4f)
+            gridFieldsTable.left().top()
+            gridFieldsTable.isVisible = false
+
+            gridFieldsTable.add(ToolTipLabel("X Iterations", "The number of Terrain Chunks to create on the X axis")).left()
+            gridFieldsTable.add(gridX).left().row()
+            gridFieldsTable.add(ToolTipLabel("Z Iterations", "The number of Terrain Chunks to create on the Z axis")).left()
+            gridFieldsTable.add(gridZ).left().row()
+            leftTable.add(gridFieldsTable).left().row()
         }
 
         leftTable.add(generateBtn).expandY().fillX().bottom()
@@ -202,6 +231,12 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
         vertexResolution.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 noiseGeneratorWidget.setNoiseTextureWidth(vertexResolution.int)
+            }
+        })
+
+        multipleTerrain.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                gridFieldsTable.isVisible = multipleTerrain.isChecked
             }
         })
     }
