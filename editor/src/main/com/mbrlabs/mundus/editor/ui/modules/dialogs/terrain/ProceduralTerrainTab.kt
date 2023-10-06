@@ -14,7 +14,7 @@ import com.mbrlabs.mundus.editor.ui.widgets.ProceduralGenerationWidget
  */
 class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, false) {
 
-    private val root = ProceduralGenerationWidget(true, true, true, true)
+    private val root = ProceduralGenerationWidget(true, true, true,  true, true)
 
     init {
         root.generateButtonListener = object : ProceduralGenerationWidget.GenerateButtonListener {
@@ -47,6 +47,6 @@ class ProceduralTerrainTab(var dialog: AddTerrainChunksDialog) : Tab(false, fals
     }
 
     private fun generateTerrain() {
-        dialog.createTerrainChunk(root.getVertexResolution(), root.getTerrainWidth(), root.getGridX(), root.getGridZ(), root.getTerrainName())
+        dialog.createTerrainChunk(root.getVertexResolution(), root.getTerrainWidth(), root.isMultipleTerrain(), root.getGridX(), root.getGridZ(), root.getTerrainName(), root.getSplatMapResolution())
     }
 }
