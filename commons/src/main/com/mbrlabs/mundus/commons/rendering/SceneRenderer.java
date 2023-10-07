@@ -3,6 +3,7 @@ package com.mbrlabs.mundus.commons.rendering;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.mbrlabs.mundus.commons.Scene;
+import com.mbrlabs.mundus.commons.rendering.shadows.ShadowMapStrategy;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 
@@ -47,6 +48,8 @@ public interface SceneRenderer {
     void setDepthShader(Shader depthShader);
 
     Shader getDepthShader();
+
+    void setShadowMapStrategy(ShadowMapStrategy shadowMapStrategy);
 
     void updateWaterResolution(WaterResolution waterResolution);
 }

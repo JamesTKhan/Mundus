@@ -3,32 +3,37 @@ package com.mbrlabs.mundus.commons.rendering;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
+import com.mbrlabs.mundus.commons.rendering.shadows.ClassicShadowMap;
+import com.mbrlabs.mundus.commons.rendering.shadows.ShadowMapStrategy;
+import com.mbrlabs.mundus.commons.rendering.shadows.VarianceShadowMap;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.CullableComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.RenderableComponent;
-import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 
 /**
  * @author JamesTKhan
  * @version October 03, 2023
  */
-public class DefaultSceneRenderer implements SceneRenderer {
+public class DefaultSceneRenderer implements SceneRenderer, Disposable {
     public static final Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
     private WaterRenderer waterRenderer;
     private Shader depthShader;
+    private ShadowMapStrategy shadowMapStrategy;
 
     public DefaultSceneRenderer() {
         waterRenderer = new WaterRenderer();
+        shadowMapStrategy = new ClassicShadowMap();
     }
 
     @Override
     public void render(Scene scene, float delta) {
         waterRenderer.renderWaterFBOs(scene);
-        renderShadowMap(scene);
+        shadowMapStrategy.renderShadowMap(scene);
         renderScene(scene, delta);
     }
 
@@ -117,33 +122,6 @@ public class DefaultSceneRenderer implements SceneRenderer {
         }
     }
 
-    /**
-     * Render models to the shadow map .This is called by the render method normally, but if using post-processing
-     * you may want to call this method directly.
-     */
-    public void renderShadowMap(Scene scene) {
-        if (scene.dirLight == null) {
-            scene.setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
-        }
-
-        if (!scene.dirLight.isCastsShadows()) {
-            scene.environment.shadowMap = null;
-            return;
-        }
-
-        scene.environment.shadowMap = scene.dirLight;
-
-        scene.dirLight.setCenter(scene.cam.position);
-        scene.dirLight.begin();
-        scene.depthBatch.begin(scene.dirLight.getCamera());
-        scene.setClippingPlane(clippingPlaneDisable, 0);
-        renderComponents(scene, scene.depthBatch, scene.sceneGraph.getRoot(), null, true);
-        scene.modelCacheManager.triggerBeforeDepthRenderEvent();
-        scene.depthBatch.render(scene.modelCacheManager.modelCache, scene.environment);
-        scene.depthBatch.end();
-        scene.dirLight.end();
-    }
-
     public void renderSkybox(Scene scene) {
         if (scene.skybox != null && scene.skybox.active) {
             scene.batch.render(scene.skybox.getSkyboxInstance(), scene.environment, scene.skybox.shader);
@@ -162,5 +140,16 @@ public class DefaultSceneRenderer implements SceneRenderer {
 
     public Shader getDepthShader() {
         return depthShader;
+    }
+
+    @Override
+    public void setShadowMapStrategy(ShadowMapStrategy shadowMapStrategy) {
+        this.shadowMapStrategy = shadowMapStrategy;
+    }
+
+    @Override
+    public void dispose() {
+        waterRenderer.dispose();
+        shadowMapStrategy.dispose();
     }
 }
