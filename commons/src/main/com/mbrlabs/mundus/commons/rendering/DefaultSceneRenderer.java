@@ -7,7 +7,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.rendering.shadows.ClassicShadowMap;
 import com.mbrlabs.mundus.commons.rendering.shadows.ShadowMapStrategy;
-import com.mbrlabs.mundus.commons.rendering.shadows.VarianceShadowMap;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
