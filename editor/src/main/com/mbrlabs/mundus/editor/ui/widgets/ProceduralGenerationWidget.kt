@@ -189,10 +189,11 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
             leftTable.add(splatMapSelectBox).left().row()
         }
 
-        leftTable.add(ToolTipLabel("Generate Level Of Detail", "Generate lower level detail meshes for better rendering performance.")).left()
-        leftTable.add(genLoD).left().row()
-
         if (iterationFieldsVisible) {
+            // Only show if we are generating multiple terrains and it's the first time we are generating
+            leftTable.add(ToolTipLabel("Generate Level Of Detail", "Generate lower level detail meshes for better rendering performance.")).left()
+            leftTable.add(genLoD).left().row()
+
             leftTable.add(ToolTipLabel("Multiple Terrain", "Multiple terrain means terrain system that contains more then 1 terrains under a parent game object.")).left()
             leftTable.add(multipleTerrain).left().row()
             gridFieldsTable.defaults().pad(4f)
