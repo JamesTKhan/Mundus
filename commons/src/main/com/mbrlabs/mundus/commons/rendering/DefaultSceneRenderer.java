@@ -21,7 +21,7 @@ import com.mbrlabs.mundus.commons.water.WaterResolution;
  */
 public class DefaultSceneRenderer implements SceneRenderer, Disposable {
     public static final Vector3 clippingPlaneDisable = new Vector3(0.0f, 0f, 0.0f);
-    private WaterRenderer waterRenderer;
+    private final WaterRenderer waterRenderer;
     private Shader depthShader;
     private ShadowMapStrategy shadowMapStrategy;
 
