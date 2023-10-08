@@ -23,6 +23,10 @@ float reduceLightBleeding(float p_max, float Amount) {
 // Computes Chebyshev's Inequality
 // Returns an upper bound given the first two moments and mean
 float chebyshevUpperBound(sampler2D tex, vec3 uv, float mean, float minVariance) {
+    // If we are outside the shadow map, return 1.0 (lit) otherwise
+    // we get edge stretching shadow artifacts
+    if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) return 1.0;
+
     // We retrive the two moments previously stored (depth and depth*depth)
     #ifdef GLSL3
     vec2 moments = texture2D(tex, uv.xy).rg;

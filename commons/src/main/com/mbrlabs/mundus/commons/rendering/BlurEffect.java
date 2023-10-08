@@ -1,9 +1,13 @@
 package com.mbrlabs.mundus.commons.rendering;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 
@@ -11,7 +15,7 @@ import com.mbrlabs.mundus.commons.utils.ShaderUtils;
  * @author JamesTKhan
  * @version October 07, 2023
  */
-public class BlurEffect {
+public class BlurEffect implements Disposable {
     protected static final String VERTEX_SHADER = "com/mbrlabs/mundus/commons/shaders/postprocess/spritebatch.vert.glsl";
     protected static final String FRAGMENT_SHADER = "com/mbrlabs/mundus/commons/shaders/postprocess/blur.frag.glsl";
     private final SpriteBatch spriteBatch;
@@ -45,12 +49,26 @@ public class BlurEffect {
         return builder.build();
     }
 
+    public void setTextureFilter(Texture.TextureFilter minFilter, Texture.TextureFilter magFilter) {
+        blurTargetA.getColorBufferTexture().setFilter(minFilter, magFilter);
+        blurTargetB.getColorBufferTexture().setFilter(minFilter, magFilter);
+    }
+
+    public void setTextureWrap(Texture.TextureWrap uWrap, Texture.TextureWrap vWrap) {
+        blurTargetA.getColorBufferTexture().setWrap(uWrap, vWrap);
+        blurTargetB.getColorBufferTexture().setWrap(uWrap, vWrap);
+    }
+
     public void process(FrameBuffer src, FrameBuffer dest) {
         spriteBatch.setShader(blurShader);
 
         float srcWidth = src.getWidth();
         float srcHeight = src.getHeight();
-        spriteBatch.getProjectionMatrix().setToOrtho2D(0, 0, src.getWidth(), src.getHeight());
+        spriteBatch.getProjectionMatrix().setToOrtho2D(0, 0, src.getWidth(), src.getHeight(), 0.0f, 1);
+
+        Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+        Gdx.gl.glDepthMask(false);
+        spriteBatch.disableBlending();
 
         for (int i = 0; i < pingPongCount; i++) {
             // Horizontal blur pass
@@ -99,5 +117,12 @@ public class BlurEffect {
 
     public int getPingPongCount() {
         return pingPongCount;
+    }
+
+    @Override
+    public void dispose() {
+        blurTargetA.dispose();
+        blurTargetB.dispose();
+        blurShader.dispose();
     }
 }
