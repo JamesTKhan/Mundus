@@ -18,6 +18,7 @@
 
 varying float v_clipDistance;
 
+#ifndef GLSL3
 /*
  * Encodes a floating point number in [0..1) range into several channels of 8 bit/channel render texture for precision
  *
@@ -29,11 +30,18 @@ vec4 EncodeFloatRGBA( float v ) {
     enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);
     return enc;
 }
+#endif
 
 void main() {
     if ( v_clipDistance < 0.0 )
         discard;
 
-    // Encode the depth into RGBA values, for later decoding in other shaders, to improve precision
-    gl_FragColor = EncodeFloatRGBA(gl_FragCoord.z);
+    #ifdef GLSL3
+        // Put depth into a single channel of the floating point texture
+        gl_FragColor = vec4(gl_FragCoord.z, 0.0, 0.0, 0.0);
+    #else
+        // Encode the depth into RGBA values, for later decoding in other shaders, to improve precision
+        gl_FragColor = EncodeFloatRGBA(gl_FragCoord.z);
+    #endif
+
 }

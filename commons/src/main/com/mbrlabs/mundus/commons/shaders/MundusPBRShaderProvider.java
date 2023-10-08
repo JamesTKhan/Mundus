@@ -3,6 +3,7 @@ package com.mbrlabs.mundus.commons.shaders;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.mbrlabs.mundus.commons.shadows.ShadowStrategyAttribute;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
 import com.mbrlabs.mundus.commons.terrain.TerrainMaterial;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
@@ -31,6 +32,13 @@ public class MundusPBRShaderProvider extends PBRShaderProvider {
 
     @Override
     protected PBRShader createShader(Renderable renderable, PBRShaderConfig config, String prefix){
+
+        if (renderable.environment != null) {
+            if (renderable.environment.get(ShadowStrategyAttribute.VarianceShadowMap) != null) {
+                prefix += "#define " + ShadowStrategyAttribute.VarianceShadowMapAlias + "Flag\n";
+            }
+        }
+
         if (renderable.material.has(TerrainMaterialAttribute.TerrainMaterial)) {
             return createPBRTerrainShader(renderable, config, prefix);
         }

@@ -1,5 +1,6 @@
-package com.mbrlabs.mundus.commons.rendering.shadows;
+package com.mbrlabs.mundus.commons.shadows.strategy;
 
+import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
 
@@ -14,4 +15,10 @@ public interface ShadowMapStrategy extends Disposable {
      * you may want to call this method directly.
      */
     void renderShadowMap(Scene scene);
+
+    /**
+     * Returns the attribute that is used to identify the shadow map strategy.
+     * @return the attribute
+     */
+    Attribute getAttribute();
 }

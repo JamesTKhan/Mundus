@@ -64,7 +64,8 @@ public class ShaderUtils {
         String vert = ShaderPreprocessor.readShaderFile(vertFile);
         String frag = ShaderPreprocessor.readShaderFile(fragFile);
 
-        ShaderProgram program = new ShaderProgram(customPrefix + vert, customPrefix + getShaderPrefix(shader) + frag);
+        String prefix = getGLVersionString() + customPrefix;
+        ShaderProgram program = new ShaderProgram(prefix + vert, prefix + getShaderPrefix(shader) + frag);
         if (!program.isCompiled()) {
             throw new GdxRuntimeException(program.getLog());
         }

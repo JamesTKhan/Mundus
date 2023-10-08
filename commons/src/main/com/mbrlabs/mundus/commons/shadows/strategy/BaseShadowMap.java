@@ -1,10 +1,11 @@
-package com.mbrlabs.mundus.commons.rendering.shadows;
+package com.mbrlabs.mundus.commons.shadows.strategy;
 
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.rendering.DefaultSceneRenderer;
 import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
+import com.mbrlabs.mundus.commons.shadows.ShadowStrategyAttribute;
 
 /**
  * @author JamesTKhan
@@ -12,7 +13,14 @@ import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
  */
 public abstract class BaseShadowMap implements ShadowMapStrategy, Disposable {
 
+    protected ShadowStrategyAttribute attribute;
+    private boolean attributeSet = false;
+
     protected void renderShadowMap(Scene scene, Shader depthShader) {
+        if (attribute == null) {
+            throw new IllegalStateException("ShadowMapStrategyAttribute not set");
+        }
+
         if (scene.dirLight == null) {
             scene.setShadowQuality(ShadowResolution.DEFAULT_SHADOW_RESOLUTION);
         }
@@ -20,6 +28,11 @@ public abstract class BaseShadowMap implements ShadowMapStrategy, Disposable {
         if (!scene.dirLight.isCastsShadows()) {
             scene.environment.shadowMap = null;
             return;
+        }
+
+        if (!attributeSet) {
+            scene.environment.set(attribute);
+            attributeSet = true;
         }
 
         scene.environment.shadowMap = scene.dirLight;
@@ -35,4 +48,7 @@ public abstract class BaseShadowMap implements ShadowMapStrategy, Disposable {
         scene.dirLight.end();
     }
 
+    public ShadowStrategyAttribute getAttribute() {
+        return attribute;
+    }
 }

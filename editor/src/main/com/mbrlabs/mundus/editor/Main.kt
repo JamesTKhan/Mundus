@@ -95,7 +95,7 @@ private fun launchEditor(options: LaunchOptions) {
         if (SharedLibraryLoader.isMac) {
             config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 3, 2)
         } else {
-            config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 4, 3)
+            config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 4, 2)
         }
     }
 

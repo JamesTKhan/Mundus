@@ -1,12 +1,13 @@
 package com.mbrlabs.mundus.commons.rendering;
 
+import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
-import com.mbrlabs.mundus.commons.rendering.shadows.ClassicShadowMap;
-import com.mbrlabs.mundus.commons.rendering.shadows.ShadowMapStrategy;
+import com.mbrlabs.mundus.commons.shadows.strategy.ClassicShadowMap;
+import com.mbrlabs.mundus.commons.shadows.strategy.ShadowMapStrategy;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheable;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
@@ -142,8 +143,18 @@ public class DefaultSceneRenderer implements SceneRenderer, Disposable {
     }
 
     @Override
-    public void setShadowMapStrategy(ShadowMapStrategy shadowMapStrategy) {
+    public void setShadowMapStrategy(ShadowMapStrategy shadowMapStrategy, Environment environment) {
+        if (this.shadowMapStrategy != null) {
+            environment.remove(this.shadowMapStrategy.getAttribute().type);
+            this.shadowMapStrategy.dispose();
+        }
         this.shadowMapStrategy = shadowMapStrategy;
+        environment.set(shadowMapStrategy.getAttribute());
+    }
+
+    @Override
+    public ShadowMapStrategy getShadowMapStrategy() {
+        return shadowMapStrategy;
     }
 
     @Override
