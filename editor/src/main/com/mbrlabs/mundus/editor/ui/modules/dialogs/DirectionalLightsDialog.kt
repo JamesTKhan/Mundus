@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.editor.ui.modules.dialogs
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -39,9 +40,9 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
     private val colorPickerField = ColorPickerField()
     private val castShadows = VisCheckBox(null)
 
-    private val dirXSlider = ImprovedSlider(-1.0f, 1.0f, .1f)
-    private val dirYSlider = ImprovedSlider(-1.0f, 1.0f, .1f)
-    private val dirZSlider = ImprovedSlider(-1.0f, 1.0f, .1f)
+    private val dirXSlider = ImprovedSlider(-1.0f, 1.0f, .01f)
+    private val dirYSlider = ImprovedSlider(-1.0f, 1.0f, .01f)
+    private val dirZSlider = ImprovedSlider(-1.0f, 1.0f, .01f)
 
     private var defaultBtn = VisTextButton("Reset Defaults")
 
@@ -57,7 +58,7 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
     private fun setupUI() {
         root.padTop(6f).padRight(6f).padBottom(22f)
         root.defaults().padBottom(5f).padTop(5f)
-        add(root)
+        add(root).prefWidth(Gdx.graphics.width * 0.2f)
 
         root.add(VisLabel("Light Settings")).colspan(2).left().row()
         root.addSeparator().colspan(2).row()
@@ -76,14 +77,14 @@ class  DirectionalLightsDialog : BaseDialog("Directional Light"), ProjectChanged
         val directionTable = VisTable()
         directionTable.defaults().padBottom(5f).padLeft(6f).padRight(6f)
         directionTable.add(VisLabel("X:")).left().padRight(2f)
-        directionTable.add(dirXSlider).row()
+        directionTable.add(dirXSlider).growX().row()
         directionTable.add(VisLabel("Y:")).left().padRight(2f)
-        directionTable.add(dirYSlider).row()
+        directionTable.add(dirYSlider).growX().row()
         directionTable.add(VisLabel("Z:")).left().padRight(2f)
-        directionTable.add(dirZSlider).row()
+        directionTable.add(dirZSlider).growX().row()
         settingsTable.add(directionTable).colspan(2).left().growX().row()
 
-        root.add(settingsTable).row()
+        root.add(settingsTable).growX().row()
 
         addShadowSection()
 

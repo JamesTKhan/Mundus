@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
@@ -20,7 +21,7 @@ import com.mbrlabs.mundus.commons.water.WaterResolution;
  * @author JamesTKhan
  * @version October 03, 2023
  */
-public class WaterRenderer {
+public class WaterRenderer implements Disposable {
 
     protected static final Vector3 clippingPlaneReflection = new Vector3(0.0f, 1f, 0.0f);
     protected static final Vector3 clippingPlaneRefraction = new Vector3(0.0f, -1f, 0.0f);
@@ -196,5 +197,18 @@ public class WaterRenderer {
     public void updateWaterResolution(WaterResolution waterResolution) {
         Vector2 res = waterResolution.getResolutionValues();
         updateFBOS((int) res.x, (int) res.y);
+    }
+
+    @Override
+    public void dispose() {
+        if (fboWaterReflection != null) {
+            fboWaterReflection.dispose();
+        }
+        if (fboWaterRefraction != null) {
+            fboWaterRefraction.dispose();
+        }
+        if (fboDepthRefraction != null) {
+            fboDepthRefraction.dispose();
+        }
     }
 }

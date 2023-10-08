@@ -18,6 +18,7 @@
 - Show mouse position on statusbar if using terrain brush tool
 - Optimize AssetUsage system by using DTO objects instead of loading scene
 - Use BufferedInputStream for faster loading of terrains
+- Update gdx-gltf version to latest 7d70839067
 
 [0.5.1] ~ 08/08/2023
 - Added FPS launcher argument, always call setForegroundFPS

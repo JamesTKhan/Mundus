@@ -17,6 +17,7 @@ package com.mbrlabs.mundus.commons.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -77,6 +78,24 @@ public final class GLUtils {
      */
     public static boolean isGL3(){
         return Gdx.graphics.getGLVersion().isVersionEqualToOrHigher(3, 0);
+    }
+
+    public static String getExtensions() {
+        if (isGL3() && Gdx.gl30 != null) {
+            IntBuffer intBuf = INT_BUFF;
+            Gdx.gl.glGetIntegerv(GL30.GL_NUM_EXTENSIONS, intBuf);
+            int numExtensions = intBuf.get(0);
+
+            StringBuilder extensions = new StringBuilder();
+            for (int i = 0; i < numExtensions; i++) {
+                String ext = Gdx.gl30.glGetStringi(GL30.GL_EXTENSIONS, i);
+                extensions.append(ext);
+            }
+
+            return extensions.toString();
+        } else {
+            return Gdx.gl20.glGetString(GL20.GL_EXTENSIONS);
+        }
     }
 
 }

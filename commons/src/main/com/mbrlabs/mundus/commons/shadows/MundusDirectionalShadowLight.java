@@ -1,8 +1,8 @@
 package com.mbrlabs.mundus.commons.shadows;
 
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.GLFrameBuffer;
 import com.badlogic.gdx.math.Vector2;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.utils.NestableFrameBuffer;
@@ -23,10 +23,18 @@ public class MundusDirectionalShadowLight extends DirectionalShadowLight {
     private ShadowResolution shadowResolution = ShadowResolution.DEFAULT_SHADOW_RESOLUTION;
     private boolean castsShadows = false;
 
+    // FBO data
+    protected int colorInternalFormat;
+    protected int colorFormat;
+    protected int colorType;
+
     public MundusDirectionalShadowLight() {
         super();
+        determineFBOFormat();
     }
+
     public MundusDirectionalShadowLight(ShadowResolution resolution, int viewportWidth, int viewportHeight, float near, float far) {
+        determineFBOFormat();
         set(resolution, viewportWidth, viewportHeight, near, far);
     }
 
@@ -56,18 +64,69 @@ public class MundusDirectionalShadowLight extends DirectionalShadowLight {
         return shadowResolution;
     }
 
+    public void setFrameBufferFormat(int internalFormat, int format, int type) {
+        initFBO(internalFormat, format, type);
+    }
+
     private void initFBO() {
+        initFBO(colorInternalFormat, colorFormat, colorType);
+    }
+
+    private void initFBO(int internalFormat, int format, int type) {
         if (fbo != null) {
             fbo.dispose();
         }
 
+        colorInternalFormat = internalFormat;
+        colorFormat = format;
+        colorType = type;
+
         Vector2 res = shadowResolution.getResolutionValues();
 
+        GLFrameBuffer.FrameBufferBuilder frameBufferBuilder;
         if (Scene.isRuntime) {
-            fbo = new FrameBuffer(Pixmap.Format.RGBA8888, (int) res.x, (int) res.y, true);
+            frameBufferBuilder = new GLFrameBuffer.FrameBufferBuilder((int) res.x, (int) res.y);
         } else {
-            fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, (int) res.x, (int) res.y, true);
+            frameBufferBuilder = new NestableFrameBuffer.NestableFrameBufferBuilder((int) res.x, (int) res.y);
         }
+
+        frameBufferBuilder.addColorTextureAttachment(internalFormat, format, type);
+        frameBufferBuilder.addDepthRenderBuffer(GL30.GL_DEPTH_COMPONENT16);
+        fbo = frameBufferBuilder.build();
+    }
+
+    protected void determineFBOFormat() {
+        // Defaults if no extension is supported and not GL3, precision will be low
+//        colorInternalFormat = GL20.GL_RGBA;
+//        colorFormat = GL20.GL_RGBA;
+//        colorType = GL20.GL_UNSIGNED_BYTE;
+
+        // For WebGL1 and OpenGL ES 2.0 only, because.. they decided to be different and make things confusing
+//        final int GL_HALF_FLOAT_OES = 0x8D61;
+
+//        if (!GLUtils.isGL3()) {
+//            String extensions = GLUtils.getExtensions();
+//            if (extensions.contains("GL_ARB_texture_float") || extensions.contains("GL_OES_texture_float")) {
+//                colorInternalFormat = GL30.GL_R32F;
+//                colorFormat = GL30.GL_RED;
+//                colorType = GL30.GL_FLOAT;
+//            } else if (extensions.contains("GL_ARB_half_float_pixel")) {
+//                colorInternalFormat = GL30.GL_R16F;
+//                colorFormat = GL30.GL_RED;
+//                colorType = GL30.GL_HALF_FLOAT;
+//            } else if (extensions.contains("GL_OES_texture_half_float")) {
+//                colorInternalFormat = GL30.GL_R16F;
+//                colorFormat = GL30.GL_RED;
+//                colorType = GL_HALF_FLOAT_OES;
+//            } else {
+//                Gdx.app.error("MundusDirectionalShadowLight", "No float texture support, falling back to low precision");
+//            }
+//        } else {
+            // GL3 supports float textures by default
+            colorInternalFormat = GL30.GL_R32F;
+            colorFormat = GL30.GL_RED;
+            colorType = GL30.GL_FLOAT;
+//        }
     }
 
     public boolean isCastsShadows() {
