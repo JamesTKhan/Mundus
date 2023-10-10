@@ -21,6 +21,8 @@ import com.badlogic.gdx.math.Vector3
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
+import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
 import com.mbrlabs.mundus.editor.events.TerrainAddedEvent
 import com.mbrlabs.mundus.editor.events.TerrainRemovedEvent
 import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent
@@ -28,6 +30,7 @@ import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent
 class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListener,
         TerrainAddedEvent.TerrainAddedEventListener,
         TerrainRemovedEvent.TerrainRemovedEventListener,
+        GameObjectModifiedEvent.GameObjectModifiedListener,
         Disposable {
 
     private val helperLineShapes = Array<HelperLineShape>()
@@ -79,6 +82,22 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
         helperLineShapes.filter { it.terrainComponent == event.terrainComponent }.forEach {
             it.dispose()
             helperLineShapes.removeValue(it, true)
+        }
+    }
+
+    override fun onGameObjectModified(event: GameObjectModifiedEvent) {
+        val go = event.gameObject ?: return
+        val terrainComponent = (go.findComponentByType(Component.Type.TERRAIN)?: return) as TerrainComponent
+
+        if (go.active) {
+            if (helperLineShapes.none { it.terrainComponent == terrainComponent }) {
+                addNewHelperLineShape(terrainComponent)
+            }
+        } else {
+            helperLineShapes.filter { it.terrainComponent == terrainComponent }.forEach {
+                it.dispose()
+                helperLineShapes.removeValue(it, true)
+            }
         }
     }
 
