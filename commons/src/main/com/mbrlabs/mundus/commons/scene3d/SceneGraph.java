@@ -74,7 +74,7 @@ public class SceneGraph {
     }
 
     /**
-     * Adds a model to the scene graph to the given position.
+     * Adds a model to the scene graph as a child of root game object.
      *
      * @param model The model.
      * @param position The position.
@@ -82,6 +82,18 @@ public class SceneGraph {
      */
     public GameObject addGameObject(final Model model, final Vector3 position) {
         return addGameObject(new ModelInstance(model), position);
+    }
+
+    /**
+     * Adds a model to the scene graph as a child of given parent game object.
+     *
+     * @param parentGO The parent game object.
+     * @param model The model.
+     * @param position The position.
+     * @return The game object of added model.
+     */
+    public GameObject addGameObject(final GameObject parentGO, final Model model, final Vector3 position) {
+        return addGameObject(parentGO, new ModelInstance(model), position);
     }
 
     /**
