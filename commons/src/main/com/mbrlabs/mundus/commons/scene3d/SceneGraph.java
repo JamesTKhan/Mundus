@@ -59,7 +59,11 @@ public class SceneGraph {
     }
 
     public void addGameObject(GameObject go) {
-        root.addChild(go);
+        addGameObject(root, go);
+    }
+
+    public void addGameObject(GameObject parentGo, GameObject go) {
+        parentGo.addChild(go);
 
         if (containsWater) return;
 
@@ -70,7 +74,7 @@ public class SceneGraph {
     }
 
     /**
-     * Adds a model to the scene graph to the given position.
+     * Adds a model to the scene graph as a child of root game object.
      *
      * @param model The model.
      * @param position The position.
@@ -81,13 +85,37 @@ public class SceneGraph {
     }
 
     /**
-     * Adds a model instance to the scene graph to the given position.
+     * Adds a model to the scene graph as a child of given parent game object.
+     *
+     * @param parentGO The parent game object.
+     * @param model The model.
+     * @param position The position.
+     * @return The game object of added model.
+     */
+    public GameObject addGameObject(final GameObject parentGO, final Model model, final Vector3 position) {
+        return addGameObject(parentGO, new ModelInstance(model), position);
+    }
+
+    /**
+     * Adds a model instance to the scene graph as a child of root game object.
      *
      * @param modelInstance The model instance.
      * @param position The position.
      * @return The game object of added model instance.
      */
     public GameObject addGameObject(final ModelInstance modelInstance, final Vector3 position) {
+        return addGameObject(root, modelInstance, position);
+    }
+
+    /**
+     * Adds a model instance to the scene graph as a child of parent game object.
+     *
+     * @param parentGO The parent game object.
+     * @param modelInstance The model instance.
+     * @param position The position.
+     * @return The game object of added model instance.
+     */
+    public GameObject addGameObject(final GameObject parentGO, final ModelInstance modelInstance, final Vector3 position) {
         final GameObject go = new GameObject(this, "", getNextId());
 
         go.translate(position);
@@ -102,8 +130,7 @@ public class SceneGraph {
             // this exception won't throw
         }
 
-        root.addChild(go);
-
+        addGameObject(parentGO, go);
         return go;
     }
 
