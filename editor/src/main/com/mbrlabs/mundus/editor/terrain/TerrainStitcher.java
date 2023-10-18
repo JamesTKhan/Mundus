@@ -35,7 +35,6 @@ public class TerrainStitcher {
     public static void stitch(ProjectContext projectContext) {
         // Get all the terrain components
         Array<GameObject> terrainGOs = projectContext.currScene.sceneGraph.findAllByComponent(Component.Type.TERRAIN);
-        Array<Terrain> terrains = new Array<>();
         Array<TerrainComponent> terrainComponents = new Array<>();
 
         for (GameObject go : terrainGOs) {
@@ -47,11 +46,10 @@ public class TerrainStitcher {
             }
 
             terrainComponents.add(terrainComponent);
-            terrains.add(terrainComponent.getTerrainAsset().getTerrain());
         }
 
         // Add command for undo/redo history
-        TerrainStitchCommand command = new TerrainStitchCommand(terrains);
+        TerrainStitchCommand command = new TerrainStitchCommand(terrainComponents);
 
         // Stitch them together
         int heightsStitched = stitch(terrainComponents);

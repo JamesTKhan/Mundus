@@ -13,6 +13,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
+import com.mbrlabs.mundus.editor.LevelOfDetailScheduler
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetTerrainLayerFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -32,11 +33,13 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
 
     var root = VisTable()
     private var projectManager : ProjectManager = Mundus.inject()
+    private var lodScheduler : LevelOfDetailScheduler = Mundus.inject()
 
     private val updateBtn: VisTextButton = VisTextButton("Change Layers")
     private val triplanarOnBtn: VisTextButton = VisTextButton("Triplanar Toggle On")
     private val triplanarOffBtn: VisTextButton = VisTextButton("Triplanar Toggle Off")
     private val generationBtn: VisTextButton = VisTextButton("Generation")
+    private val levelOfDetailBtn: VisTextButton = VisTextButton("Level of Detail")
 
     init {
         setupUI()
@@ -64,6 +67,7 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
         buttonTable.add(triplanarOnBtn).row()
         buttonTable.add(triplanarOffBtn).row()
         buttonTable.add(generationBtn).row()
+        buttonTable.add(levelOfDetailBtn).row()
         root.add(buttonTable).left().row()
 
         collapsibleContent.add(root).left().growX().row()
@@ -112,6 +116,13 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
                 UI.showDialog(UI.terrainSystemGenerationDialog)
             }
         })
+
+        levelOfDetailBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                UI.levelOfDetailDialog.setTerrainComponentManager(component)
+                UI.showDialog(UI.levelOfDetailDialog)
+            }
+        })
     }
 
     private fun setTriplanar(value: Boolean) {
@@ -136,4 +147,5 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
             }
         }
     }
+
 }

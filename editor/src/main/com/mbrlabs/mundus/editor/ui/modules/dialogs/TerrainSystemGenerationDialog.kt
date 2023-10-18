@@ -1,14 +1,17 @@
 package com.mbrlabs.mundus.editor.ui.modules.dialogs
 
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisDialog
 import com.mbrlabs.mundus.commons.assets.TerrainAsset
 import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
+import com.mbrlabs.mundus.editor.events.TerrainLoDRebuildEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.ProceduralGenerationWidget
 
@@ -60,6 +63,7 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
     }
 
     private fun generateTerrain() {
+        val modifiedTerrains = Array<TerrainComponent>()
         val firstTerrain = terrainManagerComponent!!.findFirstTerrainChild()
         if (firstTerrain == null) {
             Mundus.postEvent(LogEvent(LogType.ERROR, "The selected object has not terrain child!"))
@@ -78,7 +82,7 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
 
                 root.terraform(i, j, t)
                 terrainAsset.applyDependencies()
-
+                modifiedTerrains.add(t)
                 projectManager.current().assetManager.addModifiedAsset(terrainAsset)
 
                 t = t.leftNeighbor
@@ -89,6 +93,14 @@ class TerrainSystemGenerationDialog : BaseDialog("Generation") {
             j++
         } while (firstInRowTerrain != null)
 
+        for (i in 0 until modifiedTerrains.size) {
+            val terrain = modifiedTerrains[i]
+            terrain.updateDimensions()
+            if (!terrain.terrainAsset.isUsingLod) continue
+            terrain.lodManager.disable()
+            val immediate = i == modifiedTerrains.size - 1
+            Mundus.postEvent(TerrainLoDRebuildEvent(terrain, immediate))
+        }
         updateProceduralGenerationInfo()
     }
 

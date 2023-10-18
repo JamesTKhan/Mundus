@@ -40,6 +40,7 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
     private val minHeight = FloatFieldWithLabel("", -1, true)
     private val maxHeight = FloatFieldWithLabel("", -1, true)
     private val splatMapSelectBox: VisSelectBox<String> = VisSelectBox()
+    private val genLoD = VisCheckBox("")
     private val multipleTerrain = VisCheckBox("")
     private val gridFieldsTable = VisTable()
     private val gridX = IntegerFieldWithLabel("", -1, false)
@@ -113,6 +114,7 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
     fun getMinHeightValue(): Float = minHeight.float
     fun getMaxHeightValue(): Float = maxHeight.float
     fun getSplatMapResolution(): Int = SplatMapResolution.valueFromString(splatMapSelectBox.selected).resolutionValues
+    fun isGenerateLoD(): Boolean = genLoD.isChecked
     fun isMultipleTerrain(): Boolean = multipleTerrain.isChecked
     fun getGridX(): Int = gridX.int
     fun getGridZ(): Int = gridZ.int
@@ -188,6 +190,10 @@ class ProceduralGenerationWidget(private val nameFieldVisible: Boolean,
         }
 
         if (iterationFieldsVisible) {
+            // Only show if we are generating multiple terrains and it's the first time we are generating
+            leftTable.add(ToolTipLabel("Generate Level Of Detail", "Generate lower level detail meshes for better rendering performance.")).left()
+            leftTable.add(genLoD).left().row()
+
             leftTable.add(ToolTipLabel("Multiple Terrain", "Multiple terrain means terrain system that contains more then 1 terrains under a parent game object.")).left()
             leftTable.add(multipleTerrain).left().row()
             gridFieldsTable.defaults().pad(4f)

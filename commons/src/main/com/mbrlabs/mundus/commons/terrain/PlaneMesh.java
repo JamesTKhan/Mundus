@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.mbrlabs.mundus.commons.utils.Pools;
+import com.badlogic.gdx.utils.Pool;
 import net.mgsx.gltf.loaders.shared.geometry.MeshTangentSpaceGenerator;
 
 import java.util.HashMap;
@@ -197,13 +197,15 @@ public class PlaneMesh implements Disposable {
      *
      * Note: This method should be called after the vertices and indices of the mesh have been defined and set.
      * It directly modifies the vertices array to set the normal for each vertex.
+     * @param pool A pool of Vector3 objects to be used for temporary calculations. If on
+     *             a background thread, this pool should be thread-safe.
      */
-    public void calculateAverageNormals() {
+    public void calculateAverageNormals(Pool<Vector3> pool) {
         final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
 
-        Vector3 v1 = Pools.vector3Pool.obtain();
-        Vector3 v2 = Pools.vector3Pool.obtain();
-        Vector3 v3 = Pools.vector3Pool.obtain();
+        Vector3 v1 = pool.obtain();
+        Vector3 v2 = pool.obtain();
+        Vector3 v3 = pool.obtain();
 
         // Calculate face normals for each triangle and store them in an array
         Vector3[] faceNormals = new Vector3[numIndices / 3];
@@ -211,7 +213,7 @@ public class PlaneMesh implements Disposable {
             getVertexPos(v1, indices[i] & 0xFFFF);
             getVertexPos(v2, indices[i + 1] & 0xFFFF);
             getVertexPos(v3, indices[i + 2] & 0xFFFF);
-            Vector3 normal = calculateFaceNormal(Pools.vector3Pool.obtain(), v1, v2, v3);
+            Vector3 normal = calculateFaceNormal(pool.obtain(), v1, v2, v3);
             faceNormals[i / 3] = normal;
         }
 
@@ -239,11 +241,11 @@ public class PlaneMesh implements Disposable {
             }
         }
 
-        Pools.vector3Pool.free(v1);
-        Pools.vector3Pool.free(v2);
-        Pools.vector3Pool.free(v3);
+        pool.free(v1);
+        pool.free(v2);
+        pool.free(v3);
         for (Vector3 normal : faceNormals) {
-            Pools.vector3Pool.free(normal);
+            pool.free(normal);
         }
     }
 

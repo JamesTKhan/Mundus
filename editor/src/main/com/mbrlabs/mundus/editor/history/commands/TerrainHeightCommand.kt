@@ -16,14 +16,16 @@
 
 package com.mbrlabs.mundus.editor.history.commands
 
-import com.mbrlabs.mundus.commons.terrain.Terrain
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent
 import com.mbrlabs.mundus.editor.history.Command
 
 /**
  * @author Marcus Brummer
  * @version 07-02-2016
  */
-class TerrainHeightCommand(private var terrain: Terrain?) : Command {
+class TerrainHeightCommand(private var terrain: TerrainComponent?) : Command {
 
     private var heightDataBefore: FloatArray? = null
     private var heightDataAfter: FloatArray? = null
@@ -40,17 +42,21 @@ class TerrainHeightCommand(private var terrain: Terrain?) : Command {
 
     override fun execute() {
         copyHeightData(heightDataAfter!!)
-        terrain!!.update()
+        terrain!!.terrainAsset.terrain.update()
+        terrain!!.lodManager.disable()
+        Mundus.postEvent(TerrainVerticesChangedEvent(terrain!!))
     }
 
     override fun undo() {
         copyHeightData(heightDataBefore!!)
-        terrain!!.update()
+        terrain!!.terrainAsset.terrain.update()
+        terrain!!.lodManager.disable()
+        Mundus.postEvent(TerrainVerticesChangedEvent(terrain!!))
     }
 
     private fun copyHeightData(data: FloatArray) {
         for (i in data.indices) {
-            terrain!!.heightData!![i] = data[i]
+            terrain!!.terrainAsset.terrain.heightData!![i] = data[i]
         }
     }
 

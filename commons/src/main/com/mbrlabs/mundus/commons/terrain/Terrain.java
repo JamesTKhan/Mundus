@@ -30,8 +30,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Pool;
+import com.mbrlabs.mundus.commons.dto.LevelOfDetailDTO;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
+import com.mbrlabs.mundus.commons.utils.Pools;
 
 /**
  * @author Marcus Brummer
@@ -42,6 +45,12 @@ public class Terrain implements Disposable {
     public static final int DEFAULT_SIZE = 1200;
     public static final int DEFAULT_VERTEX_RESOLUTION = 180;
     public static final int DEFAULT_UV_SCALE = 60;
+
+    /** The simplification factors for each LoD level. */
+    public static final float[] LOD_SIMPLIFICATION_FACTORS = new float[] {.65f, .2f, .1f };
+
+    /** The number of LoD levels. +1 for base mesh */
+    public static final int DEFAULT_LODS = LOD_SIMPLIFICATION_FACTORS.length + 1;
 
     private static final Vector3 c00 = new Vector3();
     private static final Vector3 c01 = new Vector3();
@@ -67,6 +76,8 @@ public class Terrain implements Disposable {
     // Mesh
     private Model model;
     private PlaneMesh planeMesh;
+
+    private LevelOfDetailDTO[] loDDTOS;
 
     private Terrain(int vertexResolution) {
         this.attribs = new VertexAttributes(
@@ -212,6 +223,22 @@ public class Terrain implements Disposable {
         planeMesh.modifyVertex(x, z);
     }
 
+    /**
+     * Lod DTO's are only used for initial loading of the terrain
+     * @param loDDTOS the LoDDTO's to set
+     */
+    void setLoDDTOs(LevelOfDetailDTO[] loDDTOS) {
+        this.loDDTOS = loDDTOS;
+    }
+
+    public LevelOfDetailDTO[] getLoDDTOs() {
+        return loDDTOS;
+    }
+
+    public void clearLoDDTOs() {
+        this.loDDTOS = null;
+    }
+
     public void updateUvScale(Vector2 uvScale) {
         this.uvScale = uvScale;
     }
@@ -296,8 +323,12 @@ public class Terrain implements Disposable {
     }
 
     public void update() {
+        update(Pools.vector3Pool);
+    }
+
+    public void update(Pool<Vector3> pool) {
         planeMesh.buildVertices();
-        planeMesh.calculateAverageNormals();
+        planeMesh.calculateAverageNormals(pool);
         planeMesh.computeTangents();
         planeMesh.updateMeshVertices();
         planeMesh.resetBoundingBox();

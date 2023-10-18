@@ -53,6 +53,7 @@ import com.mbrlabs.mundus.editor.tools.terrain.RaiseLowerTool;
 import com.mbrlabs.mundus.editor.tools.terrain.SmoothTool;
 import com.mbrlabs.mundus.editor.tools.terrain.TerrainTool;
 import com.mbrlabs.mundus.editor.ui.UI;
+import com.mbrlabs.mundus.editor.utils.LoDUtils;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -350,7 +351,7 @@ public abstract class TerrainBrush extends Tool {
                 if (distanceToRampLine <= halfWidth) {
                     // If not already added, add the terrain to the list of modified terrains
                     if (modifiedTerrains.add(terrainComponent)) {
-                        heightCommand.addTerrain(terrain);
+                        heightCommand.addTerrain(terrainComponent);
                     }
 
                     // Calculate the height from the ramp line
@@ -375,10 +376,10 @@ public abstract class TerrainBrush extends Tool {
 
         if (!modified) return;
 
+        terrainComponent.getLodManager().disable();
         updateTerrain(terrain);
         terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
-        Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
     private static boolean rampIntersectsTerrain(TerrainComponent terrain, Vector3 rampStart, Vector3 rampEnd, float rampRadius) {
@@ -488,7 +489,7 @@ public abstract class TerrainBrush extends Tool {
                 if (comparison.compare(this, vertexPos, localBrushPos)) {
                     // If not already added, add the terrain to the list of modified terrains
                     if (modifiedTerrains.add(terrainComponent)) {
-                        heightCommand.addTerrain(terrain);
+                        heightCommand.addTerrain(terrainComponent);
                     }
 
                     // Call the modifier if the comparison function returns true
@@ -503,10 +504,12 @@ public abstract class TerrainBrush extends Tool {
 
         if (!modified) return;
 
+        // Disable LoD temporarily while being modified
+        terrainComponent.getLodManager().disable();
+
         updateTerrain(terrain);
         terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
-        Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
     }
 
     private void updateTerrain(Terrain terrain) {
@@ -670,18 +673,23 @@ public abstract class TerrainBrush extends Tool {
                     // as calculating normals is more expensive
                     Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
 
-                    terrain.getPlaneMesh().calculateAverageNormals();
+                    terrain.getPlaneMesh().calculateAverageNormals(Pools.vector3Pool);
                     terrain.getPlaneMesh().computeTangents();
                     terrain.getPlaneMesh().updateMeshVertices();
                 }
 
             }
 
+            for (TerrainComponent terrainComponent : modifiedTerrains) {
+                Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
+            }
         }
+
         if (splatmapModified && paintCommand != null) {
             paintCommand.setAfter();
             getHistory().add(paintCommand);
         }
+
         splatmapModified = false;
         terrainHeightModified = false;
         heightCommand = null;

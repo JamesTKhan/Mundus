@@ -19,6 +19,8 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent.ProceduralGeneration
+import com.mbrlabs.mundus.commons.terrain.LodLevel
+import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -32,11 +34,14 @@ import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.HeightMapTerrainTab
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.ProceduralTerrainTab
+import com.mbrlabs.mundus.editor.utils.LoDUtils
+import com.mbrlabs.mundus.editor.utils.ThreadLocalPools
 import com.mbrlabs.mundus.editor.utils.createTerrainGO
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.abs
 
 
 /**
@@ -78,6 +83,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
     }
 
     private var generatingTerrain = false
+    private var generateLoD = false
     private var terraformingThreads: AtomicInteger = AtomicInteger(0)
     private var creationThreads: AtomicInteger = AtomicInteger(0)
     private var assetsToTerraform = ConcurrentHashMap<Vector2, TerrainComponent>()
@@ -128,10 +134,11 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
         super.draw(batch, parentAlpha)
     }
 
-    fun createTerrainChunk(res: Int, width: Int, multipleTerrain: Boolean, xIteration: Int, yIteration: Int, name: String, splatMapResolution: Int) {
+    fun createTerrainChunk(res: Int, width: Int, multipleTerrain: Boolean, xIteration: Int, yIteration: Int, name: String, splatMapResolution: Int, genLoD: Boolean) {
         terrainName = name
         executor = Executors.newFixedThreadPool(4)
         terraformExecutor = Executors.newSingleThreadExecutor()
+        generateLoD = genLoD
 
         val context = projectManager.current()
         val sceneGraph = context.currScene.sceneGraph
@@ -266,6 +273,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
                 try {
                     asset = createTerrainAsset(res, width, splatMapResolution, i, j)
                     asset.meta.terrain.terrainLayerAssetId = terrainLayerAsset.id
+                    asset.lodLevels = if (generateLoD) arrayOf<LodLevel>() else null
                     loader = asset.startAsyncLoad()
                 } catch (ex: AssetAlreadyExistsException) {
                     Dialogs.showErrorDialog(stage, "An asset with that name already exists.")
@@ -323,15 +331,31 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
         terraformExecutor?.submit {
             terraformingThreads.addAndGet(1)
 
+            var minHeight = 0f
+            var maxHeight = 0f
             if (tabbedPane.activeTab is ProceduralTerrainTab) {
+                minHeight = proceduralTerrainTab.getMinHeightValue()
+                maxHeight = proceduralTerrainTab.getMaxHeightValue()
                 proceduralTerrainTab.terraform(grid.x.toInt(), grid.y.toInt(), component)
             } else if (tabbedPane.activeTab is HeightMapTerrainTab) {
+                minHeight = heightmapTerrainTab.getMinHeightValue()
+                maxHeight = heightmapTerrainTab.getMaxHeightValue()
                 heightmapTerrainTab.terraform(grid.x.toInt(), grid.y.toInt(), component)
             }
 
+            asset.updateTerrainMaterial()
+            asset.terrain.update(ThreadLocalPools.vector3ThreadPool.get())
+
+            // Generate simplified results for LoD
+            val results = LoDUtils.buildTerrainLod(component, Terrain.LOD_SIMPLIFICATION_FACTORS, abs(maxHeight - minHeight))
+
             // post a Runnable to the rendering thread that processes the result
             Gdx.app.postRunnable {
-                asset.applyDependencies()
+                component.updateDimensions()
+
+                // Convert to LodLevels with actual meshes
+                asset.lodLevels = LoDUtils.convertToLodLevels(asset.terrain.model, results)
+
                 terraformingThreads.decrementAndGet()
             }
         }
