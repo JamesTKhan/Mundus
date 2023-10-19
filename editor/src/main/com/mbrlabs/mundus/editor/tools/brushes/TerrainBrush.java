@@ -53,7 +53,6 @@ import com.mbrlabs.mundus.editor.tools.terrain.RaiseLowerTool;
 import com.mbrlabs.mundus.editor.tools.terrain.SmoothTool;
 import com.mbrlabs.mundus.editor.tools.terrain.TerrainTool;
 import com.mbrlabs.mundus.editor.ui.UI;
-import com.mbrlabs.mundus.editor.utils.LoDUtils;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -790,14 +789,14 @@ public abstract class TerrainBrush extends Tool {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        updateBrushPosition(screenX, screenY);
+        final boolean brushPosUpdated = updateBrushPosition(screenX, screenY);
 
         mouseMoved = true;
 
         EditorPBRTerrainShader.setPickerPosition(brushPos.x, brushPos.y, brushPos.z);
 
         // Show mouse position if it is on terrain
-        if (terrainComponent.isOnTerrain(brushPos.x, brushPos.z)) {
+        if (brushPosUpdated) {
             UI.INSTANCE.getStatusBar().setMousePos(brushPos.x, brushPos.y, brushPos.z);
         } else {
             UI.INSTANCE.getStatusBar().clearMousePos();
@@ -806,17 +805,23 @@ public abstract class TerrainBrush extends Tool {
         return false;
     }
 
-    private void updateBrushPosition(int screenX, int screenY) {
-        if (terrainComponent == null) return;
+    /**
+     * Updates the 'brushPos' variable if the mouse is on a terrain.
+     * @param screenX The screen position X value.
+     * @param screenY The screen position Y value.
+     * @return True if 'brushPos' variable has updated otherwise false.
+     */
+    private boolean updateBrushPosition(int screenX, int screenY) {
+        if (terrainComponent == null) return false;
 
         // Use picking to find current hovered terrain, filter picking to only pick terrains
         goPicker.setIgnoreFilter(ignoreFilter);
         GameObject go = goPicker.pick(getProjectManager().current().currScene, screenX, screenY);
         goPicker.clearIgnoreFilter();
-        if (go == null) return;
+        if (go == null) return false;
 
         TerrainComponent comp = (TerrainComponent) go.findComponentByType(Component.Type.TERRAIN);
-        if (comp == null) return;
+        if (comp == null) return false;
 
         // If the hovered terrain is not the current terrain or connected to it, set it as the current terrain
         if (!getAllConnectedTerrains().contains(comp)) {
@@ -828,6 +833,8 @@ public abstract class TerrainBrush extends Tool {
         // Update the brush position
         Ray ray = getProjectManager().current().currScene.viewport.getPickRay(screenX, screenY);
         comp.getTerrainAsset().getTerrain().getRayIntersection(brushPos, ray, comp.getModelInstance().transform);
+
+        return true;
     }
 
     @Override
