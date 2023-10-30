@@ -5,6 +5,7 @@
 - Add 'getRayIntersection(Vector3, Ray)' method to TerrainComponent
 - Add rotate(yaw,pitch,roll) and setLocalRotation(yaw,pitch,roll) methods to game objects
 - Add 'addGameObject(GameObject, ModelInstance, Vector3)' and 'addGameObject(GameObject, Model, Vector3)' methods to SceneGraph to add external model to scene graph where can add parent game object
+- Generic findComponentsByType and findComponentByType methods
 
 [0.5.1] ~ 08/08/2023
 - Updated libGDX to 1.12.0
