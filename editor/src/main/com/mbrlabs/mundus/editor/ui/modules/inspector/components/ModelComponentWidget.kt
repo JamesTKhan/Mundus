@@ -96,9 +96,9 @@ class ModelComponentWidget(modelComponent: ModelComponent) : ComponentWidget<Mod
     }
 
     override fun setValues(go: GameObject) {
-        val c = go.findComponentByType(Component.Type.MODEL)
+        val c: ModelComponent? = go.findComponentByType(Component.Type.MODEL)
         if (c != null) {
-            component = c as ModelComponent
+            component = c
         }
     }
 

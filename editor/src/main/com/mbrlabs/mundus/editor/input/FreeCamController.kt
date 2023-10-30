@@ -191,7 +191,7 @@ class FreeCamController(private val projectManager: ProjectManager, private val 
             var helperCell: HelperLineCenterObject? = null
 
             val go = goPicker.pick(currentScene, screenX, screenY)
-            val terrainComponent = go?.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
+            val terrainComponent: TerrainComponent? = go?.findComponentByType(Component.Type.TERRAIN)
 
             if (terrainComponent != null) {
                 val result = terrainComponent.getRayIntersection(Pools.vector3Pool.obtain(), ray)
