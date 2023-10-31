@@ -180,7 +180,12 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
 
                 val terrainGO = createTerrainGO(sceneGraph, goID, terrainName, asset)
                 // update sceneGraph
-                sceneGraph.addGameObject(terrainGO)
+                val parentGO = UI.outline.getSelectedGameObject()
+                if (parentGO == null) {
+                    sceneGraph.addGameObject(terrainGO)
+                } else {
+                    sceneGraph.addGameObject(parentGO, terrainGO)
+                }
                 terrainGO.setLocalPosition(posX, posY, posZ)
 
                 terrainComponent = terrainGO.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
