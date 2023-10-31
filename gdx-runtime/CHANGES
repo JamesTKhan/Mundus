@@ -1,7 +1,7 @@
 [0.6.0] ~
 - [Breaking Change] Spotlights now use GameObjects forward direction
 - [Breaking Change] Rendering logic moved into SceneRenderer class
-- [Breaking Change] findComponentsByType(Array, Component.Type, boolean) method in GameObject find in the current game object too and if the boolean is true then search recursively not just only in children
+- [Breaking Change] findComponentsByType(Array, Component.Type, boolean) method in GameObject find in the current game object too and if the boolean is true then search recursively not just in children
 - Made Scene.java more post-processing friendly for runtime users
 - Add 'getRayIntersection(Vector3, Ray)' method to TerrainComponent
 - Add rotate(yaw,pitch,roll) and setLocalRotation(yaw,pitch,roll) methods to game objects
