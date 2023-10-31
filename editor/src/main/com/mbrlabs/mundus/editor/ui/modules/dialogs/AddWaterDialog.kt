@@ -17,6 +17,7 @@ import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
+import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FloatFieldWithLabel
 import com.mbrlabs.mundus.editor.ui.widgets.IntegerFieldWithLabel
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
@@ -123,7 +124,12 @@ class AddWaterDialog : BaseDialog("Add Water") {
                 val waterGO = createWaterGO(sceneGraph,
                         null, goID, waterName, asset)
                 // update sceneGraph
-                sceneGraph.addGameObject(waterGO)
+                val parentGO = UI.outline.getSelectedGameObject()
+                if (parentGO == null) {
+                    sceneGraph.addGameObject(waterGO)
+                } else {
+                    sceneGraph.addGameObject(parentGO, waterGO)
+                }
                 waterGO.setLocalPosition(posX, posY, posZ)
 
                 Mundus.postEvent(SceneGraphChangedEvent())

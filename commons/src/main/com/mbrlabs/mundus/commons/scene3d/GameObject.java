@@ -144,24 +144,12 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
      *            output array
      * @param type
      *            component type
-     * @param includeChilds
-     *            search in node children of this game object as well?
+     * @param recursive
+     *            recursive search?
      * @return components found
      */
-    public Array<Component> findComponentsByType(Array<Component> out, Component.Type type, boolean includeChilds) {
-        if (includeChilds) {
-            for (GameObject go : this) {
-                for (Component c : go.components) {
-                    if (c.getType() == type) out.add(c);
-                }
-            }
-        } else {
-            for (Component c : components) {
-                if (c.getType() == type) out.add(c);
-            }
-        }
-
-        return out;
+    public Array<Component> findComponentsByType(Array<Component> out, Component.Type type, boolean recursive) {
+        return findComponentsByType(out, this, type, recursive);
     }
 
     /**
@@ -389,6 +377,22 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
             child.scaleChanged = true;
             updateChildrenScaleChanged(child);
         }
+    }
+
+    private Array<Component> findComponentsByType(Array<Component> out, GameObject go, Component.Type type, boolean recursive) {
+        for (int i = 0; i < go.components.size; ++i) {
+            Component c = go.components.get(i);
+            if (c.getType() == type) out.add(c);
+        }
+
+        if (recursive && go.children != null) {
+            for (int i = 0; i < go.children.size; ++i) {
+                GameObject child = go.children.get(i);
+                findComponentsByType(out, child, type, true);
+            }
+        }
+
+        return out;
     }
 
 }
