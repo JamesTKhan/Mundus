@@ -25,6 +25,7 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.assets.TerrainAsset
+import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.terrain.SplatMapResolution
@@ -66,6 +67,8 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
     private var projectManager : ProjectManager
     private var ioManager : IOManager
 
+    private var selectedGO : GameObject? = null
+
     init {
         isResizable = true
         projectManager = Mundus.inject()
@@ -73,6 +76,11 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
         setupUI()
         setDefaults()
         setupListeners()
+    }
+
+    fun show(selectedGO: GameObject?) {
+        this.selectedGO = selectedGO
+        UI.showDialog(this)
     }
 
     private fun setDefaults() {
@@ -180,11 +188,10 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
 
                 val terrainGO = createTerrainGO(sceneGraph, goID, terrainName, asset)
                 // update sceneGraph
-                val parentGO = UI.outline.getSelectedGameObject()
-                if (parentGO == null) {
+                if (selectedGO == null) {
                     sceneGraph.addGameObject(terrainGO)
                 } else {
-                    sceneGraph.addGameObject(parentGO, terrainGO)
+                    sceneGraph.addGameObject(selectedGO, terrainGO)
                 }
                 terrainGO.setLocalPosition(posX, posY, posZ)
 

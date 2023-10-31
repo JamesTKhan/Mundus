@@ -376,14 +376,14 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
             // add terrainAsset
             addTerrain.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                    UI.showDialog(UI.addTerrainDialog)
+                    UI.addTerrainDialog.show(selectedGO)
                 }
             })
 
             // add waterAsset
             addWater.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                    UI.showDialog(UI.addWaterDialog)
+                    UI.addWaterDialog.show(selectedGO)
                 }
             })
         }
