@@ -1,4 +1,4 @@
 include 'editor'
 include 'commons'
 include 'gdx-runtime'
-
+include 'plugin-api'

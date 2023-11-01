@@ -89,6 +89,7 @@ project(":editor") {
 
         // Plugin framework
         implementation "org.pf4j:pf4j:$pf4jVersion"
+        api project(":plugin-api")
 
         // other
         implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
@@ -108,6 +109,16 @@ project(":gdx-runtime") {
 
     dependencies {
         api project(":commons")
+    }
+}
+
+project(":plugin-api") {
+    apply plugin: "java"
+    apply plugin: "java-library"
+
+    dependencies {
+        // Plugin framework
+        api "org.pf4j:pf4j:$pf4jVersion"
     }
 }
 
