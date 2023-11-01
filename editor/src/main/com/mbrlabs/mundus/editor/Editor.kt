@@ -53,6 +53,7 @@ import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.lwjgl.opengl.GL11
+import org.pf4j.DefaultPluginManager
 import java.io.File
 
 /**
@@ -118,6 +119,8 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         )
 
         UI.toggleLoadingScreen(true, context.name)
+
+        initPluginSystem()
     }
 
     private fun setupInput() {
@@ -258,6 +261,12 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         }
 
         return null
+    }
+
+    private fun initPluginSystem() {
+        val pluginManager = DefaultPluginManager()
+        pluginManager.loadPlugins()
+        pluginManager.startPlugins()
     }
 
     override fun closeRequested(): Boolean {
