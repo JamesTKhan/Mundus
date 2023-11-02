@@ -90,7 +90,7 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
         val terrainComponent = (go.findComponentByType(Component.Type.TERRAIN)?: return) as TerrainComponent
 
         if (go.active) {
-            if (helperLineShapes.none { it.terrainComponent == terrainComponent }) {
+            if (type != null && helperLineShapes.none { it.terrainComponent == terrainComponent }) {
                 addNewHelperLineShape(terrainComponent)
             }
         } else {
