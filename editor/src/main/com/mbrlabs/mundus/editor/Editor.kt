@@ -48,6 +48,7 @@ import com.mbrlabs.mundus.editor.utils.Colors
 import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
+import com.mbrlabs.mundus.pluginapi.Example
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import org.apache.commons.io.FileUtils
@@ -55,6 +56,8 @@ import org.apache.commons.io.FilenameUtils
 import org.lwjgl.opengl.GL11
 import org.pf4j.DefaultPluginManager
 import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
 
 /**
  * @author Marcus Brummer
@@ -264,9 +267,12 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     private fun initPluginSystem() {
-        val pluginManager = DefaultPluginManager()
+        val pluginManager = DefaultPluginManager(Paths.get("/home/dgzt/plugins"))
         pluginManager.loadPlugins()
         pluginManager.startPlugins()
+
+        val examples = pluginManager.getExtensions(Example::class.java)
+        examples.forEach { println(it.name) }
     }
 
     override fun closeRequested(): Boolean {
