@@ -129,10 +129,23 @@ public class Mundus implements Disposable {
      * Provide your own PBRShaderConfig and RenderableSorter
      */
     public Scene loadScene(final String name, PBRShaderConfig config, RenderableSorter renderableSorter) {
+        return loadScene(name, config, ShaderUtils.buildPBRShaderDepthConfig(assetManager.maxNumBones), renderableSorter);
+    }
+
+    /**
+     * Provide your own PBRShaderConfig and DepthShader config
+     */
+    public Scene loadScene(final String name, PBRShaderConfig config, DepthShader.Config depthConfig) {
+        return loadScene(name, config, depthConfig, new SceneRenderableSorter());
+    }
+
+    /**
+     * Provide your own PBRShaderConfig, DepthShader config and RenderableSorter
+     */
+    public Scene loadScene(final String name, PBRShaderConfig config, DepthShader.Config depthConfig, RenderableSorter renderableSorter) {
         final Scene scene = sceneLoader.load(name);
         scene.batch = new ModelBatch(new MundusPBRShaderProvider(config), renderableSorter);
 
-        DepthShader.Config depthConfig = ShaderUtils.buildPBRShaderDepthConfig(assetManager.maxNumBones);
         scene.depthBatch = new ModelBatch(new PBRDepthShaderProvider(depthConfig));
 
         return scene;
