@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
+import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
 import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.Mundus.postEvent
@@ -331,7 +332,7 @@ class Outline : VisTable(),
 
             if (containsWater) continue
 
-            val waterComponent = go.findComponentByType(Component.Type.WATER)
+            val waterComponent: WaterComponent? = go.findComponentByType(Component.Type.WATER)
             if (waterComponent != null) {
                 containsWater = true
             }
@@ -421,10 +422,8 @@ class Outline : VisTable(),
         val goCopy = GameObject(go, projectManager.current().obtainID())
 
         // Handle duplicated light components
-        val lightComponent = goCopy.findComponentByType(Component.Type.LIGHT)
+        val lightComponent: LightComponent? = goCopy.findComponentByType(Component.Type.LIGHT)
         if (lightComponent != null) {
-            lightComponent as LightComponent
-
             // Remove the duplicated light component
             goCopy.removeComponent(lightComponent)
             lightComponent.remove()

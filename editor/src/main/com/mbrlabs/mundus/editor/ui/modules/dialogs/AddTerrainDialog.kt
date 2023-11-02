@@ -183,7 +183,7 @@ class AddTerrainDialog : BaseDialog("Add Terrain") {
                 sceneGraph.addGameObject(terrainGO)
                 terrainGO.setLocalPosition(posX, posY, posZ)
 
-                terrainComponent = terrainGO.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
+                terrainComponent = terrainGO.findComponentByType(Component.Type.TERRAIN)
                 context.currScene.terrains.add(terrainComponent)
                 projectManager.current().assetManager.addNewAsset(asset)
                 Mundus.postEvent(AssetImportEvent(asset))
