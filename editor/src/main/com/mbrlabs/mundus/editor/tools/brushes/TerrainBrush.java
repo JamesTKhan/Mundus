@@ -36,13 +36,13 @@ import com.mbrlabs.mundus.commons.utils.Pools;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GlobalBrushSettingsChangedEvent;
-import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.history.commands.TerrainHeightCommand;
 import com.mbrlabs.mundus.editor.history.commands.TerrainPaintCommand;
 import com.mbrlabs.mundus.editor.shader.EditorPBRTerrainShader;
 import com.mbrlabs.mundus.editor.tools.Tool;
 import com.mbrlabs.mundus.editor.ui.UI;
+import main.com.mbrlabs.mundus.editorcommons.events.TerrainVerticesChangedEvent;
 
 /**
  * A Terrain Brush can modify the terrainAsset in various ways (BrushMode).

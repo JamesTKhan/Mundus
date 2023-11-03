@@ -22,7 +22,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.editor.Mundus;
-import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
+import main.com.mbrlabs.mundus.editorcommons.events.TerrainVerticesChangedEvent;
 
 /**
  *

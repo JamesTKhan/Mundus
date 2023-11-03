@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editor.events
 
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import main.com.mbrlabs.mundus.editorcommons.Subscribe
 
 class TerrainRemovedEvent(val terrainComponent: TerrainComponent) {
 

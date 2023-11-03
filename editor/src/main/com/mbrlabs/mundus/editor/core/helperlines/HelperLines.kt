@@ -25,7 +25,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
 import com.mbrlabs.mundus.editor.events.TerrainAddedEvent
 import com.mbrlabs.mundus.editor.events.TerrainRemovedEvent
-import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent
+import main.com.mbrlabs.mundus.editorcommons.events.TerrainVerticesChangedEvent
 
 class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListener,
         TerrainAddedEvent.TerrainAddedEventListener,

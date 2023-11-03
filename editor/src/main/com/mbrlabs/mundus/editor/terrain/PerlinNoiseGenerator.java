@@ -21,7 +21,7 @@ import java.util.Random;
 import com.badlogic.gdx.math.Interpolation;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.editor.Mundus;
-import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
+import main.com.mbrlabs.mundus.editorcommons.events.TerrainVerticesChangedEvent;
 
 /**
  *

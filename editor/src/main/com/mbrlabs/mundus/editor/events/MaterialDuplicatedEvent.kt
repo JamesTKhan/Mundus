@@ -16,6 +16,8 @@
 
 package com.mbrlabs.mundus.editor.events
 
+import main.com.mbrlabs.mundus.editorcommons.Subscribe
+
 /**
  * @author jake-goldsmith
  * @version January 14, 2023
