@@ -18,6 +18,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
 import com.mbrlabs.mundus.commons.utils.Pools
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.MetaSaver
@@ -109,7 +110,7 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
                         toolManager.setDefaultTool()
                     }
 
-                    val terrainComponent = selectedGO!!.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
+                    val terrainComponent: TerrainComponent? = selectedGO!!.findComponentByType(Component.Type.TERRAIN)
                     if (terrainComponent != null) {
                         projectManager.current().currScene.terrains.removeValue(terrainComponent, true)
                         Mundus.postEvent(TerrainRemovedEvent(terrainComponent))
@@ -155,8 +156,8 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
 
         // some assets can not be duplicated
         duplicate.isDisabled = selectedGO == null
-                || selectedGO!!.findComponentByType(Component.Type.TERRAIN) != null
-                || selectedGO!!.findComponentByType(Component.Type.WATER) != null
+                || selectedGO!!.findComponentByType<TerrainComponent?>(Component.Type.TERRAIN) != null
+                || selectedGO!!.findComponentByType<WaterComponent?>(Component.Type.WATER) != null
     }
 
     fun showRenameDialog() {

@@ -484,14 +484,12 @@ public class ProjectManager implements Disposable {
         }
 
         // create TerrainGroup for active scene
-        Array<Component> terrainComponents = new Array<>();
+        Array<TerrainComponent> terrainComponents = new Array<>();
         for (GameObject go : sceneGraph.getGameObjects()) {
             go.findComponentsByType(terrainComponents, Component.Type.TERRAIN, true);
         }
-        for (Component c : terrainComponents) {
-            if (c instanceof TerrainComponent) {
-                scene.terrains.add(((TerrainComponent) c));
-            }
+        for (TerrainComponent c : terrainComponents) {
+            scene.terrains.add(c);
         }
 
         return scene;
