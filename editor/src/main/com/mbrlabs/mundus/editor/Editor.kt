@@ -267,7 +267,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     private fun initPluginSystem() {
-        val pluginManager = DefaultPluginManager(Paths.get("/home/dgzt/plugins"))
+        val pluginManager = DefaultPluginManager(Paths.get(Registry.PLUGINS_DIR))
         pluginManager.loadPlugins()
         pluginManager.startPlugins()
 
