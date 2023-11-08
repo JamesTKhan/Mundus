@@ -33,6 +33,8 @@ import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.FilesDroppedEvent
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
 import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.PluginsLoadedEvent
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.input.FreeCamController
@@ -49,7 +51,6 @@ import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
 import com.mbrlabs.mundus.pluginapi.EventExtension
-import com.mbrlabs.mundus.pluginapi.Example
 import com.mbrlabs.mundus.pluginapi.PluginEventManager
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
@@ -271,13 +272,14 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         pluginManager.loadPlugins()
         pluginManager.startPlugins()
 
-        val examples = pluginManager.getExtensions(Example::class.java)
-        examples.forEach { println(it.name) }
+        pluginManager.plugins.forEach { Mundus.postEvent(LogEvent("Plugin loaded: ${it.pluginId}")) }
 
+        // Setup event handling in plugins
         val pluginEventManager = PluginEventManager { listener -> Mundus.registerEventListener(listener) }
-
         val eventExtensions = pluginManager.getExtensions(EventExtension::class.java)
         eventExtensions.forEach { it.manageEvents(pluginEventManager) }
+
+        Mundus.postEvent(PluginsLoadedEvent())
     }
 
     override fun closeRequested(): Boolean {
