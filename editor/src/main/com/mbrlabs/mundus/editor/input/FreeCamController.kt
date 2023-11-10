@@ -87,6 +87,16 @@ class FreeCamController(private val projectManager: ProjectManager, private val 
     }
 
     /**
+     * Returns the velocity in units per second for moving forward, backward and
+     * strafing left/right.
+     *
+     * @return the current velocity
+     */
+    fun getVelocity(): Float {
+        return this.velocity
+    }
+
+    /**
      * Sets how many degrees to rotate per pixel the mouse moved.
      *
      * @param degreesPerPixel
