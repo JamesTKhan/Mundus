@@ -19,6 +19,7 @@
 - Optimize AssetUsage system by using DTO objects instead of loading scene
 - Use BufferedInputStream for faster loading of terrains
 - Fix activated/deactivated terrain at helper lines
+- Sort children action command in Outline
 
 [0.5.1] ~ 08/08/2023
 - Added FPS launcher argument, always call setForegroundFPS
