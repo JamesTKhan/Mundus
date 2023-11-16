@@ -1,6 +1,6 @@
 package com.mbrlabs.mundus.pluginapi.ui;
 
-public interface SpinnerChangeListener {
+public interface SpinnerListener {
 
     void changed(int newValue);
 }
