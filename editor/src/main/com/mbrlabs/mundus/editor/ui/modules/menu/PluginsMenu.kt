@@ -16,10 +16,15 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.menu
 
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.widget.Menu
 import com.kotcrab.vis.ui.widget.MenuItem
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.PluginsLoadedEvent
+import com.mbrlabs.mundus.editor.plugin.RootWidgetImpl
+import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.pluginapi.MenuExtension
 import org.pf4j.DefaultPluginManager
 
@@ -33,7 +38,18 @@ class PluginsMenu : Menu("Plugins"), PluginsLoadedEvent.PluginsLoadedEventListen
 
     override fun onPluginsLoaded(event: PluginsLoadedEvent) {
         for (menuExtension in pluginManager.getExtensions(MenuExtension::class.java)) {
-            addItem(MenuItem(menuExtension.name))
+            val menuItem = MenuItem(menuExtension.menuName)
+            menuItem.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent, x: Float, y: Float) {
+                    val dialog = BaseDialog(menuExtension.menuName)
+                    val root = RootWidgetImpl()
+                    menuExtension.setupDialogRootWidget(root)
+                    dialog.add(root)
+                    UI.showDialog(dialog)
+                }
+            })
+
+            addItem(menuItem)
         }
     }
 }
