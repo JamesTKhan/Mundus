@@ -84,24 +84,53 @@ class StatusBar : VisTable() {
         right.add(fpsLabel).right()
 
         setupListeners()
+        handleCameraMovementSpeedChange()
+    }
+
+    /**
+     * Disables the button corresponding to the currently
+     * selected camera movement speed.
+     */
+    private fun handleCameraMovementSpeedChange() {
+        val cameraMovementSpeed: Float = freeCamController.getVelocity()
+
+        speed01.isDisabled = false
+        speed1.isDisabled = false
+        speed10.isDisabled = false
+
+        when (cameraMovementSpeed) {
+            freeCamController.SPEED_01 -> speed01.isDisabled = true
+            freeCamController.SPEED_1 -> speed1.isDisabled = true
+            freeCamController.SPEED_10 -> speed10.isDisabled = true
+        }
+    }
+
+    /**
+     * Set movement speed of the camera.
+     *
+     * @param movementSpeed the new speed of camera movement
+     */
+    private fun setCameraMovementSpeed(movementSpeed: Float) {
+        freeCamController.setVelocity(movementSpeed)
+        handleCameraMovementSpeedChange()
     }
 
     fun setupListeners() {
         speed01.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                freeCamController.setVelocity(freeCamController.SPEED_01)
+               setCameraMovementSpeed(freeCamController.SPEED_01)
             }
         })
 
         speed1.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                freeCamController.setVelocity(freeCamController.SPEED_1)
+                setCameraMovementSpeed(freeCamController.SPEED_1)
             }
         })
 
         speed10.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                freeCamController.setVelocity(freeCamController.SPEED_10)
+                setCameraMovementSpeed(freeCamController.SPEED_10)
             }
         })
     }

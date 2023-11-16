@@ -33,6 +33,7 @@ import com.mbrlabs.mundus.editor.history.commands.MultiCommand
 import com.mbrlabs.mundus.editor.history.commands.RotateCommand
 import com.mbrlabs.mundus.editor.history.commands.TranslateCommand
 import com.mbrlabs.mundus.editor.history.commands.GameObjectActiveCommand
+import com.mbrlabs.mundus.editor.history.commands.SortChildrenCommand
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
@@ -452,14 +453,16 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
      * A submenu to allow adding GameObjects to the scene
      */
     private inner class ActionSubMenu : PopupMenu() {
-        private val toggleActive: MenuItem = MenuItem("Toggle active")
-        private val alignCameraToObject: MenuItem = MenuItem("Align Camera to Object")
-        private val alignObjectToCamera: MenuItem = MenuItem("Align Object to Camera")
+        private val toggleActive = MenuItem("Toggle active")
+        private val alignCameraToObject = MenuItem("Align Camera to Object")
+        private val alignObjectToCamera = MenuItem("Align Object to Camera")
+        private val sortChildren = MenuItem("Sort children")
 
         init {
             addItem(toggleActive)
             addItem(alignCameraToObject)
             addItem(alignObjectToCamera)
+            addItem(sortChildren)
 
             toggleActive.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -555,6 +558,17 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
                     Pools.matrix4Pool.free(m)
                 }
             })
+
+            sortChildren.addListener(object: ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    val childArray = getChildArray()
+
+                    val command = SortChildrenCommand(childArray)
+                    command.execute()
+
+                    history.add(command)
+                }
+            })
         }
 
         fun show() {
@@ -570,6 +584,14 @@ class OutlineRightClickMenu(outline: Outline) : PopupMenu() {
             } else {
                 toggleActive.text = "Activate"
             }
+
+            sortChildren.isDisabled = getChildrenNum() == 0
+        }
+
+        fun getChildrenNum(): Int = currentNode!!.value.children?.size ?: 0
+
+        fun getChildArray(): Array<GameObject> {
+            return currentNode!!.value.children
         }
 
     }
