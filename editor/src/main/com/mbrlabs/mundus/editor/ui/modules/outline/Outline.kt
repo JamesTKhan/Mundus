@@ -332,8 +332,8 @@ class Outline : VisTable(),
 
             if (containsWater) continue
 
-            val waterComponent: WaterComponent? = go.findComponentByType(Component.Type.WATER)
-            if (waterComponent != null) {
+            val waterComponents = go.findComponentsByType(Array(), Component.Type.WATER, true)
+            if (waterComponents.notEmpty()) {
                 containsWater = true
             }
         }
