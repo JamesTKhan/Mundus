@@ -52,6 +52,7 @@ import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
 import com.mbrlabs.mundus.pluginapi.EventExtension
 import com.mbrlabs.mundus.pluginapi.PluginEventManager
+import com.mbrlabs.mundus.pluginapi.SceneExtension
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import org.apache.commons.io.FileUtils
@@ -225,6 +226,11 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             compass = Compass(projectManager.loadingProject().currScene.cam)
             // change project; this will fire a ProjectChangedEvent
             projectManager.changeProject(projectManager.loadingProject())
+
+            val pluginManager = Mundus.inject<DefaultPluginManager>()
+            val sceneExtensions = pluginManager.getExtensions(SceneExtension::class.java)
+            sceneExtensions.forEach { it.sceneLoaded(projectManager.current().currScene.terrains) }
+
             UI.toggleLoadingScreen(false)
             UI.processVersionDialog()
         }
