@@ -52,6 +52,7 @@ import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
 import com.mbrlabs.mundus.pluginapi.EventExtension
 import com.mbrlabs.mundus.pluginapi.PluginEventManager
+import com.mbrlabs.mundus.pluginapi.RenderExtension
 import com.mbrlabs.mundus.pluginapi.SceneExtension
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
@@ -86,6 +87,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var shapeRenderer: ShapeRenderer
     private lateinit var debugRenderer: DebugRenderer
     private lateinit var globalPreferencesManager: MundusPreferencesManager
+    private lateinit var pluginManager: DefaultPluginManager
 
     override fun create() {
         Mundus.registerEventListener(this)
@@ -100,6 +102,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         shapeRenderer = Mundus.inject()
         debugRenderer = Mundus.inject()
         globalPreferencesManager = Mundus.inject()
+        pluginManager = Mundus.inject<DefaultPluginManager>()
         setupInput()
 
         debugRenderer.isEnabled = globalPreferencesManager.getBoolean(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_ON, false)
@@ -182,6 +185,13 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             scene.batch.end()
             Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
 
+            // TODO check extension before calls begin on batch
+            // TODO line width
+            scene.batch.begin(scene.cam)
+            val renderExtensions = pluginManager.getExtensions(RenderExtension::class.java)
+            renderExtensions.forEach { scene.batch.render(it.renderableProvider, scene.environment) }
+            scene.batch.end()
+
 
             toolManager.render()
             gizmoManager.render()
@@ -227,7 +237,6 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             // change project; this will fire a ProjectChangedEvent
             projectManager.changeProject(projectManager.loadingProject())
 
-            val pluginManager = Mundus.inject<DefaultPluginManager>()
             val sceneExtensions = pluginManager.getExtensions(SceneExtension::class.java)
             sceneExtensions.forEach { it.sceneLoaded(projectManager.current().currScene.terrains) }
 
@@ -274,7 +283,6 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     private fun initPluginSystem() {
-        val pluginManager = Mundus.inject<DefaultPluginManager>()
         pluginManager.loadPlugins()
         pluginManager.startPlugins()
 
