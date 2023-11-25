@@ -83,7 +83,9 @@ public abstract class TerrainBrush extends Tool {
         /** Paints on the splatmap of the terrainAsset. */
         PAINT,
         /** Create a ramp between two points. */
-        RAMP
+        RAMP,
+        /** Puts model objects onto terrain */
+        TERRAIN_OBJECT
     }
 
     /**
