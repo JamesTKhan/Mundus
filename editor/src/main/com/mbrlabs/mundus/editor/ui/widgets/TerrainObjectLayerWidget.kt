@@ -16,9 +16,13 @@
 
 package com.mbrlabs.mundus.editor.ui.widgets
 
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
+import com.mbrlabs.mundus.commons.terrain.SplatTexture
 import com.mbrlabs.mundus.editor.utils.Colors
 
 class TerrainObjectLayerWidget(var allowChange: Boolean = true) : VisTable() {
@@ -27,6 +31,9 @@ class TerrainObjectLayerWidget(var allowChange: Boolean = true) : VisTable() {
     private val editBtn: VisTextButton = VisTextButton("Edit")
     private val duplicatedBtn: VisTextButton = VisTextButton("Duplicate")
     private val changedBtn: VisTextButton = VisTextButton("Change")
+
+    internal val textureGrid = TextureGrid<SplatTexture>(40, 5)
+    private val addTextureBtn = VisTextButton("Add Object")
 
     private val root = VisTable()
 
@@ -47,8 +54,44 @@ class TerrainObjectLayerWidget(var allowChange: Boolean = true) : VisTable() {
             layerTable.add(changedBtn).padLeft(4f).right().row()
         root.add(layerTable).expandX().fillX().row()
 
+        // Objects
         root.add(VisLabel("Objects:")).padLeft(5f).left().row()
+        textureGrid.background = VisUI.getSkin().getDrawable("menu-bg")
+        root.add(textureGrid).expand().fill().pad(5f).row()
+
+        // Add objects
+        root.add(addTextureBtn).padRight(5f).right().row()
 
         add(root).expand().fill()
+
+        setupListeners()
+    }
+
+    private fun setupListeners() {
+        if (allowChange) {
+            changedBtn.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    // TODO
+                }
+            })
+        }
+
+        addTextureBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                // TODO
+            }
+        })
+
+        duplicatedBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                // TODO
+            }
+        })
+
+        editBtn.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                // TODO
+            }
+        })
     }
 }

@@ -48,7 +48,7 @@ public class TextureGrid<T extends TextureProvider> extends VisTable {
     public TextureGrid(int imgSize, int spacing) {
         super();
         this.grid = new GridGroup(imgSize, spacing);
-        add(grid).expand().fill().row();
+        add(grid).minHeight(imgSize + 2 * spacing).expand().fill().row();
 
         selectedOverlay = createSelectedOverlayImage(imgSize);
     }
