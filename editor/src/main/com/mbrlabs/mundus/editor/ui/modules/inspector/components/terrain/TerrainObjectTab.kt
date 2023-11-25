@@ -19,10 +19,16 @@ package com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
+import com.mbrlabs.mundus.editor.ui.widgets.TerrainObjectLayerWidget
 
 class TerrainObjectTab(private val parentWidget: TerrainComponentWidget) : BaseBrushTab(parentWidget, TerrainBrush.BrushMode.TERRAIN_OBJECT) {
 
     private val root = VisTable()
+    private val terrainObjectLayerWidget = TerrainObjectLayerWidget()
+
+    init {
+        root.add(terrainObjectLayerWidget).expand().fill().padBottom(5f).row()
+    }
 
     override fun getTabTitle(): String = "Objets"
 
