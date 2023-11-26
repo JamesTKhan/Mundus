@@ -76,12 +76,12 @@ public class ModelUtils {
      * @param rootGameObject the parent game object to apply
      */
     public static void applyGameObjectMaterials(GameObject rootGameObject) {
-        ModelComponent mc = (ModelComponent) rootGameObject.findComponentByType(Component.Type.MODEL);
+        ModelComponent mc = rootGameObject.findComponentByType(Component.Type.MODEL);
         if (mc != null) {
             mc.applyMaterials();
         }
 
-        TerrainComponent tc = (TerrainComponent) rootGameObject.findComponentByType(Component.Type.TERRAIN);
+        TerrainComponent tc = rootGameObject.findComponentByType(Component.Type.TERRAIN);
         if (tc != null) {
             tc.applyMaterial();
         }

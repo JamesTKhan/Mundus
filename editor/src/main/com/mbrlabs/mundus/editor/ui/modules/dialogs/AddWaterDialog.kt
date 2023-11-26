@@ -9,6 +9,7 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.assets.WaterAsset
+import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.water.Water
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -17,6 +18,7 @@ import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
+import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.FloatFieldWithLabel
 import com.mbrlabs.mundus.editor.ui.widgets.IntegerFieldWithLabel
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
@@ -40,6 +42,8 @@ class AddWaterDialog : BaseDialog("Add Water") {
     private var projectManager : ProjectManager
     private var ioManager : IOManager
 
+    private var selectedGO : GameObject? = null
+
     init {
         isResizable = true
 
@@ -49,6 +53,11 @@ class AddWaterDialog : BaseDialog("Add Water") {
         setupUI()
         setDefaults()
         setupListeners()
+    }
+
+    fun show(selectedGO: GameObject?) {
+        this.selectedGO = selectedGO
+        UI.showDialog(this)
     }
 
     private fun setupUI() {
@@ -123,7 +132,11 @@ class AddWaterDialog : BaseDialog("Add Water") {
                 val waterGO = createWaterGO(sceneGraph,
                         null, goID, waterName, asset)
                 // update sceneGraph
-                sceneGraph.addGameObject(waterGO)
+                if (selectedGO == null) {
+                    sceneGraph.addGameObject(waterGO)
+                } else {
+                    sceneGraph.addGameObject(selectedGO, waterGO)
+                }
                 waterGO.setLocalPosition(posX, posY, posZ)
 
                 Mundus.postEvent(SceneGraphChangedEvent())

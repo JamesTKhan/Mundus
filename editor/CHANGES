@@ -20,6 +20,8 @@
 - Optimize AssetUsage system by using DTO objects instead of loading scene
 - Use BufferedInputStream for faster loading of terrains
 - Fix activated/deactivated terrain at helper lines
+- Sort children action command in Outline
+- Fix add water and terrain as child
 - Fix Terrain Cloning, now works as expected
 - Added optional ignore filter to GameObjectPicker
 - Added loading priorities for assets

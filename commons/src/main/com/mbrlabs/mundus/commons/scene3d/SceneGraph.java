@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 
 /**
  * @author Marcus Brummer
@@ -81,7 +82,7 @@ public class SceneGraph {
 
         if (containsWater) return;
 
-        Component waterComponent = go.findComponentByType(Component.Type.WATER);
+        WaterComponent waterComponent = go.findComponentByType(Component.Type.WATER);
         if (waterComponent != null) {
             containsWater = true;
         }

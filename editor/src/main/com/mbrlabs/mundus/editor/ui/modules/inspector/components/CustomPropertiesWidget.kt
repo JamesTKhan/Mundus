@@ -44,9 +44,9 @@ class CustomPropertiesWidget(customPropertiesComponent: CustomPropertiesComponen
     }
 
     override fun setValues(go: GameObject) {
-        val c = go.findComponentByType(Component.Type.CUSTOM_PROPERTIES)
+        val c: CustomPropertiesComponent? = go.findComponentByType(Component.Type.CUSTOM_PROPERTIES)
         if (c != null) {
-            component = c as CustomPropertiesComponent
+            component = c
         }
 
         customProperties.clearChildren()

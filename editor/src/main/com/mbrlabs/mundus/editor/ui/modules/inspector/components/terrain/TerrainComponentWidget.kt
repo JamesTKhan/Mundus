@@ -91,9 +91,9 @@ class TerrainComponentWidget(terrainComponent: TerrainComponent) :
     }
 
     override fun setValues(go: GameObject) {
-        val c = go.findComponentByType(Component.Type.TERRAIN)
+        val c: TerrainComponent? = go.findComponentByType(Component.Type.TERRAIN)
         if (c != null) {
-            this.component = c as TerrainComponent
+            this.component = c
         }
     }
 
