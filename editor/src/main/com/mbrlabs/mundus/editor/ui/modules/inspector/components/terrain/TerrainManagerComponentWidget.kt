@@ -47,10 +47,8 @@ class TerrainManagerComponentWidget(terrainManagerComponent: TerrainManagerCompo
     }
 
     override fun setValues(go: GameObject) {
-        val c = go.findComponentByType(Component.Type.TERRAIN_MANAGER)
-        if (c != null) {
-            component = c as TerrainManagerComponent
-        }
+        val c : TerrainManagerComponent = go.findComponentByType(Component.Type.TERRAIN_MANAGER) ?: return
+        component = c
     }
 
     private fun setupUI() {

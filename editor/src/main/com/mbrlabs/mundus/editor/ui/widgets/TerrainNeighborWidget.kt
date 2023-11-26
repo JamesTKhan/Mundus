@@ -27,7 +27,7 @@ class TerrainNeighborWidget(val terrainComponent: TerrainComponent) : BaseWidget
      */
     class TerrainGameObjectFilter(var parentGo: GameObject, var currentGo: GameObject) : GameObjectFilter {
         override fun ignore(go: GameObject): Boolean {
-            return go.findComponentByType(Component.Type.TERRAIN) == null || !go.isChildOf(parentGo) || go == currentGo
+            return go.findComponentByType<TerrainComponent>(Component.Type.TERRAIN) == null || !go.isChildOf(parentGo) || go == currentGo
         }
     }
 

@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Tree
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.ModelCacheManager
 import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -78,12 +79,12 @@ class DeleteCommand(private var go: GameObject?, private var node: Outline.Outli
 
         // For components that utilize gizmos we should send a ComponentAddedEvent
         // so that GizmoManager can update as needed.
-        val lightComponent = go!!.findComponentByType(Component.Type.LIGHT)
+        val lightComponent: LightComponent? = go!!.findComponentByType(Component.Type.LIGHT)
         if (lightComponent != null) {
             Mundus.postEvent(ComponentAddedEvent(lightComponent))
         }
 
-        val terrainComponent = go!!.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
+        val terrainComponent: TerrainComponent? = go!!.findComponentByType(Component.Type.TERRAIN)
         if (terrainComponent != null) {
             projectManager.current().currScene.terrains.add(terrainComponent)
             Mundus.postEvent(TerrainAddedEvent(terrainComponent))

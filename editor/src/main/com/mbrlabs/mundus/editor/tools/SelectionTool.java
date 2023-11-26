@@ -79,19 +79,19 @@ public class SelectionTool extends Tool {
             getProjectManager().getModelBatch().begin(getProjectManager().current().currScene.cam);
             for (GameObject go : getProjectManager().current().currScene.currentSelection) {
                 // model component
-                ModelComponent mc = (ModelComponent) go.findComponentByType(Component.Type.MODEL);
+                ModelComponent mc = go.findComponentByType(Component.Type.MODEL);
                 if (mc != null) {
                     getProjectManager().getModelBatch().render(mc.getModelInstance(), getShader());
                 }
 
                 // terrainAsset component
-                TerrainComponent tc = (TerrainComponent) go.findComponentByType(Component.Type.TERRAIN);
+                TerrainComponent tc = go.findComponentByType(Component.Type.TERRAIN);
                 if (tc != null) {
                     getProjectManager().getModelBatch().render(tc.getModelInstance(), getShader());
                 }
 
                 // waterAsset component
-                WaterComponent wc = (WaterComponent) go.findComponentByType(Component.Type.WATER);
+                WaterComponent wc = go.findComponentByType(Component.Type.WATER);
                 if (wc != null) {
                     getProjectManager().getModelBatch().render(wc.getWaterAsset().water, getShader());
                 }
