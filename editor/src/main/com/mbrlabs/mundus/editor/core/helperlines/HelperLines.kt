@@ -87,10 +87,10 @@ class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListe
 
     override fun onGameObjectModified(event: GameObjectModifiedEvent) {
         val go = event.gameObject ?: return
-        val terrainComponent = (go.findComponentByType(Component.Type.TERRAIN)?: return) as TerrainComponent
+        val terrainComponent: TerrainComponent = (go.findComponentByType(Component.Type.TERRAIN)?: return)
 
         if (go.active) {
-            if (helperLineShapes.none { it.terrainComponent == terrainComponent }) {
+            if (type != null && helperLineShapes.none { it.terrainComponent == terrainComponent }) {
                 addNewHelperLineShape(terrainComponent)
             }
         } else {

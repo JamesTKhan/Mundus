@@ -43,9 +43,9 @@ class WaterComponentWidget(waterComponent: WaterComponent) :
     }
 
     override fun setValues(go: GameObject) {
-        val c = go.findComponentByType(Component.Type.WATER)
+        val c: WaterComponent? = go.findComponentByType(Component.Type.WATER)
         if (c != null) {
-            this.component = c as WaterComponent
+            this.component = c
         }
     }
 

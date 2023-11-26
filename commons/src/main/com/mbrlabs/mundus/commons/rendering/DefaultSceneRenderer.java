@@ -76,44 +76,7 @@ public class DefaultSceneRenderer implements SceneRenderer {
      */
     public void renderComponents(Scene scene, ModelBatch batch, GameObject parent, Shader shader, boolean isDepthPass) {
         for (GameObject go : parent.getChildren()) {
-            if (!go.active) continue;
-            if (go.hasWaterComponent) continue;
-
-            // Render all renderable components
-            for (Component component : go.getComponents()) {
-                if (!(component instanceof RenderableComponent)) continue;
-
-                if (component instanceof CullableComponent) {
-                    CullableComponent cullableComponent = (CullableComponent) component;
-                    if (cullableComponent.isCulled()) continue;
-
-                    if (isDepthPass) {
-                        cullableComponent.triggerBeforeDepthRenderEvent();
-                    } else {
-                        cullableComponent.triggerBeforeRenderEvent();
-                    }
-                }
-
-                if (component instanceof ModelCacheable) {
-                    // Don't render the component here if it's a model cacheable
-                    ModelCacheable modelCacheable = (ModelCacheable) component;
-                    if (modelCacheable.shouldCache()) continue;
-                }
-
-                if (shader != null) {
-                    // Render the component with the given shader
-                    batch.render(((RenderableComponent) component).getRenderableProvider(), scene.environment, shader);
-                    continue;
-                }
-
-                // Render with default shaders (Uses Provider)
-                batch.render(((RenderableComponent) component).getRenderableProvider(), scene.environment);
-            }
-
-            // Render children recursively
-            if (go.getChildren() != null) {
-                renderComponents(scene, batch, go, shader, isDepthPass);
-            }
+            renderComponent(scene, batch, go, shader, isDepthPass);
         }
     }
 
@@ -153,6 +116,47 @@ public class DefaultSceneRenderer implements SceneRenderer {
     @Override
     public void updateWaterResolution(WaterResolution waterResolution) {
         waterRenderer.updateWaterResolution(waterResolution);
+    }
+
+    protected void renderComponent(Scene scene, ModelBatch batch, GameObject go, Shader shader, boolean isDepthPass) {
+        if (!go.active) return;
+        if (go.hasWaterComponent) return;
+
+        // Render all renderable components
+        for (Component component : go.getComponents()) {
+            if (!(component instanceof RenderableComponent)) continue;
+
+            if (component instanceof CullableComponent) {
+                CullableComponent cullableComponent = (CullableComponent) component;
+                if (cullableComponent.isCulled()) continue;
+
+                if (isDepthPass) {
+                    cullableComponent.triggerBeforeDepthRenderEvent();
+                } else {
+                    cullableComponent.triggerBeforeRenderEvent();
+                }
+            }
+
+            if (component instanceof ModelCacheable) {
+                // Don't render the component here if it's a model cacheable
+                ModelCacheable modelCacheable = (ModelCacheable) component;
+                if (modelCacheable.shouldCache()) continue;
+            }
+
+            if (shader != null) {
+                // Render the component with the given shader
+                batch.render(((RenderableComponent) component).getRenderableProvider(), scene.environment, shader);
+                continue;
+            }
+
+            // Render with default shaders (Uses Provider)
+            batch.render(((RenderableComponent) component).getRenderableProvider(), scene.environment);
+        }
+
+        // Render children recursively
+        if (go.getChildren() != null) {
+            renderComponents(scene, batch, go, shader, isDepthPass);
+        }
     }
 
     @Override
