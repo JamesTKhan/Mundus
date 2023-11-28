@@ -87,6 +87,16 @@ class FreeCamController(private val projectManager: ProjectManager, private val 
     }
 
     /**
+     * Returns the velocity in units per second for moving forward, backward and
+     * strafing left/right.
+     *
+     * @return the current velocity
+     */
+    fun getVelocity(): Float {
+        return this.velocity
+    }
+
+    /**
      * Sets how many degrees to rotate per pixel the mouse moved.
      *
      * @param degreesPerPixel
@@ -191,7 +201,7 @@ class FreeCamController(private val projectManager: ProjectManager, private val 
             var helperCell: HelperLineCenterObject? = null
 
             val go = goPicker.pick(currentScene, screenX, screenY)
-            val terrainComponent = go?.findComponentByType(Component.Type.TERRAIN) as TerrainComponent?
+            val terrainComponent: TerrainComponent? = go?.findComponentByType(Component.Type.TERRAIN)
 
             if (terrainComponent != null) {
                 val result = terrainComponent.getRayIntersection(Pools.vector3Pool.obtain(), ray)

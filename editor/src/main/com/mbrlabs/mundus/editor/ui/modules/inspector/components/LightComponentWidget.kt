@@ -24,9 +24,9 @@ class LightComponentWidget(lightComponent: LightComponent) : ComponentWidget<Lig
     }
 
     override fun setValues(go: GameObject) {
-        val c = go.findComponentByType(Component.Type.LIGHT)
+        val c: LightComponent? = go.findComponentByType(Component.Type.LIGHT)
         if (c != null) {
-            component = c as LightComponent
+            component = c
         }
     }
 

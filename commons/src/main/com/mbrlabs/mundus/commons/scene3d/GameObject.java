@@ -144,24 +144,12 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
      *            output array
      * @param type
      *            component type
-     * @param includeChilds
-     *            search in node children of this game object as well?
+     * @param recursive
+     *            recursive search?
      * @return components found
      */
-    public Array<Component> findComponentsByType(Array<Component> out, Component.Type type, boolean includeChilds) {
-        if (includeChilds) {
-            for (GameObject go : this) {
-                for (Component c : go.components) {
-                    if (c.getType() == type) out.add(c);
-                }
-            }
-        } else {
-            for (Component c : components) {
-                if (c.getType() == type) out.add(c);
-            }
-        }
-
-        return out;
+    public <T extends Component> Array<T> findComponentsByType(Array<T> out, Component.Type type, boolean recursive) {
+        return findComponentsByType(out, this, type, recursive);
     }
 
     /**
@@ -171,11 +159,11 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
      *            component type
      * @return component if found or null
      */
-    public Component findComponentByType(Component.Type type) {
+    public <T extends Component> T findComponentByType(Component.Type type) {
         // Use regular loop, to not conflict with nested iterators
         for (int i = 0; i < components.size; i++) {
             Component c = components.get(i);
-            if (c != null && c.getType() == type) return c;
+            if (c != null && c.getType() == type) return (T) c;
         }
         return null;
     }
@@ -310,7 +298,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
     public void addChild(GameObject child) {
         super.addChild(child);
 
-        LightComponent component = (LightComponent) child.findComponentByType(Component.Type.LIGHT);
+        LightComponent component = child.findComponentByType(Component.Type.LIGHT);
 
         // On adding of GameObject with a Light, add it to environment
         if (component != null) {
@@ -322,7 +310,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
     public void remove() {
         super.remove();
 
-        LightComponent component = (LightComponent) findComponentByType(Component.Type.LIGHT);
+        LightComponent component = findComponentByType(Component.Type.LIGHT);
 
         // On removal of GameObject, remove its light component from environment
         if (component != null) {
@@ -389,6 +377,22 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
             child.scaleChanged = true;
             updateChildrenScaleChanged(child);
         }
+    }
+
+    private <T extends Component> Array<T> findComponentsByType(Array<T> out, GameObject go, Component.Type type, boolean recursive) {
+        for (int i = 0; i < go.components.size; ++i) {
+            Component c = go.components.get(i);
+            if (c.getType() == type) out.add((T)c);
+        }
+
+        if (recursive && go.children != null) {
+            for (int i = 0; i < go.children.size; ++i) {
+                GameObject child = go.children.get(i);
+                findComponentsByType(out, child, type, true);
+            }
+        }
+
+        return out;
     }
 
 }

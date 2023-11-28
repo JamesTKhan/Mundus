@@ -375,13 +375,18 @@ public class ProjectManager implements Disposable {
     }
 
     public ProjectContext continueLoading() throws FileNotFoundException, MetaFileParseException, AssetNotFoundException {
-        boolean complete = loadingProject.assetManager.continueLoading();
+        try {
+            boolean complete = loadingProject.assetManager.continueLoading();
 
-        if (!complete) {
-            return loadingProject;
+            if (!complete) {
+                return loadingProject;
+            }
+
+            return finalizeLoading();
+        } catch (GdxRuntimeException exception) {
+            UI.INSTANCE.getToaster().error(exception.getCause().getMessage());
+            return finalizeLoading();
         }
-
-        return finalizeLoading();
     }
 
     private ProjectContext finalizeLoading() throws FileNotFoundException {
@@ -484,14 +489,12 @@ public class ProjectManager implements Disposable {
         }
 
         // create TerrainGroup for active scene
-        Array<Component> terrainComponents = new Array<>();
+        Array<TerrainComponent> terrainComponents = new Array<>();
         for (GameObject go : sceneGraph.getGameObjects()) {
             go.findComponentsByType(terrainComponents, Component.Type.TERRAIN, true);
         }
-        for (Component c : terrainComponents) {
-            if (c instanceof TerrainComponent) {
-                scene.terrains.add(((TerrainComponent) c));
-            }
+        for (TerrainComponent c : terrainComponents) {
+            scene.terrains.add(c);
         }
 
         return scene;

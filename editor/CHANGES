@@ -18,6 +18,9 @@
 - Show mouse position on statusbar if using terrain brush tool
 - Optimize AssetUsage system by using DTO objects instead of loading scene
 - Use BufferedInputStream for faster loading of terrains
+- Fix activated/deactivated terrain at helper lines
+- Sort children action command in Outline
+- Fix add water and terrain as child
 - Update gdx-gltf version to latest 7d70839067
 
 [0.5.1] ~ 08/08/2023
