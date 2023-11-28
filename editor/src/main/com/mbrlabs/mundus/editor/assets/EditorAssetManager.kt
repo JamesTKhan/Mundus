@@ -895,6 +895,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     private fun copyToAssetFolder(file: FileHandle): FileHandle {
+        if (FilenameUtils.directoryContains(rootFolder.path(), file.path())) {
+            return file
+        }
         val copy = FileHandle(FilenameUtils.concat(rootFolder.path(), file.name()))
         file.copyTo(copy)
         return copy
