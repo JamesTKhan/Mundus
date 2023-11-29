@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.commons.assets.PixmapTextureAsset
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset
 import com.mbrlabs.mundus.commons.assets.TerrainAsset
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset
+import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset
 import com.mbrlabs.mundus.commons.assets.TexCoordInfo
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.WaterAsset
@@ -406,6 +407,32 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     /**
+     * Creates a new terrain objects asset.
+     */
+    @Throws(IOException::class, AssetAlreadyExistsException::class)
+    fun createTerrainObjectsAsset(name: String): TerrainObjectsAsset {
+        val newName = name.replace(".terra","")
+        val objectsFilename = "$newName.terraobjects"
+        val metaFilename = "$objectsFilename.meta"
+
+        // create meta file
+        val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
+        val meta = createNewMetaFile(FileHandle(metaPath), AssetType.TERRAIN_OBJECTS)
+        metaSaver.save(meta)
+
+        // create layer file
+        val objectsPath = FilenameUtils.concat(rootFolder.path(), objectsFilename)
+        val objectsFile = File(objectsPath)
+        FileUtils.touch(objectsFile)
+
+        val asset = TerrainObjectsAsset(meta, FileHandle(objectsFile))
+        asset.load()
+
+        addAsset(asset)
+        return asset
+    }
+
+    /**
      * Convenience method to create splatmaps for Terrains if
      * the splatmap is null
      */
@@ -658,6 +685,21 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
             layerAsset.load(gdxAssetManager)
             addAsset(layerAsset)
+        }
+
+        if (asset is TerrainAsset && asset.meta.terrain.terrainObjectsAssetId == null) {
+            // Backward compatibility for missing Terrain Objets
+            // Added in 0.7.x
+            postEvent(LogEvent("Upgrading Terrain Asset ${asset.name} to Terrain Objets"))
+
+            val objectAsset = createTerrainObjectsAsset(asset.name)
+
+            // Set new TerrainLayer Asset ID to Terrain Asset
+            asset.meta.terrain.terrainObjectsAssetId = objectAsset.id
+            metaSaver.save(asset.meta)
+
+            objectAsset.load(gdxAssetManager)
+            addAsset(objectAsset)
         }
 
         return asset

@@ -60,6 +60,7 @@ public class MetaTerrain {
     private String splatBNormal;
     private String splatANormal;
     private String terrainLayerAssetId;
+    private String terrainObjectsAssetId;
 
     public String getSplatmap() {
         return splatmap;
@@ -67,6 +68,10 @@ public class MetaTerrain {
 
     public String getTerrainLayerAssetId() {
         return terrainLayerAssetId;
+    }
+
+    public String getTerrainObjectsAssetId() {
+        return terrainObjectsAssetId;
     }
 
     public void setSplatmap(String splatmap) {
@@ -176,6 +181,10 @@ public class MetaTerrain {
 
     public void setTerrainLayerAssetId(String terrainLayerAssetId) {
         this.terrainLayerAssetId = terrainLayerAssetId;
+    }
+
+    public void setTerrainObjectsAssetId(String terrainObjectsAssetId) {
+        this.terrainObjectsAssetId = terrainObjectsAssetId;
     }
 
     public void setUv(float uv) {
