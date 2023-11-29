@@ -22,10 +22,11 @@ import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
+import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset
 import com.mbrlabs.mundus.commons.terrain.SplatTexture
 import com.mbrlabs.mundus.editor.utils.Colors
 
-class TerrainObjectLayerWidget(var allowChange: Boolean = true) : VisTable() {
+class TerrainObjectLayerWidget(var asset: TerrainObjectsAsset, var allowChange: Boolean = true) : VisTable() {
 
     private val layerNameLabel: VisLabel = VisLabel()
     private val editBtn: VisTextButton = VisTextButton("Edit")
@@ -53,6 +54,8 @@ class TerrainObjectLayerWidget(var allowChange: Boolean = true) : VisTable() {
         if (allowChange)
             layerTable.add(changedBtn).padLeft(4f).right().row()
         root.add(layerTable).expandX().fillX().row()
+
+        layerNameLabel.setText(asset.name)
 
         // Objects
         root.add(VisLabel("Objects:")).padLeft(5f).left().row()

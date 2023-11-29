@@ -47,6 +47,7 @@ public class TerrainAsset extends Asset {
     // dependencies
     private PixmapTextureAsset splatmap;
     private TerrainLayerAsset terrainLayerAsset;
+    private TerrainObjectsAsset terrainObjectsAsset;
     private MaterialAsset materialAsset;
 
     private Terrain terrain;
@@ -163,6 +164,14 @@ public class TerrainAsset extends Asset {
                     ". A terrain layer can be generated automatically by opening the project in the editor.");
         }
 
+        // terrain objects
+        if (assets.containsKey(meta.getTerrain().getTerrainObjectsAssetId())) {
+            terrainObjectsAsset = (TerrainObjectsAsset) assets.get(meta.getTerrain().getTerrainObjectsAssetId());
+        } else {
+            throw new GdxRuntimeException("Cannot find a TerrainObjectsAsset for asset: " + getName() +
+                    ". A terrain objects can be generated automatically by opening the project in the editor.");
+        }
+
         // material
         String materialId = meta.getTerrain().getMaterialId();
         if (materialId == null || materialId.isEmpty()) {
@@ -262,6 +271,10 @@ public class TerrainAsset extends Asset {
         this.terrainLayerAsset = terrainLayerAsset;
         meta.getTerrain().setTerrainLayerAssetId(terrainLayerAsset.getID());
         updateTerrainMaterial();
+    }
+
+    public TerrainObjectsAsset getTerrainObjectsAsset() {
+        return terrainObjectsAsset;
     }
 
     public MaterialAsset getMaterialAsset() {
