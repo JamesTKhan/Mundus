@@ -297,6 +297,9 @@ public class TerrainAsset extends Asset {
         if (assetToCheck == terrainLayerAsset)
             return true;
 
+        if (assetToCheck == terrainObjectsAsset)
+            return true;
+
         // does the splatmap use the asset
         if (assetToCheck instanceof TextureAsset) {
             for (Map.Entry<SplatTexture.Channel, SplatTexture> texture : terrain.getTerrainTexture().getTextures().entrySet()) {
