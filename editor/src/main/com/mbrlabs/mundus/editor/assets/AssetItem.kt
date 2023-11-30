@@ -38,7 +38,7 @@ class AssetItem(
     init {
         setBackground("menu-bg")
         align(Align.center)
-        nameLabel = VisLabel(asset.toString(), "tiny")
+        nameLabel = VisLabel(asset.displayName, "tiny")
         nameLabel.wrap = true
 
         nameTable = VisTable()

@@ -111,6 +111,12 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         return newAssets
     }
 
+    fun renameAsset(asset: Asset, newName: String) {
+        val meta = asset.meta
+        meta.displayName = newName
+        metaSaver.save(meta)
+    }
+
     /**
      * Creates a new meta file and saves it at the given location.
      *

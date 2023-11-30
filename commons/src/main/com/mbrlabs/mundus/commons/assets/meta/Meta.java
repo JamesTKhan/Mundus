@@ -33,6 +33,7 @@ public class Meta {
     public static final String JSON_VERSION = "v";
     public static final String JSON_LAST_MOD = "mod";
     public static final String JSON_UUID = "id";
+    public static final String JSON_DISPLAYNAME = "displayName";
     public static final String JSON_TYPE = "t";
     public static final String JSON_TERRAIN = "ter";
     public static final String JSON_WATER = "wat";
@@ -42,6 +43,9 @@ public class Meta {
     private int version;
     private long lastModified;
     private String uuid;
+
+    private String displayName;
+
     private AssetType type;
 
     private MetaModel model;
@@ -79,6 +83,14 @@ public class Meta {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public AssetType getType() {

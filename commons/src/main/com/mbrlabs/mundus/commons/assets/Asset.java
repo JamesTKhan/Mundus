@@ -23,6 +23,7 @@ import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.scene3d.components.AssetUsage;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A generic asset type.
@@ -56,6 +57,15 @@ public abstract class Asset implements Disposable, AssetUsage {
 
     public String getName() {
         return file.name();
+    }
+
+    public String getDisplayName() {
+        String metaDisplayName = getMeta().getDisplayName();
+        if ("".equals(metaDisplayName) || Objects.isNull(metaDisplayName)) {
+            return this.toString();
+        } else {
+            return "[" + getMeta().getType().toString() + "] " + metaDisplayName;
+        }
     }
 
     public FileHandle getFile() {

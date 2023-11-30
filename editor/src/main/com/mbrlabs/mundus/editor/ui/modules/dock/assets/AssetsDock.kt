@@ -30,6 +30,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.layout.GridGroup
+import com.kotcrab.vis.ui.util.dialog.Dialogs
+import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
 import com.kotcrab.vis.ui.widget.*
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
 import com.mbrlabs.mundus.commons.assets.Asset
@@ -135,6 +137,30 @@ class AssetsDock : Tab(false, false),
     }
 
     private fun registerListeners() {
+        renameAsset.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent, x: Float, y: Float) {
+                currentSelection?.asset?.let {
+                    Dialogs.showInputDialog(
+                        UI, "Rename asset", "New name:",
+                        object : InputDialogAdapter() {
+                            override fun finished(input: String?) {
+                                if (projectManager.current().assetManager.assets.any { asset: Asset? ->
+                                        input.equals(
+                                            asset!!.meta.displayName
+                                        )
+                                    }) {
+                                    UI.toaster.error("An asset with this name already exists!")
+                                    return
+                                }
+                                projectManager.current().assetManager.renameAsset(it, input!!)
+                                UI.toaster.success("Asset renamed to $input.")
+                                reloadAssets()
+                            }
+                        })
+                }
+            }
+        })
+
         deleteAsset.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
                 currentSelection?.asset?.let {

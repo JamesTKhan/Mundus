@@ -52,6 +52,12 @@ public class MetaLoader {
         meta.setLastModified(jsonRoot.getLong(Meta.JSON_LAST_MOD));
         meta.setUuid(jsonRoot.getString(Meta.JSON_UUID));
         meta.setType(AssetType.valueOf(jsonRoot.getString(Meta.JSON_TYPE)));
+
+        try {
+            meta.setDisplayName(jsonRoot.getString(Meta.JSON_DISPLAYNAME));
+        } catch (IllegalArgumentException exception) {
+            meta.setDisplayName("");
+        }
     }
 
     private void parseTerrain(Meta meta, JsonValue jsonTerrain) {

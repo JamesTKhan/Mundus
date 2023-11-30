@@ -55,7 +55,7 @@ public class AssetManager implements Disposable {
     private static final String TAG = AssetManager.class.getSimpleName();
 
     protected FileHandle rootFolder;
-    protected FileHandle[] metaFiles;
+    protected FileHandle[] metaFileHandles;
     protected final MetaLoader metaLoader = new MetaLoader();
 
     protected Array<Asset> assets;
@@ -212,7 +212,7 @@ public class AssetManager implements Disposable {
 
             // Normalize line endings before reading
             files = fileList.readString().replaceAll("\\r\\n?", "\n").split("\\n");
-            metaFiles = getMetaFiles(files);
+            metaFileHandles = getMetaFiles(files);
         } else {
             // Editor uses this block to load meta files
             FileFilter metaFileFilter = new FileFilter() {
@@ -221,7 +221,7 @@ public class AssetManager implements Disposable {
                     return file.getName().endsWith(Meta.META_EXTENSION);
                 }
             };
-            metaFiles = rootFolder.list(metaFileFilter);
+            metaFileHandles = rootFolder.list(metaFileFilter);
         }
 
         // Set loaders
@@ -231,9 +231,9 @@ public class AssetManager implements Disposable {
         gdxAssetManager.setLoader(Model.class, ".g3db", new MG3dModelLoader(new UBJsonReader(), gdxAssetManager.getFileHandleResolver()));
 
         // Queue files for async loading into LibGDX's assetManager
-        for (FileHandle meta : metaFiles) {
-            Meta m = metaLoader.load(meta);
-            queueAssetForLoading(m);
+        for (FileHandle metaFileHandle : metaFileHandles) {
+            Meta meta = metaLoader.load(metaFileHandle);
+            queueAssetForLoading(meta);
         }
     }
 
@@ -308,7 +308,7 @@ public class AssetManager implements Disposable {
         gdxAssetManager.finishLoading();
 
         // finalize loading of Mundus assets
-        for (FileHandle meta : metaFiles) {
+        for (FileHandle meta : metaFileHandles) {
             loadAsset(metaLoader.load(meta));
         }
 
