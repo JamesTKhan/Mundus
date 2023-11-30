@@ -41,6 +41,7 @@ public class MetaTerrain {
     public static final String JSON_TRIPLANAR = "triplanar";
     public static final String JSON_MATERIAL = "material";
     public static final String JSON_LAYER = "layer";
+    public static final String JSON_TERRAOBJECTS = "terraobjects";
 
     private int size;
     private int splatMapResolution;
