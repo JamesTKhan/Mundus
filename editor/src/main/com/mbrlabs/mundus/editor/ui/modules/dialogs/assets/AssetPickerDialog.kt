@@ -16,22 +16,27 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.dialogs.assets
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.badlogic.gdx.utils.Array
-import com.kotcrab.vis.ui.util.adapter.SimpleListAdapter
+import com.kotcrab.vis.ui.layout.GridGroup
+import com.kotcrab.vis.ui.widget.MenuItem
+import com.kotcrab.vis.ui.widget.PopupMenu
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.Asset
+import com.mbrlabs.mundus.commons.assets.TerrainAsset
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetFilter
+import com.mbrlabs.mundus.editor.assets.AssetItem
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
-import com.mbrlabs.mundus.editor.ui.widgets.AutoFocusListView
 
 /**
  * A filterable list of materials.
@@ -42,7 +47,7 @@ import com.mbrlabs.mundus.editor.ui.widgets.AutoFocusListView
  * @author Marcus Brummer
  * @version 02-10-2016
  */
-class AssetPickerDialog : BaseDialog(AssetPickerDialog.TITLE),
+class AssetPickerDialog : BaseDialog(TITLE),
         AssetImportEvent.AssetImportListener,
         ProjectChangedEvent.ProjectChangedListener {
 
@@ -51,9 +56,11 @@ class AssetPickerDialog : BaseDialog(AssetPickerDialog.TITLE),
     }
 
     private val root = VisTable()
-    private val listAdapter = SimpleListAdapter(Array<Asset>())
-    private val list = AutoFocusListView(listAdapter)
+    private val filesView = GridGroup(80f, 4f)
     private val noneBtn = VisTextButton("None / Remove old asset")
+
+    private val assetOpsMenu = PopupMenu()
+    private val exportTerrainAsset = MenuItem("Export to OBJ")
 
     private var filter: AssetFilter? = null
     private var listener: AssetPickerListener? = null
@@ -68,19 +75,12 @@ class AssetPickerDialog : BaseDialog(AssetPickerDialog.TITLE),
     }
 
     private fun setupUI() {
-        root.add(list.mainTable).grow().size(350f, 450f).row()
+        root.add(filesView).grow().size(350f, 450f).row()
         root.add<VisTextButton>(noneBtn).padTop(10f).grow().row()
         add<VisTable>(root).padRight(5f).padBottom(5f).grow().row()
     }
 
     private fun setupListeners() {
-        list.setItemClickListener { item ->
-            if (listener != null) {
-                listener!!.onSelected(item)
-                close()
-            }
-        }
-
         noneBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 if (listener != null) {
@@ -101,7 +101,7 @@ class AssetPickerDialog : BaseDialog(AssetPickerDialog.TITLE),
 
     private fun reloadData() {
         val assetManager = projectManager.current().assetManager
-        listAdapter.clear()
+        filesView.clearChildren()
 
         // filter assets
         for (asset in assetManager.assets) {
@@ -110,10 +110,25 @@ class AssetPickerDialog : BaseDialog(AssetPickerDialog.TITLE),
                     continue
                 }
             }
-            listAdapter.add(asset)
-        }
+            val assetItem = AssetItem(asset, null, null)
+            assetItem.addListener(object : InputListener() {
+                override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                    return when (button) {
+                        Input.Buttons.LEFT -> {
+                            listener!!.onSelected(assetItem.asset)
+                            close()
+                            true
+                        }
 
-        listAdapter.itemsDataChanged()
+                        else -> {
+                            true
+                        }
+                    }
+
+                }
+            })
+            filesView.addActor(assetItem)
+        }
     }
 
     /**

@@ -16,19 +16,16 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.dock.assets
 
-import com.badlogic.gdx.graphics.Pixmap
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
-import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Array
-import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.layout.GridGroup
 import com.kotcrab.vis.ui.widget.*
 import com.kotcrab.vis.ui.widget.tabbedpane.Tab
@@ -53,6 +50,7 @@ class AssetsDock : Tab(false, false),
         ProjectChangedEvent.ProjectChangedListener,
         AssetImportEvent.AssetImportListener,
         AssetDeletedEvent.AssetDeletedListener,
+        AssetSelectedEvent.AssetSelectedListener,
         GameObjectSelectedEvent.GameObjectSelectedListener,
         FullScreenEvent.FullScreenEventListener,
         MaterialDuplicatedEvent.MaterialDuplicatedEventListener {
@@ -75,21 +73,9 @@ class AssetsDock : Tab(false, false),
     private var currentSelection: AssetItem? = null
     private val projectManager: ProjectManager = Mundus.inject()
 
-    private val thumbnailOverlay: TextureRegionDrawable
-    private var selectedOverlay: Image
-
     init {
         Mundus.registerEventListener(this)
         initUi()
-
-        // Darkening overlay to darken texture thumbnails slightly so text is more visible
-        val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
-        pixmap.setColor(0.0f,0.0f,0.0f,0.5f)
-        pixmap.fill()
-        thumbnailOverlay = TextureRegionDrawable(TextureRegion(Texture(pixmap)))
-
-        selectedOverlay = Image(VisUI.getSkin().getDrawable("default-select-selection"))
-        selectedOverlay.color.a = 0.6f
     }
 
     fun initUi() {
@@ -176,24 +162,13 @@ class AssetsDock : Tab(false, false),
 
     }
 
-    private fun setSelected(assetItem: AssetItem?) {
-        currentSelection = assetItem
-        for (item in assetItems) {
-            if (currentSelection != null && currentSelection == item) {
-                item.toggleSelectOverlay(true)
-            } else {
-                item.toggleSelectOverlay(false)
-            }
-        }
-    }
-
     /**
      * Highlights the selected asset item in the dock view.
-     * @param asset
+     * @param selectedAsset
      */
-    fun setSelected(asset: Asset) {
+    fun setSelected(selectedAsset: Asset?) {
         for (item in assetItems) {
-            if (item.asset == asset) {
+            if (item.asset.equals(selectedAsset)) {
                 item.toggleSelectOverlay(true)
             } else {
                 item.toggleSelectOverlay(false)
@@ -206,7 +181,39 @@ class AssetsDock : Tab(false, false),
         val projectContext = projectManager.current()
         for (asset in projectContext.assetManager.assets) {
             if (currentFilter != null && asset.meta.type != currentFilter) continue
-            val assetItem = AssetItem(asset, thumbnailOverlay, selectedOverlay, exportTerrainAsset, assetOpsMenu)
+            val assetItem = AssetItem(asset, assetOpsMenu, exportTerrainAsset)
+
+            val assetItemClickListener = object : InputListener() {
+
+
+                override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                    return true
+                }
+
+                override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
+                    when (button) {
+                        Input.Buttons.RIGHT -> {
+                            assetItem.setSelected()
+
+                            if (assetItem.asset is TerrainAsset) {
+                                if (!assetItem.exportTerrainAsset?.hasParent()!!)
+                                    assetItem.assetOpsMenu?.addItem(assetItem.exportTerrainAsset)
+                            } else {
+                                assetItem.exportTerrainAsset?.remove()
+                                assetItem.assetOpsMenu?.pack()
+                            }
+
+                            assetItem.assetOpsMenu?.showMenu(
+                                UI, Gdx.input.x.toFloat(),
+                                (Gdx.graphics.height - Gdx.input.y).toFloat()
+                            )
+                        }
+
+                        Input.Buttons.LEFT -> assetItem.setSelected()
+                    }
+                }
+            }
+            assetItem.addListener(assetItemClickListener)
             filesView.addActor(assetItem)
             assetItems.add(assetItem)
             assetItem.layout()
@@ -253,5 +260,14 @@ class AssetsDock : Tab(false, false),
         reloadAssets()
     }
 
-
+    override fun onAssetSelected(event: AssetSelectedEvent) {
+        val selectedAsset = event.asset
+        for (assetItem in assetItems) {
+            if (selectedAsset.equals(assetItem.asset)) {
+                setSelected(selectedAsset)
+                currentSelection = assetItem
+                return
+            }
+        }
+    }
 }
