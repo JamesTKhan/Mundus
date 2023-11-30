@@ -384,6 +384,9 @@ public class AssetManager implements Disposable {
             case TERRAIN_LAYER:
                 asset = loadTerrainLayerAsset(meta, assetFile);
                 break;
+            case TERRAIN_OBJECTS:
+                asset = loadTerrainObjectAsset(meta, assetFile);
+                break;
             case MODEL:
                 asset = loadModelAsset(meta, assetFile);
                 break;
@@ -433,6 +436,12 @@ public class AssetManager implements Disposable {
 
     private TerrainLayerAsset loadTerrainLayerAsset(Meta meta, FileHandle assetFile) {
         TerrainLayerAsset asset = new TerrainLayerAsset(meta, assetFile);
+        asset.load(gdxAssetManager);
+        return asset;
+    }
+
+    private TerrainObjectsAsset loadTerrainObjectAsset(Meta meta, FileHandle assetFile) {
+        TerrainObjectsAsset asset = new TerrainObjectsAsset(meta, assetFile);
         asset.load(gdxAssetManager);
         return asset;
     }
