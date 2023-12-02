@@ -269,8 +269,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         // load & return asset
         val assetFile = FileHandle(FilenameUtils.concat(rootFolder.path(), modelFilename))
-        val asset = ModelAsset(meta, assetFile)
+        val asset = EditorModelAsset(meta, assetFile)
         asset.load()
+        asset.thumbnail = ThumbnailGenerator.generateThumbnail(asset.model)
 
         addAsset(asset)
         return asset
