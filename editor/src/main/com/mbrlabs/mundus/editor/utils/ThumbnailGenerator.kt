@@ -88,7 +88,6 @@ object ThumbnailGenerator {
         directionalLightEx.direction.set(-1f, -0.8f, -0.2f)
 
         val iblBuilder = IBLBuilder.createOutdoor(directionalLightEx)
-//        val environmentCubemap = iblBuilder.buildEnvMap(1024)
         val diffuseCubemap = iblBuilder.buildIrradianceMap(256)
         val specularCubemap = iblBuilder.buildRadianceMap(10)
         iblBuilder.dispose()
