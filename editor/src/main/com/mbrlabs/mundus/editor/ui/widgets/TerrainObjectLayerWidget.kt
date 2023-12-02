@@ -24,6 +24,9 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset
 import com.mbrlabs.mundus.commons.terrain.SplatTexture
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
+import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Colors
 
 class TerrainObjectLayerWidget(var asset: TerrainObjectsAsset, var allowChange: Boolean = true) : VisTable() {
@@ -93,8 +96,16 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectsAsset, var allowChange: 
 
         editBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                // TODO
+                Mundus.postEvent(AssetSelectedEvent(asset))
+                UI.docker.assetsDock.setSelected(asset)
             }
         })
+    }
+
+    fun setTerrainObjectsAsset(objectAsset: TerrainObjectsAsset) {
+        layerNameLabel.setText(objectAsset.name)
+//        layerChangedListener?.layerChanged(objectAsset)
+//        this@TerrainTextureLayerWidget.asset = objectAsset
+//        setupTextureGrid()
     }
 }
