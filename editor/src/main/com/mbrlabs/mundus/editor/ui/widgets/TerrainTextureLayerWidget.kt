@@ -52,7 +52,7 @@ import java.io.IOException
  * @author JamesTKhan
  * @version July 12, 2023
  */
-class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowChange: Boolean = true) : VisTable() {
+class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowEditAndChange: Boolean = true) : VisTable() {
 
     interface LayerChangedListener {
         fun layerChanged(terrainLayerAsset: TerrainLayerAsset)
@@ -100,9 +100,10 @@ class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowChange: B
 
         val layerTable = VisTable()
         layerTable.add(layerNameLabel).grow()
-        layerTable.add(editBtn).padLeft(4f).right()
+        if (allowEditAndChange)
+            layerTable.add(editBtn).padLeft(4f).right()
         layerTable.add(duplicatedBtn).padLeft(4f).right()
-        if (allowChange)
+        if (allowEditAndChange)
             layerTable.add(changedBtn).padLeft(4f).right().row()
         root.add(layerTable).expandX().fillX().row()
 
@@ -122,7 +123,7 @@ class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowChange: B
     }
 
     private fun setupListeners() {
-        if (allowChange) {
+        if (allowEditAndChange) {
             assetPickerListener = object : AssetPickerDialog.AssetPickerListener {
                 override fun onSelected(asset: Asset?) {
                     val layer = (asset as? TerrainLayerAsset)!!
@@ -183,7 +184,7 @@ class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowChange: B
                                 val newLayer = projectManager.current().assetManager.createTerrainLayerAsset(input)
                                 newLayer.duplicateLayerAsset(asset)
                                 Mundus.postEvent(AssetImportEvent(asset))
-                                if (allowChange) {
+                                if (allowEditAndChange) {
                                     asset = newLayer
                                     layerNameLabel.setText(asset.name)
                                     layerChangedListener?.layerChanged(asset)
@@ -200,12 +201,14 @@ class TerrainTextureLayerWidget(var asset: TerrainLayerAsset, var allowChange: B
             }
         })
 
-        editBtn.addListener(object : ClickListener() {
-            override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                Mundus.postEvent(AssetSelectedEvent(asset))
-                UI.docker.assetsDock.setSelected(asset)
-            }
-        })
+        if (allowEditAndChange) {
+            editBtn.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    Mundus.postEvent(AssetSelectedEvent(asset))
+                    UI.docker.assetsDock.setSelected(asset)
+                }
+            })
+        }
     }
 
     private fun setupTextureGrid() {
