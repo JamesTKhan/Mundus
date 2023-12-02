@@ -27,4 +27,9 @@ class EditorModelAsset(meta: Meta, assetFile: FileHandle) : ModelAsset(meta, ass
     lateinit var thumbnail: Texture
     override fun getTexture(): Texture = thumbnail
 
+    override fun dispose() {
+        super.dispose()
+        thumbnail.dispose()
+    }
+
 }
