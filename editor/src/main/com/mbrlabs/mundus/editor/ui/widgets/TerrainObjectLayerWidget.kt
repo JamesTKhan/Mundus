@@ -31,6 +31,7 @@ import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset
 import com.mbrlabs.mundus.commons.utils.TextureProvider
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetModelFilter
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
@@ -38,6 +39,8 @@ import com.mbrlabs.mundus.editor.utils.Colors
 import java.io.IOException
 
 class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, var allowChange: Boolean = true) : VisTable() {
+
+    private val projectManager: ProjectManager = Mundus.inject()
 
     private val layerNameLabel: VisLabel = VisLabel()
     private val editBtn: VisTextButton = VisTextButton("Edit")
@@ -153,6 +156,13 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, var allowChan
 
     @Throws(IOException::class)
     private fun addModel(modelAsset: ModelAsset) {
+        val assetManager = projectManager.current().assetManager
+
+        val terrainObjectLayerAsset = asset
+        assetManager.addModifiedAsset(terrainObjectLayerAsset)
+
+        terrainObjectLayerAsset.addModel(modelAsset)
+
         textureGrid.addTexture(TmpTexture(modelAsset))
     }
 
