@@ -16,30 +16,30 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.inspector.assets
 
-import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset
+import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.editor.ui.modules.inspector.BaseInspectorWidget
 import com.mbrlabs.mundus.editor.ui.widgets.TerrainObjectLayerWidget
 
-class TerrainObjectsAssetInspectorWidget() : BaseInspectorWidget(TITLE)  {
+class TerrainObjectLayerAssetInspectorWidget() : BaseInspectorWidget(TITLE)  {
     companion object {
         private val TITLE = "Terrain Objects Asset"
     }
 
     private var terrainObjectLayerWidget : TerrainObjectLayerWidget? = null
-    private var objectAsset: TerrainObjectsAsset? = null
+    private var objectLayerAsset: TerrainObjectLayerAsset? = null
 
     init {
         isDeletable = false
     }
 
-    fun setTerrainLObjectsAsset(objectAsset: TerrainObjectsAsset) {
-        this.objectAsset = objectAsset
+    fun setTerrainLObjectLayerAsset(objectLayerAsset: TerrainObjectLayerAsset) {
+        this.objectLayerAsset = objectLayerAsset
         if (terrainObjectLayerWidget == null) {
-            terrainObjectLayerWidget = TerrainObjectLayerWidget(objectAsset, false)
+            terrainObjectLayerWidget = TerrainObjectLayerWidget(objectLayerAsset, false)
             collapsibleContent.add(terrainObjectLayerWidget).growX().row()
         } else {
-            terrainObjectLayerWidget!!.setTerrainObjectsAsset(objectAsset)
+            terrainObjectLayerWidget!!.setTerrainObjectLayerAsset(objectLayerAsset)
         }
     }
 

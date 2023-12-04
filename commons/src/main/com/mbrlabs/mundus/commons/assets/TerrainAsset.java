@@ -47,7 +47,7 @@ public class TerrainAsset extends Asset {
     // dependencies
     private PixmapTextureAsset splatmap;
     private TerrainLayerAsset terrainLayerAsset;
-    private TerrainObjectsAsset terrainObjectsAsset;
+    private TerrainObjectLayerAsset terrainObjectLayerAsset;
     private MaterialAsset materialAsset;
 
     private Terrain terrain;
@@ -165,8 +165,8 @@ public class TerrainAsset extends Asset {
         }
 
         // terrain objects
-        if (assets.containsKey(meta.getTerrain().getTerrainObjectsAssetId())) {
-            terrainObjectsAsset = (TerrainObjectsAsset) assets.get(meta.getTerrain().getTerrainObjectsAssetId());
+        if (assets.containsKey(meta.getTerrain().getTerrainObjectLayerAssetId())) {
+            terrainObjectLayerAsset = (TerrainObjectLayerAsset) assets.get(meta.getTerrain().getTerrainObjectLayerAssetId());
         } else {
             throw new GdxRuntimeException("Cannot find a TerrainObjectsAsset for asset: " + getName() +
                     ". A terrain objects can be generated automatically by opening the project in the editor.");
@@ -273,8 +273,8 @@ public class TerrainAsset extends Asset {
         updateTerrainMaterial();
     }
 
-    public TerrainObjectsAsset getTerrainObjectsAsset() {
-        return terrainObjectsAsset;
+    public TerrainObjectLayerAsset getTerrainObjectLayerAsset() {
+        return terrainObjectLayerAsset;
     }
 
     public MaterialAsset getMaterialAsset() {
@@ -297,7 +297,7 @@ public class TerrainAsset extends Asset {
         if (assetToCheck == terrainLayerAsset)
             return true;
 
-        if (assetToCheck == terrainObjectsAsset)
+        if (assetToCheck == terrainObjectLayerAsset)
             return true;
 
         // does the splatmap use the asset

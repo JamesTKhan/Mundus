@@ -28,7 +28,7 @@ import com.mbrlabs.mundus.editor.ui.widgets.TerrainObjectLayerWidget
 class TerrainObjectTab(private val parentWidget: TerrainComponentWidget) : BaseBrushTab(parentWidget, TerrainBrush.BrushMode.TERRAIN_OBJECT) {
 
     private val root = VisTable()
-    private val terrainObjectLayerWidget = TerrainObjectLayerWidget(parentWidget.component.terrainAsset.terrainObjectsAsset)
+    private val terrainObjectLayerWidget = TerrainObjectLayerWidget(parentWidget.component.terrainAsset.terrainObjectLayerAsset)
     private val actionWidget = VisTable()
     private val addingActionWidget = VisTable()
 

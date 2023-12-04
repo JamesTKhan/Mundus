@@ -22,14 +22,14 @@ import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
-import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset
+import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset
 import com.mbrlabs.mundus.commons.terrain.SplatTexture
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Colors
 
-class TerrainObjectLayerWidget(var asset: TerrainObjectsAsset, var allowChange: Boolean = true) : VisTable() {
+class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, var allowChange: Boolean = true) : VisTable() {
 
     private val layerNameLabel: VisLabel = VisLabel()
     private val editBtn: VisTextButton = VisTextButton("Edit")
@@ -102,8 +102,8 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectsAsset, var allowChange: 
         })
     }
 
-    fun setTerrainObjectsAsset(objectAsset: TerrainObjectsAsset) {
-        layerNameLabel.setText(objectAsset.name)
+    fun setTerrainObjectLayerAsset(objectLayerAsset: TerrainObjectLayerAsset) {
+        layerNameLabel.setText(objectLayerAsset.name)
 //        layerChangedListener?.layerChanged(objectAsset)
 //        this@TerrainTextureLayerWidget.asset = objectAsset
 //        setupTextureGrid()

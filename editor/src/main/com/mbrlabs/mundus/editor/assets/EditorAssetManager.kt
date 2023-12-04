@@ -34,7 +34,7 @@ import com.mbrlabs.mundus.commons.assets.PixmapTextureAsset
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset
 import com.mbrlabs.mundus.commons.assets.TerrainAsset
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset
-import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset
+import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset
 import com.mbrlabs.mundus.commons.assets.TexCoordInfo
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.WaterAsset
@@ -410,13 +410,13 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      * Creates a new terrain objects asset.
      */
     @Throws(IOException::class, AssetAlreadyExistsException::class)
-    fun createTerrainObjectsAsset(name: String): TerrainObjectsAsset {
-        val objectsFilename = "$name.terraobjects"
+    fun createTerrainObjectLayerAsset(name: String): TerrainObjectLayerAsset {
+        val objectsFilename = "$name.terraobjectlayer"
         val metaFilename = "$objectsFilename.meta"
 
         // create meta file
         val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
-        val meta = createNewMetaFile(FileHandle(metaPath), AssetType.TERRAIN_OBJECTS)
+        val meta = createNewMetaFile(FileHandle(metaPath), AssetType.TERRAIN_OBJECT_LAYER)
         metaSaver.save(meta)
 
         // create layer file
@@ -424,7 +424,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val objectsFile = File(objectsPath)
         FileUtils.touch(objectsFile)
 
-        val asset = TerrainObjectsAsset(meta, FileHandle(objectsFile))
+        val asset = TerrainObjectLayerAsset(meta, FileHandle(objectsFile))
         asset.load()
 
         addAsset(asset)
@@ -686,18 +686,18 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             addAsset(layerAsset)
         }
 
-        if (asset is TerrainAsset && asset.meta.terrain.terrainObjectsAssetId == null) {
+        if (asset is TerrainAsset && asset.meta.terrain.terrainObjectLayerAssetId == null) {
             // Backward compatibility for missing Terrain Objets
             // Added in 0.7.x
             postEvent(LogEvent("Upgrading Terrain Asset ${asset.name} to Terrain Objets"))
 
-            var terrainObjectsAsset = findAssetByFileName("default.terraobjects")
+            var terrainObjectsAsset = findAssetByFileName("default.terraobjectlayer")
             if (terrainObjectsAsset == null) {
-                terrainObjectsAsset = createTerrainObjectsAsset("default")
+                terrainObjectsAsset = createTerrainObjectLayerAsset("default")
             }
 
             // Set new TerrainLayer Asset ID to Terrain Asset
-            asset.meta.terrain.terrainObjectsAssetId = terrainObjectsAsset.id
+            asset.meta.terrain.terrainObjectLayerAssetId = terrainObjectsAsset.id
             metaSaver.save(asset.meta)
 
             terrainObjectsAsset.load(gdxAssetManager)

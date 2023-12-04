@@ -38,7 +38,7 @@ public enum AssetType {
     /** Holds the terrain textures to be used. **/
     TERRAIN_LAYER("Terrain Layer"),
     /** Holds the terrain objects to be used. */
-    TERRAIN_OBJECTS("Terrain Objects");
+    TERRAIN_OBJECT_LAYER("Terrain Object Layer");
 
     private final String value;
 
