@@ -23,8 +23,6 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.PixmapIO
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.utils.Array
-import com.badlogic.gdx.utils.Json
-import com.badlogic.gdx.utils.JsonWriter
 import com.badlogic.gdx.utils.ObjectSet
 import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.mbrlabs.mundus.commons.assets.Asset
@@ -83,8 +81,6 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val STANDARD_ASSET_TEXTURE_WATER_FOAM = "waterFoam"
         val STANDARD_ASSET_MATERIAL_TERRAIN = "terrain_default"
     }
-
-    private val json = Json(JsonWriter.OutputType.json)
 
     /** Modified assets that need to be saved.  */
     private val modifiedAssets = ObjectSet<Asset>()
@@ -428,7 +424,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val objectsFile = File(objectsPath)
         FileUtils.touch(objectsFile)
 
-        val asset = TerrainObjectLayerAsset(meta, FileHandle(objectsFile))
+        val asset = TerrainObjectLayerAsset(meta, FileHandle(objectsFile), json)
         asset.load()
 
         addAsset(asset)

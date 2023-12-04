@@ -26,6 +26,8 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
@@ -62,6 +64,7 @@ public class AssetManager implements Disposable {
     protected Array<Asset> assets;
     protected Map<String, Asset> assetIndex;
     protected com.badlogic.gdx.assets.AssetManager gdxAssetManager;
+    protected Json json;
 
     // Tracks the highest bone count out of all loaded model assets
     public int maxNumBones = 0;
@@ -76,6 +79,7 @@ public class AssetManager implements Disposable {
         this.rootFolder = assetsFolder;
         this.assets = new Array<>();
         this.assetIndex = new HashMap<>();
+        this.json = new Json(JsonWriter.OutputType.json);
     }
 
     /**
@@ -441,7 +445,7 @@ public class AssetManager implements Disposable {
     }
 
     private TerrainObjectLayerAsset loadTerrainObjectLayerAsset(Meta meta, FileHandle assetFile) {
-        TerrainObjectLayerAsset asset = new TerrainObjectLayerAsset(meta, assetFile);
+        TerrainObjectLayerAsset asset = new TerrainObjectLayerAsset(meta, assetFile, json);
         asset.load(gdxAssetManager);
         return asset;
     }

@@ -151,7 +151,9 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, var allowChan
     private fun setTexturesInUiGrid() {
         textureGrid.removeTextures()
 
-        // TODO
+        for (model in asset.models) {
+            textureGrid.addTexture(TmpTexture(model))
+        }
     }
 
     @Throws(IOException::class)
