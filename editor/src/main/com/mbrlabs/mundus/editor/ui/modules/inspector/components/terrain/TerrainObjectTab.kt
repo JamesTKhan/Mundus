@@ -28,7 +28,7 @@ import com.mbrlabs.mundus.editor.ui.widgets.TerrainObjectLayerWidget
 class TerrainObjectTab(private val parentWidget: TerrainComponentWidget) : BaseBrushTab(parentWidget, TerrainBrush.BrushMode.TERRAIN_OBJECT) {
 
     private val root = VisTable()
-    private val terrainObjectLayerWidget = TerrainObjectLayerWidget(parentWidget.component.terrainAsset.terrainObjectLayerAsset)
+    private val terrainObjectLayerWidget = TerrainObjectLayerWidget(parentWidget.component.terrainAsset.terrainObjectLayerAsset, parentWidget.component)
     private val actionWidget = VisTable()
     private val addingActionWidget = VisTable()
 
@@ -52,6 +52,13 @@ class TerrainObjectTab(private val parentWidget: TerrainComponentWidget) : BaseB
     override fun getTabTitle(): String = "Objets"
 
     override fun getContentTable(): Table = root
+
+    override fun onShow() {
+        super.onShow()
+
+        terrainObjectLayerWidget.textureGrid.clearHighlight()
+
+    }
 
     private fun setupAddingActionWidget() {
         val strengthSlider = ImprovedSlider(0f, 1f, 0.1f)

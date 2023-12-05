@@ -36,7 +36,7 @@ class TerrainObjectLayerAssetInspectorWidget() : BaseInspectorWidget(TITLE)  {
     fun setTerrainLObjectLayerAsset(objectLayerAsset: TerrainObjectLayerAsset) {
         this.objectLayerAsset = objectLayerAsset
         if (terrainObjectLayerWidget == null) {
-            terrainObjectLayerWidget = TerrainObjectLayerWidget(objectLayerAsset, false)
+            terrainObjectLayerWidget = TerrainObjectLayerWidget(objectLayerAsset, null, false)
             collapsibleContent.add(terrainObjectLayerWidget).growX().row()
         } else {
             terrainObjectLayerWidget!!.setTerrainObjectLayerAsset(objectLayerAsset)

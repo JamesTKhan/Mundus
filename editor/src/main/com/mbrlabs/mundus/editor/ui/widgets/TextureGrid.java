@@ -82,6 +82,13 @@ public class TextureGrid<T extends TextureProvider> extends VisTable {
         first.highlight();
     }
 
+    public void clearHighlight() {
+        for (int i = 0; i < grid.getChildren().size; ++i) {
+            final TextureItem<T> item = (TextureItem<T>) grid.getChild(i);
+            item.unhighlight();
+        }
+    }
+
     /**
      *
      */
@@ -139,6 +146,10 @@ public class TextureGrid<T extends TextureProvider> extends VisTable {
 
         public void highlight() {
             stack.add(selectedOverlay);
+        }
+
+        public void unhighlight() {
+            stack.removeActor(selectedOverlay);
         }
 
     }

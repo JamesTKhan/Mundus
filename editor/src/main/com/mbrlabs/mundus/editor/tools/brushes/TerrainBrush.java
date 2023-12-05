@@ -162,6 +162,7 @@ public abstract class TerrainBrush extends Tool {
     private static float strength = 0.5f;
     private static float heightSample = 0f;
     private static SplatTexture.Channel paintChannel;
+    private static String brushingModelId;
 
     // individual brush settings
     protected final Vector3 brushPos = new Vector3();
@@ -239,6 +240,8 @@ public abstract class TerrainBrush extends Tool {
             smoothTool.act(this);
         } else if (mode == BrushMode.RAMP) {
             createRamp();
+        } else if (mode == BrushMode.TERRAIN_OBJECT) {
+            terrainObject();
         }
 
     }
@@ -381,6 +384,10 @@ public abstract class TerrainBrush extends Tool {
         updateTerrain(terrain);
         terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
+    }
+
+    private void terrainObject() {
+        // TODO
     }
 
     private static boolean rampIntersectsTerrain(TerrainComponent terrain, Vector3 rampStart, Vector3 rampEnd, float rampRadius) {
@@ -601,6 +608,10 @@ public abstract class TerrainBrush extends Tool {
         Mundus.INSTANCE.postEvent(brushSettingsChangedEvent);
     }
 
+    public static void setBrushingModelId(String brushingModelId) {
+        TerrainBrush.brushingModelId = brushingModelId;
+    }
+
     public static void setOptimizeTerrainUpdates(boolean optimizeTerrainUpdates) {
         TerrainBrush.optimizeTerrainUpdates = optimizeTerrainUpdates;
     }
@@ -632,6 +643,7 @@ public abstract class TerrainBrush extends Tool {
             case PAINT:
             case SMOOTH:
             case RAMP:
+            case TERRAIN_OBJECT:
                 return true;
         }
 

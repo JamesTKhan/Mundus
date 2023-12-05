@@ -28,19 +28,23 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.utils.TextureProvider
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetModelFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
+import com.mbrlabs.mundus.editor.tools.ToolManager
+import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.utils.Colors
 import java.io.IOException
 
-class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, var allowChange: Boolean = true) : VisTable() {
+class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainComponent: TerrainComponent?, var allowChange: Boolean = true) : VisTable() {
 
     private val projectManager: ProjectManager = Mundus.inject()
+    private val toolManager: ToolManager = Mundus.inject()
 
     private val layerNameLabel: VisLabel = VisLabel()
     private val editBtn: VisTextButton = VisTextButton("Edit")
@@ -137,12 +141,18 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, var allowChan
     private fun setupTextureGrid() {
         textureGrid.setListener { texture, leftClick ->
             val tex = texture as TmpTexture
-//            if (leftClick) {
-//                TerrainBrush.setPaintChannel(tex.channel)
-//            } else {
+            if (leftClick) {
+                if (terrainComponent != null) {
+                    TerrainBrush.setBrushingModelId(tex.modelId)
+                    val tool = toolManager.terrainBrushes.first()
+                    tool.mode = TerrainBrush.BrushMode.TERRAIN_OBJECT
+                    tool.setTerrainComponent(terrainComponent)
+                    toolManager.activateTool(tool)
+                }
+            } else {
 //                rightClickMenu.setChannel(tex.channel)
 //                rightClickMenu.show()
-//            }
+            }
         }
 
         setTexturesInUiGrid()
@@ -171,6 +181,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, var allowChan
     // TODO temporary class until thumbnail PR won't be merged
     class TmpTexture(modelAsset: ModelAsset) : TextureProvider {
 
+        val modelId = modelAsset.id
         private val texture: Texture
 
         init {
