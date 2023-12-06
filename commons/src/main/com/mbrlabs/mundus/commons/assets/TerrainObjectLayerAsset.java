@@ -83,6 +83,18 @@ public class TerrainObjectLayerAsset extends Asset {
         return idsToLoad.contains(assetToCheck.getID(), false);
     }
 
+    public ModelAsset findModelById(String id) {
+        for (int i = 0; i < models.size; ++i) {
+            ModelAsset modelAsset = models.get(i);
+
+            if (id.equals(modelAsset.getID())) {
+                return modelAsset;
+            }
+        }
+
+        return null;
+    }
+
     public void addModel(final ModelAsset model) {
         models.add(model);
     }

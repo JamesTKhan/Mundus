@@ -18,11 +18,15 @@ package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 
 import java.util.Map;
 
 public class TerrainObjectsAsset extends Asset {
+
+    private final Array<ModelInstance> modelInstances;
 
     /**
      * @param meta
@@ -30,6 +34,7 @@ public class TerrainObjectsAsset extends Asset {
      */
     public TerrainObjectsAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
+        modelInstances = new Array<>(5);
     }
 
     @Override
@@ -60,5 +65,13 @@ public class TerrainObjectsAsset extends Asset {
     @Override
     public boolean usesAsset(Asset assetToCheck) {
         return false;
+    }
+
+    public void addObject(ModelInstance object) {
+        modelInstances.add(object);
+    }
+
+    public Array<ModelInstance> getModelInstances() {
+        return modelInstances;
     }
 }

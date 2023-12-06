@@ -18,11 +18,13 @@ package com.mbrlabs.mundus.commons.scene3d.components;
 
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
@@ -52,10 +54,13 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     private final LevelOfDetailManager lodManager;
 
+    private final TerrainRenderableProvider renderableProvider;
+
     public TerrainComponent(GameObject go) {
         super(go);
         type = Component.Type.TERRAIN;
         lodManager = new TerrainLevelOfDetailManager(this);
+        renderableProvider = new TerrainRenderableProvider();
     }
 
     @Override
@@ -66,7 +71,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     @Override
     public RenderableProvider getRenderableProvider() {
-        return modelInstance;
+        return renderableProvider;
     }
 
     public void updateUVs(Vector2 uvScale) {
@@ -223,5 +228,17 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
      */
     public boolean isOnTerrain(float worldX, float worldZ) {
         return terrainAsset.getTerrain().isOnTerrain(worldX, worldZ, modelInstance.transform);
+    }
+
+    private class TerrainRenderableProvider implements RenderableProvider {
+
+        @Override
+        public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
+            modelInstance.getRenderables(renderables, pool);
+
+            for (ModelInstance mi : terrainAsset.getTerrainObjectsAsset().getModelInstances()) {
+                mi.getRenderables(renderables, pool);
+            }
+        }
     }
 }

@@ -295,6 +295,10 @@ public class TerrainAsset extends Asset {
         meta.getTerrain().setMaterialId(materialAsset.getID());
     }
 
+    public TerrainObjectsAsset getTerrainObjectsAsset() {
+        return terrainObjectsAsset;
+    }
+
     @Override
     public boolean usesAsset(Asset assetToCheck) {
         if (assetToCheck == splatmap)

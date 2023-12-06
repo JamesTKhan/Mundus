@@ -657,6 +657,10 @@ public abstract class TerrainBrush extends Tool {
         TerrainBrush.brushingModelId = brushingModelId;
     }
 
+    public static String getBrushingModelId() {
+        return brushingModelId;
+    }
+
     public static void setOptimizeTerrainUpdates(boolean optimizeTerrainUpdates) {
         TerrainBrush.optimizeTerrainUpdates = optimizeTerrainUpdates;
     }
