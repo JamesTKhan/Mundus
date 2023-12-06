@@ -44,11 +44,13 @@ import com.mbrlabs.mundus.editor.events.GlobalBrushSettingsChangedEvent;
 import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.history.commands.TerrainsHeightCommand;
+import com.mbrlabs.mundus.editor.history.commands.TerrainsObjectCommand;
 import com.mbrlabs.mundus.editor.history.commands.TerrainsPaintCommand;
 import com.mbrlabs.mundus.editor.shader.EditorPBRTerrainShader;
 import com.mbrlabs.mundus.editor.tools.Tool;
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
 import com.mbrlabs.mundus.editor.tools.terrain.FlattenTool;
+import com.mbrlabs.mundus.editor.tools.terrain.ObjectTool;
 import com.mbrlabs.mundus.editor.tools.terrain.RaiseLowerTool;
 import com.mbrlabs.mundus.editor.tools.terrain.SmoothTool;
 import com.mbrlabs.mundus.editor.tools.terrain.TerrainTool;
@@ -158,6 +160,7 @@ public abstract class TerrainBrush extends Tool {
     private static final TerrainTool raiseLowerTool = new RaiseLowerTool();
     private static final TerrainTool flattenTool = new FlattenTool();
     private static final TerrainTool smoothTool = new SmoothTool();
+    private static final TerrainTool objectTool = new ObjectTool();
     private static boolean optimizeTerrainUpdates = false;
     private static float strength = 0.5f;
     private static float heightSample = 0f;
@@ -181,8 +184,10 @@ public abstract class TerrainBrush extends Tool {
     // undo/redo system
     private TerrainsHeightCommand heightCommand = null;
     private TerrainsPaintCommand paintCommand = null;
+    private TerrainsObjectCommand objectCommand = null;
     private boolean terrainHeightModified = false;
     private boolean splatmapModified = false;
+    private boolean objectModified = false;
     private boolean refreshConnectedTerrains = false;
 
     // Holds all terrains connected to the current terrain
@@ -241,7 +246,7 @@ public abstract class TerrainBrush extends Tool {
         } else if (mode == BrushMode.RAMP) {
             createRamp();
         } else if (mode == BrushMode.TERRAIN_OBJECT) {
-            terrainObject();
+            objectTool.act(this);
         }
 
     }
@@ -386,10 +391,6 @@ public abstract class TerrainBrush extends Tool {
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
     }
 
-    private void terrainObject() {
-        // TODO
-    }
-
     private static boolean rampIntersectsTerrain(TerrainComponent terrain, Vector3 rampStart, Vector3 rampEnd, float rampRadius) {
         Vector3 terrainMin = Pools.vector3Pool.obtain();
         Vector3 terrainMax = Pools.vector3Pool.obtain();
@@ -516,6 +517,50 @@ public abstract class TerrainBrush extends Tool {
         terrainComponent.getLodManager().disable();
 
         updateTerrain(terrain);
+        terrainHeightModified = true;
+        getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
+    }
+
+    public void terrainObject(TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
+        terrainObject(terrainComponent, modifier, comparison, updateNeighbors);
+    }
+
+    public void terrainObject(TerrainComponent terrainComponent, TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
+        Vector3 localBrushPos = Pools.vector3Pool.obtain();
+
+        // TODO neighbors
+
+        getBrushLocalPosition(terrainComponent, localBrushPos);
+        Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
+        BrushRange range = calculateBrushRange(terrain, localBrushPos);
+
+        boolean modified = false;
+        // iterate over the affected vertices and modify them
+        for (int x = range.minX; x < range.maxX; x++) {
+            for (int z = range.minZ; z < range.maxZ; z++) {
+
+                final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
+                localBrushPos.y = vertexPos.y;
+
+                // Call the comparison function
+                if (comparison.compare(this, vertexPos, localBrushPos)) {
+                    // If not already added, add the terrain to the list of modified terrains
+                    if (modifiedTerrains.add(terrainComponent)) {
+                        objectCommand.addTerrain(terrainComponent);
+                    }
+
+                    // Call the modifier if the comparison function returns true
+                    modifier.modify(this, terrainComponent, x, z, localBrushPos, vertexPos);
+
+                    modified = true;
+                }
+            }
+        }
+
+        Pools.vector3Pool.free(localBrushPos);
+
+        if (!modified) return;
+
         terrainHeightModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
     }
@@ -703,10 +748,17 @@ public abstract class TerrainBrush extends Tool {
             getHistory().add(paintCommand);
         }
 
+        if (objectModified && objectCommand != null) {
+            objectCommand.setAfter();
+            getHistory().add(objectCommand);
+        }
+
         splatmapModified = false;
         terrainHeightModified = false;
+        objectModified = false;
         heightCommand = null;
         paintCommand = null;
+        objectCommand = null;
         modifiedTerrains.clear();
 
         action = null;
@@ -743,6 +795,8 @@ public abstract class TerrainBrush extends Tool {
             if (sm != null) {
                 paintCommand = new TerrainsPaintCommand();
             }
+        } else {
+            objectCommand = new TerrainsObjectCommand();
         }
 
         return false;
