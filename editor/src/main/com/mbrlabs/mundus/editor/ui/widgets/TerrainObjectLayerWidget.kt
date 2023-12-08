@@ -143,7 +143,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
             val tex = texture as TmpTexture
             if (leftClick) {
                 if (terrainComponent != null) {
-                    TerrainBrush.setBrushingModelId(tex.modelId)
+                    TerrainBrush.setBrushingModelPos(tex.pos)
                     val tool = toolManager.terrainBrushes.first()
                     tool.mode = TerrainBrush.BrushMode.TERRAIN_OBJECT
                     tool.setTerrainComponent(terrainComponent)
@@ -161,8 +161,8 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
     private fun setTexturesInUiGrid() {
         textureGrid.removeTextures()
 
-        for (model in asset.models) {
-            textureGrid.addTexture(TmpTexture(model))
+        for ((index, model) in asset.models.withIndex()) {
+            textureGrid.addTexture(TmpTexture(index, model))
         }
     }
 
@@ -175,13 +175,13 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
 
         terrainObjectLayerAsset.addModel(modelAsset)
 
-        textureGrid.addTexture(TmpTexture(modelAsset))
+        val modelPos = terrainObjectLayerAsset.activeLayerCount - 1
+        textureGrid.addTexture(TmpTexture(modelPos, modelAsset))
     }
 
     // TODO temporary class until thumbnail PR won't be merged
-    class TmpTexture(modelAsset: ModelAsset) : TextureProvider {
+    class TmpTexture(val pos: Int, modelAsset: ModelAsset) : TextureProvider {
 
-        val modelId = modelAsset.id
         private val texture: Texture
 
         init {

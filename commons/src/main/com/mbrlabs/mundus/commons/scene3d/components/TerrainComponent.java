@@ -28,9 +28,12 @@ import com.badlogic.gdx.utils.Pool;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
+import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset;
+import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.lod.LevelOfDetailManager;
 import com.mbrlabs.mundus.commons.lod.TerrainLevelOfDetailManager;
+import com.mbrlabs.mundus.commons.terrain.TerrainObjectManager;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
@@ -53,6 +56,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private TerrainComponent leftNeighbor;
 
     private final LevelOfDetailManager lodManager;
+    private final TerrainObjectManager objectManager;
 
     private final TerrainRenderableProvider renderableProvider;
 
@@ -61,6 +65,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         type = Component.Type.TERRAIN;
         lodManager = new TerrainLevelOfDetailManager(this);
         renderableProvider = new TerrainRenderableProvider();
+        objectManager = new TerrainObjectManager();
     }
 
     @Override
@@ -100,6 +105,13 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
             material.remove(PBRTextureAttribute.NormalTexture);
 
         terrainAsset.getMaterialAsset().applyToMaterial(material, true);
+    }
+
+    public void applyTerrainObjects() {
+        final TerrainObjectsAsset terrainObjectsAsset = terrainAsset.getTerrainObjectsAsset();
+        final TerrainObjectLayerAsset terrainObjectLayerAsset = terrainAsset.getTerrainObjectLayerAsset();
+
+        objectManager.apply(terrainObjectsAsset, terrainObjectLayerAsset, gameObject.getTransform());
     }
 
     public TerrainAsset getTerrainAsset() {
@@ -235,10 +247,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         @Override
         public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
             modelInstance.getRenderables(renderables, pool);
-
-            for (ModelInstance mi : terrainAsset.getTerrainObjectsAsset().getModelInstances()) {
-                mi.getRenderables(renderables, pool);
-            }
+            objectManager.getRenderables(renderables, pool);
         }
     }
 }

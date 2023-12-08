@@ -18,48 +18,56 @@ package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 
 import java.util.Map;
 
 public class TerrainObjectsAsset extends Asset {
 
-    private final Array<ModelInstance> modelInstances;
+    private final Json json;
+
+    private final Array<TerrainObject> terrainObjects;
 
     /**
      * @param meta
      * @param assetFile
      */
-    public TerrainObjectsAsset(Meta meta, FileHandle assetFile) {
+    public TerrainObjectsAsset(Meta meta, FileHandle assetFile, Json json) {
         super(meta, assetFile);
-        modelInstances = new Array<>(5);
+        this.json = json;
+        terrainObjects= new Array<>(5);
     }
 
     @Override
     public void load() {
+        final Array<TerrainObject> terrainObjectsFromFile = json.fromJson(Array.class, TerrainObject.class, file);
 
+        if (terrainObjectsFromFile != null) {
+            terrainObjects.addAll(terrainObjectsFromFile);
+        }
     }
 
     @Override
     public void load(AssetManager assetManager) {
-
+        // No async loading for terrain objects
+        load();
     }
 
     @Override
     public void resolveDependencies(Map<String, Asset> assets) {
-
+        // Nothing to do here
     }
 
     @Override
     public void applyDependencies() {
-
+        // Nothing to do here
     }
 
     @Override
     public void dispose() {
-
+        // Nothing to do here
     }
 
     @Override
@@ -67,11 +75,16 @@ public class TerrainObjectsAsset extends Asset {
         return false;
     }
 
-    public void addObject(ModelInstance object) {
-        modelInstances.add(object);
+    public void addTerrainObject(TerrainObject terrainObject) {
+        terrainObjects.add(terrainObject);
     }
 
-    public Array<ModelInstance> getModelInstances() {
-        return modelInstances;
+    public int getTerrainObjectNum() {
+        return terrainObjects.size;
     }
+
+    public TerrainObject getTerrainObject(int i) {
+        return terrainObjects.get(i);
+    }
+
 }

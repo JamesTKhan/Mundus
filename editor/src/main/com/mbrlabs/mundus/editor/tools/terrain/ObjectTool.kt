@@ -16,24 +16,25 @@
 
 package com.mbrlabs.mundus.editor.tools.terrain
 
-import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
+import com.mbrlabs.mundus.commons.assets.TerrainObject
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
+import com.mbrlabs.mundus.editor.utils.IdUtils
 
 class ObjectTool : RadiusTerrainTool() {
 
     companion object {
         private val modifier = TerrainBrush.TerrainModifyAction { brush: TerrainBrush, terrainComponent: TerrainComponent, x: Int, z: Int, localBrushPos: Vector3, vertexPos: Vector3 ->
-            val modelId = TerrainBrush.getBrushingModelId()
-            val modelAsset = terrainComponent.terrainAsset.terrainObjectLayerAsset.findModelById(modelId)
-            val model = modelAsset.model
+            val modelPos = TerrainBrush.getBrushingModelPos()
 
-            val modelInstance = ModelInstance(model)
-            modelInstance.transform.translate(vertexPos)
-            modelInstance.transform.mulLeft(terrainComponent.gameObject.transform)
+            val terrainObject = TerrainObject()
+            terrainObject.id = IdUtils.generateUUID()
+            terrainObject.layerPos = modelPos
+            terrainObject.position = Vector3(vertexPos)
 
-            terrainComponent.terrainAsset.terrainObjectsAsset.addObject(modelInstance)
+            terrainComponent.terrainAsset.terrainObjectsAsset.addTerrainObject(terrainObject)
+            terrainComponent.applyTerrainObjects()
         }
     }
 

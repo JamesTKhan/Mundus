@@ -165,7 +165,7 @@ public abstract class TerrainBrush extends Tool {
     private static float strength = 0.5f;
     private static float heightSample = 0f;
     private static SplatTexture.Channel paintChannel;
-    private static String brushingModelId;
+    private static int brushingModelPos;
 
     // individual brush settings
     protected final Vector3 brushPos = new Vector3();
@@ -561,7 +561,7 @@ public abstract class TerrainBrush extends Tool {
 
         if (!modified) return;
 
-        terrainHeightModified = true;
+        objectModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
     }
 
@@ -653,12 +653,12 @@ public abstract class TerrainBrush extends Tool {
         Mundus.INSTANCE.postEvent(brushSettingsChangedEvent);
     }
 
-    public static void setBrushingModelId(String brushingModelId) {
-        TerrainBrush.brushingModelId = brushingModelId;
+    public static void setBrushingModelPos(int brushingModelPos) {
+        TerrainBrush.brushingModelPos = brushingModelPos;
     }
 
-    public static String getBrushingModelId() {
-        return brushingModelId;
+    public static int getBrushingModelPos() {
+        return brushingModelPos;
     }
 
     public static void setOptimizeTerrainUpdates(boolean optimizeTerrainUpdates) {

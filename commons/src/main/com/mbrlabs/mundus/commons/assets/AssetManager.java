@@ -454,7 +454,7 @@ public class AssetManager implements Disposable {
     }
 
     private TerrainObjectsAsset loadTerrainObjectsAsset(Meta meta, FileHandle assetFile) {
-        TerrainObjectsAsset asset = new TerrainObjectsAsset(meta, assetFile);
+        TerrainObjectsAsset asset = new TerrainObjectsAsset(meta, assetFile, json);
         asset.load(gdxAssetManager);
         return asset;
     }
