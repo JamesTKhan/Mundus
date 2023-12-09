@@ -50,6 +50,7 @@ class MetaSaver {
         json.writeValue(Meta.JSON_LAST_MOD, meta.lastModified)
         json.writeValue(Meta.JSON_TYPE, meta.type)
         json.writeValue(Meta.JSON_UUID, meta.uuid)
+        json.writeValue(Meta.JSON_DISPLAYNAME, meta.displayName)
     }
 
     private fun addModel(meta: Meta, json: Json) {
