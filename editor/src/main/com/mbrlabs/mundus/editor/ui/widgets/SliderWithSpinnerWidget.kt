@@ -45,6 +45,11 @@ class SliderWithSpinnerWidget(min: Float, max: Float, stepSize: Float, precision
         setupListeners()
     }
 
+    fun setValue(value: Float) {
+        slider.value = value
+        spinnerModel.value = value
+    }
+
     private fun setupListeners() {
         slider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {

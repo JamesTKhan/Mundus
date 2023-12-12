@@ -34,7 +34,7 @@ class SliderAndSpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
 
     override fun createFixedWidget(): Actor {
         val sliderWithSpinner = SliderWithSpinnerWidget(MIN, MAX, STEP, PRECISION)
-        sliderWithSpinner.listener = SliderWithSpinnerListenerImpl(NoneFixedRandomType.FIXED)
+        sliderWithSpinner.listener = SliderWithSpinnerListenerImpl(sliderWithSpinner, NoneFixedRandomType.FIXED)
 
         val main = VisTable()
         main.add(sliderWithSpinner).fillX().expandX()
@@ -44,9 +44,9 @@ class SliderAndSpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
 
     override fun createRandomWidget(): Actor {
         val minSliderWithSpinner = SliderWithSpinnerWidget(MIN, MAX, STEP, PRECISION)
-        minSliderWithSpinner.listener = SliderWithSpinnerListenerImpl(NoneFixedRandomType.RANDOM, true)
+        minSliderWithSpinner.listener = SliderWithSpinnerListenerImpl(minSliderWithSpinner, NoneFixedRandomType.RANDOM, true)
         val maxSliderWithSpinner = SliderWithSpinnerWidget(MIN, MAX, STEP, PRECISION)
-        maxSliderWithSpinner.listener = SliderWithSpinnerListenerImpl(NoneFixedRandomType.RANDOM, false)
+        maxSliderWithSpinner.listener = SliderWithSpinnerListenerImpl(maxSliderWithSpinner, NoneFixedRandomType.RANDOM, false)
 
         val main = VisTable()
         main.add(minSliderWithSpinner).expandX().fillX().row()
@@ -63,7 +63,9 @@ class SliderAndSpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
         }
     }
 
-    inner class SliderWithSpinnerListenerImpl(private val type: NoneFixedRandomType, private val randomMin: Boolean = false) : SliderWithSpinnerWidget.SliderWithSpinnerListener {
+    inner class SliderWithSpinnerListenerImpl(private val sliderWithSpinner: SliderWithSpinnerWidget,
+                                              private val type: NoneFixedRandomType,
+                                              private val randomMin: Boolean = false) : SliderWithSpinnerWidget.SliderWithSpinnerListener {
         override fun changed(value: Float) {
             when (type) {
                 NoneFixedRandomType.NONE -> {} //NOOP
@@ -73,9 +75,17 @@ class SliderAndSpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
                 }
                 NoneFixedRandomType.RANDOM -> {
                     if (randomMin) {
-                        randomMinValue = value
+                        if (randomMaxValue <= value) {
+                            sliderWithSpinner.setValue(randomMinValue)
+                        } else {
+                            randomMinValue = value
+                        }
                     } else {
-                        randomMaxValue = value
+                        if (value <= randomMinValue) {
+                            sliderWithSpinner.setValue(randomMaxValue)
+                        } else {
+                            randomMaxValue = value
+                        }
                     }
                     listener?.changed(type, randomMinValue, randomMaxValue)
                 }
