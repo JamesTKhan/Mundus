@@ -66,9 +66,9 @@ class SpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
 
     override fun typeChanged(type: NoneFixedRandomType) {
         when (type) {
-            NoneFixedRandomType.NONE -> listener?.changed(NoneFixedRandomType.NONE, -1f, -1f)
-            NoneFixedRandomType.FIXED -> listener?.changed(NoneFixedRandomType.FIXED, fixedValue, fixedValue)
-            NoneFixedRandomType.RANDOM -> listener?.changed(NoneFixedRandomType.RANDOM, randomMinValue, randomMaxValue)
+            NoneFixedRandomType.NONE -> listener?.changed(-1f, -1f)
+            NoneFixedRandomType.FIXED -> listener?.changed(fixedValue, fixedValue)
+            NoneFixedRandomType.RANDOM -> listener?.changed(randomMinValue, randomMaxValue)
         }
     }
 
@@ -78,7 +78,7 @@ class SpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
         spinner.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 fixedValue = model.value
-                listener?.changed(NoneFixedRandomType.FIXED, fixedValue, fixedValue)
+                listener?.changed(fixedValue, fixedValue)
             }
         })
     }
@@ -96,7 +96,7 @@ class SpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
                     minModel.value = randomMinValue
                 }
 
-                listener?.changed(NoneFixedRandomType.RANDOM, randomMinValue, randomMaxValue)
+                listener?.changed(randomMinValue, randomMaxValue)
             }
         })
 
@@ -109,7 +109,7 @@ class SpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
                     maxModel.value = randomMaxValue
                 }
 
-                listener?.changed(NoneFixedRandomType.RANDOM, randomMinValue, randomMaxValue)
+                listener?.changed(randomMinValue, randomMaxValue)
             }
         })
     }

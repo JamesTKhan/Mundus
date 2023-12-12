@@ -111,7 +111,7 @@ abstract class AbstractNoneFixedRandomWidget : VisTable() {
     }
 
     interface NoneFixedRandomListener {
-        fun changed(type: NoneFixedRandomType, min: Float, max: Float)
+        fun changed(min: Float, max: Float)
     }
 
 }

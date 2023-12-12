@@ -57,9 +57,9 @@ class SliderAndSpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
 
     override fun typeChanged(type: NoneFixedRandomType) {
         when (type) {
-            NoneFixedRandomType.NONE -> listener?.changed(NoneFixedRandomType.NONE, -1f, -1f)
-            NoneFixedRandomType.FIXED -> listener?.changed(NoneFixedRandomType.FIXED, fixedValue, fixedValue)
-            NoneFixedRandomType.RANDOM -> listener?.changed(NoneFixedRandomType.RANDOM, randomMinValue, randomMaxValue)
+            NoneFixedRandomType.NONE -> listener?.changed(-1f, -1f)
+            NoneFixedRandomType.FIXED -> listener?.changed(fixedValue, fixedValue)
+            NoneFixedRandomType.RANDOM -> listener?.changed(randomMinValue, randomMaxValue)
         }
     }
 
@@ -71,7 +71,7 @@ class SliderAndSpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
                 NoneFixedRandomType.NONE -> {} //NOOP
                 NoneFixedRandomType.FIXED -> {
                     fixedValue = value
-                    listener?.changed(type, fixedValue, fixedValue)
+                    listener?.changed(fixedValue, fixedValue)
                 }
                 NoneFixedRandomType.RANDOM -> {
                     if (randomMin) {
@@ -87,7 +87,7 @@ class SliderAndSpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
                             randomMaxValue = value
                         }
                     }
-                    listener?.changed(type, randomMinValue, randomMaxValue)
+                    listener?.changed(randomMinValue, randomMaxValue)
                 }
             }
         }

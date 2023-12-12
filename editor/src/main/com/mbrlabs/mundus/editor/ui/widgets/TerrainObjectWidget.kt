@@ -164,7 +164,7 @@ class TerrainObjectWidget : VisTable() {
     }
 
     inner class NoneFixedRandomListenerImpl(private val setter: (min: Float, max: Float) -> Unit) : AbstractNoneFixedRandomWidget.NoneFixedRandomListener {
-        override fun changed(type: AbstractNoneFixedRandomWidget.NoneFixedRandomType, min: Float, max: Float) {
+        override fun changed(min: Float, max: Float) {
             setter(min, max)
         }
     }
