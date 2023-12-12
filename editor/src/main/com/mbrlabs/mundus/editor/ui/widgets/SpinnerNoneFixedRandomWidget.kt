@@ -25,10 +25,10 @@ import com.kotcrab.vis.ui.widget.spinner.Spinner
 class SpinnerNoneFixedRandomWidget : AbstractNoneFixedRandomWidget() {
 
     companion object {
-        private const val INIT_VALUE = 2f
-        private const val MIN = 2f
-        private const val MAX = Int.MAX_VALUE.toFloat()
         private const val STEP = 0.1f
+        private const val MIN = 0f + STEP
+        private const val INIT_VALUE = MIN
+        private const val MAX = Int.MAX_VALUE.toFloat()
         private const val PRECISION = 1
     }
 
