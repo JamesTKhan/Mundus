@@ -23,6 +23,7 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisRadioButton
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
+import com.mbrlabs.mundus.editor.tools.terrain.ObjectTool
 
 class TerrainObjectWidget : VisTable() {
 
@@ -41,6 +42,7 @@ class TerrainObjectWidget : VisTable() {
     init {
         initUI()
         setupListeners()
+        resetObjectToolParameters()
     }
 
     private fun initUI() {
@@ -82,6 +84,21 @@ class TerrainObjectWidget : VisTable() {
         })
     }
 
+    private fun resetObjectToolParameters() {
+        ObjectTool.xRotationMin = -1f
+        ObjectTool.xRotationMax = -1f
+        ObjectTool.yRotationMin = -1f
+        ObjectTool.yRotationMax = -1f
+        ObjectTool.zRotationMin = -1f
+        ObjectTool.zRotationMax = -1f
+        ObjectTool.xScaleMin = -1f
+        ObjectTool.xScaleMax = -1f
+        ObjectTool.yScaleMin = -1f
+        ObjectTool.yScaleMax = -1f
+        ObjectTool.zScaleMin = -1f
+        ObjectTool.zScaleMax = -1f
+    }
+
     private fun setupAddingActionWidget() {
         // Strength slider
         val strengthSlider = ImprovedSlider(0f, 1f, 0.1f)
@@ -96,7 +113,7 @@ class TerrainObjectWidget : VisTable() {
         val rotationX = VisTable()
         rotationX.add(VisLabel("X")).expandX().fillX().left().row()
         val xSliderAndSpinnerWidget = SliderAndSpinnerNoneFixedRandomWidget()
-        xSliderAndSpinnerWidget.listener = NoneFixedRandomListenerImpl()
+        xSliderAndSpinnerWidget.listener = NoneFixedRandomListenerImpl { min: Float, max: Float -> ObjectTool.xRotationMin = min; ObjectTool.xRotationMax = max }
         rotationX.add(xSliderAndSpinnerWidget).expandX().fillX().row()
         addingActionWidget.add(rotationX).padLeft(ADDING_ACTION_LEFT_RIGHT_PADDING).padRight(ADDING_ACTION_LEFT_RIGHT_PADDING).expandX().fillX().row()
 
@@ -104,7 +121,7 @@ class TerrainObjectWidget : VisTable() {
         val rotationY = VisTable()
         rotationY.add(VisLabel("Y")).expandX().fillX().left().row()
         val ySliderAndSpinnerWidget = SliderAndSpinnerNoneFixedRandomWidget()
-        ySliderAndSpinnerWidget.listener = NoneFixedRandomListenerImpl()
+        ySliderAndSpinnerWidget.listener = NoneFixedRandomListenerImpl { min: Float, max: Float -> ObjectTool.yRotationMin = min; ObjectTool.yRotationMax = max }
         rotationY.add(ySliderAndSpinnerWidget).expandX().fillX().row()
         addingActionWidget.add(rotationY).padLeft(ADDING_ACTION_LEFT_RIGHT_PADDING).padRight(ADDING_ACTION_LEFT_RIGHT_PADDING).expandX().fillX().row()
 
@@ -113,7 +130,7 @@ class TerrainObjectWidget : VisTable() {
         val rotationZ = VisTable()
         rotationZ.add(VisLabel("Z")).expandX().fillX().left().row()
         val zSliderAndSpinnerWidget = SliderAndSpinnerNoneFixedRandomWidget()
-        zSliderAndSpinnerWidget.listener = NoneFixedRandomListenerImpl()
+        zSliderAndSpinnerWidget.listener = NoneFixedRandomListenerImpl { min: Float, max: Float -> ObjectTool.zRotationMin = min; ObjectTool.zRotationMax = max }
         rotationZ.add(zSliderAndSpinnerWidget).expandX().fillX().row()
         addingActionWidget.add(rotationZ).padLeft(ADDING_ACTION_LEFT_RIGHT_PADDING).padRight(ADDING_ACTION_LEFT_RIGHT_PADDING).expandX().fillX().row()
 
@@ -124,7 +141,7 @@ class TerrainObjectWidget : VisTable() {
         val scalingX = VisTable()
         scalingX.add(VisLabel("X")).expandX().fillX().left().row()
         val xSpinnerWidget = SpinnerNoneFixedRandomWidget()
-        xSpinnerWidget.listener = NoneFixedRandomListenerImpl()
+        xSpinnerWidget.listener = NoneFixedRandomListenerImpl { min: Float, max: Float -> ObjectTool.xScaleMin = min; ObjectTool.xScaleMax = max }
         scalingX.add(xSpinnerWidget).expandX().fillX().row()
         addingActionWidget.add(scalingX).padLeft(ADDING_ACTION_LEFT_RIGHT_PADDING).padRight(ADDING_ACTION_LEFT_RIGHT_PADDING).expandX().fillX().row()
 
@@ -132,7 +149,7 @@ class TerrainObjectWidget : VisTable() {
         val scalingY = VisTable()
         scalingY.add(VisLabel("Y")).expandX().fillX().left().row()
         val ySpinnerWidget = SpinnerNoneFixedRandomWidget()
-        ySpinnerWidget.listener = NoneFixedRandomListenerImpl()
+        ySpinnerWidget.listener = NoneFixedRandomListenerImpl { min: Float, max: Float -> ObjectTool.yScaleMin = min; ObjectTool.yScaleMax = max }
         scalingY.add(ySpinnerWidget).expandX().fillX().row()
         addingActionWidget.add(scalingY).padLeft(ADDING_ACTION_LEFT_RIGHT_PADDING).padRight(ADDING_ACTION_LEFT_RIGHT_PADDING).expandX().fillX().row()
 
@@ -140,16 +157,15 @@ class TerrainObjectWidget : VisTable() {
         val scalingZ = VisTable()
         scalingZ.add(VisLabel("Z")).expandX().fillX().left().row()
         val zSpinnerWidget = SpinnerNoneFixedRandomWidget()
-        zSpinnerWidget.listener = NoneFixedRandomListenerImpl()
+        zSpinnerWidget.listener = NoneFixedRandomListenerImpl { min: Float, max: Float -> ObjectTool.zScaleMin = min; ObjectTool.zScaleMax = max }
         scalingZ.add(zSpinnerWidget).expandX().fillX().row()
         addingActionWidget.add(scalingZ).padLeft(ADDING_ACTION_LEFT_RIGHT_PADDING).padRight(ADDING_ACTION_LEFT_RIGHT_PADDING).expandX().fillX().row()
 
     }
 
-    inner class NoneFixedRandomListenerImpl : AbstractNoneFixedRandomWidget.NoneFixedRandomListener {
+    inner class NoneFixedRandomListenerImpl(private val setter: (min: Float, max: Float) -> Unit) : AbstractNoneFixedRandomWidget.NoneFixedRandomListener {
         override fun changed(type: AbstractNoneFixedRandomWidget.NoneFixedRandomType, min: Float, max: Float) {
-            println("$type $min $max")
-            // TODO set on Object tool
+            setter(min, max)
         }
     }
 }

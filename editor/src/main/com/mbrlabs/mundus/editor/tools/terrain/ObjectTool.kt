@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.editor.tools.terrain
 
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.mbrlabs.mundus.commons.assets.TerrainObject
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
@@ -25,6 +26,19 @@ import com.mbrlabs.mundus.editor.utils.IdUtils
 class ObjectTool : RadiusTerrainTool() {
 
     companion object {
+        var xRotationMin = -1f
+        var xRotationMax = -1f
+        var yRotationMin = -1f
+        var yRotationMax = -1f
+        var zRotationMin = -1f
+        var zRotationMax = -1f
+        var xScaleMin = -1f
+        var xScaleMax = -1f
+        var yScaleMin = -1f
+        var yScaleMax = -1f
+        var zScaleMin = -1f
+        var zScaleMax = -1f
+
         private val modifier = TerrainBrush.TerrainModifyAction { brush: TerrainBrush, terrainComponent: TerrainComponent, x: Int, z: Int, localBrushPos: Vector3, vertexPos: Vector3 ->
             val modelPos = TerrainBrush.getBrushingModelPos()
 
@@ -32,13 +46,75 @@ class ObjectTool : RadiusTerrainTool() {
             terrainObject.id = IdUtils.generateUUID()
             terrainObject.layerPos = modelPos
             terrainObject.position = Vector3(vertexPos)
+            terrainObject.rotation = createRotation()
+            terrainObject.scale = createScale()
 
             terrainComponent.terrainAsset.terrainObjectsAsset.addTerrainObject(terrainObject)
             terrainComponent.applyTerrainObjects()
         }
+
+        private fun createRotation(): Vector3 {
+            var x = 0f
+            if (0 < xRotationMin && 0 < xRotationMax) {
+                if (MathUtils.isEqual(xRotationMin, xRotationMax)) {
+                    x = xRotationMin
+                } else {
+                    x = MathUtils.random(xRotationMin, xRotationMax)
+                }
+            }
+
+            var y = 0f
+            if (0 < yRotationMin && 0 < yRotationMax) {
+                if (MathUtils.isEqual(yRotationMin, yRotationMax)) {
+                    y = yRotationMin
+                } else {
+                    y = MathUtils.random(yRotationMin, yRotationMax)
+                }
+            }
+
+            var z = 0f
+            if (0 < zRotationMin && 0 < zRotationMax) {
+                if (MathUtils.isEqual(zRotationMin, zRotationMax)) {
+                    z = zRotationMin
+                } else {
+                    z = MathUtils.random(zRotationMin, zRotationMax)
+                }
+            }
+
+            return Vector3(x, y, z)
+        }
+
+        private fun createScale(): Vector3 {
+            var x = 1f
+            if (1 < xScaleMin && 1 < xScaleMax) {
+                if (MathUtils.isEqual(xScaleMin, xScaleMax)) {
+                    x = xScaleMin
+                } else {
+                    x = MathUtils.random(xScaleMin, xScaleMax)
+                }
+            }
+
+            var y = 1f
+            if (1 < yScaleMin && 1 < yScaleMax) {
+                if (MathUtils.isEqual(yScaleMin, yScaleMax)) {
+                    y = yScaleMin
+                } else {
+                    y = MathUtils.random(yScaleMin, yScaleMax)
+                }
+            }
+
+            var z = 1f
+            if (1 < zScaleMin && 1 < zScaleMax) {
+                if (MathUtils.isEqual(zScaleMin, zScaleMax)) {
+                    z = zScaleMin
+                } else {
+                    z = MathUtils.random(zScaleMin, zScaleMax)
+                }
+            }
+
+            return Vector3(x, y, z)
+        }
     }
-
-
 
     override fun act(brush: TerrainBrush) {
         brush.terrainObject(modifier, radiusDistanceComparison, true)

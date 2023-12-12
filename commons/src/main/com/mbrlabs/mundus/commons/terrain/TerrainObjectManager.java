@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
@@ -28,6 +29,7 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainObject;
 import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset;
+import com.mbrlabs.mundus.commons.utils.Pools;
 
 public class TerrainObjectManager implements RenderableProvider {
 
@@ -54,6 +56,8 @@ public class TerrainObjectManager implements RenderableProvider {
             if (!contains(terrainObjectId)) {
                 final int layerPos = terrainObject.getLayerPos();
                 final Vector3 localPosition = terrainObject.getPosition();
+                final Vector3 rotate = terrainObject.getRotation();
+                final Vector3 scale = terrainObject.getScale();
 
                 final ModelAsset modelAsset = terrainObjectLayerAsset.getModels().get(layerPos);
                 final Model model = modelAsset.getModel();
@@ -61,6 +65,19 @@ public class TerrainObjectManager implements RenderableProvider {
                 final ModelInstance modelInstance = new ModelInstance(model);
                 modelInstance.userData = terrainObjectId;
                 modelInstance.transform.translate(localPosition);
+
+                if (!rotate.isZero()) {
+                    final Quaternion rot = modelInstance.transform.getRotation(Pools.quaternionPool.obtain());
+                    rot.setEulerAngles(rotate.y, rotate.x, rotate.z);
+                    modelInstance.transform.rotate(rot);
+
+                    Pools.quaternionPool.free(rot);
+                }
+
+                if (!scale.isUnit()) {
+                    modelInstance.transform.scale(scale.x, scale.y, scale.z);
+                }
+
                 modelInstance.transform.mulLeft(transform);
 
                 modelInstances.add(modelInstance);
