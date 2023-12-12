@@ -1023,6 +1023,17 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             json.writeValue("z", terrainObject.position.z)
             json.writeObjectEnd()
 
+            json.writeObjectStart("rotation")
+            json.writeValue("x", terrainObject.rotation.x)
+            json.writeValue("y", terrainObject.rotation.y)
+            json.writeValue("z", terrainObject.rotation.z)
+            json.writeObjectEnd()
+
+            json.writeObjectStart("scale")
+            json.writeValue("x", terrainObject.scale.x)
+            json.writeValue("y", terrainObject.scale.y)
+            json.writeValue("z", terrainObject.scale.z)
+            json.writeObjectEnd()
 
             json.writeObjectEnd()
         }
