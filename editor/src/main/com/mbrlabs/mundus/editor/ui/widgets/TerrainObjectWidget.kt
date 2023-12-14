@@ -16,13 +16,14 @@
 
 package com.mbrlabs.mundus.editor.ui.widgets
 
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisRadioButton
 import com.kotcrab.vis.ui.widget.VisTable
-import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
 import com.mbrlabs.mundus.editor.tools.terrain.ObjectTool
 
 class TerrainObjectWidget : VisTable() {
@@ -36,13 +37,14 @@ class TerrainObjectWidget : VisTable() {
     private val actionWidget = VisTable()
 
     private val addingActionWidget = VisTable()
+    private val strengthSlider = ImprovedSlider(0f, 1f, 0.01f)
 
     private val removingActionWidget = VisTable()
 
     init {
+        ObjectTool.reset()
         initUI()
         setupListeners()
-        resetObjectToolParameters()
     }
 
     private fun initUI() {
@@ -71,6 +73,7 @@ class TerrainObjectWidget : VisTable() {
                 }
             }
         })
+
         removingButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
                 if (removingButton.isChecked) {
@@ -82,28 +85,18 @@ class TerrainObjectWidget : VisTable() {
                 }
             }
         })
-    }
 
-    private fun resetObjectToolParameters() {
-        ObjectTool.xRotationMin = -1f
-        ObjectTool.xRotationMax = -1f
-        ObjectTool.yRotationMin = -1f
-        ObjectTool.yRotationMax = -1f
-        ObjectTool.zRotationMin = -1f
-        ObjectTool.zRotationMax = -1f
-        ObjectTool.xScaleMin = -1f
-        ObjectTool.xScaleMax = -1f
-        ObjectTool.yScaleMin = -1f
-        ObjectTool.yScaleMax = -1f
-        ObjectTool.zScaleMin = -1f
-        ObjectTool.zScaleMax = -1f
+        strengthSlider.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                ObjectTool.strength = strengthSlider.value
+            }
+        })
     }
 
     private fun setupAddingActionWidget() {
         // Strength slider
-        val strengthSlider = ImprovedSlider(0f, 1f, 0.1f)
         addingActionWidget.add(VisLabel("Strength")).left().row()
-        strengthSlider.value = TerrainBrush.getStrength() // TODO
+        strengthSlider.value = ObjectTool.strength
         addingActionWidget.add(strengthSlider).expandX().fillX().row()
 
         // Rotation

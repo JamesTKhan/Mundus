@@ -26,6 +26,7 @@ import com.mbrlabs.mundus.editor.utils.IdUtils
 class ObjectTool : RadiusTerrainTool() {
 
     companion object {
+        var strength = 0.5f
         var xRotationMin = -1f
         var xRotationMax = -1f
         var yRotationMin = -1f
@@ -38,6 +39,25 @@ class ObjectTool : RadiusTerrainTool() {
         var yScaleMax = -1f
         var zScaleMin = -1f
         var zScaleMax = -1f
+
+        fun reset() {
+            strength = 0.5f
+            xRotationMin = -1f
+            xRotationMax = -1f
+            yRotationMin = -1f
+            yRotationMax = -1f
+            zRotationMin = -1f
+            zRotationMax = -1f
+            xScaleMin = -1f
+            xScaleMax = -1f
+            yScaleMin = -1f
+            yScaleMax = -1f
+            zScaleMin = -1f
+            zScaleMax = -1f
+        }
+
+        @JvmStatic
+        fun shouldGenerate() = MathUtils.random() < strength
 
         private val modifier = TerrainBrush.TerrainModifyAction { brush: TerrainBrush, terrainComponent: TerrainComponent, x: Int, z: Int, localBrushPos: Vector3, vertexPos: Vector3 ->
             val modelPos = TerrainBrush.getBrushingModelPos()

@@ -543,7 +543,7 @@ public abstract class TerrainBrush extends Tool {
                 localBrushPos.y = vertexPos.y;
 
                 // Call the comparison function
-                if (comparison.compare(this, vertexPos, localBrushPos)) {
+                if (comparison.compare(this, vertexPos, localBrushPos) && ObjectTool.shouldGenerate()) {
                     // If not already added, add the terrain to the list of modified terrains
                     if (modifiedTerrains.add(terrainComponent)) {
                         objectCommand.addTerrain(terrainComponent);
