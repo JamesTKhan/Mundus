@@ -62,6 +62,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * A Terrain Brush can modify the terrainAsset in various ways (BrushMode).
@@ -471,18 +472,7 @@ public abstract class TerrainBrush extends Tool {
     public void modifyTerrain(TerrainComponent terrainComponent, TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
         Vector3 localBrushPos = Pools.vector3Pool.obtain();
 
-        if (updateNeighbors) {
-            Set<TerrainComponent> allNeighbors = getAllConnectedTerrains();
-
-            for (TerrainComponent neighbor : allNeighbors) {
-                if (neighbor == terrainComponent) continue;
-
-                float scaledRadius = getScaledRadius(neighbor);
-                if (brushAffectsTerrain(brushPos, scaledRadius, neighbor)) {
-                    modifyTerrain(neighbor, modifier, comparison, false);
-                }
-            }
-        }
+        updateNeighborsIfNecessary(updateNeighbors, (neighbor) -> modifyTerrain(neighbor, modifier, comparison, false));
 
         getBrushLocalPosition(terrainComponent, localBrushPos);
         Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
@@ -530,18 +520,7 @@ public abstract class TerrainBrush extends Tool {
     public void terrainObject(ObjectTool.Action action, TerrainComponent terrainComponent, TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
         Vector3 localBrushPos = Pools.vector3Pool.obtain();
 
-        if (updateNeighbors) {
-            Set<TerrainComponent> allNeighbors = getAllConnectedTerrains();
-
-            for (TerrainComponent neighbor : allNeighbors) {
-                if (neighbor == terrainComponent) continue;
-
-                float scaledRadius = getScaledRadius(neighbor);
-                if (brushAffectsTerrain(brushPos, scaledRadius, neighbor)) {
-                    terrainObject(action, neighbor, modifier, comparison, false);
-                }
-            }
-        }
+        updateNeighborsIfNecessary(updateNeighbors, (neighbor) -> terrainObject(action, neighbor, modifier, comparison, false));
 
         getBrushLocalPosition(terrainComponent, localBrushPos);
         Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
@@ -600,6 +579,21 @@ public abstract class TerrainBrush extends Tool {
 
         objectModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
+    }
+
+    private void updateNeighborsIfNecessary(final boolean updateNeighbors, final Consumer<TerrainComponent> consumer) {
+        if (updateNeighbors) {
+            Set<TerrainComponent> allNeighbors = getAllConnectedTerrains();
+
+            for (TerrainComponent neighbor : allNeighbors) {
+                if (neighbor == terrainComponent) continue;
+
+                float scaledRadius = getScaledRadius(neighbor);
+                if (brushAffectsTerrain(brushPos, scaledRadius, neighbor)) {
+                    consumer.accept(neighbor);
+                }
+            }
+        }
     }
 
     private void updateTerrain(Terrain terrain) {
