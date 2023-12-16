@@ -530,7 +530,18 @@ public abstract class TerrainBrush extends Tool {
     public void terrainObject(ObjectTool.Action action, TerrainComponent terrainComponent, TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
         Vector3 localBrushPos = Pools.vector3Pool.obtain();
 
-        // TODO neighbors
+        if (updateNeighbors) {
+            Set<TerrainComponent> allNeighbors = getAllConnectedTerrains();
+
+            for (TerrainComponent neighbor : allNeighbors) {
+                if (neighbor == terrainComponent) continue;
+
+                float scaledRadius = getScaledRadius(neighbor);
+                if (brushAffectsTerrain(brushPos, scaledRadius, neighbor)) {
+                    terrainObject(action, neighbor, modifier, comparison, false);
+                }
+            }
+        }
 
         getBrushLocalPosition(terrainComponent, localBrushPos);
         Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
