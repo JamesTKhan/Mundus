@@ -29,6 +29,8 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
+import com.mbrlabs.mundus.commons.assets.TerrainObject;
+import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
@@ -521,11 +523,11 @@ public abstract class TerrainBrush extends Tool {
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
     }
 
-    public void terrainObject(TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
-        terrainObject(terrainComponent, modifier, comparison, updateNeighbors);
+    public void terrainObject(ObjectTool.Action action, TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
+        terrainObject(action, terrainComponent, modifier, comparison, updateNeighbors);
     }
 
-    public void terrainObject(TerrainComponent terrainComponent, TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
+    public void terrainObject(ObjectTool.Action action, TerrainComponent terrainComponent, TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
         Vector3 localBrushPos = Pools.vector3Pool.obtain();
 
         // TODO neighbors
@@ -535,24 +537,46 @@ public abstract class TerrainBrush extends Tool {
         BrushRange range = calculateBrushRange(terrain, localBrushPos);
 
         boolean modified = false;
-        // iterate over the affected vertices and modify them
-        for (int x = range.minX; x < range.maxX; x++) {
-            for (int z = range.minZ; z < range.maxZ; z++) {
+        if (action == ObjectTool.Action.ADDING) {
+            // iterate over the affected vertices and modify them
+            for (int x = range.minX; x < range.maxX; x++) {
+                for (int z = range.minZ; z < range.maxZ; z++) {
 
-                final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
-                localBrushPos.y = vertexPos.y;
+                    final Vector3 vertexPos = terrain.getVertexPosition(tVec0, x, z);
+                    localBrushPos.y = vertexPos.y;
 
-                // Call the comparison function
-                if (comparison.compare(this, vertexPos, localBrushPos) && ObjectTool.shouldGenerate()) {
-                    // If not already added, add the terrain to the list of modified terrains
-                    if (modifiedTerrains.add(terrainComponent)) {
-                        objectCommand.addTerrain(terrainComponent);
+                    // Call the comparison function
+                    if (comparison.compare(this, vertexPos, localBrushPos) && ObjectTool.shouldGenerate()) {
+                        // If not already added, add the terrain to the list of modified terrains
+                        if (modifiedTerrains.add(terrainComponent)) {
+                            objectCommand.addTerrain(terrainComponent);
+                        }
+
+                        // Call the modifier if the comparison function returns true
+                        modifier.modify(this, terrainComponent, x, z, localBrushPos, vertexPos);
+
+                        modified = true;
                     }
+                }
+            }
+        } else {
+            final TerrainObjectsAsset terrainObjectsAsset = terrainComponent.getTerrainAsset().getTerrainObjectsAsset();
+            final int num = terrainObjectsAsset.getTerrainObjectNum();
 
-                    // Call the modifier if the comparison function returns true
-                    modifier.modify(this, terrainComponent, x, z, localBrushPos, vertexPos);
+            for (int i = num - 1; i >= 0; --i) {
+                final TerrainObject terrainObject = terrainObjectsAsset.getTerrainObject(i);
+                if (terrainObject.getLayerPos() == brushingModelPos) {
 
-                    modified = true;
+                    if (comparison.compare(this, terrainObject.getPosition(), localBrushPos)) {
+                        // If not already added, add the terrain to the list of modified terrains
+                        if (modifiedTerrains.add(terrainComponent)) {
+                            objectCommand.addTerrain(terrainComponent);
+                        }
+
+                        terrainObjectsAsset.removeObject(i);
+
+                        modified = true;
+                    }
                 }
             }
         }
@@ -560,6 +584,8 @@ public abstract class TerrainBrush extends Tool {
         Pools.vector3Pool.free(localBrushPos);
 
         if (!modified) return;
+
+        terrainComponent.applyTerrainObjects();
 
         objectModified = true;
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());

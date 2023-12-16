@@ -67,7 +67,7 @@ class TerrainObjectWidget : VisTable() {
                     removingButton.isChecked = false
                     actionWidget.clear()
                     actionWidget.add(addingActionWidget).expandX().fillX()
-
+                    ObjectTool.action = ObjectTool.Action.ADDING
                 } else {
                     addingButton.isChecked = true
                 }
@@ -80,6 +80,7 @@ class TerrainObjectWidget : VisTable() {
                     addingButton.isChecked = false
                     actionWidget.clear()
                     actionWidget.add(removingActionWidget).expandX().fillX()
+                    ObjectTool.action = ObjectTool.Action.REMOVING
                 } else {
                     removingButton.isChecked = true
                 }

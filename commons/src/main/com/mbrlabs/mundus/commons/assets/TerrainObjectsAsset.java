@@ -87,4 +87,8 @@ public class TerrainObjectsAsset extends Asset {
         return terrainObjects.get(i);
     }
 
+    public TerrainObject removeObject(int i) {
+        return terrainObjects.removeIndex(i);
+    }
+
 }

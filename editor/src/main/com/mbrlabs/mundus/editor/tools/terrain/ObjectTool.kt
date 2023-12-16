@@ -25,7 +25,13 @@ import com.mbrlabs.mundus.editor.utils.IdUtils
 
 class ObjectTool : RadiusTerrainTool() {
 
+    enum class Action {
+        ADDING,
+        REMOVING
+    }
+
     companion object {
+        var action = Action.ADDING
         var strength = 0.5f
         var xRotationMin = -1f
         var xRotationMax = -1f
@@ -41,6 +47,7 @@ class ObjectTool : RadiusTerrainTool() {
         var zScaleMax = -1f
 
         fun reset() {
+            action = Action.ADDING
             strength = 0.5f
             xRotationMin = -1f
             xRotationMax = -1f
@@ -70,7 +77,6 @@ class ObjectTool : RadiusTerrainTool() {
             terrainObject.scale = createScale()
 
             terrainComponent.terrainAsset.terrainObjectsAsset.addTerrainObject(terrainObject)
-            terrainComponent.applyTerrainObjects()
         }
 
         private fun createRotation(): Vector3 {
@@ -137,6 +143,6 @@ class ObjectTool : RadiusTerrainTool() {
     }
 
     override fun act(brush: TerrainBrush) {
-        brush.terrainObject(modifier, radiusDistanceComparison, true)
+        brush.terrainObject(action, modifier, radiusDistanceComparison, true)
     }
 }

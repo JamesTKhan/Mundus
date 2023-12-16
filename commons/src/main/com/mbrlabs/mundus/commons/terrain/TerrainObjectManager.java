@@ -48,12 +48,17 @@ public class TerrainObjectManager implements RenderableProvider {
     }
 
     public void apply(final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 transform) {
+        removeModelInstances(terrainObjectsAsset);
+        addModelInstances(terrainObjectsAsset, terrainObjectLayerAsset, transform);
+    }
+
+    private void addModelInstances(final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 transform) {
         for (int i = 0; i < terrainObjectsAsset.getTerrainObjectNum(); ++i) {
             final TerrainObject terrainObject = terrainObjectsAsset.getTerrainObject(i);
 
             final String terrainObjectId = terrainObject.getId();
 
-            if (!contains(terrainObjectId)) {
+            if (!containsModelInstance(terrainObjectId)) {
                 final int layerPos = terrainObject.getLayerPos();
                 final Vector3 localPosition = terrainObject.getPosition();
                 final Vector3 rotate = terrainObject.getRotation();
@@ -85,7 +90,18 @@ public class TerrainObjectManager implements RenderableProvider {
         }
     }
 
-    private boolean contains(final String id) {
+    private void removeModelInstances(final TerrainObjectsAsset terrainObjectsAsset) {
+        for (int i = modelInstances.size - 1; i >= 0; --i) {
+            final ModelInstance modelInstance = modelInstances.get(i);
+            final String id = (String) modelInstance.userData;
+
+            if (!containsTerrainObject(id, terrainObjectsAsset)) {
+                modelInstances.removeIndex(i);
+            }
+        }
+    }
+
+    private boolean containsModelInstance(final String id) {
         for (int i = 0; i < modelInstances.size; ++i) {
             if (id.equals(modelInstances.get(i).userData)) {
                 return true;
@@ -95,4 +111,13 @@ public class TerrainObjectManager implements RenderableProvider {
         return false;
     }
 
+    private boolean containsTerrainObject(final String id, final TerrainObjectsAsset terrainObjectsAsset) {
+        for (int i = 0; i < terrainObjectsAsset.getTerrainObjectNum(); ++i) {
+            if (id.equals(terrainObjectsAsset.getTerrainObject(i).getId())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
