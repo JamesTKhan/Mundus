@@ -458,21 +458,22 @@ public abstract class TerrainBrush extends Tool {
         return connectedTerrains;
     }
 
-    public void modifyTerrain(TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
-        modifyTerrain(terrainComponent, modifier, comparison, updateNeighbors);
+    public void modifyTerrain(TerrainModifyAction modifier, TerrainModifyAction terrainObjectUpdater, TerrainModifyComparison comparison, boolean updateNeighbors) {
+        modifyTerrain(terrainComponent, modifier, terrainObjectUpdater, comparison, updateNeighbors);
     }
 
     /**
      * Modifies the terrain using the given modifier and comparison
      * @param terrainComponent The terrain to modify
      * @param modifier The modifier to use
+     * @param terrainObjectUpdater The terrain object updater to use
      * @param comparison The comparison to use
      * @param updateNeighbors Whether to update the neighbors of the terrain
      */
-    public void modifyTerrain(TerrainComponent terrainComponent, TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
+    public void modifyTerrain(TerrainComponent terrainComponent, TerrainModifyAction modifier, TerrainModifyAction terrainObjectUpdater, TerrainModifyComparison comparison, boolean updateNeighbors) {
         Vector3 localBrushPos = Pools.vector3Pool.obtain();
 
-        updateNeighborsIfNecessary(updateNeighbors, (neighbor) -> modifyTerrain(neighbor, modifier, comparison, false));
+        updateNeighborsIfNecessary(updateNeighbors, (neighbor) -> modifyTerrain(neighbor, modifier, terrainObjectUpdater, comparison, false));
 
         getBrushLocalPosition(terrainComponent, localBrushPos);
         Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
@@ -496,6 +497,9 @@ public abstract class TerrainBrush extends Tool {
                     // Call the modifier if the comparison function returns true
                     modifier.modify(this, terrainComponent, x, z, localBrushPos, vertexPos);
                     terrain.modifyVertex(x, z);
+
+                    // Call the terrain object position updater if the comparison function returns true
+                    terrainObjectUpdater.modify(this, terrainComponent, x, z, localBrushPos, vertexPos);
                     modified = true;
                 }
             }
@@ -507,6 +511,9 @@ public abstract class TerrainBrush extends Tool {
 
         // Disable LoD temporarily while being modified
         terrainComponent.getLodManager().disable();
+
+        // Apply terrain objects positions
+        terrainComponent.applyTerrainObjects();
 
         updateTerrain(terrain);
         terrainHeightModified = true;

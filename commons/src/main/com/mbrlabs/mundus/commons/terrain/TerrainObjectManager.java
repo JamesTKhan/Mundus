@@ -47,9 +47,20 @@ public class TerrainObjectManager implements RenderableProvider {
         }
     }
 
-    public void apply(final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 transform) {
+    public void apply(final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 parentTransform) {
         removeModelInstances(terrainObjectsAsset);
-        addModelInstances(terrainObjectsAsset, terrainObjectLayerAsset, transform);
+        addModelInstances(terrainObjectsAsset, terrainObjectLayerAsset, parentTransform);
+        updatePositions(terrainObjectsAsset, parentTransform);
+    }
+
+    public void updatePositions(final TerrainObjectsAsset terrainObjectsAsset, final Matrix4 parentTransform) {
+        for (int i = 0; i < terrainObjectsAsset.getTerrainObjectNum(); ++i) {
+            final TerrainObject terrainObject = terrainObjectsAsset.getTerrainObject(i);
+            final ModelInstance modelInstance = findById(terrainObject.getId());
+
+            modelInstance.transform.idt();
+            setupPositionScaleAndRotation(modelInstance, terrainObject, parentTransform);
+        }
     }
 
     private void addModelInstances(final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 transform) {
@@ -60,34 +71,36 @@ public class TerrainObjectManager implements RenderableProvider {
 
             if (!containsModelInstance(terrainObjectId)) {
                 final int layerPos = terrainObject.getLayerPos();
-                final Vector3 localPosition = terrainObject.getPosition();
-                final Vector3 rotate = terrainObject.getRotation();
-                final Vector3 scale = terrainObject.getScale();
-
                 final ModelAsset modelAsset = terrainObjectLayerAsset.getModels().get(layerPos);
                 final Model model = modelAsset.getModel();
 
                 final ModelInstance modelInstance = new ModelInstance(model);
                 modelInstance.userData = terrainObjectId;
-                modelInstance.transform.translate(localPosition);
-
-                if (!rotate.isZero()) {
-                    final Quaternion rot = modelInstance.transform.getRotation(Pools.quaternionPool.obtain());
-                    rot.setEulerAngles(rotate.y, rotate.x, rotate.z);
-                    modelInstance.transform.rotate(rot);
-
-                    Pools.quaternionPool.free(rot);
-                }
-
-                if (!scale.isUnit()) {
-                    modelInstance.transform.scale(scale.x, scale.y, scale.z);
-                }
-
-                modelInstance.transform.mulLeft(transform);
-
                 modelInstances.add(modelInstance);
             }
         }
+    }
+
+    private void setupPositionScaleAndRotation(final ModelInstance modelInstance, final TerrainObject terrainObject, final Matrix4 parentTransform) {
+        final Vector3 localPosition = terrainObject.getPosition();
+        final Vector3 rotate = terrainObject.getRotation();
+        final Vector3 scale = terrainObject.getScale();
+
+        modelInstance.transform.translate(localPosition);
+
+        if (!rotate.isZero()) {
+            final Quaternion rot = modelInstance.transform.getRotation(Pools.quaternionPool.obtain());
+            rot.setEulerAngles(rotate.y, rotate.x, rotate.z);
+            modelInstance.transform.rotate(rot);
+
+            Pools.quaternionPool.free(rot);
+        }
+
+        if (!scale.isUnit()) {
+            modelInstance.transform.scale(scale.x, scale.y, scale.z);
+        }
+
+        modelInstance.transform.mulLeft(parentTransform);
     }
 
     private void removeModelInstances(final TerrainObjectsAsset terrainObjectsAsset) {
@@ -119,5 +132,16 @@ public class TerrainObjectManager implements RenderableProvider {
         }
 
         return false;
+    }
+
+    private ModelInstance findById(final String id) {
+        for (int i = 0; i < modelInstances.size; ++i) {
+            final ModelInstance modelInstance = modelInstances.get(i);
+            if (modelInstance.userData.equals(id)) {
+                return modelInstance;
+            }
+        }
+
+        return null;
     }
 }

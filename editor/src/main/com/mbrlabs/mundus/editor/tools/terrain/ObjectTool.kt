@@ -66,6 +66,22 @@ class ObjectTool : RadiusTerrainTool() {
         @JvmStatic
         fun shouldGenerate() = MathUtils.random() < strength
 
+        @JvmStatic
+        val updater = TerrainBrush.TerrainModifyAction { brush: TerrainBrush, terrainComponent: TerrainComponent, x: Int, z: Int, localBrushPos: Vector3, vertexPos: Vector3 ->
+            val terrainObjectsAsset = terrainComponent.terrainAsset.terrainObjectsAsset
+
+            val num = terrainObjectsAsset.terrainObjectNum
+
+            for (i in 0..<num) {
+                val terrainObject = terrainObjectsAsset.getTerrainObject(i)
+                val terrainObjectPos = terrainObject.position
+
+                if (radiusDistanceComparison.compare(brush, terrainObjectPos, localBrushPos)) {
+                    terrainObjectPos.y = terrainComponent.terrainAsset.terrain.getHeightAtLocalCoord(terrainObjectPos.x, terrainObjectPos.z)
+                }
+            }
+        }
+
         private val modifier = TerrainBrush.TerrainModifyAction { brush: TerrainBrush, terrainComponent: TerrainComponent, x: Int, z: Int, localBrushPos: Vector3, vertexPos: Vector3 ->
             val modelPos = TerrainBrush.getBrushingModelPos()
 
