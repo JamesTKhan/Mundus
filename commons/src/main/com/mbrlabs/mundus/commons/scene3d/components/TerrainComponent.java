@@ -188,6 +188,14 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         return terrainAsset.usesAsset(assetToCheck);
     }
 
+    @Override
+    public void onDirty() {
+        super.onDirty();
+
+        // Recalculate terrain objects position
+        applyTerrainObjects();
+    }
+
     public ModelInstance getModelInstance() {
         return modelInstance;
     }
