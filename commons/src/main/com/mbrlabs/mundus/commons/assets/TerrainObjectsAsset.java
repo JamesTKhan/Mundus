@@ -91,4 +91,8 @@ public class TerrainObjectsAsset extends Asset {
         return terrainObjects.removeIndex(i);
     }
 
+    public void clear() {
+        terrainObjects.clear();
+    }
+
 }

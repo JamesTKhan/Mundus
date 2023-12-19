@@ -16,25 +16,51 @@
 
 package com.mbrlabs.mundus.editor.history.commands
 
+import com.badlogic.gdx.utils.Array
+import com.mbrlabs.mundus.commons.assets.TerrainObject
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.history.Command
 
 class TerrainObjectCommand(private var terrain: TerrainComponent) : Command {
+
+    private val beforeTerrainObjects = Array<TerrainObject>()
+    private val afterTerrainObjects = Array<TerrainObject>()
+
     override fun execute() {
-        // TODO implement later
+        executeArray(afterTerrainObjects)
+        terrain.applyTerrainObjects()
     }
 
     override fun undo() {
-        // TODO implement later
+        executeArray(beforeTerrainObjects)
+        terrain.applyTerrainObjects()
     }
 
     fun setObjectsBefore() {
-        // TODO implement later
+        loadArray(beforeTerrainObjects)
     }
 
     fun setObjectsAfter() {
-        // TODO implement later
+        loadArray(afterTerrainObjects)
     }
 
+    private fun loadArray(array: Array<TerrainObject>) {
+        val terrainObjectsAsset = terrain.terrainAsset.terrainObjectsAsset
 
+        for (i in 0..<terrainObjectsAsset.terrainObjectNum) {
+            val copyTerrainObject = TerrainObject(terrainObjectsAsset.getTerrainObject(i))
+            array.add(copyTerrainObject)
+        }
+    }
+
+    private fun executeArray(array: Array<TerrainObject>) {
+        val terrainObjectsAsset = terrain.terrainAsset.terrainObjectsAsset
+
+        terrainObjectsAsset.clear()
+
+        for (terrainObject in array) {
+            val copyTerrainObject = TerrainObject(terrainObject)
+            terrainObjectsAsset.addTerrainObject(copyTerrainObject)
+        }
+    }
 }

@@ -30,6 +30,23 @@ public class TerrainObject {
 
     private Vector3 scale;
 
+    public TerrainObject() {
+        // NOOP
+    }
+
+    /**
+     * Copy constructor.
+     *
+     * @param original The original terrain object.
+     */
+    public TerrainObject(final TerrainObject original) {
+        id = original.getId();
+        layerPos = original.getLayerPos();
+        position = new Vector3(original.getPosition());
+        rotation = new Vector3(original.getRotation());
+        scale = new Vector3(original.getScale());
+    }
+
     public String getId() {
         return id;
     }
