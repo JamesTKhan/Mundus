@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.commons.terrain;
 
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelCache;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
@@ -35,22 +36,26 @@ public class TerrainObjectManager implements RenderableProvider {
 
     private final Array<ModelInstance> modelInstances;
 
+    private final ModelCache modelCache;
+
     public TerrainObjectManager() {
         modelInstances = new Array<>(5);
+        modelCache = new ModelCache();
     }
 
     @Override
     public void getRenderables(final Array<Renderable> renderables, final Pool<Renderable> pool) {
-        for (int i = 0; i < modelInstances.size; ++i) {
-            final ModelInstance modelInstance = modelInstances.get(i);
-            modelInstance.getRenderables(renderables, pool);
-        }
+        modelCache.getRenderables(renderables, pool);
     }
 
     public void apply(final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 parentTransform) {
         removeModelInstances(terrainObjectsAsset);
         addModelInstances(terrainObjectsAsset, terrainObjectLayerAsset, parentTransform);
         updatePositions(terrainObjectsAsset, parentTransform);
+
+        modelCache.begin();
+        modelCache.add(modelInstances);
+        modelCache.end();
     }
 
     public void updatePositions(final TerrainObjectsAsset terrainObjectsAsset, final Matrix4 parentTransform) {
