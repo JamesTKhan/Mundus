@@ -16,18 +16,22 @@
 
 package com.mbrlabs.mundus.editor.ui.widgets
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.VisUI
+import com.kotcrab.vis.ui.widget.MenuItem
+import com.kotcrab.vis.ui.widget.PopupMenu
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset
+import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.utils.TextureProvider
 import com.mbrlabs.mundus.editor.Mundus
@@ -55,6 +59,8 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
     private val addObjectBtn = VisTextButton("Add Object")
 
     private val root = VisTable()
+
+    private val rightClickMenu = TerrainObjectRightClickMenu()
 
     init {
         layerNameLabel.color = Colors.TEAL
@@ -150,8 +156,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
                     toolManager.activateTool(tool)
                 }
             } else {
-//                rightClickMenu.setChannel(tex.channel)
-//                rightClickMenu.show()
+                rightClickMenu.show(tex.pos)
             }
         }
 
@@ -179,6 +184,34 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
         textureGrid.addTexture(TmpTexture(modelPos, modelAsset))
     }
 
+    private fun applyDependenciesAfterRemoving(layerPos: Int) {
+        projectManager.current().currScene.sceneGraph.findAllByComponent(Component.Type.TERRAIN).forEach {
+            val component = it.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
+
+            if (component.terrainAsset.terrainObjectLayerAsset == asset) {
+                var terrainObjectsAsset = component.terrainAsset.terrainObjectsAsset
+                var modified = false
+
+                for (i in terrainObjectsAsset.terrainObjectNum -1 downTo 0) {
+                    val terrainObject = terrainObjectsAsset.getTerrainObject(i)
+
+                    if (terrainObject.layerPos == layerPos) {
+                        terrainObjectsAsset.removeObject(i)
+                        modified = true
+                    } else if (layerPos < terrainObject.layerPos) {
+                        terrainObject.layerPos -= 1
+                        modified = true
+                    }
+                }
+
+                if (modified) {
+                    component.applyTerrainObjects()
+                    projectManager.current().assetManager.addModifiedAsset(component.terrainAsset)
+                }
+            }
+        }
+    }
+
     // TODO temporary class until thumbnail PR won't be merged
     class TmpTexture(val pos: Int, modelAsset: ModelAsset) : TextureProvider {
 
@@ -194,5 +227,36 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
         }
 
         override fun getTexture(): Texture = texture
+    }
+
+    private inner class TerrainObjectRightClickMenu : PopupMenu() {
+
+        private val removeObject = MenuItem("Remove object")
+
+        private var layerPos = -1
+
+        init {
+            addItem(removeObject)
+
+            setupSubscriptions()
+        }
+
+        fun show(layerPos: Int) {
+            this.layerPos = layerPos
+            showMenu(UI, Gdx.input.x.toFloat(), (Gdx.graphics.height - Gdx.input.y).toFloat())
+        }
+
+        private fun setupSubscriptions() {
+            removeObject.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent, x: Float, y: Float) {
+                    val terrainObjectLayerAsset = asset
+                    terrainObjectLayerAsset.removeModel(layerPos)
+                    applyDependenciesAfterRemoving(layerPos)
+                    setTexturesInUiGrid()
+                    projectManager.current().assetManager.addModifiedAsset(terrainObjectLayerAsset)
+                }
+            })
+        }
+
     }
 }

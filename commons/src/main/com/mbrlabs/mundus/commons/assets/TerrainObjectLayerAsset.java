@@ -94,4 +94,8 @@ public class TerrainObjectLayerAsset extends Asset {
     public int getActiveLayerCount() {
         return models.size;
     }
+
+    public void removeModel(int pos) {
+        models.removeIndex(pos);
+    }
 }
