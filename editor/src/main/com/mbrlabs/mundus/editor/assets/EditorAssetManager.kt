@@ -435,8 +435,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      */
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createTerrainObjectsAsset(name: String): TerrainObjectsAsset {
-        val newName = name.replace(".terra","")
-        val objectsFilename = "$newName.terraobjects"
+        val objectsFilename = "$name.terraobjects"
         val metaFilename = "$objectsFilename.meta"
 
         // create meta file
@@ -729,7 +728,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
                 terrainObjectLayerAsset = createTerrainObjectLayerAsset("default")
             }
 
-            val terrainObjectsAsset = createTerrainObjectsAsset(asset.name)
+            val terrainObjectsAsset = createTerrainObjectsAsset(asset.name.replace(".terra",""))
 
             // Set new TerrainObjectLayer Asset ID to Terrain Asset
             asset.meta.terrain.terrainObjectLayerAssetId = terrainObjectLayerAsset.id
