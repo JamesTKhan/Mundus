@@ -31,11 +31,14 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset
+import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.commons.terrain.SplatTexture
 import com.mbrlabs.mundus.commons.utils.TextureProvider
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetModelFilter
+import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
 import com.mbrlabs.mundus.editor.tools.ToolManager
@@ -43,6 +46,7 @@ import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.utils.Colors
+import com.mbrlabs.mundus.editor.utils.IdUtils
 import java.io.IOException
 
 class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainComponent: TerrainComponent?, var allowChange: Boolean = true) : VisTable() {
@@ -212,6 +216,32 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
         }
     }
 
+    private fun applyDependenciesAfterChanging(layerPos: Int) {
+        projectManager.current().currScene.sceneGraph.findAllByComponent(Component.Type.TERRAIN).forEach {
+            val component = it.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
+
+            if (component.terrainAsset.terrainObjectLayerAsset == asset) {
+                var terrainObjectsAsset = component.terrainAsset.terrainObjectsAsset
+                var modified = false
+
+                for (i in terrainObjectsAsset.terrainObjectNum -1 downTo 0) {
+                    val terrainObject = terrainObjectsAsset.getTerrainObject(i)
+
+                    if (terrainObject.layerPos == layerPos) {
+                        // If gereate new ID then the apply method will remove old terrain objects and will create new objects with new model asset
+                        terrainObject.id = IdUtils.generateUUID()
+                        modified = true
+                    }
+                }
+
+                if (modified) {
+                    component.applyTerrainObjects()
+                    projectManager.current().assetManager.addModifiedAsset(component.terrainAsset)
+                }
+            }
+        }
+    }
+
     // TODO temporary class until thumbnail PR won't be merged
     class TmpTexture(val pos: Int, modelAsset: ModelAsset) : TextureProvider {
 
@@ -232,11 +262,13 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
     private inner class TerrainObjectRightClickMenu : PopupMenu() {
 
         private val removeObject = MenuItem("Remove object")
+        private val changeObject = MenuItem("Change object")
 
         private var layerPos = -1
 
         init {
             addItem(removeObject)
+            addItem(changeObject)
 
             setupSubscriptions()
         }
@@ -256,7 +288,23 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
                     projectManager.current().assetManager.addModifiedAsset(terrainObjectLayerAsset)
                 }
             })
-        }
 
+            changeObject.addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent, x: Float, y: Float) {
+                    UI.assetSelectionDialog.show(
+                            false,
+                            AssetModelFilter(),
+                            object : AssetPickerDialog.AssetPickerListener {
+                                override fun onSelected(asset: Asset?) {
+                                    val terrainObjectLayerAsset = this@TerrainObjectLayerWidget.asset
+                                    terrainObjectLayerAsset.change(asset as ModelAsset, layerPos)
+                                    applyDependenciesAfterChanging(layerPos)
+                                    setTexturesInUiGrid()
+                                    projectManager.current().assetManager.addModifiedAsset(terrainObjectLayerAsset)
+                                }
+                            })
+                }
+            })
+        }
     }
 }

@@ -98,4 +98,8 @@ public class TerrainObjectLayerAsset extends Asset {
     public void removeModel(int pos) {
         models.removeIndex(pos);
     }
+
+    public void change(ModelAsset asset, int pos) {
+        models.set(pos, asset);
+    }
 }
