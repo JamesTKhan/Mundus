@@ -228,7 +228,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
                     val terrainObject = terrainObjectsAsset.getTerrainObject(i)
 
                     if (terrainObject.layerPos == layerPos) {
-                        // If gereate new ID then the apply method will remove old terrain objects and will create new objects with new model asset
+                        // If generate new ID then the apply method will remove old terrain objects and will create new objects with new model asset
                         terrainObject.id = IdUtils.generateUUID()
                         modified = true
                     }
