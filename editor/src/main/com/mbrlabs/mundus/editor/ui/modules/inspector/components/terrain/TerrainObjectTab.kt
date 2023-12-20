@@ -30,8 +30,6 @@ class TerrainObjectTab(private val parentWidget: TerrainComponentWidget) : BaseB
     init {
         root.add(terrainObjectLayerWidget).expand().fill().padBottom(5f).row()
         root.add(TerrainObjectWidget()).expand().fill().row()
-
-//        root.setDebug(true, true) // TODO remove later
     }
 
     override fun getTabTitle(): String = "Objets"

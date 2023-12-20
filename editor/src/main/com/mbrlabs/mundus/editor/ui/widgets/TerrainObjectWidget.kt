@@ -38,6 +38,7 @@ class TerrainObjectWidget : VisTable() {
 
     private val addingActionWidget = VisTable()
     private val strengthSlider = ImprovedSlider(0f, 1f, 0.01f)
+    private val randomBetweenVerticesSlider = ImprovedSlider(0f, 0.99f, 0.01f)
 
     private val removingActionWidget = VisTable()
 
@@ -92,6 +93,12 @@ class TerrainObjectWidget : VisTable() {
                 ObjectTool.strength = strengthSlider.value
             }
         })
+
+        randomBetweenVerticesSlider.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                ObjectTool.randomBetweenVertices = randomBetweenVerticesSlider.value
+            }
+        })
     }
 
     private fun setupAddingActionWidget() {
@@ -99,6 +106,13 @@ class TerrainObjectWidget : VisTable() {
         addingActionWidget.add(VisLabel("Strength")).left().row()
         strengthSlider.value = ObjectTool.strength
         addingActionWidget.add(strengthSlider).expandX().fillX().row()
+
+        // Random between vertices
+        val randomBetweenVerticesDescription = "If the value is 0 then the objects will be on the vertices\notherwise the objects will be randomized between vertices with this rate."
+        val randomBetweenVerticesLabel = ToolTipLabel("Random between vertices", randomBetweenVerticesDescription)
+        addingActionWidget.add(randomBetweenVerticesLabel).left().row()
+        randomBetweenVerticesSlider.value = ObjectTool.randomBetweenVertices
+        addingActionWidget.add(randomBetweenVerticesSlider).expandX().fill().row()
 
         // Rotation
         addingActionWidget.add(VisLabel("Rotation")).expandX().fillX().left().row()

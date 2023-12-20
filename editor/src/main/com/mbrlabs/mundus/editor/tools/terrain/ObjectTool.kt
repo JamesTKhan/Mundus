@@ -33,6 +33,7 @@ class ObjectTool : RadiusTerrainTool() {
     companion object {
         var action = Action.ADDING
         var strength = 0.5f
+        var randomBetweenVertices = 0f
         var xRotationMin = -1f
         var xRotationMax = -1f
         var yRotationMin = -1f
@@ -49,6 +50,7 @@ class ObjectTool : RadiusTerrainTool() {
         fun reset() {
             action = Action.ADDING
             strength = 0.5f
+            randomBetweenVertices = 0f
             xRotationMin = -1f
             xRotationMax = -1f
             yRotationMin = -1f
@@ -85,10 +87,13 @@ class ObjectTool : RadiusTerrainTool() {
         private val modifier = TerrainBrush.TerrainModifyAction { brush: TerrainBrush, terrainComponent: TerrainComponent, x: Int, z: Int, localBrushPos: Vector3, vertexPos: Vector3 ->
             val modelPos = TerrainBrush.getBrushingModelPos()
 
+            val posX = vertexPos.x + MathUtils.random(-randomBetweenVertices, randomBetweenVertices)
+            val posZ = vertexPos.z + MathUtils.random(-randomBetweenVertices, randomBetweenVertices)
+
             val terrainObject = TerrainObject()
             terrainObject.id = IdUtils.generateUUID()
             terrainObject.layerPos = modelPos
-            terrainObject.position = Vector3(vertexPos.x, terrainComponent.terrainAsset.terrain.getHeightAtLocalCoord(vertexPos.x, vertexPos.z), vertexPos.z)
+            terrainObject.position = Vector3(posX, terrainComponent.terrainAsset.terrain.getHeightAtLocalCoord(posX, posZ), posZ)
             terrainObject.rotation = createRotation()
             terrainObject.scale = createScale()
 
