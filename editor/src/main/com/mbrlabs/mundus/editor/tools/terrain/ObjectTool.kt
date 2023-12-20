@@ -133,7 +133,7 @@ class ObjectTool : RadiusTerrainTool() {
 
         private fun createScale(): Vector3 {
             var x = 1f
-            if (1 < xScaleMin && 1 < xScaleMax) {
+            if (0 < xScaleMin && 0 < xScaleMax) {
                 if (MathUtils.isEqual(xScaleMin, xScaleMax)) {
                     x = xScaleMin
                 } else {
@@ -142,7 +142,7 @@ class ObjectTool : RadiusTerrainTool() {
             }
 
             var y = 1f
-            if (1 < yScaleMin && 1 < yScaleMax) {
+            if (0 < yScaleMin && 0 < yScaleMax) {
                 if (MathUtils.isEqual(yScaleMin, yScaleMax)) {
                     y = yScaleMin
                 } else {
@@ -151,7 +151,7 @@ class ObjectTool : RadiusTerrainTool() {
             }
 
             var z = 1f
-            if (1 < zScaleMin && 1 < zScaleMax) {
+            if (0 < zScaleMin && 0 < zScaleMax) {
                 if (MathUtils.isEqual(zScaleMin, zScaleMax)) {
                     z = zScaleMin
                 } else {
