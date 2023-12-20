@@ -37,7 +37,7 @@ class TerrainObjectWidget : VisTable() {
     private val actionWidget = VisTable()
 
     private val addingActionWidget = VisTable()
-    private val strengthSlider = ImprovedSlider(0f, 1f, 0.01f)
+    private val strengthSlider = ImprovedSlider(0.01f, 1f, 0.01f)
     private val randomBetweenVerticesSlider = ImprovedSlider(0f, 0.99f, 0.01f)
 
     private val removingActionWidget = VisTable()

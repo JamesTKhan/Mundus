@@ -66,7 +66,7 @@ class ObjectTool : RadiusTerrainTool() {
         }
 
         @JvmStatic
-        fun shouldGenerate() = MathUtils.random() < strength
+        fun shouldGenerate() = MathUtils.random() < 0.25f * strength
 
         @JvmStatic
         val updater = TerrainBrush.TerrainModifyAction { brush: TerrainBrush, terrainComponent: TerrainComponent, x: Int, z: Int, localBrushPos: Vector3, vertexPos: Vector3 ->
