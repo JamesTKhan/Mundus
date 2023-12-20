@@ -70,7 +70,9 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
         layerNameLabel.color = Colors.TEAL
         layerNameLabel.wrap = true
 
-        val description = "TODO"
+        val description = "Terrain object layers determine what objects a terrain uses.\n" +
+                "They can be shared with multiple terrains.\n" +
+                "Changing an object here will update all terrains using the layer."
         val descLabel = ToolTipLabel("Object Layer", description)
         root.add(descLabel).expandX().fillX().row()
         root.addSeparator()
