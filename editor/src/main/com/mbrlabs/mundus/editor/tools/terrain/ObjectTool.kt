@@ -88,7 +88,7 @@ class ObjectTool : RadiusTerrainTool() {
             val terrainObject = TerrainObject()
             terrainObject.id = IdUtils.generateUUID()
             terrainObject.layerPos = modelPos
-            terrainObject.position = Vector3(vertexPos)
+            terrainObject.position = Vector3(vertexPos.x, terrainComponent.terrainAsset.terrain.getHeightAtLocalCoord(vertexPos.x, vertexPos.z), vertexPos.z)
             terrainObject.rotation = createRotation()
             terrainObject.scale = createScale()
 
