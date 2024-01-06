@@ -48,6 +48,14 @@ public class TerrainObjectManager implements RenderableProvider {
         modelCache.getRenderables(renderables, pool);
     }
 
+    /**
+     * Apply terrain object changes.
+     * If there is removed terrain object in asset then removes it from rendering.
+     * If there is new terrain object in asset then adds it to rendering.
+     * Updates position of terrain objects.
+     *
+     * @param recreateAllObjects If true then removes all terrain objects and recreates again.
+     */
     public void apply(final boolean recreateAllObjects, final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 parentTransform) {
         removeModelInstances(recreateAllObjects, terrainObjectsAsset);
         addModelInstances(terrainObjectsAsset, terrainObjectLayerAsset);
@@ -58,7 +66,7 @@ public class TerrainObjectManager implements RenderableProvider {
         modelCache.end();
     }
 
-    public void updatePositions(final TerrainObjectsAsset terrainObjectsAsset, final Matrix4 parentTransform) {
+    private void updatePositions(final TerrainObjectsAsset terrainObjectsAsset, final Matrix4 parentTransform) {
         for (int i = 0; i < terrainObjectsAsset.getTerrainObjectNum(); ++i) {
             final TerrainObject terrainObject = terrainObjectsAsset.getTerrainObject(i);
             final ModelInstance modelInstance = findById(terrainObject.getId());

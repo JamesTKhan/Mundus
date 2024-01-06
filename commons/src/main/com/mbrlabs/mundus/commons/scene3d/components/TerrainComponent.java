@@ -107,10 +107,24 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         terrainAsset.getMaterialAsset().applyToMaterial(material, true);
     }
 
+    /**
+     * Apply terrain object changes.
+     * If there is removed terrain object in asset then removes it from rendering.
+     * If there is new terrain object in asset then adds it to rendering.
+     * Updates position of terrain objects.
+     */
     public void applyTerrainObjects() {
         applyTerrainObjects(false);
     }
 
+    /**
+     * Apply terrain object changes.
+     * If there is removed terrain object in asset then removes it from rendering.
+     * If there is new terrain object in asset then adds it to rendering.
+     * Updates position of terrain objects.
+     *
+     * @param recreateAllObjects If true then removes all terrain objects and recreates again.
+     */
     public void applyTerrainObjects(final boolean recreateAllObjects) {
         final TerrainObjectsAsset terrainObjectsAsset = terrainAsset.getTerrainObjectsAsset();
         final TerrainObjectLayerAsset terrainObjectLayerAsset = terrainAsset.getTerrainObjectLayerAsset();
