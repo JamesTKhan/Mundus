@@ -286,6 +286,12 @@ public class TerrainAsset extends Asset {
         return terrainObjectLayerAsset;
     }
 
+    public void setTerrainObjectLayerAsset(final TerrainObjectLayerAsset terrainObjectLayerAsset) {
+        this.terrainObjectLayerAsset = terrainObjectLayerAsset;
+        meta.getTerrain().setTerrainObjectLayerAssetId(terrainObjectLayerAsset.getID());
+        // TODO apply terrain objects
+    }
+
     public MaterialAsset getMaterialAsset() {
         return materialAsset;
     }

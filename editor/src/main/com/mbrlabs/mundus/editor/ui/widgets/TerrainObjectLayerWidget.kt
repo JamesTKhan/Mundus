@@ -23,6 +23,8 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.VisUI
+import com.kotcrab.vis.ui.util.dialog.Dialogs
+import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter
 import com.kotcrab.vis.ui.widget.MenuItem
 import com.kotcrab.vis.ui.widget.PopupMenu
 import com.kotcrab.vis.ui.widget.VisLabel
@@ -31,15 +33,14 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset
-import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
-import com.mbrlabs.mundus.commons.terrain.SplatTexture
 import com.mbrlabs.mundus.commons.utils.TextureProvider
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.assets.AssetModelFilter
-import com.mbrlabs.mundus.editor.assets.AssetTextureFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
@@ -47,9 +48,19 @@ import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.assets.AssetPickerDialog
 import com.mbrlabs.mundus.editor.utils.Colors
 import com.mbrlabs.mundus.editor.utils.IdUtils
+import java.io.FileNotFoundException
 import java.io.IOException
 
 class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainComponent: TerrainComponent?, var allowChange: Boolean = true) : VisTable() {
+
+    interface LayerChangedListener {
+        fun layerChanged(terrainObjectLayerAsset: TerrainObjectLayerAsset)
+    }
+
+    /**
+     * An optional listener for when the layer is changed.
+     */
+    var layerChangedListener: LayerChangedListener? = null
 
     private val projectManager: ProjectManager = Mundus.inject()
     private val toolManager: ToolManager = Mundus.inject()
@@ -131,7 +142,28 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
 
         duplicatedBtn.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                // TODO
+                Dialogs.showInputDialog(UI, "Name:", "", object : InputDialogAdapter() {
+                    override fun finished(input: String?) {
+                        if (input != null) {
+                            try {
+                                val newLayer = projectManager.current().assetManager.createTerrainObjectLayerAsset(input)
+                                newLayer.duplicateObjectLayerAsset(asset)
+                                projectManager.current().assetManager.addModifiedAsset(newLayer)
+                                Mundus.postEvent(AssetImportEvent(asset))
+                                if (allowChange) {
+                                    asset = newLayer
+                                    layerNameLabel.setText(asset.name)
+                                    layerChangedListener?.layerChanged(asset)
+                                    setTexturesInUiGrid()
+                                }
+                            } catch (e: AssetAlreadyExistsException) {
+                                Dialogs.showErrorDialog(UI, "That asset already exists. Try a different name.")
+                            } catch (e: FileNotFoundException) {
+                                Dialogs.showErrorDialog(UI, "Invalid asset name.")
+                            }
+                        }
+                    }
+                })
             }
         })
 

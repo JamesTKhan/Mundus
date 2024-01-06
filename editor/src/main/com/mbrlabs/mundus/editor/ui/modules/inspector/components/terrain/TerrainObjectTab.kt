@@ -18,6 +18,10 @@ package com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.kotcrab.vis.ui.widget.VisTable
+import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.assets.MetaSaver
+import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
 import com.mbrlabs.mundus.editor.ui.widgets.TerrainObjectLayerWidget
 import com.mbrlabs.mundus.editor.ui.widgets.TerrainObjectWidget
@@ -27,9 +31,22 @@ class TerrainObjectTab(private val parentWidget: TerrainComponentWidget) : BaseB
     private val root = VisTable()
     private val terrainObjectLayerWidget = TerrainObjectLayerWidget(parentWidget.component.terrainAsset.terrainObjectLayerAsset, parentWidget.component)
 
+    private val projectManager: ProjectManager = Mundus.inject()
+    private val metaSaver: MetaSaver = Mundus.inject()
+
     init {
         root.add(terrainObjectLayerWidget).expand().fill().padBottom(5f).row()
         root.add(TerrainObjectWidget()).expand().fill().row()
+
+        terrainObjectLayerWidget.layerChangedListener = object : TerrainObjectLayerWidget.LayerChangedListener {
+            override fun layerChanged(terrainObjectLayerAsset: TerrainObjectLayerAsset) {
+                // Assign the new object layer asset to the terrain
+                parentWidget.component.terrainAsset.terrainObjectLayerAsset = terrainObjectLayerAsset
+                metaSaver.save(parentWidget.component.terrainAsset.meta)
+                projectManager.current().assetManager.addModifiedAsset(parentWidget.component.terrainAsset)
+            }
+
+        }
     }
 
     override fun getTabTitle(): String = "Objets"

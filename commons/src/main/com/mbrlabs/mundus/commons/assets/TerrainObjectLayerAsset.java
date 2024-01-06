@@ -102,4 +102,16 @@ public class TerrainObjectLayerAsset extends Asset {
     public void change(ModelAsset asset, int pos) {
         models.set(pos, asset);
     }
+
+    /**
+     * Duplicates the given object layer asset into this one
+     * @param assetToDupe The asset to duplicate
+     */
+    public void duplicateObjectLayerAsset(final TerrainObjectLayerAsset assetToDupe) {
+        if (assetToDupe == null) {
+            return;
+        }
+
+        models.addAll(assetToDupe.getModels());
+    }
 }
