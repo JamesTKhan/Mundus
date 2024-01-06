@@ -39,6 +39,7 @@ import com.mbrlabs.mundus.commons.utils.TextureProvider
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.assets.AssetModelFilter
+import com.mbrlabs.mundus.editor.assets.AssetTerrainObjectLayerFilter
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
@@ -64,6 +65,8 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
 
     private val projectManager: ProjectManager = Mundus.inject()
     private val toolManager: ToolManager = Mundus.inject()
+
+    private val filter = AssetTerrainObjectLayerFilter()
 
     private val layerNameLabel: VisLabel = VisLabel()
     private val editBtn: VisTextButton = VisTextButton("Edit")
@@ -114,9 +117,38 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
 
     private fun setupListeners() {
         if (allowChange) {
+            val assetPickerListener = object : AssetPickerDialog.AssetPickerListener {
+                override fun onSelected(asset: Asset?) {
+                    val layer = (asset as? TerrainObjectLayerAsset)!!
+
+                    val oldLayerCount = this@TerrainObjectLayerWidget.asset.activeLayerCount
+                    val newLayerCount = layer.activeLayerCount
+
+                    if (oldLayerCount > newLayerCount) {
+                        Dialogs.showConfirmDialog(
+                                UI,
+                                "Change Object Layer",
+                                "The new object layer has less models assigned than the current one. Terrain objects for the exceeding models will be lost." +
+                                        "\nDo you want to continue?",
+                                arrayOf("Cancel", "Yes"),
+                                arrayOf(0, 1)
+                        ) { r: Int ->
+                            if (r == 1) {
+                                for (i in newLayerCount ..< oldLayerCount) {
+                                    applyDependenciesAfterRemoving(i)
+                                }
+                                setTerrainObjectLayerAsset(layer)
+                            }
+                        }.padBottom(20f).pack()
+                    } else {
+                        setTerrainObjectLayerAsset(layer)
+                    }
+                }
+            }
+
             changedBtn.addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                    // TODO
+                    UI.assetSelectionDialog.show(false, filter, assetPickerListener)
                 }
             })
         }
@@ -177,7 +209,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
 
     fun setTerrainObjectLayerAsset(objectLayerAsset: TerrainObjectLayerAsset) {
         layerNameLabel.setText(objectLayerAsset.name)
-//        layerChangedListener?.layerChanged(objectAsset)
+        layerChangedListener?.layerChanged(objectLayerAsset)
         this@TerrainObjectLayerWidget.asset = objectLayerAsset
         setupTextureGrid()
     }

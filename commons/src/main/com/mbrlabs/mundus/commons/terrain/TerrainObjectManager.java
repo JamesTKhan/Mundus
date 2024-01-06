@@ -48,9 +48,9 @@ public class TerrainObjectManager implements RenderableProvider {
         modelCache.getRenderables(renderables, pool);
     }
 
-    public void apply(final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 parentTransform) {
-        removeModelInstances(terrainObjectsAsset);
-        addModelInstances(terrainObjectsAsset, terrainObjectLayerAsset, parentTransform);
+    public void apply(final boolean recreateAllObjects, final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 parentTransform) {
+        removeModelInstances(recreateAllObjects, terrainObjectsAsset);
+        addModelInstances(terrainObjectsAsset, terrainObjectLayerAsset);
         updatePositions(terrainObjectsAsset, parentTransform);
 
         modelCache.begin();
@@ -68,7 +68,7 @@ public class TerrainObjectManager implements RenderableProvider {
         }
     }
 
-    private void addModelInstances(final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 transform) {
+    private void addModelInstances(final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset) {
         for (int i = 0; i < terrainObjectsAsset.getTerrainObjectNum(); ++i) {
             final TerrainObject terrainObject = terrainObjectsAsset.getTerrainObject(i);
 
@@ -108,12 +108,12 @@ public class TerrainObjectManager implements RenderableProvider {
         modelInstance.transform.mulLeft(parentTransform);
     }
 
-    private void removeModelInstances(final TerrainObjectsAsset terrainObjectsAsset) {
+    private void removeModelInstances(final boolean recreateAllObjects, final TerrainObjectsAsset terrainObjectsAsset) {
         for (int i = modelInstances.size - 1; i >= 0; --i) {
             final ModelInstance modelInstance = modelInstances.get(i);
             final String id = (String) modelInstance.userData;
 
-            if (!containsTerrainObject(id, terrainObjectsAsset)) {
+            if (recreateAllObjects || !containsTerrainObject(id, terrainObjectsAsset)) {
                 modelInstances.removeIndex(i);
             }
         }

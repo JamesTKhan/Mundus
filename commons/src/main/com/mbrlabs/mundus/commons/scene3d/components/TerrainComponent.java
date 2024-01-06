@@ -108,10 +108,14 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     }
 
     public void applyTerrainObjects() {
+        applyTerrainObjects(false);
+    }
+
+    public void applyTerrainObjects(final boolean recreateAllObjects) {
         final TerrainObjectsAsset terrainObjectsAsset = terrainAsset.getTerrainObjectsAsset();
         final TerrainObjectLayerAsset terrainObjectLayerAsset = terrainAsset.getTerrainObjectLayerAsset();
 
-        objectManager.apply(terrainObjectsAsset, terrainObjectLayerAsset, gameObject.getTransform());
+        objectManager.apply(recreateAllObjects, terrainObjectsAsset, terrainObjectLayerAsset, gameObject.getTransform());
     }
 
     public TerrainAsset getTerrainAsset() {

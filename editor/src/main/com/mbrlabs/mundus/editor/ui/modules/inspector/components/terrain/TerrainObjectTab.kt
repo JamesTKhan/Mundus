@@ -42,6 +42,7 @@ class TerrainObjectTab(private val parentWidget: TerrainComponentWidget) : BaseB
             override fun layerChanged(terrainObjectLayerAsset: TerrainObjectLayerAsset) {
                 // Assign the new object layer asset to the terrain
                 parentWidget.component.terrainAsset.terrainObjectLayerAsset = terrainObjectLayerAsset
+                parentWidget.component.applyTerrainObjects(true)
                 metaSaver.save(parentWidget.component.terrainAsset.meta)
                 projectManager.current().assetManager.addModifiedAsset(parentWidget.component.terrainAsset)
             }

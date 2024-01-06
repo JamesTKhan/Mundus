@@ -286,10 +286,15 @@ public class TerrainAsset extends Asset {
         return terrainObjectLayerAsset;
     }
 
+    /**
+     * Sets the new terrain object layer asset.
+     * If you want to apply it on the terrain then you need to call {@link com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent#applyTerrainObjects(boolean)} method.
+     *
+     * @param terrainObjectLayerAsset The new Terrain Object Layer asset.
+     */
     public void setTerrainObjectLayerAsset(final TerrainObjectLayerAsset terrainObjectLayerAsset) {
         this.terrainObjectLayerAsset = terrainObjectLayerAsset;
         meta.getTerrain().setTerrainObjectLayerAssetId(terrainObjectLayerAsset.getID());
-        // TODO apply terrain objects
     }
 
     public MaterialAsset getMaterialAsset() {

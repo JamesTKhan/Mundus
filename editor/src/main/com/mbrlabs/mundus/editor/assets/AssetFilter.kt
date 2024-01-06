@@ -20,6 +20,7 @@ import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
 import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset
+import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 
 /**
@@ -59,4 +60,8 @@ class AssetTerrainLayerFilter : AssetFilter {
 
 class AssetModelFilter : AssetFilter {
     override fun ignore(asset: Asset): Boolean = asset !is ModelAsset
+}
+
+class AssetTerrainObjectLayerFilter : AssetFilter {
+    override fun ignore(asset: Asset): Boolean = asset !is TerrainObjectLayerAsset
 }
