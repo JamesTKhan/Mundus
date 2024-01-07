@@ -164,7 +164,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
                                     addModel(asset as ModelAsset)
                                 } catch (e: IOException) {
                                     e.printStackTrace()
-                                    UI.toaster.error("Error while TODO")
+                                    UI.toaster.error("Error while adding model object")
                                 }
                             }
                         }
