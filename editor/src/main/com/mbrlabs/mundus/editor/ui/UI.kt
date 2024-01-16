@@ -62,6 +62,9 @@ object UI : Stage(ScreenViewport()) {
     const val PAD_SIDE: Float = 5f
     const val PAD_SIDE_X2: Float = PAD_SIDE * 2
 
+    @kotlin.jvm.JvmField
+    var scale: Float= 1f
+
     var isFullScreenRender = false
 
     // reusable ui elements
@@ -225,5 +228,13 @@ object UI : Stage(ScreenViewport()) {
             globalPrefManager.set(MundusPreferencesManager.GLOB_MUNDUS_VERSION, VERSION)
             showDialog(versionDialog)
         }
+    }
+
+    fun updateScale() {
+        scale = globalPrefManager.getFloat(MundusPreferencesManager.GLOB_UI_SCALE, 1f)
+        var tempViewport=UI.viewport as ScreenViewport
+        tempViewport.unitsPerPixel=1/UI.scale
+
+        UI.viewport.update(Gdx.graphics.width, Gdx.graphics.height, true)
     }
 }
