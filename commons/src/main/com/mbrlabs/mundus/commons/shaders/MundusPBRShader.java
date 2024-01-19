@@ -14,9 +14,11 @@ import net.mgsx.gltf.scene3d.shaders.PBRShader;
 public class MundusPBRShader extends PBRShader {
 
     private final int u_clipPlane = register("u_clipPlane");
+    private final boolean instanced;
 
     public MundusPBRShader(Renderable renderable, Config config, String prefix) {
         super(renderable, config, prefix);
+        instanced = renderable.meshPart.mesh.isInstanced();
     }
 
     @Override
@@ -39,5 +41,10 @@ public class MundusPBRShader extends PBRShader {
         set(u_clipPlane, clippingPlane.x, clippingPlane.y, clippingPlane.z, env.getClippingHeight());
 
         super.bindLights(renderable, attributes);
+    }
+
+    @Override
+    public boolean canRender(final Renderable renderable) {
+        return renderable.meshPart.mesh.isInstanced() == instanced && super.canRender(renderable);
     }
 }

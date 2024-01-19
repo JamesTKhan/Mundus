@@ -237,6 +237,10 @@ varying vec2 v_splatPosition;
 uniform vec2 u_terrainSize;
 #endif
 
+#ifdef instanced
+attribute mat4 i_worldTrans;
+#endif //instanced
+
 void main() {
 
 	#ifdef splatFlag
@@ -328,8 +332,13 @@ void main() {
 
 	v_clipDistance = dot(pos, u_clipPlane);
 	v_position = vec3(pos.xyz) / pos.w;
-	gl_Position = u_projViewTrans * pos;
-	
+
+	#ifdef instanced
+		gl_Position = u_projViewTrans * i_worldTrans * pos;
+	#else
+		gl_Position = u_projViewTrans * pos;
+	#endif //instanced
+
 	#ifdef shadowMapFlag
 		vec4 spos = u_shadowMapProjViewTrans * pos;
 		v_shadowMapUv.xyz = (spos.xyz / spos.w) * 0.5 + 0.5;
