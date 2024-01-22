@@ -38,6 +38,8 @@ import java.nio.FloatBuffer;
 
 public class TerrainObjectManager implements RenderableProvider {
 
+    private static final String INSTANCED_ALIAS = "i_worldTrans";
+
     private final Array<TerrainObjectModelInstance> modelInstances;
 
     public TerrainObjectManager() {
@@ -93,7 +95,7 @@ public class TerrainObjectManager implements RenderableProvider {
             final ModelInstance modelInstance = terrainObjectModelInstance.modelInstance;
 
             modelInstance.transform.set(parentTransform);
-            enableInstancedMeshesIfNecessary(modelInstance, next.value.size);
+            enableInstancedMeshesIfNecessary(terrainObjectModelInstance, next.value.size);
             setupPositionScaleAndRotation(modelInstance, next.value);
         }
     }
@@ -197,7 +199,7 @@ public class TerrainObjectManager implements RenderableProvider {
         for (int i = 0; i < modelInstances.size; ++i) {
             final TerrainObjectModelInstance modelInstance = modelInstances.get(i);
 
-            if (id.equals(modelInstance.getAssetId())) {
+            if (id.equals(modelInstance.assetId)) {
                 return modelInstance;
             }
         }
@@ -205,36 +207,44 @@ public class TerrainObjectManager implements RenderableProvider {
         return null;
     }
 
-    private void enableInstancedMeshesIfNecessary(final ModelInstance modelInstance, final int maxInstances) {
+    private void enableInstancedMeshesIfNecessary(final TerrainObjectModelInstance terrainObjectModelInstance, final int maxInstances) {
+        final ModelInstance modelInstance = terrainObjectModelInstance.modelInstance;
+        final int previousMaxInstances = terrainObjectModelInstance.instancedCount;
+
         for(int i = 0 ; i < modelInstance.nodes.size; i++) {
             final Node node = modelInstance.nodes.get(i);
             for (int ii = 0; ii < node.parts.size; ++ii) {
                 final NodePart nodePart = node.parts.get(ii);
-                final Mesh mesh = nodePart.meshPart.mesh;;
+                final Mesh mesh = nodePart.meshPart.mesh;
+
+                if (previousMaxInstances != TerrainObjectModelInstance.DISABLED_INSTANCES_COUNT && previousMaxInstances != maxInstances) {
+                    mesh.disableInstancedRendering();
+                }
 
                 if (!mesh.isInstanced()) {
                     mesh.enableInstancedRendering(true, maxInstances,
-                            new VertexAttribute(VertexAttributes.Usage.Generic, 4, "i_worldTrans", 0),
-                            new VertexAttribute(VertexAttributes.Usage.Generic, 4, "i_worldTrans", 1),
-                            new VertexAttribute(VertexAttributes.Usage.Generic, 4, "i_worldTrans", 2),
-                            new VertexAttribute(VertexAttributes.Usage.Generic, 4, "i_worldTrans", 3));
+                            new VertexAttribute(VertexAttributes.Usage.Generic, 4, INSTANCED_ALIAS, 0),
+                            new VertexAttribute(VertexAttributes.Usage.Generic, 4, INSTANCED_ALIAS, 1),
+                            new VertexAttribute(VertexAttributes.Usage.Generic, 4, INSTANCED_ALIAS, 2),
+                            new VertexAttribute(VertexAttributes.Usage.Generic, 4, INSTANCED_ALIAS, 3));
                 }
             }
         }
+
+        terrainObjectModelInstance.instancedCount = maxInstances;
     }
 
     private class TerrainObjectModelInstance {
+        private static final int DISABLED_INSTANCES_COUNT = -1;
+
         private final String assetId;
         private final ModelInstance modelInstance;
+        private int instancedCount = -1;
 
         public TerrainObjectModelInstance(final ModelAsset modelAsset) {
             assetId = modelAsset.getID();
             modelInstance = new ModelInstance(modelAsset.getModel());
             // TODO copy meshes
-        }
-
-        public String getAssetId() {
-            return assetId;
         }
     }
 }
