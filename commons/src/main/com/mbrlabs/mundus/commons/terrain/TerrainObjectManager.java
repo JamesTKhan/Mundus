@@ -43,7 +43,7 @@ public class TerrainObjectManager implements RenderableProvider {
     private final Array<TerrainObjectModelInstance> modelInstances;
 
     public TerrainObjectManager() {
-        modelInstances = new Array<>(5);
+        modelInstances = new Array<>(2);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class TerrainObjectManager implements RenderableProvider {
      */
     public void apply(final boolean recreateAllObjects, final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 parentTransform) {
         final ObjectMap<ModelAsset, Array<TerrainObject>> map = asd(terrainObjectsAsset, terrainObjectLayerAsset);
-//        removeModelInstances(recreateAllObjects, terrainObjectsAsset);
+        removeModelInstances(recreateAllObjects, map);
         addModelInstances(map);
         updatePositions(map, parentTransform);
     }
@@ -159,16 +159,14 @@ public class TerrainObjectManager implements RenderableProvider {
         }
     }
 
-//    private void removeModelInstances(final boolean recreateAllObjects, final TerrainObjectsAsset terrainObjectsAsset) {
-//        for (int i = modelInstances.size - 1; i >= 0; --i) {
-//            final ModelInstance modelInstance = modelInstances.get(i);
-//            final String id = (String) modelInstance.userData;
-//
-//            if (recreateAllObjects || !containsTerrainObject(id, terrainObjectsAsset)) {
-//                modelInstances.removeIndex(i);
-//            }
-//        }
-//    }
+    private void removeModelInstances(final boolean recreateAllObjects, final ObjectMap<ModelAsset, Array<TerrainObject>> terrainObjectMap) {
+        for (int i = modelInstances.size - 1; i >= 0; --i) {
+
+            if (recreateAllObjects || !terrainObjectMap.containsKey(modelInstances.get(i).modelAsset)) {
+                modelInstances.removeIndex(i);
+            }
+        }
+    }
 
     private boolean containsModelInstance(final String id) {
         return findById(id) != null;
@@ -184,22 +182,11 @@ public class TerrainObjectManager implements RenderableProvider {
         return false;
     }
 
-//    private ModelInstance findById(final String id) {
-//        for (int i = 0; i < modelInstances.size; ++i) {
-//            final ModelInstance modelInstance = modelInstances.get(i);
-//            if (modelInstance.userData.equals(id)) {
-//                return modelInstance;
-//            }
-//        }
-//
-//        return null;
-//    }
-
     private TerrainObjectModelInstance findById(final String id) {
         for (int i = 0; i < modelInstances.size; ++i) {
             final TerrainObjectModelInstance modelInstance = modelInstances.get(i);
 
-            if (id.equals(modelInstance.assetId)) {
+            if (id.equals(modelInstance.modelAsset.getID())) {
                 return modelInstance;
             }
         }
@@ -237,12 +224,12 @@ public class TerrainObjectManager implements RenderableProvider {
     private class TerrainObjectModelInstance {
         private static final int DISABLED_INSTANCES_COUNT = -1;
 
-        private final String assetId;
+        private final ModelAsset modelAsset;
         private final ModelInstance modelInstance;
-        private int instancedCount = -1;
+        private int instancedCount = DISABLED_INSTANCES_COUNT;
 
         public TerrainObjectModelInstance(final ModelAsset modelAsset) {
-            assetId = modelAsset.getID();
+            this.modelAsset = modelAsset;
             modelInstance = new ModelInstance(modelAsset.getModel());
             // TODO copy meshes
         }
