@@ -29,6 +29,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.BufferUtils;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.mbrlabs.mundus.commons.assets.ModelAsset;
@@ -65,13 +66,13 @@ public class TerrainObjectManager implements RenderableProvider {
      * @param recreateAllObjects If true then removes all terrain objects and recreates again.
      */
     public void apply(final boolean recreateAllObjects, final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset, final Matrix4 parentTransform) {
-        final ObjectMap<ModelAsset, Array<TerrainObject>> map = asd(terrainObjectsAsset, terrainObjectLayerAsset);
+        final ObjectMap<ModelAsset, Array<TerrainObject>> map = createModelAssetMap(terrainObjectsAsset, terrainObjectLayerAsset);
         removeModelInstances(recreateAllObjects, map);
         addModelInstances(map);
         updatePositions(map, parentTransform);
     }
 
-    private ObjectMap<ModelAsset, Array<TerrainObject>> asd(final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset) {
+    private ObjectMap<ModelAsset, Array<TerrainObject>> createModelAssetMap(final TerrainObjectsAsset terrainObjectsAsset, final TerrainObjectLayerAsset terrainObjectLayerAsset) {
         final ObjectMap<ModelAsset, Array<TerrainObject>> map = new ObjectMap<>();
 
         for (int i = 0; i < terrainObjectsAsset.getTerrainObjectNum(); ++i) {
@@ -113,28 +114,6 @@ public class TerrainObjectManager implements RenderableProvider {
             }
         }
     }
-
-//    private void setupPositionScaleAndRotation(final ModelInstance modelInstance, final TerrainObject terrainObject, final Matrix4 parentTransform) {
-//        final Vector3 localPosition = terrainObject.getPosition();
-//        final Vector3 rotate = terrainObject.getRotation();
-//        final Vector3 scale = terrainObject.getScale();
-//
-//        modelInstance.transform.translate(localPosition);
-//
-//        if (!rotate.isZero()) {
-//            final Quaternion rot = modelInstance.transform.getRotation(Pools.quaternionPool.obtain());
-//            rot.setEulerAngles(rotate.y, rotate.x, rotate.z);
-//            modelInstance.transform.rotate(rot);
-//
-//            Pools.quaternionPool.free(rot);
-//        }
-//
-//        if (!scale.isUnit()) {
-//            modelInstance.transform.scale(scale.x, scale.y, scale.z);
-//        }
-//
-//        modelInstance.transform.mulLeft(parentTransform);
-//    }
 
     private void setupPositionScaleAndRotation(final ModelInstance modelInstance, final Array<TerrainObject> terrainObjects) {
         final FloatBuffer offsets = BufferUtils.newFloatBuffer(terrainObjects.size * 16); // 16 floats for mat4
@@ -186,25 +165,17 @@ public class TerrainObjectManager implements RenderableProvider {
 
     private void removeModelInstances(final boolean recreateAllObjects, final ObjectMap<ModelAsset, Array<TerrainObject>> terrainObjectMap) {
         for (int i = modelInstances.size - 1; i >= 0; --i) {
+            final TerrainObjectModelInstance terrainObjectModelInstance = modelInstances.get(i);
 
-            if (recreateAllObjects || !terrainObjectMap.containsKey(modelInstances.get(i).modelAsset)) {
+            if (recreateAllObjects || !terrainObjectMap.containsKey(terrainObjectModelInstance.modelAsset)) {
                 modelInstances.removeIndex(i);
+                terrainObjectModelInstance.dispose();
             }
         }
     }
 
     private boolean containsModelInstance(final String id) {
         return findById(id) != null;
-    }
-
-    private boolean containsTerrainObject(final String id, final TerrainObjectsAsset terrainObjectsAsset) {
-        for (int i = 0; i < terrainObjectsAsset.getTerrainObjectNum(); ++i) {
-            if (id.equals(terrainObjectsAsset.getTerrainObject(i).getId())) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private TerrainObjectModelInstance findById(final String id) {
@@ -246,7 +217,7 @@ public class TerrainObjectManager implements RenderableProvider {
         terrainObjectModelInstance.instancedCount = maxInstances;
     }
 
-    private class TerrainObjectModelInstance {
+    private class TerrainObjectModelInstance implements Disposable {
         private static final int DISABLED_INSTANCES_COUNT = -1;
 
         private final ModelAsset modelAsset;
@@ -256,7 +227,33 @@ public class TerrainObjectManager implements RenderableProvider {
         public TerrainObjectModelInstance(final ModelAsset modelAsset) {
             this.modelAsset = modelAsset;
             modelInstance = new ModelInstance(modelAsset.getModel());
-            // TODO copy meshes
+
+            for(int i = 0 ; i < modelInstance.nodes.size; i++) {
+                final Node node = modelInstance.nodes.get(i);
+                for (int ii = 0; ii < node.parts.size; ++ii) {
+                    final NodePart nodePart = node.parts.get(ii);
+
+                    final VertexAttributes vertexAttributes = nodePart.meshPart.mesh.getVertexAttributes();
+                    final int[] usages = new int[vertexAttributes.size()];
+                    for (int iii = 0; iii < vertexAttributes.size(); ++iii) {
+                        usages[iii] = vertexAttributes.get(iii).usage;
+                    }
+
+                    nodePart.meshPart.mesh = nodePart.meshPart.mesh.copy(true, false, usages);
+                }
+            }
+        }
+
+        @Override
+        public void dispose() {
+            for(int i = 0 ; i < modelInstance.nodes.size; i++) {
+                final Node node = modelInstance.nodes.get(i);
+                for (int ii = 0; ii < node.parts.size; ++ii) {
+                    final Mesh mesh = node.parts.get(ii).meshPart.mesh;
+
+                    mesh.dispose();
+                }
+            }
         }
     }
 }
