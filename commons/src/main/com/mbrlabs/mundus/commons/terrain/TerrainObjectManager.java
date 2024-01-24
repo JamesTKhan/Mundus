@@ -25,6 +25,8 @@ import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -33,6 +35,7 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainObject;
 import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset;
+import com.mbrlabs.mundus.commons.utils.Pools;
 
 import java.nio.FloatBuffer;
 
@@ -135,13 +138,32 @@ public class TerrainObjectManager implements RenderableProvider {
 
     private void setupPositionScaleAndRotation(final ModelInstance modelInstance, final Array<TerrainObject> terrainObjects) {
         final FloatBuffer offsets = BufferUtils.newFloatBuffer(terrainObjects.size * 16); // 16 floats for mat4
-        final Matrix4 tmpMatrix4 = new Matrix4();
+        final Matrix4 tmpMatrix4 = Pools.matrix4Pool.obtain();
+        final Quaternion rot = Pools.quaternionPool.obtain();
 
         for (int i = 0 ; i < terrainObjects.size; ++i) {
             final TerrainObject terrainObject = terrainObjects.get(i);
 
+            final Vector3 localPosition = terrainObject.getPosition();
+            final Vector3 rotate = terrainObject.getRotation();
+            final Vector3 scale = terrainObject.getScale();
+
             tmpMatrix4.idt();
-            tmpMatrix4.trn(terrainObject.getPosition());
+
+            // Translation
+            tmpMatrix4.trn(localPosition);
+
+            // Rotation
+            if (!rotate.isZero()) {
+                rot.idt();
+                rot.setEulerAngles(rotate.y, rotate.x, rotate.z);
+                tmpMatrix4.rotate(rot);
+            }
+
+            // Scale
+            if (!scale.isUnit()) {
+                tmpMatrix4.scale(scale.x, scale.y, scale.z);
+            }
 
             offsets.put(tmpMatrix4.getValues());
         }
@@ -157,6 +179,9 @@ public class TerrainObjectManager implements RenderableProvider {
                 mesh.setInstanceData(offsets);
             }
         }
+
+        Pools.matrix4Pool.free(tmpMatrix4);
+        Pools.quaternionPool.free(rot);
     }
 
     private void removeModelInstances(final boolean recreateAllObjects, final ObjectMap<ModelAsset, Array<TerrainObject>> terrainObjectMap) {
