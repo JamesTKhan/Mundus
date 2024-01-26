@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
@@ -34,6 +35,8 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.lod.LevelOfDetailManager;
 import com.mbrlabs.mundus.commons.lod.TerrainLevelOfDetailManager;
 import com.mbrlabs.mundus.commons.terrain.TerrainObjectManager;
+import com.mbrlabs.mundus.commons.terrain.TerrainObjectManagerInstancesImpl;
+import com.mbrlabs.mundus.commons.terrain.TerrainObjectManagerModelCacheImpl;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
@@ -65,7 +68,11 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         type = Component.Type.TERRAIN;
         lodManager = new TerrainLevelOfDetailManager(this);
         renderableProvider = new TerrainRenderableProvider();
-        objectManager = new TerrainObjectManager();
+        if (Gdx.gl30 != null) {
+            objectManager = new TerrainObjectManagerInstancesImpl();
+        } else {
+            objectManager = new TerrainObjectManagerModelCacheImpl();
+        }
     }
 
     @Override
