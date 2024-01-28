@@ -24,6 +24,8 @@ import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisRadioButton
 import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel
+import com.kotcrab.vis.ui.widget.spinner.Spinner
 import com.mbrlabs.mundus.editor.tools.terrain.ObjectTool
 
 class TerrainObjectWidget : VisTable() {
@@ -39,6 +41,7 @@ class TerrainObjectWidget : VisTable() {
     private val addingActionWidget = VisTable()
     private val strengthSlider = ImprovedSlider(0.01f, 1f, 0.01f)
     private val randomBetweenVerticesSlider = ImprovedSlider(0f, 0.99f, 0.01f)
+    private val minSpaceBetweenObjectsSpinner = Spinner("", SimpleFloatSpinnerModel(0.1f, 0.1f, Float.MAX_VALUE))
 
     private val removingActionWidget = VisTable()
 
@@ -99,6 +102,12 @@ class TerrainObjectWidget : VisTable() {
                 ObjectTool.randomBetweenVertices = randomBetweenVerticesSlider.value
             }
         })
+
+        minSpaceBetweenObjectsSpinner.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                ObjectTool.minSpaceBetweenObjects = (minSpaceBetweenObjectsSpinner.model as SimpleFloatSpinnerModel).value
+            }
+        })
     }
 
     private fun setupAddingActionWidget() {
@@ -113,6 +122,13 @@ class TerrainObjectWidget : VisTable() {
         addingActionWidget.add(randomBetweenVerticesLabel).left().row()
         randomBetweenVerticesSlider.value = ObjectTool.randomBetweenVertices
         addingActionWidget.add(randomBetweenVerticesSlider).expandX().fill().row()
+
+        // Space between objects
+        val minSpaceBetweenObjectsDescription = "The minimum space between center of two terrain objects."
+        val minSpaceBetweenObjectsLabel = ToolTipLabel("Minimum space between objects", minSpaceBetweenObjectsDescription)
+        addingActionWidget.add(minSpaceBetweenObjectsLabel).left().row()
+        (minSpaceBetweenObjectsSpinner.model as SimpleFloatSpinnerModel).value = ObjectTool.minSpaceBetweenObjects
+        addingActionWidget.add(minSpaceBetweenObjectsSpinner).expandX().left().row()
 
         // Rotation
         addingActionWidget.add(VisLabel("Rotation")).expandX().fillX().left().row()
