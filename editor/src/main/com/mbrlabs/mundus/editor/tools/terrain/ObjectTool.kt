@@ -68,12 +68,12 @@ class ObjectTool : RadiusTerrainTool() {
             zScaleMax = -1f
         }
 
-        private val distanceComparison: TerrainModifyComparison = TerrainModifyComparison { terrainBrush: TerrainBrush, vertexPos: Vector3, localBrushPos: Vector3? ->
-            if (!radiusDistanceComparison.compare(terrainBrush, vertexPos, localBrushPos)) {
+        private val addingDistanceComparison: TerrainModifyComparison = TerrainModifyComparison { terrainBrush: TerrainBrush, terrainComponent: TerrainComponent, vertexPos: Vector3, localBrushPos: Vector3? ->
+            if (!radiusDistanceComparison.compare(terrainBrush, terrainComponent, vertexPos, localBrushPos)) {
                 return@TerrainModifyComparison false
             }
 
-            val terrainObjectsAsset = terrainBrush.terrainAsset.terrainObjectsAsset
+            val terrainObjectsAsset = terrainComponent.terrainAsset.terrainObjectsAsset
             for (i in 0..<terrainObjectsAsset.terrainObjectNum) {
                 val terrainObject = terrainObjectsAsset.getTerrainObject(i)
                 val terrainObjectPos = terrainObject.position
@@ -100,7 +100,7 @@ class ObjectTool : RadiusTerrainTool() {
                 val terrainObject = terrainObjectsAsset.getTerrainObject(i)
                 val terrainObjectPos = terrainObject.position
 
-                if (radiusDistanceComparison.compare(brush, terrainObjectPos, localBrushPos)) {
+                if (radiusDistanceComparison.compare(brush, terrainComponent, terrainObjectPos, localBrushPos)) {
                     terrainObjectPos.y = terrainComponent.terrainAsset.terrain.getHeightAtLocalCoord(terrainObjectPos.x, terrainObjectPos.z)
                 }
             }
@@ -186,6 +186,6 @@ class ObjectTool : RadiusTerrainTool() {
     }
 
     override fun act(brush: TerrainBrush) {
-        brush.terrainObject(action, modifier, distanceComparison, true)
+        brush.terrainObject(action, modifier, addingDistanceComparison, radiusDistanceComparison, true)
     }
 }
