@@ -243,7 +243,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     private fun createDefaultProject(): ProjectContext? {
-        if (!File(registry.lastOpenedProject.path).exists() || registry.projects.size == 0) {
+        if (registry.lastOpenedProject == null || !File(registry.lastOpenedProject.path).exists() || registry.projects.size == 0) {
             val name = "Default Project"
             var path = FileUtils.getUserDirectoryPath()
             path = FilenameUtils.concat(path, "MundusProjects")

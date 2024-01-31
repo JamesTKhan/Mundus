@@ -21,6 +21,7 @@
 - Fix activated/deactivated terrain at helper lines
 - Sort children action command in Outline
 - Fix add water and terrain as child
+- Thumbnail view for model asset in Asset Dock
 - Update gdx-gltf version to latest 7d70839067
 
 [0.5.1] ~ 08/08/2023
