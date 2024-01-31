@@ -35,6 +35,7 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight
 import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.commons.utils.ModelUtils
+import com.mbrlabs.mundus.commons.utils.MundusShaderParser
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig
@@ -51,8 +52,8 @@ object ThumbnailGenerator {
         val config = PBRShaderConfig()
         config.numDirectionalLights = 1
         config.numBones = ModelUtils.getBoneCount(model)
-        config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.vs.glsl").readString()
-        config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.fs.glsl").readString()
+        config.vertexShader = MundusShaderParser.parse(Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/pbr/pbr.vs.glsl"))
+        config.fragmentShader = MundusShaderParser.parse(Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/pbr/pbr.fs.glsl"))
 
         val cam = PerspectiveCamera(67f, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
         val modelBatch = ModelBatch(PBRShaderProvider(config))
