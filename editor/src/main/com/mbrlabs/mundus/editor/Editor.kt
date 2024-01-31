@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.core.project.ProjectAlreadyImportedException
@@ -111,6 +112,8 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             context = createDefaultProject()
             projectManager.startAsyncProjectLoad(context!!.path, context)
         }
+
+        UI.updateScale()
 
         guiCamera = OrthographicCamera()
         guiCamera.setToOrtho(
@@ -275,6 +278,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     override fun resize(width: Int, height: Int) {
+//        UI.viewport.update((width*UI.scale).toInt(),(height*UI.scale).toInt(), true)
         UI.viewport.update(width, height, true)
     }
 

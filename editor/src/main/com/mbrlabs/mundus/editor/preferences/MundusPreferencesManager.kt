@@ -19,6 +19,7 @@ class MundusPreferencesManager(preferencesKey: String) : PreferencesManager {
         const val GLOB_LINE_WIDTH_SELECTION = "line-width-selection"
         const val GLOB_LINE_WIDTH_WIREFRAME = "line-width-wireframe"
         const val GLOB_LINE_WIDTH_HELPER_LINE = "line-width-helper-line"
+        const val GLOB_UI_SCALE = "ui-scale"
 
         // Debug renderer settings
         const val GLOB_BOOL_DEBUG_RENDERER_ON = "debug-renderer-on"
@@ -28,6 +29,7 @@ class MundusPreferencesManager(preferencesKey: String) : PreferencesManager {
         // Default values for global prefs
         const val GLOB_RIGHT_SELECT_BUTTON_DEFAULT_VALUE = true
         const val GLOB_LINE_WIDTH_DEFAULT_VALUE = 1.0f
+        const val GLOB_UI_SCALE_DEFAULT_VALUE = 1.0f
 
         /** Keys for project specific prefs **/
         const val PROJ_LAST_DIR = "lastDirectoryOpened"

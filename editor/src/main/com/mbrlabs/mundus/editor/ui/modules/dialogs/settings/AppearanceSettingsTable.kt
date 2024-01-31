@@ -36,6 +36,7 @@ class AppearanceSettingsTable : BaseSettingsTable() {
     private val selectionLineWidth = VisTextField("0")
     private val wireframeLineWidth = VisTextField("0")
     private val helperLineWidth = VisTextField("0")
+    private val globalUIScale = VisTextField("0")
 
     init {
         top().left()
@@ -45,6 +46,7 @@ class AppearanceSettingsTable : BaseSettingsTable() {
         selectionLineWidth.textFieldFilter = FloatDigitsOnlyFilter(false)
         wireframeLineWidth.textFieldFilter = FloatDigitsOnlyFilter(false)
         helperLineWidth.textFieldFilter = FloatDigitsOnlyFilter(false)
+        globalUIScale.textFieldFilter = FloatDigitsOnlyFilter(false)
 
         add(VisLabel("Appearance Settings")).left().row()
         addSeparator().padBottom(10f)
@@ -58,6 +60,9 @@ class AppearanceSettingsTable : BaseSettingsTable() {
         add(VisLabel("Helper line width")).row()
         add(helperLineWidth).padBottom(4f).row()
 
+        add(VisLabel("Global UI scale")).row()
+        add(globalUIScale).padBottom(4f).row()
+
         loadValues()
     }
 
@@ -65,6 +70,7 @@ class AppearanceSettingsTable : BaseSettingsTable() {
         selectionLineWidth.text = globalPreferencesManager.getFloat(MundusPreferencesManager.GLOB_LINE_WIDTH_SELECTION, MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE).toString()
         wireframeLineWidth.text = globalPreferencesManager.getFloat(MundusPreferencesManager.GLOB_LINE_WIDTH_WIREFRAME, MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE).toString()
         helperLineWidth.text = globalPreferencesManager.getFloat(MundusPreferencesManager.GLOB_LINE_WIDTH_HELPER_LINE, MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE).toString()
+        globalUIScale.text = globalPreferencesManager.getFloat(MundusPreferencesManager.GLOB_UI_SCALE, MundusPreferencesManager.GLOB_UI_SCALE_DEFAULT_VALUE).toString()
     }
 
     override fun onSave() {
@@ -84,6 +90,14 @@ class AppearanceSettingsTable : BaseSettingsTable() {
             globalPreferencesManager.set(MundusPreferencesManager.GLOB_LINE_WIDTH_HELPER_LINE, helperLineWidth.text.toFloat())
         } catch (ex : NumberFormatException) {
             Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + helperLineWidth.name))
+        }
+
+        try {
+            globalPreferencesManager.set(MundusPreferencesManager.GLOB_UI_SCALE, globalUIScale.text.toFloat())
+
+            UI.updateScale()
+        } catch (ex : NumberFormatException) {
+            Mundus.postEvent(LogEvent(LogType.ERROR,"Error parsing field " + globalUIScale.name))
         }
 
         UI.toaster.success("Settings saved")
