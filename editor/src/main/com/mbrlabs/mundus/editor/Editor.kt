@@ -27,8 +27,10 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
+import com.mbrlabs.mundus.editor.core.project.ProjectAlreadyImportedException
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.core.registry.ProjectRef
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.FilesDroppedEvent
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
@@ -241,7 +243,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     }
 
     private fun createDefaultProject(): ProjectContext? {
-        if (registry.lastOpenedProject == null || registry.projects.size == 0) {
+        if (registry.lastOpenedProject == null || !File(registry.lastOpenedProject.path).exists() || registry.projects.size == 0) {
             val name = "Default Project"
             var path = FileUtils.getUserDirectoryPath()
             path = FilenameUtils.concat(path, "MundusProjects")
@@ -251,7 +253,14 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             val defaultProjectPath = FilenameUtils.concat(path, name)
             val file = File(defaultProjectPath)
             if (file.exists()) {
-                return projectManager.importProject(defaultProjectPath)
+                return try {
+                    projectManager.importProject(defaultProjectPath)
+                } catch (exception: ProjectAlreadyImportedException) {
+                    val projectReference = ProjectRef()
+                    projectReference.path = defaultProjectPath
+                    projectReference.name = name
+                    return projectManager.startAsyncProjectLoad(projectReference)
+                }
             }
 
             return projectManager.createProject(name, path)

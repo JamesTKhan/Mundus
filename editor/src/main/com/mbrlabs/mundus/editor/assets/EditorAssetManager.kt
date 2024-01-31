@@ -55,6 +55,7 @@ import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
+import com.mbrlabs.mundus.editor.utils.ThumbnailGenerator
 import net.mgsx.gltf.exporters.GLTFExporter
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
@@ -272,8 +273,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
         // load & return asset
         val assetFile = FileHandle(FilenameUtils.concat(rootFolder.path(), modelFilename))
-        val asset = ModelAsset(meta, assetFile)
+        val asset = EditorModelAsset(meta, assetFile)
         asset.load()
+        asset.thumbnail = ThumbnailGenerator.generateThumbnail(asset.model)
 
         addAsset(asset)
         return asset
@@ -1024,6 +1026,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     private fun copyToAssetFolder(file: FileHandle): FileHandle {
+        if (FilenameUtils.directoryContains(rootFolder.path(), file.path())) {
+            return file
+        }
         val copy = FileHandle(FilenameUtils.concat(rootFolder.path(), file.name()))
         file.copyTo(copy)
         return copy
@@ -1094,6 +1099,13 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         // Save to file
         val fileHandle = FileHandle(path)
         fileHandle.writeString(moreDetails, false)
+    }
+
+    override fun loadModelAsset(meta: Meta, assetFile: FileHandle): ModelAsset {
+        val asset = EditorModelAsset(meta, assetFile);
+        asset.load(gdxAssetManager)
+        asset.thumbnail = ThumbnailGenerator.generateThumbnail(asset.model)
+        return asset
     }
 
 }
