@@ -114,8 +114,8 @@ public class ShaderUtils {
         config.manualGammaCorrection = true;
         config.manualSRGB = PBRShaderConfig.SRGB.ACCURATE;
         config.defaultCullFace = GL20.GL_BACK;
-        config.vertexShader = Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.vs.glsl").readString();
-        config.fragmentShader = Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.fs.glsl").readString();
+        config.vertexShader = MundusShaderParser.parse(Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/pbr/pbr.vs.glsl"));
+        config.fragmentShader = MundusShaderParser.parse(Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/pbr/pbr.fs.glsl"));
         return config;
     }
 

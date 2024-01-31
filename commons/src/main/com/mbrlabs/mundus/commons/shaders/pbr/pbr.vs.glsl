@@ -1,20 +1,6 @@
 #line 1
-// required to have same precision in both shader for light structure
-#ifdef GL_ES
-#define LOWP lowp
-#define MED mediump
-#define HIGH highp
-precision highp float;
-#else
-#define MED
-#define LOWP
-#define HIGH
-#endif
 
-#ifdef GLSL3
-#define attribute in
-#define varying out
-#endif
+#include <compat.vs.glsl>
 
 varying vec3 v_position;
 
@@ -213,19 +199,13 @@ uniform mat4 u_bones[numBones];
 #endif //numBones
 #endif
 
-#ifdef blendedFlag
-uniform float u_opacity;
-varying float v_opacity;
-
-#ifdef alphaTestFlag
-uniform float u_alphaTest;
-varying float v_alphaTest;
-#endif //alphaTestFlag
-#endif // blendedFlag
-
 #ifdef shadowMapFlag
 uniform mat4 u_shadowMapProjViewTrans;
 varying vec3 v_shadowMapUv;
+#ifdef numCSM
+uniform mat4 u_csmTransforms[numCSM];
+varying vec3 v_csmUVs[numCSM];
+#endif
 #endif //shadowMapFlag
 
 // clipping plane
@@ -255,13 +235,6 @@ void main() {
 		v_color = a_color;
 	#endif // colorFlag
 		
-	#ifdef blendedFlag
-		v_opacity = u_opacity;
-		#ifdef alphaTestFlag
-			v_alphaTest = u_alphaTest;
-		#endif //alphaTestFlag
-	#endif // blendedFlag
-	
 	#ifdef skinningFlag
 		mat4 skinning = mat4(0.0);
 		#ifdef boneWeight0Flag
@@ -334,6 +307,12 @@ void main() {
 		vec4 spos = u_shadowMapProjViewTrans * pos;
 		v_shadowMapUv.xyz = (spos.xyz / spos.w) * 0.5 + 0.5;
 		v_shadowMapUv.z = min(v_shadowMapUv.z, 0.998);
+		#ifdef numCSM
+		for(int i=0 ; i<numCSM ; i++){
+			vec4 csmPos = u_csmTransforms[i] * pos;
+			v_csmUVs[i].xyz = (csmPos.xyz / csmPos.w) * 0.5 + 0.5;
+		}
+		#endif
 	#endif //shadowMapFlag
 	
 	#if defined(normalFlag)

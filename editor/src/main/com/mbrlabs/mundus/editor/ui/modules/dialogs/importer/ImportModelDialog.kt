@@ -45,6 +45,7 @@ import com.mbrlabs.mundus.commons.g3d.MG3dModelLoader
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider
 import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.commons.utils.ModelUtils
+import com.mbrlabs.mundus.commons.utils.MundusShaderParser
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
@@ -338,8 +339,8 @@ class ImportModelDialog : BaseDialog("Import Mesh"), Disposable {
             val config = PBRShaderConfig()
             config.numDirectionalLights = 1
             config.numBones = maxBones
-            config.vertexShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.vs.glsl").readString()
-            config.fragmentShader = Gdx.files.internal("com/mbrlabs/mundus/commons/shaders/custom-gdx-pbr.fs.glsl").readString()
+            config.vertexShader = MundusShaderParser.parse(Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/pbr/pbr.vs.glsl"))
+            config.fragmentShader = MundusShaderParser.parse(Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/pbr/pbr.fs.glsl"))
 
             modelBatch = ModelBatch(PBRShaderProvider(config))
 
