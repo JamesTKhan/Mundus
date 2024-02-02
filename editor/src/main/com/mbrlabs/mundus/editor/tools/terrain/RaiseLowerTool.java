@@ -37,6 +37,6 @@ public class RaiseLowerTool extends RadiusTerrainTool {
 
     public void act(TerrainBrush brush) {
         dir = (brush.getBrushAction() == TerrainBrush.BrushAction.PRIMARY) ? 1 : -1;
-        brush.modifyTerrain(modifier, radiusDistanceComparison, true);
+        brush.modifyTerrain(modifier, ObjectTool.getUpdater(), radiusDistanceComparison, true);
     }
 }

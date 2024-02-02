@@ -34,6 +34,8 @@ import com.mbrlabs.mundus.commons.assets.PixmapTextureAsset
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset
 import com.mbrlabs.mundus.commons.assets.TerrainAsset
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset
+import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset
+import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset
 import com.mbrlabs.mundus.commons.assets.TexCoordInfo
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.WaterAsset
@@ -54,6 +56,7 @@ import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.utils.IdUtils
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.ThumbnailGenerator
 import net.mgsx.gltf.exporters.GLTFExporter
@@ -65,6 +68,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.RuntimeException
 import java.util.*
 
 /**
@@ -135,17 +139,13 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         }
 
         val meta = Meta(file)
-        meta.uuid = newUUID()
+        meta.uuid = IdUtils.generateUUID()
         meta.version = Meta.CURRENT_VERSION
         meta.lastModified = System.currentTimeMillis()
         meta.type = type
         metaSaver.save(meta)
 
         return meta
-    }
-
-    private fun newUUID(): String {
-        return UUID.randomUUID().toString().replace("-".toRegex(), "")
     }
 
     /**
@@ -408,6 +408,56 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     }
 
     /**
+     * Creates a new terrain object layer asset.
+     */
+    @Throws(IOException::class, AssetAlreadyExistsException::class)
+    fun createTerrainObjectLayerAsset(name: String): TerrainObjectLayerAsset {
+        val objectsFilename = "$name.terraobjectlayer"
+        val metaFilename = "$objectsFilename.meta"
+
+        // create meta file
+        val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
+        val meta = createNewMetaFile(FileHandle(metaPath), AssetType.TERRAIN_OBJECT_LAYER)
+        metaSaver.save(meta)
+
+        // create layer file
+        val objectsPath = FilenameUtils.concat(rootFolder.path(), objectsFilename)
+        val objectsFile = File(objectsPath)
+        FileUtils.touch(objectsFile)
+
+        val asset = TerrainObjectLayerAsset(meta, FileHandle(objectsFile), json)
+        asset.load()
+
+        addAsset(asset)
+        return asset
+    }
+
+    /**
+     * Creates a new terrain objects asset.
+     */
+    @Throws(IOException::class, AssetAlreadyExistsException::class)
+    fun createTerrainObjectsAsset(name: String): TerrainObjectsAsset {
+        val objectsFilename = "$name.terraobjects"
+        val metaFilename = "$objectsFilename.meta"
+
+        // create meta file
+        val metaPath = FilenameUtils.concat(rootFolder.path(), metaFilename)
+        val meta = createNewMetaFile(FileHandle(metaPath), AssetType.TERRAIN_OBJECTS)
+        metaSaver.save(meta)
+
+        // create terrain objects file
+        val objectsPath = FilenameUtils.concat(rootFolder.path(), objectsFilename)
+        val objectsFile = File(objectsPath)
+        FileUtils.touch(objectsFile)
+
+        val asset = TerrainObjectsAsset(meta, FileHandle(objectsFile), json)
+        asset.load()
+
+        addAsset(asset)
+        return asset
+    }
+
+    /**
      * Convenience method to create splatmaps for Terrains if
      * the splatmap is null
      */
@@ -448,7 +498,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
      */
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createPixmapTextureAsset(size: Int): PixmapTextureAsset {
-        val pixmapFilename = newUUID().substring(0, 5) + ".png"
+        val pixmapFilename = IdUtils.generateUUID().substring(0, 5) + ".png"
         val metaFilename = pixmapFilename + ".meta"
 
         // create meta file
@@ -602,6 +652,10 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             saveTerrainAsset(asset)
         } else if (asset is TerrainLayerAsset) {
             saveTerrainLayerAsset(asset)
+        } else if (asset is TerrainObjectLayerAsset) {
+            saveTerrainObjectLayerAsset(asset)
+        } else if (asset is TerrainObjectsAsset) {
+            saveTerrainObjectsAsset(asset)
         } else if (asset is ModelAsset) {
             saveModelAsset(asset)
         } else if (asset is WaterAsset) {
@@ -660,6 +714,38 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
 
             layerAsset.load(gdxAssetManager)
             addAsset(layerAsset)
+        }
+
+        if (asset is TerrainAsset && (asset.meta.terrain.terrainObjectLayerAssetId == null || asset.meta.terrain.terrainObjectsAssetId == null)) {
+            if (asset.meta.terrain.terrainObjectLayerAssetId != null || asset.meta.terrain.terrainObjectsAssetId != null) {
+                throw RuntimeException("Invalid terrain object setting!")
+            }
+
+            // Backward compatibility for missing Terrain Objets
+            // Added in 0.7.x
+            postEvent(LogEvent("Upgrading Terrain Asset ${asset.name} to Terrain Objets"))
+
+            var terrainObjectLayerAsset = findAssetByFileName("default.terraobjectlayer")
+            if (terrainObjectLayerAsset == null) {
+                terrainObjectLayerAsset = createTerrainObjectLayerAsset("default")
+            }
+
+            val terrainObjectsAsset = createTerrainObjectsAsset(asset.name.replace(".terra",""))
+
+            // Set new TerrainObjectLayer Asset ID to Terrain Asset
+            asset.meta.terrain.terrainObjectLayerAssetId = terrainObjectLayerAsset.id
+
+            terrainObjectLayerAsset.load(gdxAssetManager)
+            addAsset(terrainObjectLayerAsset)
+
+            // Set new TerrainObjects Asset ID to Terrain Asset
+            asset.meta.terrain.terrainObjectsAssetId = terrainObjectsAsset.id
+
+            // Save meta of Terrain asset
+            metaSaver.save(asset.meta)
+
+            terrainObjectsAsset.load(gdxAssetManager)
+            addAsset(terrainObjectsAsset)
         }
 
         return asset
@@ -878,6 +964,9 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             terrain.meta.terrain.splatBase64 = "data:image/png;base64,$encoded"
         }
 
+        // save terrian objects
+        saveTerrainObjectsAsset(terrain.terrainObjectsAsset)
+
         // save meta file
         metaSaver.save(terrain.meta)
     }
@@ -902,6 +991,56 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         fileOutputStream.close()
 
         metaSaver.save(layer.meta)
+    }
+
+    @Throws(IOException::class)
+    fun saveTerrainObjectLayerAsset(layer: TerrainObjectLayerAsset) {
+        json.setWriter(layer.file.writer(false))
+        json.writeArrayStart()
+
+        for (model in layer.models) {
+            json.writeValue(model.id)
+        }
+
+        json.writeArrayEnd()
+        json.writer.close()
+    }
+
+    @Throws(IOException::class)
+    fun saveTerrainObjectsAsset(terrainObjects: TerrainObjectsAsset) {
+        json.setWriter(terrainObjects.file.writer(false))
+        json.writeArrayStart()
+
+        for (i in 0  until terrainObjects.terrainObjectNum) {
+            val terrainObject = terrainObjects.getTerrainObject(i)
+
+            json.writeObjectStart()
+            json.writeValue("id", terrainObject.id)
+            json.writeValue("layerPos", terrainObject.layerPos)
+
+            json.writeObjectStart("position")
+            json.writeValue("x", terrainObject.position.x)
+            json.writeValue("y", terrainObject.position.y)
+            json.writeValue("z", terrainObject.position.z)
+            json.writeObjectEnd()
+
+            json.writeObjectStart("rotation")
+            json.writeValue("x", terrainObject.rotation.x)
+            json.writeValue("y", terrainObject.rotation.y)
+            json.writeValue("z", terrainObject.rotation.z)
+            json.writeObjectEnd()
+
+            json.writeObjectStart("scale")
+            json.writeValue("x", terrainObject.scale.x)
+            json.writeValue("y", terrainObject.scale.y)
+            json.writeValue("z", terrainObject.scale.z)
+            json.writeObjectEnd()
+
+            json.writeObjectEnd()
+        }
+
+        json.writeArrayEnd()
+        json.writer.close()
     }
 
     @Throws(IOException::class)

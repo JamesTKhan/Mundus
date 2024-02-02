@@ -52,9 +52,9 @@ public class SmoothTool extends RadiusTerrainTool {
             totalHeights[0] += vertexPos.y;
             weights[0]++;
         };
-        brush.modifyTerrain(heightAverage, radiusDistanceComparison, true);
+        brush.modifyTerrain(heightAverage, ObjectTool.getUpdater(), radiusDistanceComparison, true);
 
         averageHeight = totalHeights[0] / weights[0];
-        brush.modifyTerrain(modifier, radiusDistanceComparison, true);
+        brush.modifyTerrain(modifier, ObjectTool.getUpdater(), radiusDistanceComparison, true);
     }
 }
