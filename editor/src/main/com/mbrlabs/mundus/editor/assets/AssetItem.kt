@@ -13,7 +13,7 @@ import com.kotcrab.vis.ui.widget.PopupMenu
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.commons.assets.Asset
-import com.mbrlabs.mundus.commons.assets.TextureAsset
+import com.mbrlabs.mundus.commons.utils.TextureProvider
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
 
@@ -62,7 +62,7 @@ class AssetItem(
     }
 
     private fun loadBackground() {
-        if (asset is TextureAsset) {
+        if (asset is TextureProvider) {
             nameTable.background = thumbnailOverlay
             stack.add(Image(asset.texture))
         }

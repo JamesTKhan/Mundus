@@ -437,7 +437,7 @@ public class AssetManager implements Disposable {
         return asset;
     }
 
-    private ModelAsset loadModelAsset(Meta meta, FileHandle assetFile) {
+    protected ModelAsset loadModelAsset(Meta meta, FileHandle assetFile) {
         ModelAsset asset = new ModelAsset(meta, assetFile);
         asset.load(gdxAssetManager);
         return asset;
