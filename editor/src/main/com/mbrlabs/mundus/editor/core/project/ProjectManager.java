@@ -375,13 +375,18 @@ public class ProjectManager implements Disposable {
     }
 
     public ProjectContext continueLoading() throws FileNotFoundException, MetaFileParseException, AssetNotFoundException {
-        boolean complete = loadingProject.assetManager.continueLoading();
+        try {
+            boolean complete = loadingProject.assetManager.continueLoading();
 
-        if (!complete) {
-            return loadingProject;
+            if (!complete) {
+                return loadingProject;
+            }
+
+            return finalizeLoading();
+        } catch (GdxRuntimeException exception) {
+            UI.INSTANCE.getToaster().error(exception.getCause().getMessage());
+            return finalizeLoading();
         }
-
-        return finalizeLoading();
     }
 
     private ProjectContext finalizeLoading() throws FileNotFoundException {
