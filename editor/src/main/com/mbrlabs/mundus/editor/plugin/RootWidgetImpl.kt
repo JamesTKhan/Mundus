@@ -13,10 +13,11 @@ import com.mbrlabs.mundus.pluginapi.ui.CheckboxListener
 import com.mbrlabs.mundus.pluginapi.ui.RadioButtonListener
 import com.mbrlabs.mundus.pluginapi.ui.RootWidget
 import com.mbrlabs.mundus.pluginapi.ui.SpinnerListener
+import com.mbrlabs.mundus.pluginapi.ui.Widget
 
 class RootWidgetImpl : VisTable(), RootWidget {
 
-    override fun addRadioButtons(button1Text: String, button2Text: String, listener: RadioButtonListener) {
+    override fun addRadioButtons(button1Text: String, button2Text: String, listener: RadioButtonListener) : Widget {
         var selectedButtonText = button1Text
 
         val radioButton1 = VisRadioButton(button1Text)
@@ -48,11 +49,12 @@ class RootWidgetImpl : VisTable(), RootWidget {
             }
         })
 
-        add(radioButton1)
-        add(radioButton2)
+        val cell1 = add(radioButton1)
+        val cell2 = add(radioButton2)
+        return WidgetImpl(cell1, cell2)
     }
 
-    override fun addSpinner(text: String, min: Int, max: Int, initValue: Int, listener: SpinnerListener) {
+    override fun addSpinner(text: String, min: Int, max: Int, initValue: Int, listener: SpinnerListener) : Widget {
         val spinnerModel = IntSpinnerModel(initValue, min, max)
         val spinner = Spinner(text, spinnerModel)
         spinner.addListener(object : ChangeListener() {
@@ -61,10 +63,11 @@ class RootWidgetImpl : VisTable(), RootWidget {
             }
         })
 
-        add(spinner)
+        val cell = add(spinner)
+        return WidgetImpl(cell)
     }
 
-    override fun addCheckbox(text: String, listener: CheckboxListener) {
+    override fun addCheckbox(text: String, listener: CheckboxListener) : Widget {
         val checkbox = VisCheckBox(text)
         checkbox.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
@@ -72,7 +75,8 @@ class RootWidgetImpl : VisTable(), RootWidget {
             }
         })
 
-        add(checkbox)
+        val cell = add(checkbox)
+        return WidgetImpl(cell)
     }
 
     override fun addRow() {
