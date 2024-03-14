@@ -118,7 +118,8 @@ object Mundus {
         commandHistory = CommandHistory(CommandHistory.DEFAULT_LIMIT)
         modelImporter = ModelImporter(registry)
         projectManager = ProjectManager(ioManager, registry, modelBatch)
-        freeCamController = FreeCamController(projectManager, goPicker)
+        pluginManager = DefaultPluginManager(Paths.get(Registry.PLUGINS_DIR))
+        freeCamController = FreeCamController(projectManager, goPicker, pluginManager)
         globalPrefManager = MundusPreferencesManager("global")
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
                 commandHistory, globalPrefManager)
@@ -126,7 +127,6 @@ object Mundus {
         shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager, debugRenderer, globalPrefManager)
         json = Json()
         glProfiler = MundusGLProfiler(Gdx.graphics)
-        pluginManager = DefaultPluginManager(Paths.get(Registry.PLUGINS_DIR))
 
         val ioManagerProvider = IOManagerProvider(ioManager)
 
