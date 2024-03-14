@@ -36,6 +36,7 @@ import com.mbrlabs.mundus.editor.events.FilesDroppedEvent
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
 import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
 import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.events.PluginsLoadedEvent
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
@@ -181,19 +182,17 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
                 debugRenderer.end()
             }
 
-            Gdx.gl.glLineWidth(globalPreferencesManager.getFloat(MundusPreferencesManager.GLOB_LINE_WIDTH_HELPER_LINE, MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE))
-            scene.batch.begin(scene.cam)
-            context.helperLines.render(scene.batch)
-            scene.batch.end()
-            Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
-
-            // TODO check extension before calls begin on batch
-            // TODO line width
-            scene.batch.begin(scene.cam)
             val renderExtensions = pluginManager.getExtensions(RenderExtension::class.java)
-            renderExtensions.forEach { scene.batch.render(it.renderableProvider, scene.environment) }
-            scene.batch.end()
-
+            if (renderExtensions.isNotEmpty()) {
+                scene.batch.begin(scene.cam)
+                try {
+                    renderExtensions.forEach { scene.batch.render(it.renderableProvider, scene.environment) }
+                } catch (ex: Exception) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during plugin rendering! $ex"))
+                }
+                scene.batch.end()
+                Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
+            }
 
             toolManager.render()
             gizmoManager.render()

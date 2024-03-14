@@ -8,10 +8,14 @@ import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisRadioButton
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel
+import com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel
 import com.kotcrab.vis.ui.widget.spinner.Spinner
+import com.kotcrab.vis.ui.widget.spinner.SpinnerModel
 import com.mbrlabs.mundus.pluginapi.ui.CheckboxListener
+import com.mbrlabs.mundus.pluginapi.ui.FloatSpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.RadioButtonListener
 import com.mbrlabs.mundus.pluginapi.ui.RootWidget
+import com.mbrlabs.mundus.pluginapi.ui.IntSpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.SpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.Widget
 
@@ -59,17 +63,22 @@ class RootWidgetImpl : VisTable(), RootWidget {
         return WidgetImpl(cell1, cell2)
     }
 
-    override fun addSpinner(text: String, min: Int, max: Int, initValue: Int, listener: SpinnerListener) : Widget {
-        val spinnerModel = IntSpinnerModel(initValue, min, max)
-        val spinner = Spinner(text, spinnerModel)
-        spinner.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeEvent, actor: Actor) {
-                listener.changed(spinnerModel.value)
-            }
-        })
+    override fun addSpinner(text: String, min: Int, max: Int, initValue: Int, listener: IntSpinnerListener): Widget {
+        return addSpinner(text, min, max, initValue, 1, listener)
+    }
 
-        val cell = add(spinner)
-        return WidgetImpl(cell)
+    override fun addSpinner(text: String, min: Int, max: Int, initValue: Int, step: Int, listener: IntSpinnerListener) : Widget {
+        val spinnerModel = IntSpinnerModel(initValue, min, max, step)
+        return addSpinner(text, spinnerModel, listener) { spinnerModel.value }
+    }
+
+    override fun addSpinner(text: String, min: Float, max: Float, initValue: Float, listener: FloatSpinnerListener): Widget {
+        return addSpinner(text, min, max, initValue, 1f, listener)
+    }
+
+    override fun addSpinner(text: String, min: Float, max: Float, initValue: Float, step: Float, listener: FloatSpinnerListener): Widget {
+        val spinnerModel = SimpleFloatSpinnerModel(initValue, min, max, step)
+        return addSpinner(text, spinnerModel, listener) { spinnerModel.value }
     }
 
     override fun addCheckbox(text: String, listener: CheckboxListener) : Widget {
@@ -91,5 +100,17 @@ class RootWidgetImpl : VisTable(), RootWidget {
 
     override fun addRow() {
         row()
+    }
+
+    private fun <T> addSpinner(text: String, spinnerModel: SpinnerModel, listener: SpinnerListener<T>, getModelValue: () -> T): Widget {
+        val spinner = Spinner(text, spinnerModel)
+        spinner.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                listener.changed(getModelValue())
+            }
+        })
+
+        val cell = add(spinner)
+        return WidgetImpl(cell)
     }
 }
