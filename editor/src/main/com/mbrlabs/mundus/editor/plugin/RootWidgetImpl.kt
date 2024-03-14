@@ -18,12 +18,17 @@ import com.mbrlabs.mundus.pluginapi.ui.Widget
 class RootWidgetImpl : VisTable(), RootWidget {
 
     override fun addRadioButtons(button1Text: String, button2Text: String, listener: RadioButtonListener) : Widget {
+        return addRadioButtons(button1Text, button2Text, true, listener)
+    }
+
+    override fun addRadioButtons(button1Text: String, button2Text: String, selectedFirst: Boolean, listener: RadioButtonListener): Widget {
         var selectedButtonText = button1Text
 
         val radioButton1 = VisRadioButton(button1Text)
-        radioButton1.isChecked = true
+        radioButton1.isChecked = selectedFirst
 
         val radioButton2 = VisRadioButton(button2Text)
+        radioButton2.isChecked = !selectedFirst
 
         radioButton1.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
@@ -68,7 +73,12 @@ class RootWidgetImpl : VisTable(), RootWidget {
     }
 
     override fun addCheckbox(text: String, listener: CheckboxListener) : Widget {
+        return addCheckbox(text, false, listener)
+    }
+
+    override fun addCheckbox(text: String, checked: Boolean, listener: CheckboxListener): Widget {
         val checkbox = VisCheckBox(text)
+        checkbox.isChecked = checked
         checkbox.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 listener.changed(checkbox.isChecked)
