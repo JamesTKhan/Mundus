@@ -22,7 +22,7 @@ class RootWidgetImpl : VisTable(), RootWidget {
     }
 
     override fun addRadioButtons(button1Text: String, button2Text: String, selectedFirst: Boolean, listener: RadioButtonListener): Widget {
-        var selectedButtonText = button1Text
+        var selectedButtonText = if (selectedFirst) button1Text else button2Text
 
         val radioButton1 = VisRadioButton(button1Text)
         radioButton1.isChecked = selectedFirst
