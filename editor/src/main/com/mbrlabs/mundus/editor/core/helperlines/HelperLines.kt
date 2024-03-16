@@ -22,9 +22,9 @@ import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.scene3d.components.Component
-import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
-import com.mbrlabs.mundus.editor.events.TerrainAddedEvent
-import com.mbrlabs.mundus.editor.events.TerrainRemovedEvent
+import main.com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent
+import main.com.mbrlabs.mundus.editorcommons.events.TerrainAddedEvent
+import main.com.mbrlabs.mundus.editorcommons.events.TerrainRemovedEvent
 import main.com.mbrlabs.mundus.editorcommons.events.TerrainVerticesChangedEvent
 
 class HelperLines : TerrainVerticesChangedEvent.TerrainVerticesChangedEventListener,
