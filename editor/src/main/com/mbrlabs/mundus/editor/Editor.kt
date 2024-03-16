@@ -184,14 +184,17 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
             val renderExtensions = pluginManager.getExtensions(RenderExtension::class.java)
             if (renderExtensions.isNotEmpty()) {
-                scene.batch.begin(scene.cam)
-                try {
-                    renderExtensions.forEach { scene.batch.render(it.renderableProvider, scene.environment) }
-                } catch (ex: Exception) {
-                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during plugin rendering! $ex"))
+                renderExtensions.forEach {
+                    scene.batch.begin(scene.cam)
+                    try {
+                        scene.batch.render(it.renderableProvider, scene.environment)
+                    } catch (ex: Exception) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during plugin rendering! $ex"))
+                    } finally {
+                        scene.batch.end()
+                        Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
+                    }
                 }
-                scene.batch.end()
-                Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
             }
 
             toolManager.render()
