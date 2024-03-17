@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.widget.VisCheckBox
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisRadioButton
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel
@@ -20,6 +21,12 @@ import com.mbrlabs.mundus.pluginapi.ui.SpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.Widget
 
 class RootWidgetImpl : VisTable(), RootWidget {
+
+    override fun addLabel(text: String): Widget {
+        val label = VisLabel(text)
+        val cell = add(label)
+        return WidgetImpl(cell)
+    }
 
     override fun addRadioButtons(button1Text: String, button2Text: String, listener: RadioButtonListener) : Widget {
         return addRadioButtons(button1Text, button2Text, true, listener)

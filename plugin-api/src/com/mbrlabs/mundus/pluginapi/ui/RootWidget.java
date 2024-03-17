@@ -22,6 +22,13 @@ package com.mbrlabs.mundus.pluginapi.ui;
 public interface RootWidget {
 
     /**
+     * Adds label.
+     * @param text The text of label.
+     * @return The created widget.
+     */
+    Widget addLabel(String text);
+
+    /**
      * Adds radio buttons. The first button will be selected.
      *
      * @param button1Text The text for first radio button.
