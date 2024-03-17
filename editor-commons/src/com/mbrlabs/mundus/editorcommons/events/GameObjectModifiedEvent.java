@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package main.com.mbrlabs.mundus.editorcommons.events;
+package com.mbrlabs.mundus.editorcommons.events;
 
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import main.com.mbrlabs.mundus.editorcommons.EventListener;
-import main.com.mbrlabs.mundus.editorcommons.Subscribe;
+import com.mbrlabs.mundus.editorcommons.EventListener;
+import com.mbrlabs.mundus.editorcommons.Subscribe;
 
 public class GameObjectModifiedEvent {
 

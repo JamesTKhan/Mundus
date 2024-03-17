@@ -1,6 +1,6 @@
 package com.mbrlabs.mundus.pluginapi;
 
-import main.com.mbrlabs.mundus.editorcommons.EventListener;
+import com.mbrlabs.mundus.editorcommons.EventListener;
 
 public interface PluginEventManager {
 

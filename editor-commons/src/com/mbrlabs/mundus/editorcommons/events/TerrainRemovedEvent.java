@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. See AUTHORS file.
+ * Copyright (c) 2024. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package main.com.mbrlabs.mundus.editorcommons.events;
+package com.mbrlabs.mundus.editorcommons.events;
 
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
-import main.com.mbrlabs.mundus.editorcommons.EventListener;
-import main.com.mbrlabs.mundus.editorcommons.Subscribe;
+import com.mbrlabs.mundus.editorcommons.EventListener;
+import com.mbrlabs.mundus.editorcommons.Subscribe;
 
-public class TerrainVerticesChangedEvent {
+public class TerrainRemovedEvent {
 
     private final TerrainComponent terrainComponent;
 
-    public TerrainVerticesChangedEvent(TerrainComponent terrainComponent) {
+    public TerrainRemovedEvent(TerrainComponent terrainComponent) {
         this.terrainComponent = terrainComponent;
     }
 
@@ -32,9 +32,10 @@ public class TerrainVerticesChangedEvent {
         return terrainComponent;
     }
 
-    public interface TerrainVerticesChangedEventListener extends EventListener {
+    public interface TerrainRemovedEventListener extends EventListener {
 
         @Subscribe
-        void onTerrainVerticesChanged(TerrainVerticesChangedEvent event);
+        void onTerrainRemoved(TerrainRemovedEvent event);
     }
+
 }

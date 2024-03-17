@@ -20,7 +20,7 @@ import com.badlogic.gdx.math.Vector3
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.history.Command
-import main.com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent
+import com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent
 
 /**
  * @author Marcus Brummer

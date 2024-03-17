@@ -43,7 +43,7 @@ import com.mbrlabs.mundus.editor.ui.widgets.IntegerFieldWithLabel
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.createTerrainGO
-import main.com.mbrlabs.mundus.editorcommons.events.TerrainAddedEvent
+import com.mbrlabs.mundus.editorcommons.events.TerrainAddedEvent
 
 /**
  * @author Marcus Brummer

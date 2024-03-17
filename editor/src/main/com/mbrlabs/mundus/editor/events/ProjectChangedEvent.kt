@@ -17,7 +17,7 @@
 package com.mbrlabs.mundus.editor.events
 
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
-import main.com.mbrlabs.mundus.editorcommons.Subscribe
+import com.mbrlabs.mundus.editorcommons.Subscribe
 
 /**
  * @author Marcus Brummer

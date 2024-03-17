@@ -38,7 +38,7 @@ import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
-import main.com.mbrlabs.mundus.editorcommons.events.TerrainRemovedEvent
+import com.mbrlabs.mundus.editorcommons.events.TerrainRemovedEvent
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute
 

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package main.com.mbrlabs.mundus.editorcommons.events;
+package com.mbrlabs.mundus.editorcommons.events;
 
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
-import main.com.mbrlabs.mundus.editorcommons.EventListener;
-import main.com.mbrlabs.mundus.editorcommons.Subscribe;
+import com.mbrlabs.mundus.editorcommons.EventListener;
+import com.mbrlabs.mundus.editorcommons.Subscribe;
 
-public class TerrainRemovedEvent {
+public class TerrainAddedEvent {
 
     private final TerrainComponent terrainComponent;
 
-    public TerrainRemovedEvent(TerrainComponent terrainComponent) {
+    public TerrainAddedEvent(TerrainComponent terrainComponent) {
         this.terrainComponent = terrainComponent;
     }
 
@@ -32,10 +32,9 @@ public class TerrainRemovedEvent {
         return terrainComponent;
     }
 
-    public interface TerrainRemovedEventListener extends EventListener {
+    public interface TerrainAddedEventListener extends EventListener {
 
         @Subscribe
-        void onTerrainRemoved(TerrainRemovedEvent event);
+        void onTerrainAdded(TerrainAddedEvent event);
     }
-
 }

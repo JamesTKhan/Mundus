@@ -41,7 +41,7 @@ import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
 import com.mbrlabs.mundus.editor.utils.Fa;
-import main.com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent;
+import com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 
 /**

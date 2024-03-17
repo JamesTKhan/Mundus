@@ -1,4 +1,4 @@
-package main.com.mbrlabs.mundus.editorcommons;
+package com.mbrlabs.mundus.editorcommons;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

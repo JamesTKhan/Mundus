@@ -1,6 +1,6 @@
 package com.mbrlabs.mundus.editor.events
 
-import main.com.mbrlabs.mundus.editorcommons.Subscribe
+import com.mbrlabs.mundus.editorcommons.Subscribe
 
 enum class LogType {
     INFO,

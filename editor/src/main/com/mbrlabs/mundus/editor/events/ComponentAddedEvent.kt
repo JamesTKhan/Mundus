@@ -17,7 +17,7 @@
 package com.mbrlabs.mundus.editor.events
 
 import com.mbrlabs.mundus.commons.scene3d.components.Component
-import main.com.mbrlabs.mundus.editorcommons.Subscribe
+import com.mbrlabs.mundus.editorcommons.Subscribe
 
 /**
  * @author JamesTKhan
