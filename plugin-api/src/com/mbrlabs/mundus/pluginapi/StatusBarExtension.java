@@ -21,5 +21,8 @@ import org.pf4j.ExtensionPoint;
 
 public interface StatusBarExtension extends ExtensionPoint {
 
+    /**
+     * @param label The creates label widget on status bar.
+     */
     void createStatusBarLabel(LabelWidget label);
 }

@@ -30,7 +30,7 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker
-import com.mbrlabs.mundus.pluginapi.TerrainHooverExtension
+import com.mbrlabs.mundus.pluginapi.TerrainHoverExtension
 import org.pf4j.DefaultPluginManager
 
 /**
@@ -197,9 +197,9 @@ class FreeCamController(private val projectManager: ProjectManager,
         val currentProject = projectManager.current()
         val currentScene = currentProject.currScene
 
-        val terrainHooverExtensions = pluginManager.getExtensions(TerrainHooverExtension::class.java)
+        val terrainHoverExtensions = pluginManager.getExtensions(TerrainHoverExtension::class.java)
 
-        if (terrainHooverExtensions.isNotEmpty()) {
+        if (terrainHoverExtensions.isNotEmpty()) {
             val ray = currentScene.viewport.getPickRay(screenX.toFloat(), screenY.toFloat())
 
             val go = goPicker.pick(currentScene, screenX, screenY)
@@ -208,9 +208,9 @@ class FreeCamController(private val projectManager: ProjectManager,
             if (terrainComponent != null) {
                 val result = terrainComponent.getRayIntersection(Pools.vector3Pool.obtain(), ray)
 
-                terrainHooverExtensions.forEach {
+                terrainHoverExtensions.forEach {
                     try {
-                        it.hoover(terrainComponent, result)
+                        it.hover(terrainComponent, result)
                     } catch (ex: Exception) {
                         Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during plugin hoover event! $ex"))
                     }
@@ -218,9 +218,9 @@ class FreeCamController(private val projectManager: ProjectManager,
 
                 Pools.vector3Pool.free(result)
             } else {
-                terrainHooverExtensions.forEach {
+                terrainHoverExtensions.forEach {
                     try {
-                        it.hoover(null, null)
+                        it.hover(null, null)
                     } catch (ex: Exception) {
                         Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during plugin hoover event! $ex"))
                     }
