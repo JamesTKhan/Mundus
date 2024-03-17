@@ -146,8 +146,7 @@ class StatusBar : VisTable(), PluginsLoadedEvent.PluginsLoadedEventListener {
     }
 
     override fun onPluginsLoaded(event: PluginsLoadedEvent) {
-        val statusBarExtensions = pluginManager.getExtensions(StatusBarExtension::class.java)
-        statusBarExtensions.forEach {
+        pluginManager.getExtensions(StatusBarExtension::class.java).forEach {
             val pluginLabel = VisLabel()
             pluginTexts.add(pluginLabel).right()
             pluginTexts.addSeparator(true).padLeft(5f).padRight(5f)

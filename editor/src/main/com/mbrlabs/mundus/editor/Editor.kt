@@ -241,8 +241,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             // change project; this will fire a ProjectChangedEvent
             projectManager.changeProject(projectManager.loadingProject())
 
-            val sceneExtensions = pluginManager.getExtensions(SceneExtension::class.java)
-            sceneExtensions.forEach { it.sceneLoaded(projectManager.current().currScene.terrains) }
+            pluginManager.getExtensions(SceneExtension::class.java).forEach { it.sceneLoaded(projectManager.current().currScene.terrains) }
 
             UI.toggleLoadingScreen(false)
             UI.processVersionDialog()
@@ -301,8 +300,13 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
         // Setup event handling in plugins
         val pluginEventManager = PluginEventManager { listener -> Mundus.registerEventListener(listener) }
-        val eventExtensions = pluginManager.getExtensions(EventExtension::class.java)
-        eventExtensions.forEach { it.manageEvents(pluginEventManager) }
+        pluginManager.getExtensions(EventExtension::class.java).forEach {
+            try {
+                it.manageEvents(pluginEventManager)
+            } catch (ex: Exception) {
+                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during manage plugin events! $ex"))
+            }
+        }
 
         Mundus.postEvent(PluginsLoadedEvent())
     }

@@ -21,6 +21,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.widget.Menu
 import com.kotcrab.vis.ui.widget.MenuItem
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.events.PluginsLoadedEvent
 import com.mbrlabs.mundus.editor.plugin.RootWidgetImpl
 import com.mbrlabs.mundus.editor.ui.UI
@@ -43,9 +45,13 @@ class PluginsMenu : Menu("Plugins"), PluginsLoadedEvent.PluginsLoadedEventListen
                 override fun clicked(event: InputEvent, x: Float, y: Float) {
                     val dialog = BaseDialog(menuExtension.menuName)
                     val root = RootWidgetImpl()
-                    menuExtension.setupDialogRootWidget(root)
-                    dialog.add(root)
-                    UI.showDialog(dialog)
+                    try {
+                        menuExtension.setupDialogRootWidget(root)
+                        dialog.add(root)
+                        UI.showDialog(dialog)
+                    } catch (ex: Exception) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during setup plugin's root widget! $ex"))
+                    }
                 }
             })
 
