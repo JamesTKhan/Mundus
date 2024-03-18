@@ -242,7 +242,13 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             // change project; this will fire a ProjectChangedEvent
             projectManager.changeProject(projectManager.loadingProject())
 
-            pluginManager.getExtensions(SceneExtension::class.java).forEach { it.sceneLoaded(projectManager.current().currScene.terrains) }
+            pluginManager.getExtensions(SceneExtension::class.java).forEach {
+                try {
+                    it.sceneLoaded(projectManager.current().currScene.terrains)
+                } catch (ex: Exception) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during call plugin's sceneLoaded method! $ex"))
+                }
+            }
 
             UI.toggleLoadingScreen(false)
             UI.processVersionDialog()
