@@ -16,7 +16,9 @@
 
 package com.mbrlabs.mundus.pluginapi.ui;
 
-public interface LabelWidget extends Widget {
+public interface LabelWidget {
 
-    void setText(String text);
+    LabelWidget setAlign(WidgetAlign align);
+
+    LabelWidget setText(String text);
 }

@@ -26,7 +26,7 @@ public interface RootWidget {
      * @param text The text of label.
      * @return The created widget.
      */
-    Widget addLabel(String text);
+    Cell addLabel(String text);
 
     /**
      * Adds radio buttons. The first button will be selected.
@@ -36,7 +36,7 @@ public interface RootWidget {
      * @param listener The listener for radio buttons.
      * @return The created widget.
      */
-    Widget addRadioButtons(String button1Text, String button2Text, RadioButtonListener listener);
+    Cell addRadioButtons(String button1Text, String button2Text, RadioButtonListener listener);
 
     /**
      * Adds radio buttons.
@@ -47,7 +47,7 @@ public interface RootWidget {
      * @param listener The listener for radio buttons.
      * @return The created widget.
      */
-    Widget addRadioButtons(String button1Text, String button2Text, boolean selectedFirst, RadioButtonListener listener);
+    Cell addRadioButtons(String button1Text, String button2Text, boolean selectedFirst, RadioButtonListener listener);
 
     /**
      * Adds integer spinner with 1 step value.
@@ -59,7 +59,7 @@ public interface RootWidget {
      * @param listener The listener.
      * @return The created widget.
      */
-    Widget addSpinner(String text, int min, int max, int initValue, IntSpinnerListener listener);
+    Cell addSpinner(String text, int min, int max, int initValue, IntSpinnerListener listener);
 
     /**
      * Adds integer spinner.
@@ -72,7 +72,7 @@ public interface RootWidget {
      * @param listener The listener.
      * @return The created widget.
      */
-    Widget addSpinner(String text, int min, int max, int initValue, int step, IntSpinnerListener listener);
+    Cell addSpinner(String text, int min, int max, int initValue, int step, IntSpinnerListener listener);
 
     /**
      * Adds float spinner with 1 step value.
@@ -84,7 +84,7 @@ public interface RootWidget {
      * @param listener The listener.
      * @return The created widget.
      */
-    Widget addSpinner(String text, float min, float max, float initValue, FloatSpinnerListener listener);
+    Cell addSpinner(String text, float min, float max, float initValue, FloatSpinnerListener listener);
 
     /**
      * Adds float spinner.
@@ -97,7 +97,7 @@ public interface RootWidget {
      * @param listener The listener.
      * @return The created widget.
      */
-    Widget addSpinner(String text, float min, float max, float initValue, float step, FloatSpinnerListener listener);
+    Cell addSpinner(String text, float min, float max, float initValue, float step, FloatSpinnerListener listener);
 
     /**
      * Adds checkbox with unchecked status.
@@ -106,7 +106,7 @@ public interface RootWidget {
      * @param listener The listener.
      * @return The created widget.
      */
-    Widget addCheckbox(String text, CheckboxListener listener);
+    Cell addCheckbox(String text, CheckboxListener listener);
 
     /**
      * Adds checkbox.
@@ -116,7 +116,7 @@ public interface RootWidget {
      * @param listener The listener.
      * @return The created widget.
      */
-    Widget addCheckbox(String text, boolean checked, CheckboxListener listener);
+    Cell addCheckbox(String text, boolean checked, CheckboxListener listener);
 
     /**
      * Adds row.

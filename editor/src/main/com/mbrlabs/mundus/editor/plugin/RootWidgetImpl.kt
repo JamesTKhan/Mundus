@@ -18,21 +18,21 @@ import com.mbrlabs.mundus.pluginapi.ui.RadioButtonListener
 import com.mbrlabs.mundus.pluginapi.ui.RootWidget
 import com.mbrlabs.mundus.pluginapi.ui.IntSpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.SpinnerListener
-import com.mbrlabs.mundus.pluginapi.ui.Widget
+import com.mbrlabs.mundus.pluginapi.ui.Cell
 
 class RootWidgetImpl : VisTable(), RootWidget {
 
-    override fun addLabel(text: String): Widget {
+    override fun addLabel(text: String): Cell {
         val label = VisLabel(text)
         val cell = add(label)
-        return WidgetImpl(cell)
+        return CellImpl(cell)
     }
 
-    override fun addRadioButtons(button1Text: String, button2Text: String, listener: RadioButtonListener) : Widget {
+    override fun addRadioButtons(button1Text: String, button2Text: String, listener: RadioButtonListener) : Cell {
         return addRadioButtons(button1Text, button2Text, true, listener)
     }
 
-    override fun addRadioButtons(button1Text: String, button2Text: String, selectedFirst: Boolean, listener: RadioButtonListener): Widget {
+    override fun addRadioButtons(button1Text: String, button2Text: String, selectedFirst: Boolean, listener: RadioButtonListener): Cell {
         var selectedButtonText = if (selectedFirst) button1Text else button2Text
 
         val radioButton1 = VisRadioButton(button1Text)
@@ -67,32 +67,32 @@ class RootWidgetImpl : VisTable(), RootWidget {
 
         val cell1 = add(radioButton1)
         val cell2 = add(radioButton2)
-        return WidgetImpl(cell1, cell2)
+        return CellImpl(cell1, cell2)
     }
 
-    override fun addSpinner(text: String, min: Int, max: Int, initValue: Int, listener: IntSpinnerListener): Widget {
+    override fun addSpinner(text: String, min: Int, max: Int, initValue: Int, listener: IntSpinnerListener): Cell {
         return addSpinner(text, min, max, initValue, 1, listener)
     }
 
-    override fun addSpinner(text: String, min: Int, max: Int, initValue: Int, step: Int, listener: IntSpinnerListener) : Widget {
+    override fun addSpinner(text: String, min: Int, max: Int, initValue: Int, step: Int, listener: IntSpinnerListener) : Cell {
         val spinnerModel = IntSpinnerModel(initValue, min, max, step)
         return addSpinner(text, spinnerModel, listener) { spinnerModel.value }
     }
 
-    override fun addSpinner(text: String, min: Float, max: Float, initValue: Float, listener: FloatSpinnerListener): Widget {
+    override fun addSpinner(text: String, min: Float, max: Float, initValue: Float, listener: FloatSpinnerListener): Cell {
         return addSpinner(text, min, max, initValue, 1f, listener)
     }
 
-    override fun addSpinner(text: String, min: Float, max: Float, initValue: Float, step: Float, listener: FloatSpinnerListener): Widget {
+    override fun addSpinner(text: String, min: Float, max: Float, initValue: Float, step: Float, listener: FloatSpinnerListener): Cell {
         val spinnerModel = SimpleFloatSpinnerModel(initValue, min, max, step)
         return addSpinner(text, spinnerModel, listener) { spinnerModel.value }
     }
 
-    override fun addCheckbox(text: String, listener: CheckboxListener) : Widget {
+    override fun addCheckbox(text: String, listener: CheckboxListener) : Cell {
         return addCheckbox(text, false, listener)
     }
 
-    override fun addCheckbox(text: String, checked: Boolean, listener: CheckboxListener): Widget {
+    override fun addCheckbox(text: String, checked: Boolean, listener: CheckboxListener): Cell {
         val checkbox = VisCheckBox(text)
         checkbox.isChecked = checked
         checkbox.addListener(object : ChangeListener() {
@@ -102,14 +102,14 @@ class RootWidgetImpl : VisTable(), RootWidget {
         })
 
         val cell = add(checkbox)
-        return WidgetImpl(cell)
+        return CellImpl(cell)
     }
 
     override fun addRow() {
         row()
     }
 
-    private fun <T> addSpinner(text: String, spinnerModel: SpinnerModel, listener: SpinnerListener<T>, getModelValue: () -> T): Widget {
+    private fun <T> addSpinner(text: String, spinnerModel: SpinnerModel, listener: SpinnerListener<T>, getModelValue: () -> T): Cell {
         val spinner = Spinner(text, spinnerModel)
         spinner.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
@@ -118,6 +118,6 @@ class RootWidgetImpl : VisTable(), RootWidget {
         })
 
         val cell = add(spinner)
-        return WidgetImpl(cell)
+        return CellImpl(cell)
     }
 }
