@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editor.events
 
 import com.mbrlabs.mundus.commons.Scene
+import com.mbrlabs.mundus.editorcommons.Subscribe
 
 /**
  * @author Marcus Brummer

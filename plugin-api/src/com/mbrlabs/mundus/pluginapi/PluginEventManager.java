@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2024. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.events
+package com.mbrlabs.mundus.pluginapi;
 
-import com.mbrlabs.mundus.commons.scene3d.GameObject
+import com.mbrlabs.mundus.editorcommons.EventListener;
 
-/**
- * @author Marcus Brummer
- * @version 23-01-2016
- */
-class GameObjectModifiedEvent(var gameObject: GameObject?) {
+public interface PluginEventManager {
 
-    interface GameObjectModifiedListener {
-        @Subscribe
-        fun onGameObjectModified(event: GameObjectModifiedEvent)
-    }
-
+    /**
+     * Registerrs event listeners in Editor.
+     *
+     * @param listener The event listener.
+     */
+    void registerEventListener(EventListener listener);
 }

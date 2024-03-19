@@ -17,11 +17,11 @@ package com.mbrlabs.mundus.editor.tools;
 
 import com.badlogic.gdx.graphics.Color;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
-import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager;
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
+import com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent;
 
 /**
  * @author Marcus Brummer

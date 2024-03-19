@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. See AUTHORS file.
+ * Copyright (c) 2024. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,7 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.core.helperlines
+package com.mbrlabs.mundus.editorcommons;
 
-import com.badlogic.gdx.math.Vector3
-
-data class HelperLineCenterObject(
-        var x: Int = 0,
-        var y: Int = 0,
-        var position: Vector3 = Vector3(),
-        var full: Boolean = true
-        ) {
-
-        fun initialize(x: Int, y: Int, position: Vector3, full: Boolean): HelperLineCenterObject{
-                this.x = x
-                this.y = y
-                this.position = position
-                this.full = full
-
-                return this
-        }
+public interface EventListener {
 }

@@ -1,0 +1,30 @@
+apply plugin: "java"
+apply plugin: "maven-publish"
+
+group = 'com.github.jamestkhan.mundus'
+version = '0.5.1'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+sourceSets.main.java.srcDirs = ["src/"]
+sourceSets.main.resources.srcDirs = ["src/"]
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            from components.java
+            artifact sourcesJar
+        }
+    }
+}

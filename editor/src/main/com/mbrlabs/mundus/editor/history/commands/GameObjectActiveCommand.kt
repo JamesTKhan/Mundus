@@ -2,9 +2,9 @@ package com.mbrlabs.mundus.editor.history.commands
 
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
 import com.mbrlabs.mundus.editor.history.Command
+import com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent
 
 /**
  * Command to change the active state of a game object.

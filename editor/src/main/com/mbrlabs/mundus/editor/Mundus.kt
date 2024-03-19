@@ -50,7 +50,10 @@ import com.mbrlabs.mundus.editor.ui.gizmos.GizmoManager
 import com.mbrlabs.mundus.editor.utils.Fa
 import ktx.inject.Context
 import ktx.inject.register
+import org.pf4j.DefaultPluginManager
+import org.pf4j.PluginManager
 import java.io.File
+import java.nio.file.Paths
 
 /**
  * Core class.
@@ -87,6 +90,7 @@ object Mundus {
     private val json: Json
     private val globalPrefManager: MundusPreferencesManager
     private val glProfiler: MundusGLProfiler
+    private val pluginManager: PluginManager
 
     init {
         FileChooser.setDefaultPrefsName("mundus.editor.filechooser")
@@ -114,7 +118,8 @@ object Mundus {
         commandHistory = CommandHistory(CommandHistory.DEFAULT_LIMIT)
         modelImporter = ModelImporter(registry)
         projectManager = ProjectManager(ioManager, registry, modelBatch)
-        freeCamController = FreeCamController(projectManager, goPicker)
+        pluginManager = DefaultPluginManager(Paths.get(Registry.PLUGINS_DIR))
+        freeCamController = FreeCamController(projectManager, goPicker, pluginManager)
         globalPrefManager = MundusPreferencesManager("global")
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
                 commandHistory, globalPrefManager)
@@ -144,6 +149,7 @@ object Mundus {
             bindSingleton(json)
             bindSingleton(globalPrefManager)
             bindSingleton(glProfiler)
+            bindSingleton(pluginManager)
 
             bindSingleton(MetaSaver())
             bindSingleton(MetaLoader())

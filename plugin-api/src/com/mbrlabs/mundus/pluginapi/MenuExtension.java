@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. See AUTHORS file.
+ * Copyright (c) 2024. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.events
+package com.mbrlabs.mundus.pluginapi;
 
-import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.pluginapi.ui.RootWidget;
+import org.pf4j.ExtensionPoint;
 
-class TerrainAddedEvent(val terrainComponent: TerrainComponent) {
+public interface MenuExtension extends ExtensionPoint {
 
-    interface TerrainAddedEventListener {
-        @Subscribe
-        fun onTerrainAdded(event: TerrainAddedEvent)
-    }
+    /**
+     * @return The item name of plugin in Plugins menu.
+     */
+    String getMenuName();
+
+    /**
+     * Here can setup root widget for plugin.
+     */
+    void setupDialogRootWidget(RootWidget rootWidget);
 }
