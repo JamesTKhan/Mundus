@@ -22,6 +22,7 @@
 - Sort children action command in Outline
 - Fix add water and terrain as child
 - Thumbnail view for model asset in Asset Dock
+- Add checkShadowDuringFrustumCulling setting into CullableComponent to disable/enable shadow checking during frustum culling
 
 [0.5.1] ~ 08/08/2023
 - Added FPS launcher argument, always call setForegroundFPS
