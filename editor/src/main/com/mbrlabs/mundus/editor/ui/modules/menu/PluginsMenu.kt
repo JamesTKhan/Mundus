@@ -32,6 +32,10 @@ import org.pf4j.DefaultPluginManager
 
 class PluginsMenu : Menu("Plugins"), PluginsLoadedEvent.PluginsLoadedEventListener{
 
+    companion object {
+        const val NO_PLUGINS_LOADED_TEXT = "No Plugins Loaded"
+    }
+
     private val pluginManager = Mundus.inject<DefaultPluginManager>()
 
     init {
@@ -39,23 +43,29 @@ class PluginsMenu : Menu("Plugins"), PluginsLoadedEvent.PluginsLoadedEventListen
     }
 
     override fun onPluginsLoaded(event: PluginsLoadedEvent) {
-        for (menuExtension in pluginManager.getExtensions(MenuExtension::class.java)) {
-            val menuItem = MenuItem(menuExtension.menuName)
-            menuItem.addListener(object : ClickListener() {
-                override fun clicked(event: InputEvent, x: Float, y: Float) {
-                    val dialog = BaseDialog(menuExtension.menuName)
-                    val root = RootWidgetImpl()
-                    try {
-                        menuExtension.setupDialogRootWidget(root)
-                        dialog.add(root)
-                        UI.showDialog(dialog)
-                    } catch (ex: Exception) {
-                        Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during setup plugin's root widget! $ex"))
-                    }
-                }
-            })
+        val menuExtensions = pluginManager.getExtensions(MenuExtension::class.java)
 
-            addItem(menuItem)
+        if (menuExtensions.isNotEmpty()) {
+            for (menuExtension in pluginManager.getExtensions(MenuExtension::class.java)) {
+                val menuItem = MenuItem(menuExtension.menuName)
+                menuItem.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent, x: Float, y: Float) {
+                        val dialog = BaseDialog(menuExtension.menuName)
+                        val root = RootWidgetImpl()
+                        try {
+                            menuExtension.setupDialogRootWidget(root)
+                            dialog.add(root)
+                            UI.showDialog(dialog)
+                        } catch (ex: Exception) {
+                            Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during setup plugin's root widget! $ex"))
+                        }
+                    }
+                })
+
+                addItem(menuItem)
+            }
+        } else {
+            addItem(MenuItem(NO_PLUGINS_LOADED_TEXT))
         }
     }
 }
