@@ -22,7 +22,7 @@ import org.pf4j.ExtensionPoint;
 public interface RenderExtension extends ExtensionPoint {
 
     /**
-     * @return The renderable prorvider to render it on scene.
+     * @return The renderable provider to render it on scene.
      */
     RenderableProvider getRenderableProvider();
 }
