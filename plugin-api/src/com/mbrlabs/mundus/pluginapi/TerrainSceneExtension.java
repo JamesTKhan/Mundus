@@ -20,7 +20,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import org.pf4j.ExtensionPoint;
 
-public interface SceneExtension extends ExtensionPoint {
+public interface TerrainSceneExtension extends ExtensionPoint {
 
     /**
      * Calls this method ad scene loaded.

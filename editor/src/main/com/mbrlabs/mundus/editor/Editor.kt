@@ -55,7 +55,7 @@ import com.mbrlabs.mundus.editor.utils.UsefulMeshs
 import com.mbrlabs.mundus.pluginapi.EventExtension
 import com.mbrlabs.mundus.pluginapi.PluginEventManager
 import com.mbrlabs.mundus.pluginapi.RenderExtension
-import com.mbrlabs.mundus.pluginapi.SceneExtension
+import com.mbrlabs.mundus.pluginapi.TerrainSceneExtension
 import com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent
 import com.mbrlabs.mundus.pluginapi.DisposeExtension
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
@@ -242,7 +242,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             // change project; this will fire a ProjectChangedEvent
             projectManager.changeProject(projectManager.loadingProject())
 
-            pluginManager.getExtensions(SceneExtension::class.java).forEach {
+            pluginManager.getExtensions(TerrainSceneExtension::class.java).forEach {
                 try {
                     it.sceneLoaded(projectManager.current().currScene.terrains)
                 } catch (ex: Exception) {
