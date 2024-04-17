@@ -73,7 +73,9 @@ public class RenderWidget extends Widget {
         final int height = (int) getHeight();
 
         // apply widget viewport
-        viewport.setScreenBounds((int) vec.x, (int) vec.y, width, height);
+        viewport.setScreenBounds(
+                (int) (vec.x * UI.scale), (int) (vec.y * UI.scale),
+                (int) (width * UI.scale), (int) (height * UI.scale));
         viewport.setWorldSize(width * viewport.getUnitsPerPixel(), height * viewport.getUnitsPerPixel());
         viewport.apply();
 
