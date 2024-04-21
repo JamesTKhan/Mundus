@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. See AUTHORS file.
+ * Copyright (c) 2024. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.events
+package com.mbrlabs.mundus.pluginapi.ui;
 
-import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+public interface LabelWidget {
 
-class TerrainRemovedEvent(val terrainComponent: TerrainComponent) {
+    LabelWidget setAlign(WidgetAlign align);
 
-    interface TerrainRemovedEventListener {
-        @Subscribe
-        fun onTerrainRemoved(event: TerrainRemovedEvent)
-    }
+    LabelWidget setText(String text);
 }

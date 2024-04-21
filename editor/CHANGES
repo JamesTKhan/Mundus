@@ -23,6 +23,8 @@
 - Fix add water and terrain as child
 - Thumbnail view for model asset in Asset Dock
 - Add checkShadowDuringFrustumCulling setting into CullableComponent to disable/enable shadow checking during frustum culling
+- Add editor plugin support
+- Removed helper lines (moved into plugin, see https://github.com/Dgzt/mundus-helper-lines-plugin)
 
 [0.5.1] ~ 08/08/2023
 - Added FPS launcher argument, always call setForegroundFPS
