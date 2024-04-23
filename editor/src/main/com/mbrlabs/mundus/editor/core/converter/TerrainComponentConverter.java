@@ -47,6 +47,7 @@ public class TerrainComponentConverter {
 
         PickableTerrainComponent terrainComponent = new PickableTerrainComponent(go);
         terrainComponent.setTerrainAsset(terrain);
+        terrainComponent.applyTerrainObjects();
 
         return terrainComponent;
     }

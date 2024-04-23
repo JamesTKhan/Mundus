@@ -33,6 +33,6 @@ public class FlattenTool extends RadiusTerrainTool {
 
     @Override
     public void act(TerrainBrush brush) {
-        brush.modifyTerrain(modifier, radiusDistanceComparison, true);
+        brush.modifyTerrain(modifier, ObjectTool.getUpdater(), radiusDistanceComparison, true);
     }
 }

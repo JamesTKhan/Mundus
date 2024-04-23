@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
+package com.mbrlabs.mundus.editor.utils
 
-package com.mbrlabs.mundus.editor.tools.terrain;
+import java.util.UUID
 
-import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush;
 
-/**
- * @author JamesTKhan
- * @version June 28, 2023
- */
-public abstract class RadiusTerrainTool implements TerrainTool {
-    protected static final TerrainBrush.TerrainModifyComparison radiusDistanceComparison = (terrainBrush, terrainComponent, vertexPos, localBrushPos) -> {
-        float distance = vertexPos.dst(localBrushPos);
-        return distance <= terrainBrush.getRadius();
-    };
+object IdUtils {
+
+    fun generateUUID(): String {
+        return UUID.randomUUID().toString().replace("-".toRegex(), "")
+    }
 
 }
