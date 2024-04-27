@@ -17,23 +17,28 @@ import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.scene3d.components.PickableLightComponent
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.pluginapi.ComponentExtension
+import org.pf4j.DefaultPluginManager
 
 class AddComponentDialog : BaseDialog("Add Component") {
 
-    private enum class ComponentType(val type: Component.Type, val label: String) {
-        LIGHT(Component.Type.LIGHT, "Light"),
-        CUSTOM_PROPERTIES(Component.Type.CUSTOM_PROPERTIES, "Custom properties");
+    private abstract inner class DropdownComponent(val name: String) {
 
-        override fun toString(): String = label
+        abstract fun createComponent(gameObject: GameObject): Component?
+
+        override fun toString(): String  = name
     }
 
     private lateinit var root: VisTable
-    private lateinit var selectBox: VisSelectBox<ComponentType>
+    private lateinit var selectBox: VisSelectBox<DropdownComponent>
     private var addBtn = VisTextButton("Add Component")
 
     private val projectManager: ProjectManager = Mundus.inject()
+    private val pluginManager = Mundus.inject<DefaultPluginManager>()
 
     init {
         setupUI()
@@ -47,18 +52,32 @@ class AddComponentDialog : BaseDialog("Add Component") {
         // Component selector
         val selectorsTable = VisTable(true)
         selectorsTable.add(VisLabel("Component Type:"))
-        selectBox = VisSelectBox<ComponentType>()
+        selectBox = VisSelectBox<DropdownComponent>()
         selectorsTable.add(selectBox).left()
         root.add(selectorsTable).row()
 
         root.add(addBtn).left().growX()
 
         // Load types into select box
-        val addableTypes = Array<ComponentType>()
+        val addableTypes = Array<DropdownComponent>()
 
-        // At the moment, only light and custom properties components are supported for dynamically adding
-        addableTypes.add(ComponentType.LIGHT)
-        addableTypes.add(ComponentType.CUSTOM_PROPERTIES)
+        addableTypes.add(object : DropdownComponent("Light"){
+            override fun createComponent(gameObject: GameObject): Component? = getNewLightComponent(gameObject)
+        })
+
+        addableTypes.add(object : DropdownComponent("Custom properties"){
+            override fun createComponent(gameObject: GameObject): Component? = getNewCustomPropertiesComponent(gameObject)
+        })
+
+        pluginManager.getExtensions(ComponentExtension::class.java).forEach {
+            try {
+                addableTypes.add(object : DropdownComponent(it.componentName) {
+                    override fun createComponent(gameObject: GameObject): Component? = it.createComponent(gameObject)
+                })
+            } catch (ex: Exception) {
+                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during create component! $ex"))
+            }
+        }
 
         selectBox.items = addableTypes
 
@@ -71,7 +90,7 @@ class AddComponentDialog : BaseDialog("Add Component") {
                 // Add component to current game object
                 val go = UI.outline.getSelectedGameObject()!!
 
-                val component = getNewComponent(selectBox.selected.type, go)
+                val component = selectBox.selected.createComponent(go)
                 if (component != null) {
                     try {
                         go.addComponent(component)
@@ -84,20 +103,6 @@ class AddComponentDialog : BaseDialog("Add Component") {
                 }
             }
         })
-    }
-
-    /**
-     * Retrieve a new component for the given type. Only Light components are supported right now.
-     */
-    private fun getNewComponent(type: Component.Type, go: GameObject): Component? {
-        when(type) {
-            Component.Type.MODEL -> TODO()
-            Component.Type.TERRAIN -> TODO()
-            Component.Type.LIGHT -> return getNewLightComponent(go)
-            Component.Type.PARTICLE_SYSTEM -> TODO()
-            Component.Type.WATER -> TODO()
-            Component.Type.CUSTOM_PROPERTIES -> return getNewCustomPropertiesComponent(go)
-        }
     }
 
     private fun getNewLightComponent(go: GameObject): Component? {
