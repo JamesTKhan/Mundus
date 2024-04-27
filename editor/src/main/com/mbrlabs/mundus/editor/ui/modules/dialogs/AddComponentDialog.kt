@@ -1,9 +1,11 @@
 package com.mbrlabs.mundus.editor.ui.modules.dialogs
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.util.dialog.Dialogs
+import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
@@ -45,6 +47,31 @@ class AddComponentDialog : BaseDialog("Add Component") {
         setupListeners()
     }
 
+    override fun show(stage: Stage?): VisDialog {
+        // Load types into select box
+        selectBox.items.clear()
+
+        val addableTypes = Array<DropdownComponent>()
+        addableTypes.add(object : DropdownComponent("Light"){
+            override fun createComponent(gameObject: GameObject): Component? = getNewLightComponent(gameObject)
+        })
+        addableTypes.add(object : DropdownComponent("Custom properties"){
+            override fun createComponent(gameObject: GameObject): Component? = getNewCustomPropertiesComponent(gameObject)
+        })
+        pluginManager.getExtensions(ComponentExtension::class.java).forEach {
+            try {
+                addableTypes.add(object : DropdownComponent(it.componentName) {
+                    override fun createComponent(gameObject: GameObject): Component? = it.createComponent(gameObject)
+                })
+            } catch (ex: Exception) {
+                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during create component! $ex"))
+            }
+        }
+        selectBox.items = addableTypes
+
+        return super.show(stage)
+    }
+
     private fun setupUI() {
         root = VisTable()
         root.defaults().pad(6f)
@@ -57,29 +84,6 @@ class AddComponentDialog : BaseDialog("Add Component") {
         root.add(selectorsTable).row()
 
         root.add(addBtn).left().growX()
-
-        // Load types into select box
-        val addableTypes = Array<DropdownComponent>()
-
-        addableTypes.add(object : DropdownComponent("Light"){
-            override fun createComponent(gameObject: GameObject): Component? = getNewLightComponent(gameObject)
-        })
-
-        addableTypes.add(object : DropdownComponent("Custom properties"){
-            override fun createComponent(gameObject: GameObject): Component? = getNewCustomPropertiesComponent(gameObject)
-        })
-
-        pluginManager.getExtensions(ComponentExtension::class.java).forEach {
-            try {
-                addableTypes.add(object : DropdownComponent(it.componentName) {
-                    override fun createComponent(gameObject: GameObject): Component? = it.createComponent(gameObject)
-                })
-            } catch (ex: Exception) {
-                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during create component! $ex"))
-            }
-        }
-
-        selectBox.items = addableTypes
 
         add(root)
     }
