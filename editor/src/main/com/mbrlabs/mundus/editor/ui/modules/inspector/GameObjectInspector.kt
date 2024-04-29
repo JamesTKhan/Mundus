@@ -23,14 +23,20 @@ import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.scene3d.GameObject
+import com.mbrlabs.mundus.commons.scene3d.components.AbstractComponent
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
+import com.mbrlabs.mundus.editor.plugin.RootWidgetImpl
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
+import com.mbrlabs.mundus.editor.ui.modules.inspector.components.CustomComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.CustomPropertiesWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.IdentifierWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.LightComponentWidget
@@ -38,12 +44,16 @@ import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ModelComponentW
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.TransformWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.TerrainComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.WaterComponentWidget
+import com.mbrlabs.mundus.pluginapi.ComponentExtension
+import org.pf4j.DefaultPluginManager
 
 /**
  * @author Marcus Brummer
  * @version 13-10-2016
  */
 class GameObjectInspector : VisTable() {
+
+    private val pluginManager = Mundus.inject<DefaultPluginManager>()
 
     private val identifierWidget = IdentifierWidget()
     private val transformWidget = TransformWidget()
@@ -132,6 +142,20 @@ class GameObjectInspector : VisTable() {
         } else if (component is CustomPropertiesComponent) {
             componentWidgets.add(CustomPropertiesWidget(component))
             componentTable.add(componentWidgets.last()).grow().row()
+        } else {
+            pluginManager.getExtensions(ComponentExtension::class.java).forEach {
+                try {
+                    if (it.componentType == component.type) {
+                        val rootWidget = RootWidgetImpl()
+                        it.setupComponentInspectorWidget(rootWidget)
+                        val componentWidget = CustomComponentWidget("${it.componentName} Component", rootWidget, component as AbstractComponent)
+                        componentWidgets.add(componentWidget)
+                        componentTable.add(componentWidgets.last()).grow().row()
+                    }
+                } catch (ex: Exception) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during setup component inspector widget! $ex"))
+                }
+            }
         }
     }
 
