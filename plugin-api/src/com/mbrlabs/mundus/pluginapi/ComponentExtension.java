@@ -7,6 +7,8 @@ import org.pf4j.ExtensionPoint;
 
 public interface ComponentExtension extends ExtensionPoint {
 
+    Component.Type getComponentType();
+
     String getComponentName();
 
     Component createComponent(GameObject gameObject);
