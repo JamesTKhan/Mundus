@@ -123,6 +123,11 @@ class GameObjectInspector : VisTable() {
                     componentWidgets.add(LightComponentWidget(component as LightComponent))
                 } else if (component.type == Component.Type.CUSTOM_PROPERTIES) {
                     componentWidgets.add(CustomPropertiesWidget(component as CustomPropertiesComponent))
+                } else {
+                    val customComponentWidget = createCustomComponentWidget(component)
+                    if (customComponentWidget != null) {
+                        componentWidgets.add(customComponentWidget)
+                    }
                 }
             }
         }
@@ -143,20 +148,29 @@ class GameObjectInspector : VisTable() {
             componentWidgets.add(CustomPropertiesWidget(component))
             componentTable.add(componentWidgets.last()).grow().row()
         } else {
-            pluginManager.getExtensions(ComponentExtension::class.java).forEach {
-                try {
-                    if (it.componentType == component.type) {
-                        val rootWidget = RootWidgetImpl()
-                        it.setupComponentInspectorWidget(component, rootWidget)
-                        val componentWidget = CustomComponentWidget("${it.componentName} Component", rootWidget, component as AbstractComponent)
-                        componentWidgets.add(componentWidget)
-                        componentTable.add(componentWidgets.last()).grow().row()
-                    }
-                } catch (ex: Exception) {
-                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during setup component inspector widget! $ex"))
-                }
+            val customComponentWidget = createCustomComponentWidget(component)
+            if (customComponentWidget != null) {
+                componentWidgets.add(customComponentWidget)
+                componentTable.add(componentWidgets.last()).grow().row()
             }
         }
+    }
+
+    private fun createCustomComponentWidget(component: Component): CustomComponentWidget<out AbstractComponent>? {
+        pluginManager.getExtensions(ComponentExtension::class.java).forEach {
+            try {
+                if (it.componentType == component.type) {
+                    val rootWidget = RootWidgetImpl()
+                    it.setupComponentInspectorWidget(component, rootWidget)
+                    val componentWidget = CustomComponentWidget("${it.componentName} Component", rootWidget, component as AbstractComponent)
+                    return componentWidget
+                }
+            } catch (ex: Exception) {
+                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during setup component inspector widget! $ex"))
+            }
+        }
+
+        return null;
     }
 
 }
