@@ -147,7 +147,7 @@ class GameObjectInspector : VisTable() {
                 try {
                     if (it.componentType == component.type) {
                         val rootWidget = RootWidgetImpl()
-                        it.setupComponentInspectorWidget(rootWidget)
+                        it.setupComponentInspectorWidget(component, rootWidget)
                         val componentWidget = CustomComponentWidget("${it.componentName} Component", rootWidget, component as AbstractComponent)
                         componentWidgets.add(componentWidget)
                         componentTable.add(componentWidgets.last()).grow().row()

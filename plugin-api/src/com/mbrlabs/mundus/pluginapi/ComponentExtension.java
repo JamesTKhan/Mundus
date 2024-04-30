@@ -13,5 +13,5 @@ public interface ComponentExtension extends ExtensionPoint {
 
     Component createComponent(GameObject gameObject);
 
-    void setupComponentInspectorWidget(RootWidget rootWidget);
+    void setupComponentInspectorWidget(Component component, RootWidget rootWidget);
 }
