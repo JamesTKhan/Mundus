@@ -57,6 +57,7 @@ import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.ui.UI;
 import com.mbrlabs.mundus.editor.utils.Log;
 import com.mbrlabs.mundus.editor.utils.SkyboxBuilder;
+import org.pf4j.DefaultPluginManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -84,11 +85,13 @@ public class ProjectManager implements Disposable {
     private IOManager ioManager;
     private ModelBatch modelBatch;
     private ModelBatch depthBatch;
+    private DefaultPluginManager pluginManager;
 
-    public ProjectManager(IOManager ioManager, Registry registry, ModelBatch modelBatch) {
+    public ProjectManager(IOManager ioManager, Registry registry, ModelBatch modelBatch, DefaultPluginManager pluginManager) {
         this.registry = registry;
         this.ioManager = ioManager;
         this.modelBatch = modelBatch;
+        this.pluginManager = pluginManager;
         currentProject = new ProjectContext(-1);
     }
 
@@ -164,7 +167,7 @@ public class ProjectManager implements Disposable {
         scene.skybox = SkyboxBuilder.createDefaultSkybox(Shaders.INSTANCE.getSkyboxShader());
         scene.skyboxAssetId = getDefaultSkyboxAsset(newProjectContext, true).getID();
         scene.setId(newProjectContext.obtainID());
-        SceneManager.saveScene(newProjectContext, scene);
+        SceneManager.saveScene(newProjectContext, scene, pluginManager);
         scene.sceneGraph.scene.batch = modelBatch;
 
         // save .pro file
@@ -307,7 +310,7 @@ public class ProjectManager implements Disposable {
         // save current in .pro file
         ioManager.saveProjectContext(projectContext);
         // save scene in .mundus file
-        SceneManager.saveScene(projectContext, projectContext.currScene);
+        SceneManager.saveScene(projectContext, projectContext.currScene, pluginManager);
 
         Log.debug(TAG, "Saving currentProject {}", projectContext.name + " [" + projectContext.path + "]");
         Mundus.INSTANCE.postEvent(new LogEvent("Saving currentProject " + projectContext.name + " [" + projectContext.path + "]"));
@@ -450,7 +453,7 @@ public class ProjectManager implements Disposable {
         if (scene.skyboxAssetId != null)
             scene.skybox = SkyboxBuilder.createDefaultSkybox(Shaders.INSTANCE.getSkyboxShader());
         project.scenes.add(scene.getName());
-        SceneManager.saveScene(project, scene);
+        SceneManager.saveScene(project, scene, pluginManager);
 
         return scene;
     }

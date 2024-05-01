@@ -18,6 +18,8 @@ package com.mbrlabs.mundus.editor.core.converter;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.OrderedMap;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
@@ -28,12 +30,14 @@ import com.mbrlabs.mundus.commons.mapper.DirectionalLightConverter;
 import com.mbrlabs.mundus.commons.mapper.FogConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.shadows.MundusDirectionalShadowLight;
 import com.mbrlabs.mundus.commons.utils.LightUtils;
 import com.mbrlabs.mundus.commons.water.WaterResolution;
 import com.mbrlabs.mundus.editor.core.EditorScene;
 
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * The converter for scene.
@@ -43,7 +47,10 @@ public class SceneConverter {
     /**
      * Converts {@link Scene} to {@link SceneDTO}.
      */
-    public static SceneDTO convert(Scene scene) {
+    public static SceneDTO convert(
+            Scene scene,
+            ObjectMap<Component.Type, Function<Component, OrderedMap<String, String>>> customComponentConverters
+    ) {
         SceneDTO dto = new SceneDTO();
 
         // meta
@@ -53,7 +60,7 @@ public class SceneConverter {
 
         // scene graph
         for (GameObject go : scene.sceneGraph.getGameObjects()) {
-            dto.getGameObjects().add(GameObjectConverter.convert(go));
+            dto.getGameObjects().add(GameObjectConverter.convert(go, customComponentConverters));
         }
 
         // environment stuff

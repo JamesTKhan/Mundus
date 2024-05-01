@@ -34,6 +34,7 @@ import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
+import org.pf4j.DefaultPluginManager
 
 /**
  * @author JamesTKhan
@@ -42,6 +43,7 @@ import com.mbrlabs.mundus.editor.ui.UI
 class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChangedListener, SceneChangedEvent.SceneChangedListener {
 
     private val projectManager: ProjectManager = Mundus.inject()
+    private val pluginManager: DefaultPluginManager = Mundus.inject()
 
     private val nearPlane = VisTextField("0")
     private val farPlane = VisTextField("0")
@@ -153,7 +155,7 @@ class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChan
     }
 
     override fun onSave() {
-        SceneManager.saveScene(projectManager.current(), projectManager.current().currScene)
+        SceneManager.saveScene(projectManager.current(), projectManager.current().currScene, pluginManager)
         UI.toaster.success("Settings saved")
     }
 

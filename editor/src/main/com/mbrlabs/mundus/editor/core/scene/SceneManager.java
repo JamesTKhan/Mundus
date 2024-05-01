@@ -19,15 +19,20 @@ package com.mbrlabs.mundus.editor.core.scene;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.OrderedMap;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
+import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
+import com.mbrlabs.mundus.pluginapi.ComponentExtension;
 import org.apache.commons.io.FilenameUtils;
+import org.pf4j.DefaultPluginManager;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.function.Function;
 
 public class SceneManager {
 
@@ -40,10 +45,16 @@ public class SceneManager {
      * @param context project context of the scene
      * @param scene scene to save
      */
-    public static void saveScene(ProjectContext context, Scene scene) {
+    public static void saveScene(ProjectContext context, Scene scene, DefaultPluginManager pluginManager) {
         String sceneDir = getScenePath(context, scene.getName());
 
-        SceneDTO sceneDTO = SceneConverter.convert(scene);
+        final OrderedMap<Component.Type, Function<Component, OrderedMap<String, String>>> customComponentsConverter = new OrderedMap<>();
+        pluginManager.getExtensions(ComponentExtension.class).forEach(it -> {
+            final Function<Component, OrderedMap<String, String>> function = it::getComponentConfig;
+            customComponentsConverter.put(it.getComponentType(), function);
+        });
+
+        SceneDTO sceneDTO = SceneConverter.convert(scene, customComponentsConverter);
         FileHandle saveFile = Gdx.files.absolute(sceneDir);
         saveFile.writeString(JSON.toJson(sceneDTO), false);
     }

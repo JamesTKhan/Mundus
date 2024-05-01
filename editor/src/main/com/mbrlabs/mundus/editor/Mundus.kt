@@ -117,8 +117,8 @@ object Mundus {
         registry = ioManager.loadRegistry()
         commandHistory = CommandHistory(CommandHistory.DEFAULT_LIMIT)
         modelImporter = ModelImporter(registry)
-        projectManager = ProjectManager(ioManager, registry, modelBatch)
         pluginManager = DefaultPluginManager(Paths.get(Registry.PLUGINS_DIR))
+        projectManager = ProjectManager(ioManager, registry, modelBatch, pluginManager)
         freeCamController = FreeCamController(projectManager, goPicker, pluginManager)
         globalPrefManager = MundusPreferencesManager("global")
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
