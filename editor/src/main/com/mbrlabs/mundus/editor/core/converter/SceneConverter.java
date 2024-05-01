@@ -96,7 +96,11 @@ public class SceneConverter {
     /**
      * Converts {@link SceneDTO} to {@link Scene}.
      */
-    public static EditorScene convert(SceneDTO dto, Map<String, Asset> assets) {
+    public static EditorScene convert(
+            SceneDTO dto,
+            Map<String, Asset> assets,
+            ObjectMap<Component.Type, Function<OrderedMap<String, String>, Component>> customComponentConverters
+    ) {
         EditorScene scene = new EditorScene();
 
         // meta
@@ -129,7 +133,7 @@ public class SceneConverter {
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);
         for (GameObjectDTO descriptor : dto.getGameObjects()) {
-            scene.sceneGraph.addGameObject(GameObjectConverter.convert(descriptor, scene.sceneGraph, assets));
+            scene.sceneGraph.addGameObject(GameObjectConverter.convert(descriptor, scene.sceneGraph, assets, customComponentConverters));
         }
 
         // camera

@@ -49,7 +49,8 @@ public class GameObjectConverter {
      * Converts {@link GameObjectDTO} to {@link GameObject}.
      */
     public static GameObject convert(GameObjectDTO dto, SceneGraph sceneGraph,
-                                     Map<String, Asset> assets) {
+                                     Map<String, Asset> assets,
+                                     ObjectMap<Component.Type, Function<OrderedMap<String, String>, Component>> customComponentConverters) {
         final GameObject go = new GameObject(sceneGraph, dto.getName(), dto.getId());
         go.active = dto.isActive();
 
@@ -86,12 +87,23 @@ public class GameObjectConverter {
             go.getComponents().add(component);
         }
 
-        // TODO
+        // Custom components
+        if (dto.getCustomComponents() != null) {
+            for (int i = 0; i < dto.getCustomComponents().size; ++i) {
+                final CustomComponentDTO customComponentDTO = dto.getCustomComponents().get(i);
+                final Component.Type customComponentType = customComponentDTO.getComponentType();
+                final Function<OrderedMap<String, String>, Component> customComponentConverter = customComponentConverters.get(customComponentType);
+
+                final Component customComponent = customComponentConverter.apply(customComponentDTO.getProperties());
+
+                go.getComponents().add(customComponent);
+            }
+        }
 
         // recursively convert children
         if (dto.getChilds() != null) {
             for (GameObjectDTO c : dto.getChilds()) {
-                go.addChild(convert(c, sceneGraph, assets));
+                go.addChild(convert(c, sceneGraph, assets, customComponentConverters));
             }
         }
 
