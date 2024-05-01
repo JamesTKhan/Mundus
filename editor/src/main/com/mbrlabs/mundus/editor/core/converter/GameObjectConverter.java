@@ -35,6 +35,7 @@ import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableWaterComponent;
 
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -50,7 +51,7 @@ public class GameObjectConverter {
      */
     public static GameObject convert(GameObjectDTO dto, SceneGraph sceneGraph,
                                      Map<String, Asset> assets,
-                                     ObjectMap<Component.Type, Function<OrderedMap<String, String>, Component>> customComponentConverters) {
+                                     OrderedMap<Component.Type, BiFunction<GameObject, OrderedMap<String, String>, Component>> customComponentConverters) {
         final GameObject go = new GameObject(sceneGraph, dto.getName(), dto.getId());
         go.active = dto.isActive();
 
@@ -92,11 +93,13 @@ public class GameObjectConverter {
             for (int i = 0; i < dto.getCustomComponents().size; ++i) {
                 final CustomComponentDTO customComponentDTO = dto.getCustomComponents().get(i);
                 final Component.Type customComponentType = customComponentDTO.getComponentType();
-                final Function<OrderedMap<String, String>, Component> customComponentConverter = customComponentConverters.get(customComponentType);
+                final BiFunction<GameObject, OrderedMap<String, String>, Component> customComponentConverter = customComponentConverters.get(customComponentType);
 
-                final Component customComponent = customComponentConverter.apply(customComponentDTO.getProperties());
+                final Component customComponent = customComponentConverter.apply(go, customComponentDTO.getProperties());
 
-                go.getComponents().add(customComponent);
+                if (customComponent != null) {
+                    go.getComponents().add(customComponent);
+                }
             }
         }
 

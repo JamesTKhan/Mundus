@@ -20,7 +20,7 @@ public interface ComponentExtension extends ExtensionPoint {
         return null;
     }
 
-    default Component loadComponentConfig(OrderedMap<String, String> config) {
+    default Component loadComponentConfig(GameObject gameObject, OrderedMap<String, String> config) {
         return null;
     }
 }

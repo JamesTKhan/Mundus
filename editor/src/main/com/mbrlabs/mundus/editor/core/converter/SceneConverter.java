@@ -37,6 +37,7 @@ import com.mbrlabs.mundus.commons.water.WaterResolution;
 import com.mbrlabs.mundus.editor.core.EditorScene;
 
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -99,7 +100,7 @@ public class SceneConverter {
     public static EditorScene convert(
             SceneDTO dto,
             Map<String, Asset> assets,
-            ObjectMap<Component.Type, Function<OrderedMap<String, String>, Component>> customComponentConverters
+            OrderedMap<Component.Type, BiFunction<GameObject, OrderedMap<String, String>, Component>> customComponentConverters
     ) {
         EditorScene scene = new EditorScene();
 

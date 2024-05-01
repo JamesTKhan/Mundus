@@ -64,6 +64,7 @@ import org.pf4j.DefaultPluginManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -477,9 +478,9 @@ public class ProjectManager implements Disposable {
     public EditorScene loadScene(ProjectContext context, String sceneName) throws FileNotFoundException {
         SceneDTO sceneDTO = SceneManager.loadScene(context, sceneName);
 
-        final OrderedMap<Component.Type, Function<OrderedMap<String, String>, Component>> customComponentsConverter = new OrderedMap<>();
+        final OrderedMap<Component.Type, BiFunction<GameObject, OrderedMap<String, String>, Component>> customComponentsConverter = new OrderedMap<>();
         pluginManager.getExtensions(ComponentExtension.class).forEach(it -> {
-            final Function<OrderedMap<String, String>, Component> function = it::loadComponentConfig;
+            final BiFunction<GameObject, OrderedMap<String, String>, Component> function = it::loadComponentConfig;
             customComponentsConverter.put(it.getComponentType(), function);
         });
 
