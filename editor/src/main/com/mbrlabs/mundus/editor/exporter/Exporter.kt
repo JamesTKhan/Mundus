@@ -17,9 +17,9 @@
 package com.mbrlabs.mundus.editor.exporter
 
 import com.badlogic.gdx.files.FileHandle
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonWriter
-import com.badlogic.gdx.utils.OrderedMap
 import com.kotcrab.vis.ui.util.async.AsyncTask
 import com.kotcrab.vis.ui.util.async.AsyncTaskListener
 import com.mbrlabs.mundus.commons.assets.Asset
@@ -28,7 +28,7 @@ import com.mbrlabs.mundus.commons.dto.ModelComponentDTO
 import com.mbrlabs.mundus.commons.dto.SceneDTO
 import com.mbrlabs.mundus.commons.dto.TerrainComponentDTO
 import com.mbrlabs.mundus.commons.importer.JsonScene
-import com.mbrlabs.mundus.commons.scene3d.components.Component
+import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter
 import com.mbrlabs.mundus.editor.core.io.IOManager
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
@@ -40,7 +40,6 @@ import org.pf4j.DefaultPluginManager
 import java.io.File
 import java.io.Writer
 import java.util.function.Consumer
-import java.util.function.Function
 
 /**
  * @author Marcus Brummer
@@ -52,16 +51,18 @@ class Exporter(val ioManager: IOManager, val project: ProjectContext, val plugin
      *
      */
     fun exportAsync(outputFolder: FileHandle, listener: AsyncTaskListener) {
-        val customComponentsConverter = OrderedMap<Component.Type, Function<Component, OrderedMap<String, String>>>()
+        val customComponentConverters = Array<CustomComponentConverter>()
         pluginManager.getExtensions(ComponentExtension::class.java).forEach(Consumer { it: ComponentExtension ->
-            val function = Function { component: Component -> it.getComponentConfig(component) }
-            customComponentsConverter.put(it.componentType, function)
+            val converter = it.converter
+            if (converter != null) {
+                customComponentConverters.add(converter)
+            }
         })
 
         // convert current project on the main thread to avoid nested array iterators
         // because it would iterate over the scene graph arrays while rendering (on the main thread)
         // and while converting (on the other thread)
-        val currentSceneDTO = SceneConverter.convert(project.currScene, customComponentsConverter)
+        val currentSceneDTO = SceneConverter.convert(project.currScene, customComponentConverters)
         val jsonType = project.settings.export.jsonType
 
         val task = object: AsyncTask("export_${project.name}") {

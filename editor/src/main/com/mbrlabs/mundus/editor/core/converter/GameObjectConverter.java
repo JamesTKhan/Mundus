@@ -19,11 +19,11 @@ package com.mbrlabs.mundus.editor.core.converter;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.dto.CustomComponentDTO;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
+import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter;
 import com.mbrlabs.mundus.commons.mapper.CustomPropertiesComponentConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
@@ -35,8 +35,6 @@ import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableWaterComponent;
 
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * The converter for game object.
@@ -51,7 +49,7 @@ public class GameObjectConverter {
      */
     public static GameObject convert(GameObjectDTO dto, SceneGraph sceneGraph,
                                      Map<String, Asset> assets,
-                                     OrderedMap<Component.Type, BiFunction<GameObject, OrderedMap<String, String>, Component>> customComponentConverters) {
+                                     Array<CustomComponentConverter> customComponentConverters) {
         final GameObject go = new GameObject(sceneGraph, dto.getName(), dto.getId());
         go.active = dto.isActive();
 
@@ -92,14 +90,19 @@ public class GameObjectConverter {
         if (dto.getCustomComponents() != null) {
             for (int i = 0; i < dto.getCustomComponents().size; ++i) {
                 final CustomComponentDTO customComponentDTO = dto.getCustomComponents().get(i);
-                final Component.Type customComponentType = customComponentDTO.getComponentType();
-                final BiFunction<GameObject, OrderedMap<String, String>, Component> customComponentConverter = customComponentConverters.get(customComponentType);
 
-                final Component customComponent = customComponentConverter.apply(go, customComponentDTO.getProperties());
+                for (int ii = 0; ii < customComponentConverters.size; ++ii) {
+                    final CustomComponentConverter converter = customComponentConverters.get(ii);
 
-                if (customComponent != null) {
-                    go.getComponents().add(customComponent);
+                    if (customComponentDTO.getComponentType() == converter.getComponentType()) {
+                        final Component customComponent = converter.convert(go, customComponentDTO.getProperties());
+
+                        if (customComponent != null) {
+                            go.getComponents().add(customComponent);
+                        }
+                    }
                 }
+
             }
         }
 
@@ -118,7 +121,7 @@ public class GameObjectConverter {
      */
     public static GameObjectDTO convert(
             GameObject go,
-            ObjectMap<Component.Type, Function<Component, OrderedMap<String, String>>> customComponentConverters
+            Array<CustomComponentConverter> customComponentConverters
     ) {
         GameObjectDTO descriptor = new GameObjectDTO();
         descriptor.setName(go.name);
@@ -158,19 +161,24 @@ public class GameObjectConverter {
             } else if (c.getType() == Component.Type.CUSTOM_PROPERTIES) {
                 descriptor.setCustomPropertiesComponent(CustomPropertiesComponentConverter.convert((CustomPropertiesComponent) c));
             } else if (c.getType() != null) {
-                final Function<Component, OrderedMap<String, String>> customComponentConverter = customComponentConverters.get(c.getType());
-                final OrderedMap<String, String> customComponentProperties = customComponentConverter.apply(c);
+                for (int i = 0; i < customComponentConverters.size; ++i) {
+                    final CustomComponentConverter converter = customComponentConverters.get(i);
 
-                if (customComponentProperties != null) {
-                    if (descriptor.getCustomComponents() == null) {
-                        descriptor.setCustomComponents(new Array<>());
+                    if (c.getType() == converter.getComponentType()) {
+                        final OrderedMap<String, String> customComponentProperties = converter.convert(c);
+
+                        if (customComponentProperties != null) {
+                            if (descriptor.getCustomComponents() == null) {
+                                descriptor.setCustomComponents(new Array<>());
+                            }
+
+                            final CustomComponentDTO customComponentDTO = new CustomComponentDTO();
+                            customComponentDTO.setComponentType(c.getType());
+                            customComponentDTO.setProperties(customComponentProperties);
+
+                            descriptor.getCustomComponents().add(customComponentDTO);
+                        }
                     }
-
-                    final CustomComponentDTO customComponentDTO = new CustomComponentDTO();
-                    customComponentDTO.setComponentType(c.getType());
-                    customComponentDTO.setProperties(customComponentProperties);
-
-                    descriptor.getCustomComponents().add(customComponentDTO);
                 }
             }
         }

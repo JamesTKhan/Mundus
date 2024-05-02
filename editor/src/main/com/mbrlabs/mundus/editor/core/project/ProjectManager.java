@@ -22,7 +22,6 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.OrderedMap;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.AssetNotFoundException;
@@ -30,8 +29,8 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
-import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
+import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
@@ -43,7 +42,6 @@ import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException;
 import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
 import com.mbrlabs.mundus.editor.core.EditorScene;
-import com.mbrlabs.mundus.editor.core.converter.GameObjectConverter;
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter;
 import com.mbrlabs.mundus.editor.core.io.IOManager;
 import com.mbrlabs.mundus.editor.core.registry.ProjectRef;
@@ -64,8 +62,6 @@ import org.pf4j.DefaultPluginManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * Manages Mundus projects and scenes.
@@ -478,13 +474,15 @@ public class ProjectManager implements Disposable {
     public EditorScene loadScene(ProjectContext context, String sceneName) throws FileNotFoundException {
         SceneDTO sceneDTO = SceneManager.loadScene(context, sceneName);
 
-        final OrderedMap<Component.Type, BiFunction<GameObject, OrderedMap<String, String>, Component>> customComponentsConverter = new OrderedMap<>();
+        final Array<CustomComponentConverter> customComponentConverters = new Array<>();
         pluginManager.getExtensions(ComponentExtension.class).forEach(it -> {
-            final BiFunction<GameObject, OrderedMap<String, String>, Component> function = it::loadComponentConfig;
-            customComponentsConverter.put(it.getComponentType(), function);
+            final CustomComponentConverter converter = it.getConverter();
+            if (converter != null) {
+                customComponentConverters.add(converter);
+            }
         });
 
-        EditorScene scene = SceneConverter.convert(sceneDTO, context.assetManager.getAssetMap(), customComponentsConverter);
+        EditorScene scene = SceneConverter.convert(sceneDTO, context.assetManager.getAssetMap(), customComponentConverters);
 
         // load skybox
         if (scene.skyboxAssetId != null && context.assetManager.getAssetMap().containsKey(scene.skyboxAssetId)) {

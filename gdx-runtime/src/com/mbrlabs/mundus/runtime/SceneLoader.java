@@ -25,6 +25,7 @@ import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
+import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
@@ -43,11 +44,13 @@ public class SceneLoader {
     private final AssetManager assetManager;
 
     private final FileHandle root;
+    private final CustomComponentConverter[] customComponentConverters;
 
-    public SceneLoader(Mundus mundus, FileHandle scenesRoot) {
+    public SceneLoader(Mundus mundus, FileHandle scenesRoot, CustomComponentConverter[] customComponentConverters) {
         this.mundus = mundus;
         this.assetManager = mundus.getAssetManager();
         this.root = scenesRoot;
+        this.customComponentConverters = customComponentConverters;
     }
 
     public Scene load(String name) {
@@ -56,7 +59,7 @@ public class SceneLoader {
         // Pass string using readString() instead of FileHandle to support GWT
         SceneDTO sceneDTO = json.fromJson(SceneDTO.class, root.child(name).readString());
 
-        Scene scene =  SceneConverter.convert(sceneDTO, mundus.getShaders(), assetManager);
+        Scene scene =  SceneConverter.convert(sceneDTO, mundus.getShaders(), assetManager, customComponentConverters);
 
         // Setup skybox
         if (scene.skyboxAssetId != null) {
