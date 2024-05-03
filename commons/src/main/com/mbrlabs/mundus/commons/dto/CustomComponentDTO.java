@@ -17,19 +17,18 @@
 package com.mbrlabs.mundus.commons.dto;
 
 import com.badlogic.gdx.utils.OrderedMap;
-import com.mbrlabs.mundus.commons.scene3d.components.Component;
 
 public class CustomComponentDTO {
 
-    private Component.Type componentType;
+    private String componentType;
 
     private OrderedMap<String, String> properties;
 
-    public Component.Type getComponentType() {
+    public String getComponentType() {
         return componentType;
     }
 
-    public void setComponentType(final Component.Type componentType) {
+    public void setComponentType(final String componentType) {
         this.componentType = componentType;
     }
 

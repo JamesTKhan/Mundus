@@ -90,11 +90,12 @@ public class GameObjectConverter {
         if (dto.getCustomComponents() != null) {
             for (int i = 0; i < dto.getCustomComponents().size; ++i) {
                 final CustomComponentDTO customComponentDTO = dto.getCustomComponents().get(i);
+                final Component.Type componentType = Component.Type.valueOf(customComponentDTO.getComponentType());
 
                 for (int ii = 0; ii < customComponentConverters.size; ++ii) {
                     final CustomComponentConverter converter = customComponentConverters.get(ii);
 
-                    if (customComponentDTO.getComponentType() == converter.getComponentType()) {
+                    if (componentType == converter.getComponentType()) {
                         final Component customComponent = converter.convert(go, customComponentDTO.getProperties());
 
                         if (customComponent != null) {
@@ -173,7 +174,7 @@ public class GameObjectConverter {
                             }
 
                             final CustomComponentDTO customComponentDTO = new CustomComponentDTO();
-                            customComponentDTO.setComponentType(c.getType());
+                            customComponentDTO.setComponentType(c.getType().name());
                             customComponentDTO.setProperties(customComponentProperties);
 
                             descriptor.getCustomComponents().add(customComponentDTO);
