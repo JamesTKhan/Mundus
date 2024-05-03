@@ -81,7 +81,7 @@ public class GameObjectConverter {
                 for (int ii = 0; ii < customComponentConverters.length; ++ii) {
                     final CustomComponentConverter converter = customComponentConverters[ii];
 
-                    if (customComponentDTO.getComponentType() == converter.getComponentType()) {
+                    if (customComponentDTO.getComponentType().equals(converter.getComponentType().name())) {
                         final Component component = converter.convert(go, customComponentDTO.getProperties());
 
                         if (component != null) {
