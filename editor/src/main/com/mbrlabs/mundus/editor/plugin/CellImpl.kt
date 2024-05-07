@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Align
 import com.mbrlabs.mundus.pluginapi.ui.WidgetAlign
 
-class CellImpl(vararg val cells: com.badlogic.gdx.scenes.scene2d.ui.Cell<out Actor>) : com.mbrlabs.mundus.pluginapi.ui.Cell {
+open class CellImpl(vararg val cells: com.badlogic.gdx.scenes.scene2d.ui.Cell<out Actor>) : com.mbrlabs.mundus.pluginapi.ui.Cell {
 
     override fun setAlign(align: WidgetAlign): com.mbrlabs.mundus.pluginapi.ui.Cell {
         when (align) {

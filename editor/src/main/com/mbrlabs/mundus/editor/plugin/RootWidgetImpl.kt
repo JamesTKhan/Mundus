@@ -21,6 +21,7 @@ import com.mbrlabs.mundus.pluginapi.ui.RootWidget
 import com.mbrlabs.mundus.pluginapi.ui.IntSpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.SpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.Cell
+import com.mbrlabs.mundus.pluginapi.ui.RootWidgetCell
 import com.mbrlabs.mundus.pluginapi.ui.SelectBoxListener
 
 class RootWidgetImpl : VisTable(), RootWidget {
@@ -123,6 +124,17 @@ class RootWidgetImpl : VisTable(), RootWidget {
 
     override fun addRow() {
         row()
+    }
+
+    override fun addEmptyWidget(): RootWidgetCell {
+        val emptyWidget = RootWidgetImpl()
+
+        val cell = add(emptyWidget)
+        return RootWidgetCellImpl(cell)
+    }
+
+    override fun clearWidgets() {
+        clear()
     }
 
     private fun <T> addSpinner(text: String, spinnerModel: SpinnerModel, listener: SpinnerListener<T>, getModelValue: () -> T): Cell {

@@ -134,4 +134,8 @@ public interface RootWidget {
      * Adds row.
      */
     void addRow();
+
+    RootWidgetCell addEmptyWidget();
+
+    void clearWidgets();
 }
