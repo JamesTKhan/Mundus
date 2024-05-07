@@ -57,6 +57,7 @@ import com.mbrlabs.mundus.pluginapi.PluginEventManager
 import com.mbrlabs.mundus.pluginapi.RenderExtension
 import com.mbrlabs.mundus.pluginapi.TerrainSceneExtension
 import com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent
+import com.mbrlabs.mundus.pluginapi.CustomShaderRenderExtension
 import com.mbrlabs.mundus.pluginapi.DisposeExtension
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
@@ -195,6 +196,16 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
                         scene.batch.end()
                         Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
                     }
+                }
+            }
+
+            pluginManager.getExtensions(CustomShaderRenderExtension::class.java).forEach {
+                try {
+                    it.render(scene.cam)
+                } catch (ex: Exception) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during plugin custom rendering! $ex"))
+                } finally {
+                    Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
                 }
             }
 
