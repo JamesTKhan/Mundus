@@ -110,8 +110,13 @@ class RootWidgetImpl : VisTable(), RootWidget {
     }
 
     override fun <T> addSelectBox(selectList: Array<T>, listener: SelectBoxListener<T>): Cell {
+        return addSelectBox(selectList, selectList.first(), listener)
+    }
+
+    override fun <T : Any?> addSelectBox(selectList: Array<T>, defaultValue: T, listener: SelectBoxListener<T>): Cell {
         val selectBox = VisSelectBox<T>()
         selectBox.items = selectList
+        selectBox.selected = defaultValue
         selectBox.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 listener.selected(selectBox.selected)
