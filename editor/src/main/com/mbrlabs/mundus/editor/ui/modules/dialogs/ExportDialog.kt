@@ -28,6 +28,7 @@ import com.mbrlabs.mundus.editor.exporter.Exporter
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.Toaster
+import org.pf4j.DefaultPluginManager
 
 /**
  * @author Marcus Brummer
@@ -42,6 +43,7 @@ class ExportDialog : VisDialog("Exporting") {
 
     private val projectManager: ProjectManager = Mundus.inject()
     private val ioManager: IOManager = Mundus.inject<IOManagerProvider>().ioManager
+    private val pluginManager: DefaultPluginManager = Mundus.inject()
 
     init {
         isModal = true
@@ -69,7 +71,7 @@ class ExportDialog : VisDialog("Exporting") {
 
         show(UI)
 
-        Exporter(ioManager, projectManager.current()).exportAsync(export.outputFolder, object: AsyncTaskListener {
+        Exporter(ioManager, projectManager.current(), pluginManager).exportAsync(export.outputFolder, object: AsyncTaskListener {
             private var error = false
 
             override fun progressChanged(newProgressPercent: Int) {

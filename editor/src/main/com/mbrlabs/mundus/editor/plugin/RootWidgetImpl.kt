@@ -4,9 +4,11 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisRadioButton
+import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel
 import com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel
@@ -19,6 +21,8 @@ import com.mbrlabs.mundus.pluginapi.ui.RootWidget
 import com.mbrlabs.mundus.pluginapi.ui.IntSpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.SpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.Cell
+import com.mbrlabs.mundus.pluginapi.ui.RootWidgetCell
+import com.mbrlabs.mundus.pluginapi.ui.SelectBoxListener
 
 class RootWidgetImpl : VisTable(), RootWidget {
 
@@ -105,8 +109,37 @@ class RootWidgetImpl : VisTable(), RootWidget {
         return CellImpl(cell)
     }
 
+    override fun <T> addSelectBox(selectList: Array<T>, listener: SelectBoxListener<T>): Cell {
+        return addSelectBox(selectList, selectList.first(), listener)
+    }
+
+    override fun <T : Any?> addSelectBox(selectList: Array<T>, defaultValue: T, listener: SelectBoxListener<T>): Cell {
+        val selectBox = VisSelectBox<T>()
+        selectBox.items = selectList
+        selectBox.selected = defaultValue
+        selectBox.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                listener.selected(selectBox.selected)
+            }
+        })
+
+        val cell = add(selectBox)
+        return CellImpl(cell)
+    }
+
     override fun addRow() {
         row()
+    }
+
+    override fun addEmptyWidget(): RootWidgetCell {
+        val emptyWidget = RootWidgetImpl()
+
+        val cell = add(emptyWidget)
+        return RootWidgetCellImpl(cell)
+    }
+
+    override fun clearWidgets() {
+        clear()
     }
 
     private fun <T> addSpinner(text: String, spinnerModel: SpinnerModel, listener: SpinnerListener<T>, getModelValue: () -> T): Cell {
