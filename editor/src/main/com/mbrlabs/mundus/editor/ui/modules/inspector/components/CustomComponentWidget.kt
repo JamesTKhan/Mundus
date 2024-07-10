@@ -15,7 +15,7 @@ class CustomComponentWidget<T : AbstractComponent>(
     }
 
     private fun setupUI(rootWidget: RootWidgetImpl) {
-        collapsibleContent.add(rootWidget).row()
+        collapsibleContent.add(rootWidget).grow().row()
     }
 
     override fun setValues(go: GameObject) {
