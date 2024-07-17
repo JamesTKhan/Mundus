@@ -10,10 +10,12 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisRadioButton
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel
 import com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel
 import com.kotcrab.vis.ui.widget.spinner.Spinner
 import com.kotcrab.vis.ui.widget.spinner.SpinnerModel
+import com.mbrlabs.mundus.pluginapi.ui.ButtonListener
 import com.mbrlabs.mundus.pluginapi.ui.CheckboxListener
 import com.mbrlabs.mundus.pluginapi.ui.FloatSpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.RadioButtonListener
@@ -29,6 +31,12 @@ class RootWidgetImpl : VisTable(), RootWidget {
     override fun addLabel(text: String): Cell {
         val label = VisLabel(text)
         val cell = add(label)
+        return CellImpl(cell)
+    }
+
+    override fun addTextButton(text: String, listener: ButtonListener): Cell {
+        val button = VisTextButton(text)
+        val cell = add(button)
         return CellImpl(cell)
     }
 

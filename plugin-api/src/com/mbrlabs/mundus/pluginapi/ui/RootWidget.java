@@ -31,6 +31,15 @@ public interface RootWidget {
     Cell addLabel(String text);
 
     /**
+     * Adds text button.
+     *
+     * @param text The ext of button.
+     * @param listener The listener for button.
+     * @return The created widget.
+     */
+    Cell addTextButton(String text, ButtonListener listener);
+
+    /**
      * Adds radio buttons. The first button will be selected.
      *
      * @param button1Text The text for first radio button.
