@@ -36,6 +36,12 @@ class RootWidgetImpl : VisTable(), RootWidget {
 
     override fun addTextButton(text: String, listener: ButtonListener): Cell {
         val button = VisTextButton(text)
+        button.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent, x: Float, y: Float) {
+                listener.clicked()
+            }
+        })
+
         val cell = add(button)
         return CellImpl(cell)
     }
