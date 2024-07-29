@@ -28,4 +28,8 @@ open class CellImpl(private vararg val cells: com.badlogic.gdx.scenes.scene2d.ui
 
         return this
     }
+
+    override fun delete() {
+        cells.forEach { it.actor.remove() }
+    }
 }
