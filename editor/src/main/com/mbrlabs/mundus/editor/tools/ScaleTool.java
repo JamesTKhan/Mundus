@@ -31,7 +31,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
@@ -176,13 +175,9 @@ public class ScaleTool extends TransformTool {
     public void act() {
         super.act();
         ProjectContext projectContext = getProjectManager().current();
-
         final GameObject selection = projectContext.currScene.currentSelection;
-        if(!isScalable(selection)) {
-            return;
-        }
 
-        if (selection!= null) {
+        if (selection != null) {
             translateHandles();
             scaleHandles();
 
@@ -249,12 +244,7 @@ public class ScaleTool extends TransformTool {
             super.touchDown(screenX, screenY, pointer, button);
         }
 
-        if(!isScalable(selection)) {
-            super.touchDown(screenX, screenY, pointer, button);
-            return false;
-        }
-
-        if (button == Input.Buttons.LEFT && projectContext.currScene.currentSelection != null) {
+        if (button == Input.Buttons.LEFT && selection != null) {
             ScaleHandle handle = (ScaleHandle) handlePicker.pick(handles, projectContext.currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
@@ -332,10 +322,6 @@ public class ScaleTool extends TransformTool {
         scaleHandles();
         rotateHandles();
         translateHandles();
-    }
-
-    private boolean isScalable(GameObject go) {
-        return go == null || go.findComponentByType(Component.Type.TERRAIN) == null;
     }
 
     @Override
