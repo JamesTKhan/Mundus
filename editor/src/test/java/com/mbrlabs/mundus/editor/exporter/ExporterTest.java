@@ -9,6 +9,7 @@ import com.mbrlabs.mundus.editor.core.kryo.KryoManager;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import org.junit.Before;
 import org.junit.Test;
+import org.pf4j.DefaultPluginManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
@@ -24,8 +25,9 @@ public class ExporterTest {
     public void setUp() {
         KryoManager manager = mock(KryoManager.class);
         ProjectContext context = mock(ProjectContext.class);
+        DefaultPluginManager pluginManager = mock(DefaultPluginManager.class);
 
-        exporter = new Exporter(manager, context);
+        exporter = new Exporter(manager, context, pluginManager);
     }
 
     @Test

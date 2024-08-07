@@ -25,6 +25,7 @@ import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
 import com.mbrlabs.mundus.commons.env.CameraSettings;
 import com.mbrlabs.mundus.commons.mapper.BaseLightConverter;
+import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter;
 import com.mbrlabs.mundus.commons.mapper.DirectionalLightConverter;
 import com.mbrlabs.mundus.commons.mapper.FogConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -42,7 +43,7 @@ public class SceneConverter {
     /**
      * Converts {@link SceneDTO} to {@link Scene}.
      */
-    public static Scene convert(SceneDTO dto, Shaders shaders, AssetManager assetManager) {
+    public static Scene convert(SceneDTO dto, Shaders shaders, AssetManager assetManager, CustomComponentConverter[] customComponentConverters) {
         Scene scene = new Scene();
 
         // meta
@@ -75,7 +76,7 @@ public class SceneConverter {
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);
         for (GameObjectDTO descriptor : dto.getGameObjects()) {
-            scene.sceneGraph.addGameObject(GameObjectConverter.convert(descriptor, scene.sceneGraph, shaders, assetManager));
+            scene.sceneGraph.addGameObject(GameObjectConverter.convert(descriptor, scene.sceneGraph, shaders, assetManager, customComponentConverters));
             scene.sceneGraph.setContainsWater(containsWaterComponent(scene.sceneGraph.getRoot()));
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2024. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,17 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.commons.scene3d.components;
+package com.mbrlabs.mundus.commons.mapper;
 
+import com.badlogic.gdx.utils.OrderedMap;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.mbrlabs.mundus.commons.scene3d.components.Component;
 
-/**
- * @author Marcus Brummer
- * @version 16-01-2016
- */
-public interface Component {
+public interface CustomComponentConverter {
 
-    enum Type {
-        MODEL, TERRAIN, LIGHT, PARTICLE_SYSTEM, WATER, CUSTOM_PROPERTIES, PHYSICS, NAVIGATION
-    }
+    Component.Type getComponentType();
 
-    GameObject getGameObject();
+    OrderedMap<String, String> convert(Component component);
 
-    void update(float delta);
-
-    Type getType();
-
-    void setType(Type type);
-
-    void remove();
-
-    Component clone(GameObject go);
+    Component convert(GameObject gameObject, OrderedMap<String, String> componentProperties);
 }
