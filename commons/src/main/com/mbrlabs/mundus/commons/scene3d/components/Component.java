@@ -25,7 +25,7 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
 public interface Component {
 
     enum Type {
-        MODEL, TERRAIN, LIGHT, PARTICLE_SYSTEM, WATER, CUSTOM_PROPERTIES, PHYSICS, NAVIGATION
+        MODEL, TERRAIN, LIGHT, PARTICLE_SYSTEM, WATER, CUSTOM_PROPERTIES, PHYSICS
     }
 
     GameObject getGameObject();
