@@ -155,7 +155,14 @@ public interface RootWidget {
      */
     void addRow();
 
+    /**
+     * Adds empty widget.
+     * @return The created empty widget.
+     */
     RootWidgetCell addEmptyWidget();
 
+    /**
+     * Clears the widget.
+     */
     void clearWidgets();
 }
