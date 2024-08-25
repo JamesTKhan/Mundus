@@ -15,6 +15,9 @@ import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel
 import com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel
 import com.kotcrab.vis.ui.widget.spinner.Spinner
 import com.kotcrab.vis.ui.widget.spinner.SpinnerModel
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.pluginapi.ui.ButtonListener
 import com.mbrlabs.mundus.pluginapi.ui.CheckboxListener
 import com.mbrlabs.mundus.pluginapi.ui.FloatSpinnerListener
@@ -38,7 +41,12 @@ class RootWidgetImpl : VisTable(), RootWidget {
         val button = VisTextButton(text)
         button.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
-                listener.clicked()
+                try {
+                    listener.clicked()
+                } catch (ex: Exception) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception in a plugin: $ex"))
+                    ex.printStackTrace()
+                }
             }
         })
 
@@ -115,7 +123,12 @@ class RootWidgetImpl : VisTable(), RootWidget {
         checkbox.isChecked = checked
         checkbox.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
-                listener.changed(checkbox.isChecked)
+                try {
+                    listener.changed(checkbox.isChecked)
+                } catch (ex: Exception) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception in a plugin: $ex"))
+                    ex.printStackTrace()
+                }
             }
         })
 
@@ -133,7 +146,12 @@ class RootWidgetImpl : VisTable(), RootWidget {
         selectBox.selected = defaultValue
         selectBox.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
-                listener.selected(selectBox.selected)
+                try {
+                    listener.selected(selectBox.selected)
+                } catch (ex: Exception) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception in a plugin: $ex"))
+                    ex.printStackTrace()
+                }
             }
         })
 
@@ -160,7 +178,12 @@ class RootWidgetImpl : VisTable(), RootWidget {
         val spinner = Spinner(text, spinnerModel)
         spinner.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
-                listener.changed(getModelValue())
+                try {
+                    listener.changed(getModelValue())
+                } catch (ex: Exception) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception in a plugin: $ex"))
+                    ex.printStackTrace()
+                }
             }
         })
 
