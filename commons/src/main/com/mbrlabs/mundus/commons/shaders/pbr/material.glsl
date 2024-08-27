@@ -111,8 +111,7 @@ vec4 triplanar(sampler2D diffuseTexture, vec3 triblend, vec3 v_position)
 #define getColor nonTriplanar
 vec4 nonTriplanar(sampler2D diffuseTexture, vec2 coord, vec3 v_position)
 {
-    vec4 asd = texture2D(diffuseTexture, coord);
-    return asd;
+    return texture2D(diffuseTexture, coord);
 }
 #endif
 
