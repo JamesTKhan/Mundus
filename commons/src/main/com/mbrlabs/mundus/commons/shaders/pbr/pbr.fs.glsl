@@ -17,6 +17,9 @@
 
 varying float v_clipDistance;
 
+uniform int u_activeNumPointLights;
+uniform int u_activeNumSpotLights;
+
 #ifdef unlitFlag
 
 void main() {
@@ -204,6 +207,7 @@ void main() {
 #if (numPointLights > 0)
     // Point lights calculation
     for(int i=0 ; i<numPointLights ; i++){
+        if (i >= u_activeNumPointLights){break;}
     	PBRLightContribs contrib = getPointLightContribution(pbrSurface, u_pointLights[i]);
     	f_diffuse += contrib.diffuse;
     	f_specular += contrib.specular;
@@ -214,6 +218,7 @@ void main() {
 #if (numSpotLights > 0)
     // Spot lights calculation
     for(int i=0 ; i<numSpotLights ; i++){
+        if (i >= u_activeNumSpotLights){break;}
     	PBRLightContribs contrib = getSpotLightContribution(pbrSurface, u_spotLights[i]);
     	f_diffuse += contrib.diffuse;
     	f_specular += contrib.specular;
