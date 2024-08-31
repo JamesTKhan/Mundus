@@ -5,8 +5,8 @@
 #ifdef iridescenceFlag
 #include <iridescence.glsl>
 #endif
-#include <material.glsl>
 #include <env.glsl>
+#include <material.glsl>
 #ifndef unlitFlag
 #include <lights.glsl>
 #include <shadows.glsl>
@@ -72,7 +72,7 @@ void main() {
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
     vec4 baseColor = getBaseColor();
-    
+
 #ifdef iorFlag
     vec3 f0 = vec3(pow(( u_ior - 1.0) /  (u_ior + 1.0), 2.0));
 #else
