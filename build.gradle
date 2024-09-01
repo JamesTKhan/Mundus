@@ -35,6 +35,7 @@ allprojects {
         commonsLangVersion = '3.12.0'
         gltfVersion = '2.2.1'
         args4jVersion = '2.33'
+        pf4jVersion = '3.11.0'
 
         ktxVersion = '1.12.0-rc1'
     }
@@ -63,12 +64,22 @@ project(":commons") {
     }
 }
 
+project(":editor-commons") {
+    apply plugin: "java"
+    apply plugin: "java-library"
+
+    dependencies {
+        api project(":commons")
+    }
+}
+
 project(":editor") {
     apply plugin: "java"
     apply plugin: "kotlin"
 
     dependencies {
         api project(":commons")
+        api project(":editor-commons")
 
         // Kotlin libs
         implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
@@ -85,6 +96,10 @@ project(":editor") {
         // commons
         implementation "org.apache.commons:commons-lang3:$commonsLangVersion"
         implementation "commons-io:commons-io:$commonsIoVersion"
+
+        // Plugin framework
+        implementation "org.pf4j:pf4j:$pf4jVersion"
+        api project(":plugin-api")
 
         // other
         implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
@@ -104,6 +119,18 @@ project(":gdx-runtime") {
 
     dependencies {
         api project(":commons")
+    }
+}
+
+project(":plugin-api") {
+    apply plugin: "java"
+    apply plugin: "java-library"
+
+    dependencies {
+        api project(":editor-commons")
+
+        // Plugin framework
+        api "org.pf4j:pf4j:$pf4jVersion"
     }
 }
 

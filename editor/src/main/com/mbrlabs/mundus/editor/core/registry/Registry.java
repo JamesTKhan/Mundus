@@ -38,6 +38,7 @@ public class Registry {
     public static final String HOME_DIR = FilenameUtils.concat(FileUtils.getUserDirectoryPath(), ".mundus/");
     public static final String LOGS_DIR = FilenameUtils.concat(HOME_DIR, "logs/");
     public static final String TEMP_DIR = FilenameUtils.concat(HOME_DIR, "temp/");
+    public static final String PLUGINS_DIR = FilenameUtils.concat(HOME_DIR, "plugins/");
     public static final String HOME_DATA_FILE = FilenameUtils.concat(HOME_DIR, "mundus.registry");
 
     private List<ProjectRef> projects;

@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.editor.events;
 
+import com.mbrlabs.mundus.editorcommons.Subscribe;
 import org.junit.Assert;
 import org.junit.Test;
 
