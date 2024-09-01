@@ -33,7 +33,7 @@ allprojects {
         mockitoVersion = '1.10.19'
         commonsIoVersion = '2.5'
         commonsLangVersion = '3.12.0'
-        gltfVersion = '2.1.0'
+        gltfVersion = '2.2.1'
         args4jVersion = '2.33'
         pf4jVersion = '3.11.0'
 
