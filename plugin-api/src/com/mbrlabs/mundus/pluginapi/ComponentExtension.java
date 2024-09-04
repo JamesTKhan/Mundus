@@ -24,13 +24,32 @@ import org.pf4j.ExtensionPoint;
 
 public interface ComponentExtension extends ExtensionPoint {
 
+    /**
+     * @return The component type what the plugin use.
+     */
     Component.Type getComponentType();
 
+    /**
+     * @return The component name.
+     */
     String getComponentName();
 
+    /**
+     * @param gameObject The game object.
+     * @return The created component for given game object.
+     */
     Component createComponent(GameObject gameObject);
 
+    /**
+     * Setups widget for custom component for Inspector.
+     *
+     * @param component The component.
+     * @param rootWidget The root widget.
+     */
     void setupComponentInspectorWidget(Component component, RootWidget rootWidget);
 
+    /**
+     * @return The converter for load and save properties for custom component.
+     */
     CustomComponentConverter getConverter();
 }
