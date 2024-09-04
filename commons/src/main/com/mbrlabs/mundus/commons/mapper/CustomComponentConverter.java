@@ -22,9 +22,25 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component;
 
 public interface CustomComponentConverter {
 
+    /**
+     * @return The component type of custom component.
+     */
     Component.Type getComponentType();
 
+    /**
+     * Converts component into map for persisting.
+     *
+     * @param component The component.
+     * @return The map.
+     */
     OrderedMap<String, String> convert(Component component);
 
+    /**
+     * Converts map into custom component.
+     *
+     * @param gameObject The game object.
+     * @param componentProperties The properties of custom component.
+     * @return The custom component.
+     */
     Component convert(GameObject gameObject, OrderedMap<String, String> componentProperties);
 }
