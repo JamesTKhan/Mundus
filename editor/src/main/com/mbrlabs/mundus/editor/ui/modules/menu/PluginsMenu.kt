@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.kotcrab.vis.ui.widget.Menu
 import com.kotcrab.vis.ui.widget.MenuItem
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.events.PluginsLoadedEvent
@@ -28,7 +29,6 @@ import com.mbrlabs.mundus.editor.plugin.RootWidgetImpl
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.BaseDialog
 import com.mbrlabs.mundus.pluginapi.MenuExtension
-import org.pf4j.DefaultPluginManager
 
 class PluginsMenu : Menu("Plugins"), PluginsLoadedEvent.PluginsLoadedEventListener{
 
@@ -36,7 +36,7 @@ class PluginsMenu : Menu("Plugins"), PluginsLoadedEvent.PluginsLoadedEventListen
         const val NO_PLUGINS_LOADED_TEXT = "No Plugins Loaded"
     }
 
-    private val pluginManager = Mundus.inject<DefaultPluginManager>()
+    private val pluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
 
     init {
         Mundus.registerEventListener(this)

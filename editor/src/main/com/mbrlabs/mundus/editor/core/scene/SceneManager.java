@@ -26,9 +26,9 @@ import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter;
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
-import com.mbrlabs.mundus.pluginapi.ComponentExtension;
+import com.mbrlabs.mundus.editor.utils.PluginUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.pf4j.DefaultPluginManager;
+import org.pf4j.PluginManager;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -44,16 +44,10 @@ public class SceneManager {
      * @param context project context of the scene
      * @param scene scene to save
      */
-    public static void saveScene(ProjectContext context, Scene scene, DefaultPluginManager pluginManager) {
+    public static void saveScene(ProjectContext context, Scene scene, PluginManager pluginManager) {
         String sceneDir = getScenePath(context, scene.getName());
 
-        final Array<CustomComponentConverter> customComponentConverters = new Array<>();
-        pluginManager.getExtensions(ComponentExtension.class).forEach(it -> {
-            final CustomComponentConverter converter = it.getConverter();
-            if (converter != null) {
-                customComponentConverters.add(converter);
-            }
-        });
+        final Array<CustomComponentConverter> customComponentConverters = PluginUtils.INSTANCE.getCustomComponentConverters(pluginManager);
 
         SceneDTO sceneDTO = SceneConverter.convert(scene, customComponentConverters);
         FileHandle saveFile = Gdx.files.absolute(sceneDir);

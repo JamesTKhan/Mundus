@@ -17,6 +17,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent
 import com.mbrlabs.mundus.commons.utils.LightUtils
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.ComponentAddedEvent
 import com.mbrlabs.mundus.editor.events.LogEvent
@@ -24,7 +25,6 @@ import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.scene3d.components.PickableLightComponent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.pluginapi.ComponentExtension
-import org.pf4j.DefaultPluginManager
 
 class AddComponentDialog : BaseDialog("Add Component") {
 
@@ -40,7 +40,7 @@ class AddComponentDialog : BaseDialog("Add Component") {
     private var addBtn = VisTextButton("Add Component")
 
     private val projectManager: ProjectManager = Mundus.inject()
-    private val pluginManager = Mundus.inject<DefaultPluginManager>()
+    private val pluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
 
     init {
         setupUI()

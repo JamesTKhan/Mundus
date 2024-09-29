@@ -23,12 +23,13 @@ import com.kotcrab.vis.ui.widget.VisProgressBar
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.io.IOManager
 import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.exporter.Exporter
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.Toaster
-import org.pf4j.DefaultPluginManager
+import org.pf4j.PluginManager
 
 /**
  * @author Marcus Brummer
@@ -43,7 +44,7 @@ class ExportDialog : VisDialog("Exporting") {
 
     private val projectManager: ProjectManager = Mundus.inject()
     private val ioManager: IOManager = Mundus.inject<IOManagerProvider>().ioManager
-    private val pluginManager: DefaultPluginManager = Mundus.inject()
+    private val pluginManager: PluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
 
     init {
         isModal = true

@@ -55,9 +55,9 @@ import com.mbrlabs.mundus.editor.scene3d.components.PickableComponent;
 import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.ui.UI;
 import com.mbrlabs.mundus.editor.utils.Log;
+import com.mbrlabs.mundus.editor.utils.PluginUtils;
 import com.mbrlabs.mundus.editor.utils.SkyboxBuilder;
-import com.mbrlabs.mundus.pluginapi.ComponentExtension;
-import org.pf4j.DefaultPluginManager;
+import org.pf4j.PluginManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -85,9 +85,9 @@ public class ProjectManager implements Disposable {
     private IOManager ioManager;
     private ModelBatch modelBatch;
     private ModelBatch depthBatch;
-    private DefaultPluginManager pluginManager;
+    private PluginManager pluginManager;
 
-    public ProjectManager(IOManager ioManager, Registry registry, ModelBatch modelBatch, DefaultPluginManager pluginManager) {
+    public ProjectManager(IOManager ioManager, Registry registry, ModelBatch modelBatch, PluginManager pluginManager) {
         this.registry = registry;
         this.ioManager = ioManager;
         this.modelBatch = modelBatch;
@@ -474,13 +474,7 @@ public class ProjectManager implements Disposable {
     public EditorScene loadScene(ProjectContext context, String sceneName) throws FileNotFoundException {
         SceneDTO sceneDTO = SceneManager.loadScene(context, sceneName);
 
-        final Array<CustomComponentConverter> customComponentConverters = new Array<>();
-        pluginManager.getExtensions(ComponentExtension.class).forEach(it -> {
-            final CustomComponentConverter converter = it.getConverter();
-            if (converter != null) {
-                customComponentConverters.add(converter);
-            }
-        });
+        final Array<CustomComponentConverter> customComponentConverters = PluginUtils.INSTANCE.getCustomComponentConverters(pluginManager);
 
         EditorScene scene = SceneConverter.convert(sceneDTO, context.assetManager.getAssetMap(), customComponentConverters);
 

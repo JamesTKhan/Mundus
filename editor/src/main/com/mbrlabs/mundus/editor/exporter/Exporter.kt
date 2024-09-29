@@ -34,30 +34,23 @@ import com.mbrlabs.mundus.editor.core.io.IOManager
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.scene.SceneManager
-import com.mbrlabs.mundus.pluginapi.ComponentExtension
+import com.mbrlabs.mundus.editor.utils.PluginUtils
 import org.apache.commons.io.FilenameUtils
-import org.pf4j.DefaultPluginManager
+import org.pf4j.PluginManager
 import java.io.File
 import java.io.Writer
-import java.util.function.Consumer
 
 /**
  * @author Marcus Brummer
  * @version 26-10-2016
  */
-class Exporter(val ioManager: IOManager, val project: ProjectContext, val pluginManager: DefaultPluginManager) {
+class Exporter(val ioManager: IOManager, val project: ProjectContext, val pluginManager: PluginManager) {
 
     /**
      *
      */
     fun exportAsync(outputFolder: FileHandle, listener: AsyncTaskListener) {
-        val customComponentConverters = Array<CustomComponentConverter>()
-        pluginManager.getExtensions(ComponentExtension::class.java).forEach(Consumer { it: ComponentExtension ->
-            val converter = it.converter
-            if (converter != null) {
-                customComponentConverters.add(converter)
-            }
-        })
+        val customComponentConverters = PluginUtils.getCustomComponentConverters(pluginManager)
 
         // convert current project on the main thread to avoid nested array iterators
         // because it would iterate over the scene graph arrays while rendering (on the main thread)

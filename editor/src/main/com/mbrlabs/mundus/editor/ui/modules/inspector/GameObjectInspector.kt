@@ -31,6 +31,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.plugin.RootWidgetImpl
@@ -45,7 +46,6 @@ import com.mbrlabs.mundus.editor.ui.modules.inspector.components.TransformWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.TerrainComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.WaterComponentWidget
 import com.mbrlabs.mundus.pluginapi.ComponentExtension
-import org.pf4j.DefaultPluginManager
 
 /**
  * @author Marcus Brummer
@@ -53,7 +53,7 @@ import org.pf4j.DefaultPluginManager
  */
 class GameObjectInspector : VisTable() {
 
-    private val pluginManager = Mundus.inject<DefaultPluginManager>()
+    private val pluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
 
     private val identifierWidget = IdentifierWidget()
     private val transformWidget = TransformWidget()

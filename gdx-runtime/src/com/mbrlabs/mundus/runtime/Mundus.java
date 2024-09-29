@@ -92,6 +92,7 @@ public class Mundus implements Disposable {
      *
      * @param mundusRoot FileHandle to the root directory of the Mundus project to load
      * @param config the configuration to use
+     * @param customComponentConverters the converters for custom components. these fields are optional / nullable
      */
     public Mundus(final FileHandle mundusRoot, Config config, CustomComponentConverter... customComponentConverters) {
         this.root = mundusRoot;

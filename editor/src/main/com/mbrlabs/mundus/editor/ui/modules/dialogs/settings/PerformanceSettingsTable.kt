@@ -6,13 +6,14 @@ import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.scene.SceneManager
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
-import org.pf4j.DefaultPluginManager
+import org.pf4j.PluginManager
 
 /**
  * @author JamesTKhan
@@ -21,7 +22,7 @@ import org.pf4j.DefaultPluginManager
 class PerformanceSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChangedListener, SceneChangedEvent.SceneChangedListener {
 
     private val projectManager: ProjectManager = Mundus.inject()
-    private val pluginManager: DefaultPluginManager = Mundus.inject()
+    private val pluginManager: PluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
 
     private val frustumCullingChkBox = VisCheckBox(null)
 
