@@ -265,16 +265,22 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
      * @param type the Component Type to search for
      * @return Array of all matching GameObjects
      */
+
     public Array<GameObject> findChildrenByComponent(Component.Type type) {
-        Array<GameObject> objects = new Array<>();
+
+        return findChildrenByComponent(type, new Array<GameObject>());
+    }
+
+    public Array<GameObject> findChildrenByComponent(Component.Type type, Array<GameObject> array) {
+
         for (GameObject go : this) {
             Component component = go.findComponentByType(type);
             if (component != null) {
-                objects.add(go);
+                array.add(go);
             }
         }
 
-        return objects;
+        return array;
     }
 
     /**
@@ -284,7 +290,12 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
      * @return Array of all matching GameObjects
      */
     public Array<GameObject> findChildrenByTag(String tag) {
-        Array<GameObject> objects = new Array<>();
+
+        return findChildrenByTag(tag, new Array<GameObject>());
+    }
+
+    public Array<GameObject> findChildrenByTag(String tag, Array<GameObject> objects) {
+
         for (GameObject go : this) {
             if (go.tags != null && go.tags.contains(tag, false)) {
                 objects.add(go);
