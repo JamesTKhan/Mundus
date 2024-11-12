@@ -16,15 +16,10 @@
 
 package com.mbrlabs.mundus.pluginapi;
 
-import com.mbrlabs.mundus.pluginapi.manager.PluginEventManager;
+import com.mbrlabs.mundus.pluginapi.manager.AssetManager;
 import org.pf4j.ExtensionPoint;
 
-public interface EventExtension extends ExtensionPoint {
+public interface AssetExtension extends ExtensionPoint {
 
-    /**
-     * Here can register events via plugin event manager.
-     *
-     * @param pluginEventManager The plugin event manager.
-     */
-    void manageEvents(PluginEventManager pluginEventManager);
+    void assetManager(AssetManager assetManager);
 }

@@ -43,6 +43,7 @@ import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.input.FreeCamController
 import com.mbrlabs.mundus.editor.input.InputManager
 import com.mbrlabs.mundus.editor.input.ShortcutController
+import com.mbrlabs.mundus.editor.plugin.AssetManagerImpl
 import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
 import com.mbrlabs.mundus.editor.shader.EditorShaderProvider
@@ -54,10 +55,11 @@ import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
 import com.mbrlabs.mundus.pluginapi.EventExtension
-import com.mbrlabs.mundus.pluginapi.PluginEventManager
+import com.mbrlabs.mundus.pluginapi.manager.PluginEventManager
 import com.mbrlabs.mundus.pluginapi.RenderExtension
 import com.mbrlabs.mundus.pluginapi.TerrainSceneExtension
 import com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent
+import com.mbrlabs.mundus.pluginapi.AssetExtension
 import com.mbrlabs.mundus.pluginapi.CustomShaderRenderExtension
 import com.mbrlabs.mundus.pluginapi.DisposeExtension
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
@@ -318,12 +320,24 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         pluginManager.plugins.forEach { Mundus.postEvent(LogEvent("Plugin loaded: ${it.pluginId}")) }
 
         // Setup event handling in plugins
-        val pluginEventManager = PluginEventManager { listener -> Mundus.registerEventListener(listener) }
+        val pluginEventManager =
+            PluginEventManager { listener ->
+                Mundus.registerEventListener(listener)
+            }
         pluginManager.getExtensions(EventExtension::class.java).forEach {
             try {
                 it.manageEvents(pluginEventManager)
             } catch (ex: Exception) {
                 Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during manage plugin events! $ex"))
+            }
+        }
+
+        // Setup asset manager for plugins
+        pluginManager.getExtensions(AssetExtension::class.java).forEach {
+            try {
+                it.assetManager(AssetManagerImpl())
+            } catch (ex: Exception) {
+                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during passing asset manager! $ex"))
             }
         }
 

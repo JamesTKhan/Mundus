@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.pluginapi;
+package com.mbrlabs.mundus.editor.plugin
 
-import com.mbrlabs.mundus.pluginapi.manager.PluginEventManager;
-import org.pf4j.ExtensionPoint;
+import com.badlogic.gdx.Gdx
+import com.mbrlabs.mundus.pluginapi.manager.AssetManager
 
-public interface EventExtension extends ExtensionPoint {
-
-    /**
-     * Here can register events via plugin event manager.
-     *
-     * @param pluginEventManager The plugin event manager.
-     */
-    void manageEvents(PluginEventManager pluginEventManager);
+class AssetManagerImpl : AssetManager {
+    override fun createNewAsset() {
+        // TODO implement later
+        Gdx.app.log("", "Create new asset")
+    }
 }

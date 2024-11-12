@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.pluginapi;
+package com.mbrlabs.mundus.pluginapi.manager;
 
-import com.mbrlabs.mundus.pluginapi.manager.PluginEventManager;
-import org.pf4j.ExtensionPoint;
-
-public interface EventExtension extends ExtensionPoint {
+public interface AssetManager {
 
     /**
-     * Here can register events via plugin event manager.
-     *
-     * @param pluginEventManager The plugin event manager.
+     * Creates new asset.
      */
-    void manageEvents(PluginEventManager pluginEventManager);
+    void createNewAsset();
 }
