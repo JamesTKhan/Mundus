@@ -269,6 +269,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
         return findChildrenByComponent(type, new Array<GameObject>());
     }
+
     /**
      * Returns an Array of all child GameObjects that have the given Component.Type
      *
@@ -298,6 +299,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
 
         return findChildrenByTag(tag, new Array<GameObject>());
     }
+
     /**
      * Returns an Array of all child GameObjects that have the given Tag
      *

@@ -9,7 +9,8 @@
 - Generic findComponentsByType and findComponentByType methods
 - Fix render water if it is child game object
 - Update gdx-gltf version to 2.2.1
-- Add 'getRayIntersection(Vector3, Ray)' method to TerrainComponent
+- Add findChildrenByComponent(Component.Type type, Array<GameObject> objects)
+- Add findChildrenByTag(String tag, Array<GameObject> objects)
 
 [0.5.1] ~ 08/08/2023
 - Updated libGDX to 1.12.0
