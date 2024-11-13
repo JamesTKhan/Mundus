@@ -9,7 +9,7 @@
 - Generic findComponentsByType and findComponentByType methods
 - Fix render water if it is child game object
 - Update gdx-gltf version to 2.2.1
-- Add findChildrenByComponent(Component.Type, Array<GameObject> objects) and findChildrenByTag(String, Array<GameObject> objects) methods into GameObject file
+- Add findChildrenByComponent(Component.Type, Array<GameObject>) and findChildrenByTag(String, Array<GameObject>) methods into GameObject file
 
 [0.5.1] ~ 08/08/2023
 - Updated libGDX to 1.12.0
