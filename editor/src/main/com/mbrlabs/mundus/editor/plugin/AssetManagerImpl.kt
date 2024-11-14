@@ -16,12 +16,17 @@
 
 package com.mbrlabs.mundus.editor.plugin
 
-import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.files.FileHandle
+import com.mbrlabs.mundus.commons.assets.CustomAsset
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.assets.EditorAssetManager
 import com.mbrlabs.mundus.pluginapi.manager.AssetManager
 
 class AssetManagerImpl : AssetManager {
-    override fun createNewAsset() {
-        // TODO implement later
-        Gdx.app.log("", "Create new asset")
+
+    private val assetManager: EditorAssetManager = Mundus.inject()
+
+    override fun createNewAsset(file: FileHandle): CustomAsset {
+        return assetManager.createCustomAsset(file)
     }
 }

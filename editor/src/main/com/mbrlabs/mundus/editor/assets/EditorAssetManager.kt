@@ -28,6 +28,7 @@ import com.kotcrab.vis.ui.util.dialog.Dialogs
 import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.AssetManager
 import com.mbrlabs.mundus.commons.assets.AssetType
+import com.mbrlabs.mundus.commons.assets.CustomAsset
 import com.mbrlabs.mundus.commons.assets.MaterialAsset
 import com.mbrlabs.mundus.commons.assets.ModelAsset
 import com.mbrlabs.mundus.commons.assets.PixmapTextureAsset
@@ -517,6 +518,18 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         val importedAssetFile = copyToAssetFolder(material)
 
         val asset = MaterialAsset(meta, importedAssetFile)
+        asset.load()
+
+        addAsset(asset)
+        return asset
+    }
+
+    @Throws(IOException::class, AssetAlreadyExistsException::class)
+    fun createCustomAsset(file: FileHandle): CustomAsset {
+        val meta = createMetaFileFromAsset(file, AssetType.CUSTOM)
+        val importedAssetFile = copyToAssetFolder(file)
+
+        val asset = CustomAsset(meta, importedAssetFile)
         asset.load()
 
         addAsset(asset)

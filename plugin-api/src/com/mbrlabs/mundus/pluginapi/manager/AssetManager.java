@@ -16,10 +16,15 @@
 
 package com.mbrlabs.mundus.pluginapi.manager;
 
+import com.badlogic.gdx.files.FileHandle;
+import com.mbrlabs.mundus.commons.assets.CustomAsset;
+
 public interface AssetManager {
 
     /**
      * Creates new asset.
+     *
+     * @param file The file for asset.
      */
-    void createNewAsset();
+    CustomAsset createNewAsset(FileHandle file);
 }
