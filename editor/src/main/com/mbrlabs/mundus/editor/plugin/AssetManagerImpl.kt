@@ -20,6 +20,7 @@ import com.badlogic.gdx.files.FileHandle
 import com.mbrlabs.mundus.commons.assets.CustomAsset
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.pluginapi.manager.AssetManager
 
 class AssetManagerImpl : AssetManager {
@@ -28,6 +29,8 @@ class AssetManagerImpl : AssetManager {
 
     override fun createNewAsset(file: FileHandle): CustomAsset {
         val assetManager = projectManager.current().assetManager
-        return assetManager.createCustomAsset(file)
+        val customAsset = assetManager.createCustomAsset(file)
+        Mundus.postEvent(AssetImportEvent(customAsset))
+        return customAsset
     }
 }
