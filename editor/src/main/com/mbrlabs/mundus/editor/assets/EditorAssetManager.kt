@@ -552,6 +552,8 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
             saveWaterAsset(asset)
         } else if (asset is SkyboxAsset) {
             saveSkyboxAsset(asset)
+        } else if (asset is CustomAsset) {
+            saveCustomAsset(asset)
         }
         // TODO other assets ?
     }
@@ -898,6 +900,11 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
         fileOutputStream.flush()
         fileOutputStream.close()
 
+        // save meta file
+        metaSaver.save(asset.meta)
+    }
+
+    private fun saveCustomAsset(asset: CustomAsset) {
         // save meta file
         metaSaver.save(asset.meta)
     }
