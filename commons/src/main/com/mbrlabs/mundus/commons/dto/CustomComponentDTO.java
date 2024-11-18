@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.dto;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.OrderedMap;
 
 public class CustomComponentDTO {
@@ -23,6 +24,8 @@ public class CustomComponentDTO {
     private String componentType;
 
     private OrderedMap<String, String> properties;
+
+    private Array<String> assetIds;
 
     public String getComponentType() {
         return componentType;
@@ -38,5 +41,13 @@ public class CustomComponentDTO {
 
     public void setProperties(final OrderedMap<String, String> properties) {
         this.properties = properties;
+    }
+
+    public Array<String> getAssetIds() {
+        return assetIds;
+    }
+
+    public void setAssetIds(final Array<String> assetIds) {
+        this.assetIds = assetIds;
     }
 }
