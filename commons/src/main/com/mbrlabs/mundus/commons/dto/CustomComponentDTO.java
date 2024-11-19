@@ -18,8 +18,11 @@ package com.mbrlabs.mundus.commons.dto;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.OrderedMap;
+import com.mbrlabs.mundus.commons.assets.Asset;
 
-public class CustomComponentDTO {
+import java.util.Map;
+
+public class CustomComponentDTO implements AssetUsageDTO {
 
     private String componentType;
 
@@ -49,5 +52,20 @@ public class CustomComponentDTO {
 
     public void setAssetIds(final Array<String> assetIds) {
         this.assetIds = assetIds;
+    }
+
+    @Override
+    public boolean usesAsset(final Asset assetToCheck, final Map<String, Asset> assetMap) {
+        if (assetIds == null) {
+            return false;
+        }
+
+        for (int i = 0; i < assetIds.size; ++i) {
+            if (assetToCheck.getID().equals(assetIds.get(i))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
