@@ -11,7 +11,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
  * @version June 01, 2022
  */
 class LightGizmo(private var lightComponent: LightComponent) : Gizmo() {
-    override lateinit var decal: Decal
+    override var decal: Decal
 
     init {
         val region = TextureRegion(Texture(Gdx.files.internal("icon/gizmos/lightbulb-icon.png")))
