@@ -4,8 +4,8 @@ apply plugin: "maven-publish"
 group = 'com.github.jamestkhan.mundus'
 version = '0.5.1'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 sourceSets.main.java.srcDirs = ["src/main"]
