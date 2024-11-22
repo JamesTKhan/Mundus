@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2024. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.events
+package com.mbrlabs.mundus.editorcommons.events;
 
-import com.mbrlabs.mundus.editorcommons.Subscribe
+import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.editorcommons.Subscribe;
 
-/**
- * @author Marcus Brummer
- * @version 21-01-2016
- */
-class SceneChangedEvent {
+public class SceneChangedEvent {
 
-    interface SceneChangedListener {
-        @Subscribe
-        fun onSceneChanged(event: SceneChangedEvent)
+    private final SceneGraph sceneGraph;
+
+    public SceneChangedEvent(final SceneGraph sceneGraph) {
+        this.sceneGraph = sceneGraph;
     }
 
+    public SceneGraph getSceneGraph() {
+        return sceneGraph;
+    }
+
+    public interface SceneChangedListener {
+
+        @Subscribe
+        void onSceneChanged(SceneChangedEvent event);
+    }
 }

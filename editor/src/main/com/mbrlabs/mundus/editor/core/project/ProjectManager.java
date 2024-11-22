@@ -49,14 +49,14 @@ import com.mbrlabs.mundus.editor.core.registry.Registry;
 import com.mbrlabs.mundus.editor.core.scene.SceneManager;
 import com.mbrlabs.mundus.editor.events.LogEvent;
 import com.mbrlabs.mundus.editor.events.LogType;
-import com.mbrlabs.mundus.editor.events.ProjectChangedEvent;
-import com.mbrlabs.mundus.editor.events.SceneChangedEvent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableComponent;
 import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.ui.UI;
 import com.mbrlabs.mundus.editor.utils.Log;
 import com.mbrlabs.mundus.editor.utils.PluginUtils;
 import com.mbrlabs.mundus.editor.utils.SkyboxBuilder;
+import com.mbrlabs.mundus.editorcommons.events.ProjectChangedEvent;
+import com.mbrlabs.mundus.editorcommons.events.SceneChangedEvent;
 import org.pf4j.PluginManager;
 
 import java.io.File;
@@ -431,7 +431,7 @@ public class ProjectManager implements Disposable {
         ioManager.saveRegistry(registry);
 
         Gdx.graphics.setTitle(constructWindowTitle());
-        Mundus.INSTANCE.postEvent(new ProjectChangedEvent(context));
+        Mundus.INSTANCE.postEvent(new ProjectChangedEvent(context.currScene.sceneGraph));
         currentProject.currScene.onLoaded();
     }
 
@@ -520,7 +520,7 @@ public class ProjectManager implements Disposable {
             projectContext.currScene = newScene;
 
             Gdx.graphics.setTitle(constructWindowTitle());
-            Mundus.INSTANCE.postEvent(new SceneChangedEvent());
+            Mundus.INSTANCE.postEvent(new SceneChangedEvent(projectContext.currScene.sceneGraph));
             projectContext.currScene.onLoaded();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

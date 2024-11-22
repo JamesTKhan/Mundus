@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2024. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.editor.events
+package com.mbrlabs.mundus.editorcommons.events;
 
-import com.mbrlabs.mundus.editor.core.project.ProjectContext
-import com.mbrlabs.mundus.editorcommons.Subscribe
+import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.editorcommons.Subscribe;
 
-/**
- * @author Marcus Brummer
- * @version 24-12-2015
- */
-class ProjectChangedEvent(val projectContext: ProjectContext) {
+public class ProjectChangedEvent {
 
-    interface ProjectChangedListener {
-        @Subscribe
-        fun onProjectChanged(event: ProjectChangedEvent)
+    private final SceneGraph sceneGraph;
+
+    public ProjectChangedEvent(final SceneGraph sceneGraph) {
+        this.sceneGraph = sceneGraph;
     }
 
+    public SceneGraph getSceneGraph() {
+        return sceneGraph;
+    }
+
+    public interface ProjectChangedListener {
+
+        @Subscribe
+        void onProjectChanged(ProjectChangedEvent event);
+    }
 }
