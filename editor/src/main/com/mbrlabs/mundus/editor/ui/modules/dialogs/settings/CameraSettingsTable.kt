@@ -27,6 +27,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.kotcrab.vis.ui.widget.VisTextField
 import com.mbrlabs.mundus.commons.env.CameraSettings
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.scene.SceneManager
 import com.mbrlabs.mundus.editor.events.LogEvent
@@ -34,6 +35,7 @@ import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editor.events.SceneChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
+import org.pf4j.PluginManager
 
 /**
  * @author JamesTKhan
@@ -42,6 +44,7 @@ import com.mbrlabs.mundus.editor.ui.UI
 class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChangedListener, SceneChangedEvent.SceneChangedListener {
 
     private val projectManager: ProjectManager = Mundus.inject()
+    private val pluginManager: PluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
 
     private val nearPlane = VisTextField("0")
     private val farPlane = VisTextField("0")
@@ -153,7 +156,7 @@ class CameraSettingsTable : BaseSettingsTable(), ProjectChangedEvent.ProjectChan
     }
 
     override fun onSave() {
-        SceneManager.saveScene(projectManager.current(), projectManager.current().currScene)
+        SceneManager.saveScene(projectManager.current(), projectManager.current().currScene, pluginManager)
         UI.toaster.success("Settings saved")
     }
 

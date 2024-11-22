@@ -16,6 +16,8 @@
 
 package com.mbrlabs.mundus.pluginapi.ui;
 
+import com.badlogic.gdx.utils.Array;
+
 /**
  * The root wigdet for plugin.
  */
@@ -27,6 +29,15 @@ public interface RootWidget {
      * @return The created widget.
      */
     Cell addLabel(String text);
+
+    /**
+     * Adds text button.
+     *
+     * @param text The ext of button.
+     * @param listener The listener for button.
+     * @return The created widget.
+     */
+    Cell addTextButton(String text, ButtonListener listener);
 
     /**
      * Adds radio buttons. The first button will be selected.
@@ -119,7 +130,39 @@ public interface RootWidget {
     Cell addCheckbox(String text, boolean checked, CheckboxListener listener);
 
     /**
+     * Adds select box.
+     *
+     * @param selectList The list options.
+     * @param listener The listener.
+     * @return The created widget.
+     * @param <T> The type of select box.
+     */
+    <T> Cell addSelectBox(Array<T> selectList, SelectBoxListener<T> listener);
+
+    /**
+     * Adds select box with specified default value.
+     *
+     * @param selectList The list options.
+     * @param defaultValue The default value.
+     * @param listener The listener.
+     * @return The created widget.
+     * @param <T> The type of select box.
+     */
+    <T> Cell addSelectBox(Array<T> selectList, T defaultValue, SelectBoxListener<T> listener);
+
+    /**
      * Adds row.
      */
     void addRow();
+
+    /**
+     * Adds empty widget.
+     * @return The created empty widget.
+     */
+    RootWidgetCell addEmptyWidget();
+
+    /**
+     * Clears the widget.
+     */
+    void clearWidgets();
 }

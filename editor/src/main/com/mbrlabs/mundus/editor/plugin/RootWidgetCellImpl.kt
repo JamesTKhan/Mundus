@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2024. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,13 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.commons.scene3d.components;
+package com.mbrlabs.mundus.editor.plugin
 
-import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell
+import com.mbrlabs.mundus.pluginapi.ui.RootWidget
+import com.mbrlabs.mundus.pluginapi.ui.RootWidgetCell
 
-/**
- * @author Marcus Brummer
- * @version 16-01-2016
- */
-public interface Component {
+class RootWidgetCellImpl(private val rootWidget: Cell<RootWidgetImpl>) : CellImpl(rootWidget), RootWidgetCell {
 
-    enum Type {
-        MODEL, TERRAIN, LIGHT, PARTICLE_SYSTEM, WATER, CUSTOM_PROPERTIES, PHYSICS
-    }
-
-    GameObject getGameObject();
-
-    void update(float delta);
-
-    Type getType();
-
-    void setType(Type type);
-
-    void remove();
-
-    Component clone(GameObject go);
+    override fun getRootWidget(): RootWidget = rootWidget.actor
 }

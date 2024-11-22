@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. See AUTHORS file.
+ * Copyright (c) 2024. See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,17 @@
  * limitations under the License.
  */
 
-package com.mbrlabs.mundus.commons.scene3d.components;
+package com.mbrlabs.mundus.pluginapi;
 
-import com.mbrlabs.mundus.commons.scene3d.GameObject;
+import com.badlogic.gdx.graphics.Camera;
+import org.pf4j.ExtensionPoint;
 
-/**
- * @author Marcus Brummer
- * @version 16-01-2016
- */
-public interface Component {
+public interface CustomShaderRenderExtension extends ExtensionPoint {
 
-    enum Type {
-        MODEL, TERRAIN, LIGHT, PARTICLE_SYSTEM, WATER, CUSTOM_PROPERTIES, PHYSICS
-    }
-
-    GameObject getGameObject();
-
-    void update(float delta);
-
-    Type getType();
-
-    void setType(Type type);
-
-    void remove();
-
-    Component clone(GameObject go);
+    /**
+     * Can render model with custom shader.
+     *
+     * @param camera The camera.
+     */
+    void render(Camera camera);
 }

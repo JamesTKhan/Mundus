@@ -31,7 +31,7 @@ import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker
 import com.mbrlabs.mundus.pluginapi.TerrainHoverExtension
-import org.pf4j.DefaultPluginManager
+import org.pf4j.PluginManager
 
 /**
  * @author Marcus Brummer
@@ -39,7 +39,8 @@ import org.pf4j.DefaultPluginManager
  */
 class FreeCamController(private val projectManager: ProjectManager,
                         private val goPicker: GameObjectPicker,
-                        private val pluginManager: DefaultPluginManager) : InputAdapter() {
+                        private val pluginManager: PluginManager
+) : InputAdapter() {
 
     val SPEED_01 = 10f
     val SPEED_1 = 150f

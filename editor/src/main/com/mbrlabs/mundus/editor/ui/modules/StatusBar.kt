@@ -26,6 +26,7 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
@@ -34,7 +35,7 @@ import com.mbrlabs.mundus.editor.input.FreeCamController
 import com.mbrlabs.mundus.editor.plugin.LabelWidgetImpl
 import com.mbrlabs.mundus.editor.utils.formatFloat
 import com.mbrlabs.mundus.pluginapi.StatusBarExtension
-import org.pf4j.DefaultPluginManager
+import org.pf4j.PluginManager
 
 /**
  * @author Marcus Brummer
@@ -62,7 +63,7 @@ class StatusBar : VisTable(), PluginsLoadedEvent.PluginsLoadedEventListener {
 
     private val freeCamController: FreeCamController = Mundus.inject()
     private val projectManager: ProjectManager = Mundus.inject()
-    private var pluginManager: DefaultPluginManager = Mundus.inject()
+    private var pluginManager: PluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
 
     init {
         Mundus.registerEventListener(this)

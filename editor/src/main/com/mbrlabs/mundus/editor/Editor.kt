@@ -27,6 +27,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectAlreadyImportedException
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -57,13 +58,14 @@ import com.mbrlabs.mundus.pluginapi.PluginEventManager
 import com.mbrlabs.mundus.pluginapi.RenderExtension
 import com.mbrlabs.mundus.pluginapi.TerrainSceneExtension
 import com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent
+import com.mbrlabs.mundus.pluginapi.CustomShaderRenderExtension
 import com.mbrlabs.mundus.pluginapi.DisposeExtension
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.lwjgl.opengl.GL11
-import org.pf4j.DefaultPluginManager
+import org.pf4j.PluginManager
 import java.io.File
 
 /**
@@ -91,7 +93,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var shapeRenderer: ShapeRenderer
     private lateinit var debugRenderer: DebugRenderer
     private lateinit var globalPreferencesManager: MundusPreferencesManager
-    private lateinit var pluginManager: DefaultPluginManager
+    private lateinit var pluginManager: PluginManager
 
     override fun create() {
         Mundus.registerEventListener(this)
@@ -106,7 +108,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         shapeRenderer = Mundus.inject()
         debugRenderer = Mundus.inject()
         globalPreferencesManager = Mundus.inject()
-        pluginManager = Mundus.inject<DefaultPluginManager>()
+        pluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
         setupInput()
 
         debugRenderer.isEnabled = globalPreferencesManager.getBoolean(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_ON, false)
@@ -195,6 +197,16 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
                         scene.batch.end()
                         Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
                     }
+                }
+            }
+
+            pluginManager.getExtensions(CustomShaderRenderExtension::class.java).forEach {
+                try {
+                    it.render(scene.cam)
+                } catch (ex: Exception) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during plugin custom rendering! $ex"))
+                } finally {
+                    Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
                 }
             }
 
