@@ -20,6 +20,7 @@ package com.mbrlabs.mundus.editor
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
+import com.badlogic.gdx.utils.Os
 import com.badlogic.gdx.utils.SharedLibraryLoader
 import com.kotcrab.vis.ui.util.OsUtils
 import com.mbrlabs.mundus.commons.utils.ShaderPreprocessor
@@ -92,7 +93,7 @@ private fun launchEditor(options: LaunchOptions) {
     config.setForegroundFPS(options.fps)
 
     if (options.useGL30) {
-        if (SharedLibraryLoader.isMac) {
+        if (SharedLibraryLoader.os == Os.MacOsX ) {
             config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 3, 2)
         } else {
             config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 4, 3)
