@@ -28,8 +28,8 @@ import java.util.Map;
 public class CustomAsset extends Asset {
 
     /**
-     * @param meta
-     * @param assetFile
+     * @param meta The meta file.
+     * @param assetFile The asset file.
      */
     public CustomAsset(Meta meta, FileHandle assetFile) {
         super(meta, assetFile);
