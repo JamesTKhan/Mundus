@@ -22,6 +22,9 @@ import com.mbrlabs.mundus.commons.assets.meta.Meta;
 
 import java.util.Map;
 
+/**
+ * Custom asset for plugins.
+ */
 public class CustomAsset extends Asset {
 
     /**
