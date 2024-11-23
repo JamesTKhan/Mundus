@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editorcommons.events;
 
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
+import com.mbrlabs.mundus.editorcommons.EventListener;
 import com.mbrlabs.mundus.editorcommons.Subscribe;
 
 public class SceneChangedEvent {
@@ -31,7 +32,7 @@ public class SceneChangedEvent {
         return sceneGraph;
     }
 
-    public interface SceneChangedListener {
+    public interface SceneChangedListener extends EventListener {
 
         @Subscribe
         void onSceneChanged(SceneChangedEvent event);
