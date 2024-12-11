@@ -31,6 +31,13 @@ public interface RootWidget {
     Cell addLabel(String text);
 
     /**
+     * Adds text field.
+     * @param listener The listener for text field.
+     * @return The created text field.
+     */
+    Cell addTextField(TextFieldChangeListener listener);
+
+    /**
      * Adds text button.
      *
      * @param text The ext of button.

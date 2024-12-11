@@ -11,6 +11,7 @@ import com.kotcrab.vis.ui.widget.VisRadioButton
 import com.kotcrab.vis.ui.widget.VisSelectBox
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
+import com.kotcrab.vis.ui.widget.VisTextField
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel
 import com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel
 import com.kotcrab.vis.ui.widget.spinner.Spinner
@@ -28,12 +29,25 @@ import com.mbrlabs.mundus.pluginapi.ui.SpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.Cell
 import com.mbrlabs.mundus.pluginapi.ui.RootWidgetCell
 import com.mbrlabs.mundus.pluginapi.ui.SelectBoxListener
+import com.mbrlabs.mundus.pluginapi.ui.TextFieldChangeListener
 
 class RootWidgetImpl : VisTable(), RootWidget {
 
     override fun addLabel(text: String): Cell {
         val label = VisLabel(text)
         val cell = add(label)
+        return CellImpl(cell)
+    }
+
+    override fun addTextField(listener: TextFieldChangeListener): Cell {
+        val textField = VisTextField()
+        textField.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                listener.changed(textField.text)
+            }
+        })
+
+        val cell = add(textField)
         return CellImpl(cell)
     }
 
