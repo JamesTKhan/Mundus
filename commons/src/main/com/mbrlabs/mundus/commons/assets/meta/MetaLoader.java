@@ -109,7 +109,7 @@ public class MetaLoader {
             final JsonValue property = properties.get(i);
             final String id = property.name;
             final String value = properties.getString(id);
-            custom.getProperties().get(id, value);
+            custom.getProperties().put(id, value);
         }
 
         meta.setCustom(custom);
