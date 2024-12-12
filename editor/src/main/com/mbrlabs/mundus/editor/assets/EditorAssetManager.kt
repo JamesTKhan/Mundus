@@ -529,6 +529,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     fun createCustomAsset(file: FileHandle): CustomAsset {
         val meta = createMetaFileFromAsset(file, AssetType.CUSTOM)
         meta.custom = MetaCustom()
+        metaSaver.save(meta)
         val importedAssetFile = copyToAssetFolder(file)
 
         val asset = CustomAsset(meta, importedAssetFile)
