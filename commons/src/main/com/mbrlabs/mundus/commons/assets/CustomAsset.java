@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.commons.assets;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 
 import java.util.Map;
@@ -63,5 +64,9 @@ public class CustomAsset extends Asset {
     @Override
     public boolean usesAsset(Asset assetToCheck) {
         return false;
+    }
+
+    public ObjectMap<String, String> getProperties() {
+        return meta.getCustom().getProperties();
     }
 }
