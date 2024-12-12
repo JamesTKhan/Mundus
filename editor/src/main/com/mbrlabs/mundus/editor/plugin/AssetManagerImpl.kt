@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editor.plugin
 
 import com.badlogic.gdx.files.FileHandle
+import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.CustomAsset
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -32,5 +33,9 @@ class AssetManagerImpl : AssetManager {
         val customAsset = assetManager.createCustomAsset(file)
         Mundus.postEvent(AssetImportEvent(customAsset))
         return customAsset
+    }
+
+    override fun markAsModifiedAsset(asset: Asset) {
+        projectManager.current().assetManager.addModifiedAsset(asset)
     }
 }

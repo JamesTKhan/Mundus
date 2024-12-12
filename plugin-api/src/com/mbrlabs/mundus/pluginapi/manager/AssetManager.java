@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.pluginapi.manager;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.CustomAsset;
 
 public interface AssetManager {
@@ -27,4 +28,11 @@ public interface AssetManager {
      * @param file The file for asset.
      */
     CustomAsset createNewAsset(FileHandle file);
+
+    /**
+     * Marks asset as modified asset.
+     *
+     * @param asset The modified asset.
+     */
+    void markAsModifiedAsset(Asset asset);
 }
