@@ -38,6 +38,7 @@ import com.mbrlabs.mundus.commons.assets.TexCoordInfo
 import com.mbrlabs.mundus.commons.assets.TextureAsset
 import com.mbrlabs.mundus.commons.assets.WaterAsset
 import com.mbrlabs.mundus.commons.assets.meta.Meta
+import com.mbrlabs.mundus.commons.assets.meta.MetaCustom
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO
 import com.mbrlabs.mundus.commons.dto.SceneDTO
@@ -527,6 +528,7 @@ class EditorAssetManager(assetsRoot: FileHandle) : AssetManager(assetsRoot) {
     @Throws(IOException::class, AssetAlreadyExistsException::class)
     fun createCustomAsset(file: FileHandle): CustomAsset {
         val meta = createMetaFileFromAsset(file, AssetType.CUSTOM)
+        meta.custom = MetaCustom()
         val importedAssetFile = copyToAssetFolder(file)
 
         val asset = CustomAsset(meta, importedAssetFile)
