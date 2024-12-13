@@ -21,6 +21,7 @@ import com.mbrlabs.mundus.commons.assets.Asset
 import com.mbrlabs.mundus.commons.assets.CustomAsset
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.AssetDeletedEvent
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.pluginapi.manager.AssetManager
 
@@ -41,5 +42,6 @@ class AssetManagerImpl : AssetManager {
 
     override fun deleteAsset(asset: CustomAsset) {
         projectManager.current().assetManager.deleteAsset(asset)
+        Mundus.postEvent(AssetDeletedEvent())
     }
 }
