@@ -38,4 +38,8 @@ class AssetManagerImpl : AssetManager {
     override fun markAsModifiedAsset(asset: Asset) {
         projectManager.current().assetManager.addModifiedAsset(asset)
     }
+
+    override fun deleteAsset(asset: CustomAsset) {
+        projectManager.current().assetManager.deleteAsset(asset)
+    }
 }

@@ -35,4 +35,11 @@ public interface AssetManager {
      * @param asset The modified asset.
      */
     void markAsModifiedAsset(Asset asset);
+
+    /**
+     * Deletes custom asset.
+     *
+     * @param asset The asset.
+     */
+    void deleteAsset(CustomAsset asset);
 }
