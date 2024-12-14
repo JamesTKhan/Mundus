@@ -43,7 +43,9 @@ public interface CustomComponentConverter {
      *
      * @return The ID of used assets.
      */
-    Array<String> getAssetIds(Component component);
+    default Array<String> getAssetIds(Component component) {
+        return null;
+    }
 
     /**
      * Converts map into custom component.
