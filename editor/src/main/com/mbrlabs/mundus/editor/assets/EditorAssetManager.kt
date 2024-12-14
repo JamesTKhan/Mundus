@@ -54,6 +54,7 @@ import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.Log
 import com.mbrlabs.mundus.editor.utils.ThumbnailGenerator
+import com.mbrlabs.mundus.editorcommons.exceptions.AssetAlreadyExistsException
 import net.mgsx.gltf.exporters.GLTFExporter
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils

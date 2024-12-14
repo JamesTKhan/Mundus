@@ -39,7 +39,6 @@ import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.editor.Main;
 import com.mbrlabs.mundus.editor.Mundus;
-import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException;
 import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
 import com.mbrlabs.mundus.editor.core.EditorScene;
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter;
@@ -57,6 +56,7 @@ import com.mbrlabs.mundus.editor.utils.PluginUtils;
 import com.mbrlabs.mundus.editor.utils.SkyboxBuilder;
 import com.mbrlabs.mundus.editorcommons.events.ProjectChangedEvent;
 import com.mbrlabs.mundus.editorcommons.events.SceneChangedEvent;
+import com.mbrlabs.mundus.editorcommons.exceptions.AssetAlreadyExistsException;
 import org.pf4j.PluginManager;
 
 import java.io.File;
