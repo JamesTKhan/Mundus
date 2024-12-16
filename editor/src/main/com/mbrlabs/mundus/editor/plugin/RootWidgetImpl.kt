@@ -43,13 +43,14 @@ import com.mbrlabs.mundus.pluginapi.ui.RootWidget
 import com.mbrlabs.mundus.pluginapi.ui.IntSpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.SpinnerListener
 import com.mbrlabs.mundus.pluginapi.ui.Cell
+import com.mbrlabs.mundus.pluginapi.ui.LabelCell
 import com.mbrlabs.mundus.pluginapi.ui.RootWidgetCell
 import com.mbrlabs.mundus.pluginapi.ui.SelectBoxListener
 import com.mbrlabs.mundus.pluginapi.ui.TextFieldChangeListener
 
 class RootWidgetImpl : VisTable(), RootWidget {
 
-    override fun addLabel(text: String): Cell {
+    override fun addLabel(text: String): LabelCell {
         val label = LabelImpl(text)
         val cell = add(label)
         return LabelCellImpl(cell)
