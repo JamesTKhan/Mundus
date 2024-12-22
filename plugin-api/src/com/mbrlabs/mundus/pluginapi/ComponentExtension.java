@@ -30,10 +30,9 @@ public interface ComponentExtension extends ExtensionPoint {
      * If the game object contains a supported component type then the component can be added via plugin.
      * The default value is null, in this case the Editor doesn't check component types.
      *
-     * @param gameObject The game object.
      * @return Null or array of supported component types.
      */
-    default Array<Component.Type> getSupportedComponentTypes(GameObject gameObject) {
+    default Array<Component.Type> getSupportedComponentTypes() {
         return null;
     }
 

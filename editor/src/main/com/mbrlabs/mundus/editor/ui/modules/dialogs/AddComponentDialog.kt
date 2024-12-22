@@ -60,7 +60,7 @@ class AddComponentDialog : BaseDialog("Add Component") {
         })
         pluginManager.getExtensions(ComponentExtension::class.java).forEach {
             try {
-                val supportedComponentTypes = it.getSupportedComponentTypes(getSelectedGameObject())
+                val supportedComponentTypes = it.supportedComponentTypes
 
                 if (supportedComponentTypes == null || containsSupportedComponentType(supportedComponentTypes)) {
                     addableTypes.add(object : DropdownComponent(it.componentName) {
