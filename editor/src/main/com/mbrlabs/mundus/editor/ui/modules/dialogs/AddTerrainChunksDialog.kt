@@ -356,15 +356,17 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
             asset.updateTerrainMaterial()
             asset.terrain.update(ThreadLocalPools.vector3ThreadPool.get())
 
-            // Generate simplified results for LoD
-            val results = LoDUtils.buildTerrainLod(component, Terrain.LOD_SIMPLIFICATION_FACTORS, abs(maxHeight - minHeight))
-
             // post a Runnable to the rendering thread that processes the result
             Gdx.app.postRunnable {
                 component.updateDimensions()
 
-                // Convert to LodLevels with actual meshes
-                asset.lodLevels = LoDUtils.convertToLodLevels(asset.terrain.model, results)
+                if (generateLoD) {
+                    // Generate simplified results for LoD
+                    val results = LoDUtils.buildTerrainLod(component, Terrain.LOD_SIMPLIFICATION_FACTORS, abs(maxHeight - minHeight))
+
+                    // Convert to LodLevels with actual meshes
+                    asset.lodLevels = LoDUtils.convertToLodLevels(asset.terrain.model, results)
+                }
 
                 terraformingThreads.decrementAndGet()
             }
