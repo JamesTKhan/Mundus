@@ -134,7 +134,7 @@ public abstract class TerrainBrush extends Tool {
      * A comparison that can be used to determine if a vertex should be modified
      */
     public interface TerrainModifyComparison {
-        boolean compare(TerrainBrush terrainBrush, Vector3 vertexPos, Vector3 localBrushPos);
+        boolean compare(TerrainBrush terrainBrush, TerrainComponent terrainComponent, Vector3 vertexPos, Vector3 localBrushPos);
     }
 
     /**
@@ -488,7 +488,7 @@ public abstract class TerrainBrush extends Tool {
                 localBrushPos.y = vertexPos.y;
 
                 // Call the comparison function
-                if (comparison.compare(this, vertexPos, localBrushPos)) {
+                if (comparison.compare(this, terrainComponent, vertexPos, localBrushPos)) {
                     // If not already added, add the terrain to the list of modified terrains
                     if (modifiedTerrains.add(terrainComponent)) {
                         heightCommand.addTerrain(terrainComponent);
@@ -520,14 +520,14 @@ public abstract class TerrainBrush extends Tool {
         getProjectManager().current().assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
     }
 
-    public void terrainObject(ObjectTool.Action action, TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
-        terrainObject(action, terrainComponent, modifier, comparison, updateNeighbors);
+    public void terrainObject(ObjectTool.Action action, TerrainModifyAction modifier, TerrainModifyComparison addingComparison, TerrainModifyComparison removingComparison, boolean updateNeighbors) {
+        terrainObject(action, terrainComponent, modifier, addingComparison, removingComparison, updateNeighbors);
     }
 
-    public void terrainObject(ObjectTool.Action action, TerrainComponent terrainComponent, TerrainModifyAction modifier, TerrainModifyComparison comparison, boolean updateNeighbors) {
+    public void terrainObject(ObjectTool.Action action, TerrainComponent terrainComponent, TerrainModifyAction modifier, TerrainModifyComparison addingComparison, TerrainModifyComparison removingComparison, boolean updateNeighbors) {
         Vector3 localBrushPos = Pools.vector3Pool.obtain();
 
-        updateNeighborsIfNecessary(updateNeighbors, (neighbor) -> terrainObject(action, neighbor, modifier, comparison, false));
+        updateNeighborsIfNecessary(updateNeighbors, (neighbor) -> terrainObject(action, neighbor, modifier, addingComparison, removingComparison, false));
 
         getBrushLocalPosition(terrainComponent, localBrushPos);
         Terrain terrain = terrainComponent.getTerrainAsset().getTerrain();
@@ -543,7 +543,7 @@ public abstract class TerrainBrush extends Tool {
                     localBrushPos.y = vertexPos.y;
 
                     // Call the comparison function
-                    if (comparison.compare(this, vertexPos, localBrushPos) && ObjectTool.shouldGenerate()) {
+                    if (addingComparison.compare(this, terrainComponent, vertexPos, localBrushPos) && ObjectTool.shouldGenerate()) {
                         // If not already added, add the terrain to the list of modified terrains
                         if (modifiedTerrains.add(terrainComponent)) {
                             objectCommand.addTerrain(terrainComponent);
@@ -556,7 +556,7 @@ public abstract class TerrainBrush extends Tool {
                     }
                 }
             }
-        } else {
+        } else { // action == ObjectTool.Action.REMOVING
             final TerrainObjectsAsset terrainObjectsAsset = terrainComponent.getTerrainAsset().getTerrainObjectsAsset();
             final int num = terrainObjectsAsset.getTerrainObjectNum();
 
@@ -564,7 +564,7 @@ public abstract class TerrainBrush extends Tool {
                 final TerrainObject terrainObject = terrainObjectsAsset.getTerrainObject(i);
                 if (terrainObject.getLayerPos() == brushingModelPos) {
 
-                    if (comparison.compare(this, terrainObject.getPosition(), localBrushPos)) {
+                    if (removingComparison.compare(this, terrainComponent, terrainObject.getPosition(), localBrushPos)) {
                         // If not already added, add the terrain to the list of modified terrains
                         if (modifiedTerrains.add(terrainComponent)) {
                             objectCommand.addTerrain(terrainComponent);

@@ -62,12 +62,7 @@ public class MundusDirectionalShadowLight extends DirectionalShadowLight {
         }
 
         Vector2 res = shadowResolution.getResolutionValues();
-
-        if (Scene.isRuntime) {
-            fbo = new FrameBuffer(Pixmap.Format.RGBA8888, (int) res.x, (int) res.y, true);
-        } else {
-            fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, (int) res.x, (int) res.y, true);
-        }
+        fbo = new NestableFrameBuffer(Pixmap.Format.RGBA8888, (int) res.x, (int) res.y, true);
     }
 
     public boolean isCastsShadows() {

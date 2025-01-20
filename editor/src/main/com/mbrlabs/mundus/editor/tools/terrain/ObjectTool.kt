@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.Vector3
 import com.mbrlabs.mundus.commons.assets.TerrainObject
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
+import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush.TerrainModifyComparison
 import com.mbrlabs.mundus.editor.utils.IdUtils
 
 class ObjectTool : RadiusTerrainTool() {
@@ -34,6 +35,7 @@ class ObjectTool : RadiusTerrainTool() {
         var action = Action.ADDING
         var strength = 0.5f
         var randomBetweenVertices = 0f
+        var minSpaceBetweenObjects = 0.1f
         var xRotationMin = -1f
         var xRotationMax = -1f
         var yRotationMin = -1f
@@ -51,6 +53,7 @@ class ObjectTool : RadiusTerrainTool() {
             action = Action.ADDING
             strength = 0.5f
             randomBetweenVertices = 0f
+            minSpaceBetweenObjects = 0.1f
             xRotationMin = -1f
             xRotationMax = -1f
             yRotationMin = -1f
@@ -63,6 +66,25 @@ class ObjectTool : RadiusTerrainTool() {
             yScaleMax = -1f
             zScaleMin = -1f
             zScaleMax = -1f
+        }
+
+        private val addingDistanceComparison: TerrainModifyComparison = TerrainModifyComparison { terrainBrush: TerrainBrush, terrainComponent: TerrainComponent, vertexPos: Vector3, localBrushPos: Vector3? ->
+            if (!radiusDistanceComparison.compare(terrainBrush, terrainComponent, vertexPos, localBrushPos)) {
+                return@TerrainModifyComparison false
+            }
+
+            val terrainObjectsAsset = terrainComponent.terrainAsset.terrainObjectsAsset
+            for (i in 0..<terrainObjectsAsset.terrainObjectNum) {
+                val terrainObject = terrainObjectsAsset.getTerrainObject(i)
+                val terrainObjectPos = terrainObject.position
+
+                val distance = vertexPos.dst(terrainObjectPos)
+                if (distance < minSpaceBetweenObjects) {
+                    return@TerrainModifyComparison false
+                }
+            }
+
+            true
         }
 
         @JvmStatic
@@ -78,7 +100,7 @@ class ObjectTool : RadiusTerrainTool() {
                 val terrainObject = terrainObjectsAsset.getTerrainObject(i)
                 val terrainObjectPos = terrainObject.position
 
-                if (radiusDistanceComparison.compare(brush, terrainObjectPos, localBrushPos)) {
+                if (radiusDistanceComparison.compare(brush, terrainComponent, terrainObjectPos, localBrushPos)) {
                     terrainObjectPos.y = terrainComponent.terrainAsset.terrain.getHeightAtLocalCoord(terrainObjectPos.x, terrainObjectPos.z)
                 }
             }
@@ -164,6 +186,6 @@ class ObjectTool : RadiusTerrainTool() {
     }
 
     override fun act(brush: TerrainBrush) {
-        brush.terrainObject(action, modifier, radiusDistanceComparison, true)
+        brush.terrainObject(action, modifier, addingDistanceComparison, radiusDistanceComparison, true)
     }
 }

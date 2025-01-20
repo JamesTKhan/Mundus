@@ -17,8 +17,6 @@
 package com.mbrlabs.mundus.editor.ui.widgets
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
@@ -40,6 +38,7 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.assets.AssetModelFilter
 import com.mbrlabs.mundus.editor.assets.AssetTerrainObjectLayerFilter
+import com.mbrlabs.mundus.editor.assets.EditorModelAsset
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.AssetSelectedEvent
@@ -73,7 +72,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
     private val duplicatedBtn: VisTextButton = VisTextButton("Duplicate")
     private val changedBtn: VisTextButton = VisTextButton("Change")
 
-    internal val textureGrid = TextureGrid<TmpTexture>(40, 5)
+    internal val textureGrid = TextureGrid<EditorModelAssetWithPosition>(40, 5)
     private val addObjectBtn = VisTextButton("Add Object")
 
     private val root = VisTable()
@@ -161,7 +160,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
                         object : AssetPickerDialog.AssetPickerListener {
                             override fun onSelected(asset: Asset?) {
                                 try {
-                                    addModel(asset as ModelAsset)
+                                    addModel(asset as EditorModelAsset)
                                 } catch (e: IOException) {
                                     e.printStackTrace()
                                     UI.toaster.error("Error while adding model object")
@@ -216,7 +215,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
 
     private fun setupTextureGrid() {
         textureGrid.setListener { texture, leftClick ->
-            val tex = texture as TmpTexture
+            val tex = texture as EditorModelAssetWithPosition
             if (leftClick) {
                 if (terrainComponent != null) {
                     TerrainBrush.setBrushingModelPos(tex.pos)
@@ -237,12 +236,12 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
         textureGrid.removeTextures()
 
         for ((index, model) in asset.models.withIndex()) {
-            textureGrid.addTexture(TmpTexture(index, model))
+            textureGrid.addTexture(EditorModelAssetWithPosition(index, model as EditorModelAsset))
         }
     }
 
     @Throws(IOException::class)
-    private fun addModel(modelAsset: ModelAsset) {
+    private fun addModel(modelAsset: EditorModelAsset) {
         val assetManager = projectManager.current().assetManager
 
         val terrainObjectLayerAsset = asset
@@ -251,7 +250,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
         terrainObjectLayerAsset.addModel(modelAsset)
 
         val modelPos = terrainObjectLayerAsset.activeLayerCount - 1
-        textureGrid.addTexture(TmpTexture(modelPos, modelAsset))
+        textureGrid.addTexture(EditorModelAssetWithPosition(modelPos, modelAsset))
     }
 
     private fun applyDependenciesAfterRemoving(layerPos: Int) {
@@ -259,7 +258,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
             val component = it.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
 
             if (component.terrainAsset.terrainObjectLayerAsset == asset) {
-                var terrainObjectsAsset = component.terrainAsset.terrainObjectsAsset
+                val terrainObjectsAsset = component.terrainAsset.terrainObjectsAsset
                 var modified = false
 
                 for (i in terrainObjectsAsset.terrainObjectNum -1 downTo 0) {
@@ -287,7 +286,7 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
             val component = it.findComponentByType(Component.Type.TERRAIN) as TerrainComponent
 
             if (component.terrainAsset.terrainObjectLayerAsset == asset) {
-                var terrainObjectsAsset = component.terrainAsset.terrainObjectsAsset
+                val terrainObjectsAsset = component.terrainAsset.terrainObjectsAsset
                 var modified = false
 
                 for (i in terrainObjectsAsset.terrainObjectNum -1 downTo 0) {
@@ -308,21 +307,8 @@ class TerrainObjectLayerWidget(var asset: TerrainObjectLayerAsset, val terrainCo
         }
     }
 
-    // TODO temporary class until thumbnail PR won't be merged
-    class TmpTexture(val pos: Int, modelAsset: ModelAsset) : TextureProvider {
-
-        private val texture: Texture
-
-        init {
-            val pixmap = Pixmap(50, 50, Pixmap.Format.RGBA8888)
-            pixmap.setColor(Color(modelAsset.name.hashCode()))
-            pixmap.fill()
-
-            texture = Texture(pixmap)
-            pixmap.dispose()
-        }
-
-        override fun getTexture(): Texture = texture
+    class EditorModelAssetWithPosition(val pos: Int, val modeleAsset: EditorModelAsset) : TextureProvider {
+        override fun getTexture(): Texture = modeleAsset.texture
     }
 
     private inner class TerrainObjectRightClickMenu : PopupMenu() {

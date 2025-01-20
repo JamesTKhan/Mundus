@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
+package com.mbrlabs.mundus.editor.assets
 
-package com.mbrlabs.mundus.editor.tools.terrain;
+import com.badlogic.gdx.files.FileHandle
+import com.badlogic.gdx.graphics.Texture
+import com.mbrlabs.mundus.commons.assets.ModelAsset
+import com.mbrlabs.mundus.commons.assets.meta.Meta
+import com.mbrlabs.mundus.commons.utils.TextureProvider
 
-import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush;
+class EditorModelAsset(meta: Meta, assetFile: FileHandle) : ModelAsset(meta, assetFile), TextureProvider {
 
-/**
- * @author JamesTKhan
- * @version June 28, 2023
- */
-public abstract class RadiusTerrainTool implements TerrainTool {
-    protected static final TerrainBrush.TerrainModifyComparison radiusDistanceComparison = (terrainBrush, terrainComponent, vertexPos, localBrushPos) -> {
-        float distance = vertexPos.dst(localBrushPos);
-        return distance <= terrainBrush.getRadius();
-    };
+    lateinit var thumbnail: Texture
+    override fun getTexture(): Texture = thumbnail
+
+    override fun dispose() {
+        super.dispose()
+        thumbnail.dispose()
+    }
 
 }
