@@ -34,6 +34,7 @@ public class TerrainComponentConverter {
     public static TerrainComponent convert(TerrainComponentDTO terrainComponentDTO, GameObject gameObject, AssetManager assetManager) {
         TerrainComponent tc = new TerrainComponent(gameObject);
         tc.setTerrainAsset((TerrainAsset) assetManager.findAssetByID(terrainComponentDTO.getTerrainID()));
+        tc.applyTerrainObjects();
 
         return tc;
     }

@@ -34,6 +34,9 @@ public class MundusPBRShaderProvider extends PBRShaderProvider {
         if (renderable.material.has(TerrainMaterialAttribute.TerrainMaterial)) {
             return createPBRTerrainShader(renderable, config, prefix);
         }
+        if (renderable.meshPart.mesh.isInstanced()) {
+            prefix += "#define instanced\n";
+        }
 
         return new MundusPBRShader(renderable, config, prefix);
     }

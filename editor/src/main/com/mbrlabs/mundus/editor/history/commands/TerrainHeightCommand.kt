@@ -25,7 +25,9 @@ import com.mbrlabs.mundus.editor.history.Command
  * @author Marcus Brummer
  * @version 07-02-2016
  */
-class TerrainHeightCommand(private var terrain: TerrainComponent?) : Command {
+class TerrainHeightCommand(private var terrain: TerrainComponent) : Command {
+
+    private val terrainObjectCommand = TerrainObjectCommand(terrain)
 
     private var heightDataBefore: FloatArray? = null
     private var heightDataAfter: FloatArray? = null
@@ -33,30 +35,38 @@ class TerrainHeightCommand(private var terrain: TerrainComponent?) : Command {
     fun setHeightDataBefore(data: FloatArray) {
         heightDataBefore = FloatArray(data.size)
         System.arraycopy(data, 0, heightDataBefore!!, 0, data.size)
+
+        terrainObjectCommand.setObjectsBefore()
     }
 
     fun setHeightDataAfter(data: FloatArray) {
         heightDataAfter = FloatArray(data.size)
         System.arraycopy(data, 0, heightDataAfter!!, 0, data.size)
+
+        terrainObjectCommand.setObjectsAfter()
     }
 
     override fun execute() {
         copyHeightData(heightDataAfter!!)
-        terrain!!.terrainAsset.terrain.update()
-        terrain!!.lodManager.disable()
-        Mundus.postEvent(TerrainVerticesChangedEvent(terrain!!))
+        terrain.terrainAsset.terrain.update()
+        terrain.lodManager.disable()
+        Mundus.postEvent(TerrainVerticesChangedEvent(terrain))
+
+        terrainObjectCommand.execute()
     }
 
     override fun undo() {
         copyHeightData(heightDataBefore!!)
-        terrain!!.terrainAsset.terrain.update()
-        terrain!!.lodManager.disable()
-        Mundus.postEvent(TerrainVerticesChangedEvent(terrain!!))
+        terrain.terrainAsset.terrain.update()
+        terrain.lodManager.disable()
+        Mundus.postEvent(TerrainVerticesChangedEvent(terrain))
+
+        terrainObjectCommand.undo()
     }
 
     private fun copyHeightData(data: FloatArray) {
         for (i in data.indices) {
-            terrain!!.terrainAsset.terrain.heightData!![i] = data[i]
+            terrain.terrainAsset.terrain.heightData!![i] = data[i]
         }
     }
 

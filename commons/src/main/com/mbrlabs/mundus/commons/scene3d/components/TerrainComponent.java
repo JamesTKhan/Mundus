@@ -16,19 +16,27 @@
 
 package com.mbrlabs.mundus.commons.scene3d.components;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.assets.TerrainAsset;
 import com.mbrlabs.mundus.commons.assets.TerrainLayerAsset;
+import com.mbrlabs.mundus.commons.assets.TerrainObjectLayerAsset;
+import com.mbrlabs.mundus.commons.assets.TerrainObjectsAsset;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.lod.LevelOfDetailManager;
 import com.mbrlabs.mundus.commons.lod.TerrainLevelOfDetailManager;
+import com.mbrlabs.mundus.commons.terrain.TerrainObjectManager;
+import com.mbrlabs.mundus.commons.terrain.TerrainObjectManagerInstancesImpl;
+import com.mbrlabs.mundus.commons.terrain.TerrainObjectManagerModelCacheImpl;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
 import java.util.Objects;
@@ -51,11 +59,20 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
     private TerrainComponent leftNeighbor;
 
     private final LevelOfDetailManager lodManager;
+    private final TerrainObjectManager objectManager;
+
+    private final TerrainRenderableProvider renderableProvider;
 
     public TerrainComponent(GameObject go) {
         super(go);
         type = Component.Type.TERRAIN;
         lodManager = new TerrainLevelOfDetailManager(this);
+        renderableProvider = new TerrainRenderableProvider();
+        if (Gdx.gl30 != null) {
+            objectManager = new TerrainObjectManagerInstancesImpl();
+        } else {
+            objectManager = new TerrainObjectManagerModelCacheImpl();
+        }
     }
 
     @Override
@@ -66,7 +83,7 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
 
     @Override
     public RenderableProvider getRenderableProvider() {
-        return modelInstance;
+        return renderableProvider;
     }
 
     public void updateUVs(Vector2 uvScale) {
@@ -95,6 +112,31 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
             material.remove(PBRTextureAttribute.NormalTexture);
 
         terrainAsset.getMaterialAsset().applyToMaterial(material, true);
+    }
+
+    /**
+     * Apply terrain object changes.
+     * If there is removed terrain object in asset then removes it from rendering.
+     * If there is new terrain object in asset then adds it to rendering.
+     * Updates position of terrain objects.
+     */
+    public void applyTerrainObjects() {
+        applyTerrainObjects(false);
+    }
+
+    /**
+     * Apply terrain object changes.
+     * If there is removed terrain object in asset then removes it from rendering.
+     * If there is new terrain object in asset then adds it to rendering.
+     * Updates position of terrain objects.
+     *
+     * @param recreateAllObjects If true then removes all terrain objects and recreates again.
+     */
+    public void applyTerrainObjects(final boolean recreateAllObjects) {
+        final TerrainObjectsAsset terrainObjectsAsset = terrainAsset.getTerrainObjectsAsset();
+        final TerrainObjectLayerAsset terrainObjectLayerAsset = terrainAsset.getTerrainObjectLayerAsset();
+
+        objectManager.apply(recreateAllObjects, terrainObjectsAsset, terrainObjectLayerAsset, gameObject.getTransform());
     }
 
     public TerrainAsset getTerrainAsset() {
@@ -171,6 +213,14 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
         return terrainAsset.usesAsset(assetToCheck);
     }
 
+    @Override
+    public void onDirty() {
+        super.onDirty();
+
+        // Recalculate terrain objects position
+        applyTerrainObjects();
+    }
+
     public ModelInstance getModelInstance() {
         return modelInstance;
     }
@@ -223,5 +273,14 @@ public class TerrainComponent extends CullableComponent implements AssetUsage, R
      */
     public boolean isOnTerrain(float worldX, float worldZ) {
         return terrainAsset.getTerrain().isOnTerrain(worldX, worldZ, modelInstance.transform);
+    }
+
+    private class TerrainRenderableProvider implements RenderableProvider {
+
+        @Override
+        public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
+            modelInstance.getRenderables(renderables, pool);
+            objectManager.getRenderables(renderables, pool);
+        }
     }
 }

@@ -244,6 +244,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
 
         // Create a new layer asset to assign to all terrain chunks
         val terrainLayerAsset = projectManager.current().assetManager.createTerrainLayerAsset(terrainName!!)
+        // Create a new terrain object layer asset to assign to all terran chunks
+        val terranObjectLayerAsset = projectManager.current().assetManager.createTerrainObjectLayerAsset(terrainName!!)
         // set base texture
         val chessboard =
             projectManager.current().assetManager.findAssetByID(EditorAssetManager.STANDARD_ASSET_TEXTURE_CHESSBOARD)
@@ -255,6 +257,8 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
         projectManager.current().assetManager.addAsset(terrainLayerAsset)
         projectManager.current().assetManager.addModifiedAsset(terrainLayerAsset)
         projectManager.current().assetManager.saveAsset(terrainLayerAsset)
+
+        projectManager.current().assetManager.addAsset(terranObjectLayerAsset)
 
         for (arr in assetsToCreate) {
             val goID = projectManager.current().obtainID()
@@ -271,8 +275,14 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
                 val asset: TerrainAsset
                 val loader: TerrainLoader
                 try {
+                    // Create terrain objects asset to assign to each terran chunk
+                    val terrainObjectsAsset = projectManager.current().assetManager.createTerrainObjectsAsset("${terrainName}$i-$j")
+                    projectManager.current().assetManager.addAsset(terrainObjectsAsset)
+
                     asset = createTerrainAsset(res, width, splatMapResolution, i, j)
                     asset.meta.terrain.terrainLayerAssetId = terrainLayerAsset.id
+                    asset.meta.terrain.terrainObjectLayerAssetId = terranObjectLayerAsset.id
+                    asset.meta.terrain.terrainObjectsAssetId = terrainObjectsAsset.id
                     asset.lodLevels = if (generateLoD) arrayOf<LodLevel>() else null
                     loader = asset.startAsyncLoad()
                 } catch (ex: AssetAlreadyExistsException) {

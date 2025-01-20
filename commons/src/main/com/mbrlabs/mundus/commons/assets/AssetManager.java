@@ -26,6 +26,8 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.mbrlabs.mundus.commons.assets.meta.Meta;
 import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
@@ -62,6 +64,7 @@ public class AssetManager implements Disposable {
     protected Array<Asset> assets;
     protected Map<String, Asset> assetIndex;
     protected com.badlogic.gdx.assets.AssetManager gdxAssetManager;
+    protected Json json;
 
     // Tracks the highest bone count out of all loaded model assets
     public int maxNumBones = 0;
@@ -76,6 +79,7 @@ public class AssetManager implements Disposable {
         this.rootFolder = assetsFolder;
         this.assets = new Array<>();
         this.assetIndex = new HashMap<>();
+        this.json = new Json(JsonWriter.OutputType.json);
     }
 
     /**
@@ -384,6 +388,12 @@ public class AssetManager implements Disposable {
             case TERRAIN_LAYER:
                 asset = loadTerrainLayerAsset(meta, assetFile);
                 break;
+            case TERRAIN_OBJECT_LAYER:
+                asset = loadTerrainObjectLayerAsset(meta, assetFile);
+                break;
+            case TERRAIN_OBJECTS:
+                asset = loadTerrainObjectsAsset(meta, assetFile);
+                break;
             case MODEL:
                 asset = loadModelAsset(meta, assetFile);
                 break;
@@ -433,6 +443,18 @@ public class AssetManager implements Disposable {
 
     private TerrainLayerAsset loadTerrainLayerAsset(Meta meta, FileHandle assetFile) {
         TerrainLayerAsset asset = new TerrainLayerAsset(meta, assetFile);
+        asset.load(gdxAssetManager);
+        return asset;
+    }
+
+    private TerrainObjectLayerAsset loadTerrainObjectLayerAsset(Meta meta, FileHandle assetFile) {
+        TerrainObjectLayerAsset asset = new TerrainObjectLayerAsset(meta, assetFile, json);
+        asset.load(gdxAssetManager);
+        return asset;
+    }
+
+    private TerrainObjectsAsset loadTerrainObjectsAsset(Meta meta, FileHandle assetFile) {
+        TerrainObjectsAsset asset = new TerrainObjectsAsset(meta, assetFile, json);
         asset.load(gdxAssetManager);
         return asset;
     }
