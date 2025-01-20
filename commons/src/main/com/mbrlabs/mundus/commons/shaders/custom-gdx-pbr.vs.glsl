@@ -330,14 +330,19 @@ void main() {
 		vec4 pos = u_worldTrans * vec4(morph_pos, 1.0);
 	#endif
 
+	#ifdef normalFlag
+		vec3 normalVec = a_normal;
+	#endif // normalFlag
+	#ifdef instanced
+        pos *= i_worldTrans;
+		#ifdef normalFlag
+			normalVec = a_normal * mat3(i_worldTrans);
+		#endif // normalFlag
+	#endif // insanced
+
 	v_clipDistance = dot(pos, u_clipPlane);
 	v_position = vec3(pos.xyz) / pos.w;
-
-	#ifdef instanced
-		gl_Position = u_projViewTrans * i_worldTrans * pos;
-	#else
-		gl_Position = u_projViewTrans * pos;
-	#endif //instanced
+	gl_Position = u_projViewTrans * pos;
 
 	#ifdef shadowMapFlag
 		vec4 spos = u_shadowMapProjViewTrans * pos;
@@ -347,7 +352,7 @@ void main() {
 	
 	#if defined(normalFlag)
 		
-		vec3 morph_nor = a_normal;
+		vec3 morph_nor = normalVec;
 		#ifdef morphTargetsFlag
 			#ifdef normal0Flag
 				morph_nor += a_normal0 * u_morphTargets1.x;

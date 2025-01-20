@@ -139,7 +139,7 @@ public class TerrainObjectManagerInstancesImpl implements TerrainObjectManager {
                 tmpMatrix4.scale(scale.x, scale.y, scale.z);
             }
 
-            offsets.put(tmpMatrix4.getValues());
+            offsets.put(tmpMatrix4.tra().getValues());
         }
 
         offsets.position(0);
