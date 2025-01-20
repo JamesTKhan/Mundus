@@ -129,6 +129,7 @@ public class ShaderUtils {
         DepthShader.Config depthConfig = PBRShaderProvider.createDefaultDepthConfig();
         depthConfig.numBones = numBones;
         depthConfig.defaultCullFace = GL20.GL_BACK;
+        depthConfig.vertexShader = Gdx.files.classpath("com/mbrlabs/mundus/commons/shaders/custom-depth.vs.glsl").readString();
         return depthConfig;
     }
 

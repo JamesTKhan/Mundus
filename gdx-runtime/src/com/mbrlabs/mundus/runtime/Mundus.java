@@ -27,6 +27,7 @@ import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.assets.AssetNotFoundException;
 import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
+import com.mbrlabs.mundus.commons.shaders.MundusPBRSDepthShaderProvider;
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter;
@@ -146,7 +147,7 @@ public class Mundus implements Disposable {
         final Scene scene = sceneLoader.load(name);
         scene.batch = new ModelBatch(new MundusPBRShaderProvider(config), renderableSorter);
 
-        scene.depthBatch = new ModelBatch(new PBRDepthShaderProvider(depthConfig));
+        scene.depthBatch = new ModelBatch(new MundusPBRSDepthShaderProvider(depthConfig));
 
         return scene;
     }

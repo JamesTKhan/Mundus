@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.mbrlabs.mundus.commons.shaders.MundusPBRSDepthShaderProvider
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
 import com.mbrlabs.mundus.editor.core.project.ProjectAlreadyImportedException
@@ -51,7 +52,6 @@ import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
-import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.lwjgl.opengl.GL11
@@ -149,7 +149,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         projectManager.modelBatch = ModelBatch(EditorShaderProvider(config), SceneRenderableSorter())
 
         val depthConfig = ShaderUtils.buildPBRShaderDepthConfig(projectManager.current().assetManager.maxNumBones)
-        projectManager.setDepthBatch((ModelBatch(PBRDepthShaderProvider(depthConfig))))
+        projectManager.setDepthBatch((ModelBatch(MundusPBRSDepthShaderProvider(depthConfig))))
 
         UI.sceneWidget.setCam(context.currScene.cam)
         UI.sceneWidget.setRenderer {
