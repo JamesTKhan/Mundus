@@ -42,6 +42,7 @@ class SettingsDialog : BaseDialog("Settings") {
     private var listener: ClickListener? = null
 
     private val generalSettings = GeneralSettingsTable()
+    private val keyboardShortcutsSettings = KeyboardShortcutsSettingsTable()
     private val exportSettings = ExportSettingsTable()
     private val appearenceSettings = AppearanceSettingsTable()
     private val cameraSettings = CameraSettingsTable()
@@ -60,6 +61,11 @@ class SettingsDialog : BaseDialog("Settings") {
         val generalSettingsNode = SettingsNode(VisLabel("General"))
         generalSettingsNode.value = generalSettings
         settingsTree.add(generalSettingsNode)
+
+        // Keyboard shortcuts
+        val keyboardShortcutsSettingsNode = SettingsNode(VisLabel("Keyboard Shortcuts"))
+        keyboardShortcutsSettingsNode.value = keyboardShortcutsSettings
+        settingsTree.add(keyboardShortcutsSettingsNode)
 
         // export
         val exportSettingsNode = SettingsNode(VisLabel("Export"))
