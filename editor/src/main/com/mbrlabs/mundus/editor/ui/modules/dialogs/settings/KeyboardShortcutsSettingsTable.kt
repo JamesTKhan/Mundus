@@ -16,9 +16,16 @@
 
 package com.mbrlabs.mundus.editor.ui.modules.dialogs.settings
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputAdapter
+import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.utils.ObjectIntMap
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.io.IOManager
 import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
@@ -33,6 +40,10 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
     private val keymapManager = Mundus.inject<KeymapManager>()
     private val registry: Registry = Mundus.inject()
     private val ioManager: IOManager = Mundus.inject<IOManagerProvider>().ioManager
+    private val changeInputListener = ChangeInputListener()
+    private val keyboardShortcutsTable = VisTable()
+
+    private val changedKeyboardShortcuts = ObjectIntMap<KeymapKey>()
 
     init {
         top().left()
@@ -41,18 +52,23 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         add(VisLabel("Keyboard Shortcuts Settings")).left().row()
         addSeparator().padBottom(UI.PAD_SIDE*2)
 
-        val keyboardShortcutsTable = VisTable()
         keyboardShortcutsTable.defaults().pad(4f)
-
-        addShortcut(keymapManager.getKey(KeymapKey.MOVE_FORWARD), "Move Forward", keyboardShortcutsTable)
-        addShortcut(keymapManager.getKey(KeymapKey.MOVE_BACK), "Move Back", keyboardShortcutsTable)
-        addShortcut(keymapManager.getKey(KeymapKey.STRAFE_LEFT), "Strafe Left", keyboardShortcutsTable)
-        addShortcut(keymapManager.getKey(KeymapKey.STRAFE_RIGHT), "Strafe Right", keyboardShortcutsTable)
-
         add(keyboardShortcutsTable).growX()
     }
 
+    override fun onInit() {
+        changedKeyboardShortcuts.clear()
+        initKeymapTable()
+    }
+
     override fun onSave() {
+        // Save changed shortcuts
+        for (changedKeyboardShortcut in changedKeyboardShortcuts) {
+            keymapManager.setKey(changedKeyboardShortcut.key, changedKeyboardShortcut.value)
+        }
+        changedKeyboardShortcuts.clear()
+
+        // Save into registry
         val customKeyboardShortcuts = registry.settings.customKeyboardShortcuts
         customKeyboardShortcuts.clear()
 
@@ -74,10 +90,66 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         UI.toaster.success("Settings saved")
     }
 
-    private fun addShortcut(keycode: Int, desc: String, table: VisTable) {
-        table.add(Input.Keys.toString(keycode)).left()
+    private fun initKeymapTable() {
+        keyboardShortcutsTable.clear()
+
+        addShortcut(KeymapKey.MOVE_FORWARD, "Move Forward", keyboardShortcutsTable)
+        addShortcut(KeymapKey.MOVE_BACK, "Move Back", keyboardShortcutsTable)
+        addShortcut(KeymapKey.STRAFE_LEFT, "Strafe Left", keyboardShortcutsTable)
+        addShortcut(KeymapKey.STRAFE_RIGHT, "Strafe Right", keyboardShortcutsTable)
+    }
+
+    private fun addShortcut(keymapKey: KeymapKey, desc: String, table: VisTable) {
+        val keyLabel = VisLabel(Input.Keys.toString(keymapManager.getKey(keymapKey)))
+
+        val changeButton = VisTextButton("Change")
+        changeButton.addListener(ChangeButtonListener(keymapKey, keyLabel))
+
+        val resetButton = VisTextButton("Reset")
+        resetButton.addListener(ResetButtonListener())
+
+        table.add(keyLabel).left()
+        table.add(changeButton).left()
+        table.add(resetButton).left()
         table.addSeparator(true)
         table.add(desc).left().row()
-        table.addSeparator().colspan(3)
+        table.addSeparator().colspan(5)
+    }
+
+    private inner class ChangeButtonListener(val keymapKey: KeymapKey, val keyLabel: VisLabel) : ClickListener() {
+        override fun clicked(event: InputEvent, x: Float, y: Float) {
+            changeInputListener.originalInputListeners = Gdx.input.inputProcessor
+            changeInputListener.keymapKey = keymapKey
+            changeInputListener.keyLabel = keyLabel
+            Gdx.input.inputProcessor = changeInputListener
+
+            keyLabel.setText("---")
+
+        }
+    }
+
+    private class ResetButtonListener : ClickListener() {
+        override fun clicked(event: InputEvent, x: Float, y: Float) {
+            // TODO
+        }
+    }
+
+    private inner class ChangeInputListener : InputAdapter() {
+
+        var originalInputListeners: InputProcessor? = null
+        lateinit var keymapKey: KeymapKey
+        lateinit var keyLabel: VisLabel
+
+        override fun keyUp(keycode: Int): Boolean {
+            if (keycode == Input.Keys.ESCAPE) {
+                keyLabel.setText(Input.Keys.toString(keymapManager.getKey(keymapKey)))
+            } else {
+                changedKeyboardShortcuts.put(keymapKey, keycode)
+                keyLabel.setText(Input.Keys.toString(keycode))
+            }
+
+            Gdx.input.inputProcessor = originalInputListeners
+            return true
+        }
     }
 }

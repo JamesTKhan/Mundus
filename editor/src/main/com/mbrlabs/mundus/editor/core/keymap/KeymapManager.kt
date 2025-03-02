@@ -41,6 +41,8 @@ class KeymapManager(customKeyboardShortcuts: ObjectMap<String, String>) {
 
     fun getKey(keymapKey: KeymapKey): Int = keymap.get(keymapKey, -1)
 
+    fun setKey(keymapKey: KeymapKey, keycode: Int) = keymap.put(keymapKey, keycode)
+
     private fun getKeyCode(customKeyboardShortcuts: ObjectMap<String, String>, keymapKey: KeymapKey, defaultKeyCode: Int): Int {
         return Input.Keys.valueOf(customKeyboardShortcuts.get(keymapKey.name, Input.Keys.toString(defaultKeyCode)))
     }

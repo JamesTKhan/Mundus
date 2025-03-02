@@ -113,6 +113,8 @@ class SettingsDialog : BaseDialog("Settings") {
             }
         }
         saveBtn.addListener(listener)
+
+        table.onInit()
     }
 
     inner class SettingsNode(label: VisLabel) : Tree.Node<SettingsNode, BaseSettingsTable, VisLabel>(label) {
