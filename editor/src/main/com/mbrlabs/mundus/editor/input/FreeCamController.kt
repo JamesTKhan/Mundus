@@ -108,7 +108,7 @@ class FreeCamController(private val projectManager: ProjectManager,
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-        if (Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
+        if (Gdx.input.isButtonPressed(keymapManager.getKey(KeymapKey.LOOK_AROUND))) {
             var deltaX: Float = (-Gdx.input.deltaX).toFloat()
             var deltaY: Float = (-Gdx.input.deltaY).toFloat()
 

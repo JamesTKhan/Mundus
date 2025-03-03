@@ -30,17 +30,20 @@ import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.io.IOManager
 import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
 import com.mbrlabs.mundus.editor.core.keymap.KeymapKey
+import com.mbrlabs.mundus.editor.core.keymap.KeymapKeyType
 import com.mbrlabs.mundus.editor.core.keymap.KeymapManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.SettingsChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.utils.ButtonUtils
 
 class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
 
     private val keymapManager = Mundus.inject<KeymapManager>()
     private val registry: Registry = Mundus.inject()
     private val ioManager: IOManager = Mundus.inject<IOManagerProvider>().ioManager
-    private val changeInputListener = ChangeInputListener()
+    private val changeKeyInputListener = ChangeKeyInputListener()
+    private val changeButtonInputListener = ChangeButtonInputListener()
     private val keyboardShortcutsTable = VisTable()
 
     private val changedKeyboardShortcuts = ObjectIntMap<KeymapKey>()
@@ -84,6 +87,9 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         if (keymapManager.getKey(KeymapKey.STRAFE_RIGHT) != KeymapManager.STRAFE_RIGHT_DEFAULT_KEY) {
             customKeyboardShortcuts.put(KeymapKey.STRAFE_RIGHT.name, Input.Keys.toString(keymapManager.getKey(KeymapKey.STRAFE_RIGHT)))
         }
+        if (keymapManager.getKey(KeymapKey.LOOK_AROUND) != KeymapManager.LOOK_AROUND_DEFAULT_KEY) {
+            customKeyboardShortcuts.put(KeymapKey.LOOK_AROUND.name, ButtonUtils.buttonToString(keymapManager.getKey(KeymapKey.LOOK_AROUND)))
+        }
 
         ioManager.saveRegistry(registry)
         Mundus.postEvent(SettingsChangedEvent(registry.settings))
@@ -97,13 +103,21 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         addShortcut(KeymapKey.MOVE_BACK, "Move Back", keyboardShortcutsTable)
         addShortcut(KeymapKey.STRAFE_LEFT, "Strafe Left", keyboardShortcutsTable)
         addShortcut(KeymapKey.STRAFE_RIGHT, "Strafe Right", keyboardShortcutsTable)
+        addShortcut(KeymapKey.LOOK_AROUND, "Look Around (Hold)", keyboardShortcutsTable)
     }
 
     private fun addShortcut(keymapKey: KeymapKey, desc: String, table: VisTable) {
-        val keyLabel = VisLabel(Input.Keys.toString(keymapManager.getKey(keymapKey)))
+        val keyLabel = if (KeymapKeyType.KEY == keymapKey.type)
+            VisLabel(Input.Keys.toString(keymapManager.getKey(keymapKey)))
+        else
+            VisLabel(ButtonUtils.buttonToString(keymapManager.getKey(keymapKey)))
 
         val changeButton = VisTextButton("Change")
-        changeButton.addListener(ChangeButtonListener(keymapKey, keyLabel))
+        if (KeymapKeyType.KEY == keymapKey.type) {
+            changeButton.addListener(ChangeKeyListener(keymapKey, keyLabel))
+        } else if (KeymapKeyType.BUTTON == keymapKey.type) {
+            changeButton.addListener(ChangeButtonListener(keymapKey, keyLabel))
+        }
 
         val resetButton = VisTextButton("Reset")
         resetButton.addListener(ResetButtonListener())
@@ -116,15 +130,25 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         table.addSeparator().colspan(5)
     }
 
-    private inner class ChangeButtonListener(val keymapKey: KeymapKey, val keyLabel: VisLabel) : ClickListener() {
+    private inner class ChangeKeyListener(val keymapKey: KeymapKey, val keyLabel: VisLabel) : ClickListener() {
         override fun clicked(event: InputEvent, x: Float, y: Float) {
-            changeInputListener.originalInputListeners = Gdx.input.inputProcessor
-            changeInputListener.keymapKey = keymapKey
-            changeInputListener.keyLabel = keyLabel
-            Gdx.input.inputProcessor = changeInputListener
+            changeKeyInputListener.originalInputListeners = Gdx.input.inputProcessor
+            changeKeyInputListener.keymapKey = keymapKey
+            changeKeyInputListener.keyLabel = keyLabel
+            Gdx.input.inputProcessor = changeKeyInputListener
 
             keyLabel.setText("---")
+        }
+    }
 
+    private inner class ChangeButtonListener(val keymapKey: KeymapKey, val keyLabel: VisLabel) : ClickListener() {
+        override fun clicked(event: InputEvent?, x: Float, y: Float) {
+            changeButtonInputListener.originalInputListeners = Gdx.input.inputProcessor
+            changeButtonInputListener.keymapKey = keymapKey
+            changeButtonInputListener.keyLabel = keyLabel
+            Gdx.input.inputProcessor = changeButtonInputListener
+
+            keyLabel.setText("---")
         }
     }
 
@@ -134,7 +158,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         }
     }
 
-    private inner class ChangeInputListener : InputAdapter() {
+    private inner class ChangeKeyInputListener : InputAdapter() {
 
         var originalInputListeners: InputProcessor? = null
         lateinit var keymapKey: KeymapKey
@@ -144,9 +168,35 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
             if (keycode == Input.Keys.ESCAPE) {
                 keyLabel.setText(Input.Keys.toString(keymapManager.getKey(keymapKey)))
             } else {
+                // TODO check already bind
                 changedKeyboardShortcuts.put(keymapKey, keycode)
                 keyLabel.setText(Input.Keys.toString(keycode))
             }
+
+            Gdx.input.inputProcessor = originalInputListeners
+            return true
+        }
+    }
+
+    private inner class ChangeButtonInputListener : InputAdapter() {
+
+        var originalInputListeners: InputProcessor? = null
+        lateinit var keymapKey: KeymapKey
+        lateinit var keyLabel: VisLabel
+
+        override fun keyUp(keycode: Int): Boolean {
+            if (keycode == Input.Keys.ESCAPE) {
+                keyLabel.setText(Input.Keys.toString(keymapManager.getKey(keymapKey)))
+            }
+
+            Gdx.input.inputProcessor = originalInputListeners
+            return true
+        }
+
+        override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+            // TODO check already bind
+            changedKeyboardShortcuts.put(keymapKey, button)
+            keyLabel.setText(ButtonUtils.buttonToString(button))
 
             Gdx.input.inputProcessor = originalInputListeners
             return true

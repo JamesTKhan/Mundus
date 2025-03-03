@@ -16,11 +16,7 @@
 
 package com.mbrlabs.mundus.editor.core.keymap
 
-enum class KeymapKey(val type: KeymapKeyType) {
-    MOVE_FORWARD(KeymapKeyType.KEY),
-    MOVE_BACK(KeymapKeyType.KEY),
-    STRAFE_LEFT(KeymapKeyType.KEY),
-    STRAFE_RIGHT(KeymapKeyType.KEY),
-
-    LOOK_AROUND(KeymapKeyType.BUTTON);
+enum class KeymapKeyType {
+    KEY,
+    BUTTON
 }

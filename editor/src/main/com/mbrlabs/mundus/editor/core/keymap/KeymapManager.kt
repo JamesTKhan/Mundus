@@ -19,6 +19,7 @@ package com.mbrlabs.mundus.editor.core.keymap
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.utils.ObjectIntMap
 import com.badlogic.gdx.utils.ObjectMap
+import com.mbrlabs.mundus.editor.utils.ButtonUtils
 
 class KeymapManager(customKeyboardShortcuts: ObjectMap<String, String>) {
 
@@ -27,16 +28,20 @@ class KeymapManager(customKeyboardShortcuts: ObjectMap<String, String>) {
         const val MOVE_BACK_DEFAULT_KEY = Input.Keys.S
         const val STRAFE_LEFT_DEFAULT_KEY = Input.Keys.A
         const val STRAFE_RIGHT_DEFAULT_KEY = Input.Keys.D
+        const val LOOK_AROUND_DEFAULT_KEY = Input.Buttons.MIDDLE
     }
 
     private val keymap = ObjectIntMap<KeymapKey>()
 
     init {
+        // Keyboard shortcuts
         keymap.put(KeymapKey.MOVE_FORWARD, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_FORWARD, MOVE_FORWARD_DEFAULT_KEY))
         keymap.put(KeymapKey.MOVE_BACK, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_BACK, MOVE_BACK_DEFAULT_KEY))
         keymap.put(KeymapKey.STRAFE_LEFT, getKeyCode(customKeyboardShortcuts, KeymapKey.STRAFE_LEFT , STRAFE_LEFT_DEFAULT_KEY))
         keymap.put(KeymapKey.STRAFE_RIGHT, getKeyCode(customKeyboardShortcuts, KeymapKey.STRAFE_RIGHT, STRAFE_RIGHT_DEFAULT_KEY))
 
+        // Mouse shortcuts
+        keymap.put(KeymapKey.LOOK_AROUND, getButtonCode(customKeyboardShortcuts, KeymapKey.LOOK_AROUND, LOOK_AROUND_DEFAULT_KEY))
     }
 
     fun getKey(keymapKey: KeymapKey): Int = keymap.get(keymapKey, -1)
@@ -46,4 +51,9 @@ class KeymapManager(customKeyboardShortcuts: ObjectMap<String, String>) {
     private fun getKeyCode(customKeyboardShortcuts: ObjectMap<String, String>, keymapKey: KeymapKey, defaultKeyCode: Int): Int {
         return Input.Keys.valueOf(customKeyboardShortcuts.get(keymapKey.name, Input.Keys.toString(defaultKeyCode)))
     }
+
+    private fun getButtonCode(customKeyboardShortcuts: ObjectMap<String, String>, keymapKey: KeymapKey, defaultKeyCode: Int): Int {
+        return ButtonUtils.buttonStringToButtonKey(customKeyboardShortcuts.get(keymapKey.name, ButtonUtils.buttonToString(defaultKeyCode)))
+    }
+
 }
