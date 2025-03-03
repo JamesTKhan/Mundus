@@ -28,6 +28,9 @@ class KeyboardShortcutManager(customKeyboardShortcuts: ObjectMap<String, String>
         const val MOVE_BACK_DEFAULT_KEY = Input.Keys.S
         const val STRAFE_LEFT_DEFAULT_KEY = Input.Keys.A
         const val STRAFE_RIGHT_DEFAULT_KEY = Input.Keys.D
+        const val MOVE_UP_DEFAULT_KEY = Input.Keys.Q
+        const val MOVE_DOWN_DEFAULT_KEY = Input.Keys.E
+
         const val LOOK_AROUND_DEFAULT_KEY = Input.Buttons.MIDDLE
     }
 
@@ -39,6 +42,8 @@ class KeyboardShortcutManager(customKeyboardShortcuts: ObjectMap<String, String>
         keymap.put(KeymapKey.MOVE_BACK, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_BACK, MOVE_BACK_DEFAULT_KEY))
         keymap.put(KeymapKey.STRAFE_LEFT, getKeyCode(customKeyboardShortcuts, KeymapKey.STRAFE_LEFT , STRAFE_LEFT_DEFAULT_KEY))
         keymap.put(KeymapKey.STRAFE_RIGHT, getKeyCode(customKeyboardShortcuts, KeymapKey.STRAFE_RIGHT, STRAFE_RIGHT_DEFAULT_KEY))
+        keymap.put(KeymapKey.MOVE_UP, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_UP, MOVE_UP_DEFAULT_KEY))
+        keymap.put(KeymapKey.MOVE_DOWN, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_DOWN, MOVE_DOWN_DEFAULT_KEY))
 
         // Mouse shortcuts
         keymap.put(KeymapKey.LOOK_AROUND, getButtonCode(customKeyboardShortcuts, KeymapKey.LOOK_AROUND, LOOK_AROUND_DEFAULT_KEY))

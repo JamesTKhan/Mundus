@@ -5,6 +5,7 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.keymap.KeymapKey
 import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
+import com.mbrlabs.mundus.editor.utils.ButtonUtils
 
 /**
  * @author JamesTKhan
@@ -30,9 +31,10 @@ class KeyboardShortcutsDialog : BaseDialog("Keyboard Shortcuts") {
         addShortcut(keyboardShortcutManager.getKey(KeymapKey.MOVE_BACK), "Move Back", shortcutTableOne)
         addShortcut(keyboardShortcutManager.getKey(KeymapKey.STRAFE_LEFT), "Strafe Left", shortcutTableOne)
         addShortcut(keyboardShortcutManager.getKey(KeymapKey.STRAFE_RIGHT), "Strafe Right", shortcutTableOne)
-        addShortcut("Q", "Move Up", shortcutTableOne)
-        addShortcut("E", "Move Down", shortcutTableOne)
-        addShortcut("Hold Middle Click", "Look Around", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKey(KeymapKey.MOVE_UP), "Move Up", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKey(KeymapKey.MOVE_DOWN), "Move Down", shortcutTableOne)
+        addShortcut("Hold " + ButtonUtils.buttonToString(keyboardShortcutManager.getKey(KeymapKey.LOOK_AROUND)) + " Click",
+            "Look Around", shortcutTableOne)
         addShortcut("Scroll", "Zoom forward/backward", shortcutTableOne)
         addShortcut("Hold Shift", "Camera Panning", shortcutTableOne)
         addShortcut("F8", "Toggle Fullscreen 3d", shortcutTableOne)

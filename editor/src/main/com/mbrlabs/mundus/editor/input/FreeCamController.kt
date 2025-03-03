@@ -51,8 +51,6 @@ class FreeCamController(private val projectManager: ProjectManager,
 
     private var camera: Camera? = null
     private val keys = IntIntMap()
-    private val UP = Input.Keys.Q
-    private val DOWN = Input.Keys.E
     private val SHIFT_LEFT = Input.Keys.SHIFT_LEFT
     private val SHIFT_RIGHT = Input.Keys.SHIFT_RIGHT
     private var velocity = SPEED_1
@@ -168,11 +166,11 @@ class FreeCamController(private val projectManager: ProjectManager,
             tmp.set(camera!!.direction).crs(camera!!.up).nor().scl(deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(UP)) {
+        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.MOVE_UP))) {
             tmp.set(camera!!.up).nor().scl(deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(DOWN)) {
+        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.MOVE_DOWN))) {
             tmp.set(camera!!.up).nor().scl(-deltaTime * velocity)
             camera!!.position.add(tmp)
         }

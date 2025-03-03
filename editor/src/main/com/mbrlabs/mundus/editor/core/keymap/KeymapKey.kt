@@ -21,6 +21,8 @@ enum class KeymapKey(val type: KeymapKeyType) {
     MOVE_BACK(KeymapKeyType.KEY),
     STRAFE_LEFT(KeymapKeyType.KEY),
     STRAFE_RIGHT(KeymapKeyType.KEY),
+    MOVE_UP(KeymapKeyType.KEY),
+    MOVE_DOWN(KeymapKeyType.KEY),
 
     LOOK_AROUND(KeymapKeyType.BUTTON);
 }

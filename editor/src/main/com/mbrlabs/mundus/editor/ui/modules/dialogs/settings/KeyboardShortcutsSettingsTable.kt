@@ -87,6 +87,14 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         if (keyboardShortcutManager.getKey(KeymapKey.STRAFE_RIGHT) != KeyboardShortcutManager.STRAFE_RIGHT_DEFAULT_KEY) {
             customKeyboardShortcuts.put(KeymapKey.STRAFE_RIGHT.name, Input.Keys.toString(keyboardShortcutManager.getKey(KeymapKey.STRAFE_RIGHT)))
         }
+        if (keyboardShortcutManager.getKey(KeymapKey.MOVE_UP) != KeyboardShortcutManager.MOVE_UP_DEFAULT_KEY) {
+            customKeyboardShortcuts.put(KeymapKey.MOVE_UP.name, Input.Keys.toString(keyboardShortcutManager.getKey(KeymapKey.MOVE_UP)))
+        }
+        if (keyboardShortcutManager.getKey(KeymapKey.MOVE_DOWN) != KeyboardShortcutManager.MOVE_DOWN_DEFAULT_KEY) {
+            customKeyboardShortcuts.put(KeymapKey.MOVE_DOWN.name, Input.Keys.toString(keyboardShortcutManager.getKey(KeymapKey.MOVE_DOWN)))
+        }
+
+
         if (keyboardShortcutManager.getKey(KeymapKey.LOOK_AROUND) != KeyboardShortcutManager.LOOK_AROUND_DEFAULT_KEY) {
             customKeyboardShortcuts.put(KeymapKey.LOOK_AROUND.name, ButtonUtils.buttonToString(keyboardShortcutManager.getKey(KeymapKey.LOOK_AROUND)))
         }
@@ -103,6 +111,10 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         addShortcut(KeymapKey.MOVE_BACK, "Move Back", keyboardShortcutsTable)
         addShortcut(KeymapKey.STRAFE_LEFT, "Strafe Left", keyboardShortcutsTable)
         addShortcut(KeymapKey.STRAFE_RIGHT, "Strafe Right", keyboardShortcutsTable)
+        addShortcut(KeymapKey.MOVE_UP, "Move Up", keyboardShortcutsTable)
+        addShortcut(KeymapKey.MOVE_DOWN, "Move Down", keyboardShortcutsTable)
+
+
         addShortcut(KeymapKey.LOOK_AROUND, "Look Around (Hold)", keyboardShortcutsTable)
     }
 
