@@ -27,7 +27,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.utils.Pools
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.keymap.KeymapKey
-import com.mbrlabs.mundus.editor.core.keymap.KeymapManager
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
@@ -42,7 +42,7 @@ import org.pf4j.PluginManager
 class FreeCamController(private val projectManager: ProjectManager,
                         private val goPicker: GameObjectPicker,
                         private val pluginManager: PluginManager,
-                        private val keymapManager: KeymapManager
+                        private val keyboardShortcutManager: KeyboardShortcutManager
 ) : InputAdapter() {
 
     val SPEED_01 = 10f
@@ -108,7 +108,7 @@ class FreeCamController(private val projectManager: ProjectManager,
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-        if (Gdx.input.isButtonPressed(keymapManager.getKey(KeymapKey.LOOK_AROUND))) {
+        if (Gdx.input.isButtonPressed(keyboardShortcutManager.getKey(KeymapKey.LOOK_AROUND))) {
             var deltaX: Float = (-Gdx.input.deltaX).toFloat()
             var deltaY: Float = (-Gdx.input.deltaY).toFloat()
 
@@ -152,19 +152,19 @@ class FreeCamController(private val projectManager: ProjectManager,
     }
 
     @JvmOverloads fun update(deltaTime: Float = Gdx.graphics.deltaTime) {
-        if (keys.containsKey(keymapManager.getKey(KeymapKey.MOVE_FORWARD))) {
+        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.MOVE_FORWARD))) {
             tmp.set(camera!!.direction).nor().scl(deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(keymapManager.getKey(KeymapKey.MOVE_BACK))) {
+        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.MOVE_BACK))) {
             tmp.set(camera!!.direction).nor().scl(-deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(keymapManager.getKey(KeymapKey.STRAFE_LEFT))) {
+        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.STRAFE_LEFT))) {
             tmp.set(camera!!.direction).crs(camera!!.up).nor().scl(-deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(keymapManager.getKey(KeymapKey.STRAFE_RIGHT))) {
+        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.STRAFE_RIGHT))) {
             tmp.set(camera!!.direction).crs(camera!!.up).nor().scl(deltaTime * velocity)
             camera!!.position.add(tmp)
         }

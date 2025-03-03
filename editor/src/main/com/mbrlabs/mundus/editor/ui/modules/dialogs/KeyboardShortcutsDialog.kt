@@ -4,7 +4,7 @@ import com.badlogic.gdx.Input
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.keymap.KeymapKey
-import com.mbrlabs.mundus.editor.core.keymap.KeymapManager
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
 
 /**
  * @author JamesTKhan
@@ -12,7 +12,7 @@ import com.mbrlabs.mundus.editor.core.keymap.KeymapManager
  */
 class KeyboardShortcutsDialog : BaseDialog("Keyboard Shortcuts") {
 
-    private val keymapManager = Mundus.inject<KeymapManager>()
+    private val keyboardShortcutManager = Mundus.inject<KeyboardShortcutManager>()
     private lateinit var root: VisTable
 
     init {
@@ -26,10 +26,10 @@ class KeyboardShortcutsDialog : BaseDialog("Keyboard Shortcuts") {
         val shortcutTableOne = VisTable()
         shortcutTableOne.defaults().pad(4f)
 
-        addShortcut(keymapManager.getKey(KeymapKey.MOVE_FORWARD), "Move Forward", shortcutTableOne)
-        addShortcut(keymapManager.getKey(KeymapKey.MOVE_BACK), "Move Back", shortcutTableOne)
-        addShortcut(keymapManager.getKey(KeymapKey.STRAFE_LEFT), "Strafe Left", shortcutTableOne)
-        addShortcut(keymapManager.getKey(KeymapKey.STRAFE_RIGHT), "Strafe Right", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKey(KeymapKey.MOVE_FORWARD), "Move Forward", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKey(KeymapKey.MOVE_BACK), "Move Back", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKey(KeymapKey.STRAFE_LEFT), "Strafe Left", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKey(KeymapKey.STRAFE_RIGHT), "Strafe Right", shortcutTableOne)
         addShortcut("Q", "Move Up", shortcutTableOne)
         addShortcut("E", "Move Down", shortcutTableOne)
         addShortcut("Hold Middle Click", "Look Around", shortcutTableOne)

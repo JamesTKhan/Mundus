@@ -21,7 +21,7 @@ import com.badlogic.gdx.utils.ObjectIntMap
 import com.badlogic.gdx.utils.ObjectMap
 import com.mbrlabs.mundus.editor.utils.ButtonUtils
 
-class KeymapManager(customKeyboardShortcuts: ObjectMap<String, String>) {
+class KeyboardShortcutManager(customKeyboardShortcuts: ObjectMap<String, String>) {
 
     companion object {
         const val MOVE_FORWARD_DEFAULT_KEY = Input.Keys.W

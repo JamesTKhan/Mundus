@@ -31,7 +31,7 @@ import com.mbrlabs.mundus.editor.core.io.IOManager
 import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
 import com.mbrlabs.mundus.editor.core.keymap.KeymapKey
 import com.mbrlabs.mundus.editor.core.keymap.KeymapKeyType
-import com.mbrlabs.mundus.editor.core.keymap.KeymapManager
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.SettingsChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
@@ -39,7 +39,7 @@ import com.mbrlabs.mundus.editor.utils.ButtonUtils
 
 class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
 
-    private val keymapManager = Mundus.inject<KeymapManager>()
+    private val keyboardShortcutManager = Mundus.inject<KeyboardShortcutManager>()
     private val registry: Registry = Mundus.inject()
     private val ioManager: IOManager = Mundus.inject<IOManagerProvider>().ioManager
     private val changeKeyInputListener = ChangeKeyInputListener()
@@ -67,7 +67,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
     override fun onSave() {
         // Save changed shortcuts
         for (changedKeyboardShortcut in changedKeyboardShortcuts) {
-            keymapManager.setKey(changedKeyboardShortcut.key, changedKeyboardShortcut.value)
+            keyboardShortcutManager.setKey(changedKeyboardShortcut.key, changedKeyboardShortcut.value)
         }
         changedKeyboardShortcuts.clear()
 
@@ -75,20 +75,20 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         val customKeyboardShortcuts = registry.settings.customKeyboardShortcuts
         customKeyboardShortcuts.clear()
 
-        if (keymapManager.getKey(KeymapKey.MOVE_FORWARD) != KeymapManager.MOVE_FORWARD_DEFAULT_KEY) {
-            customKeyboardShortcuts.put(KeymapKey.MOVE_FORWARD.name, Input.Keys.toString(keymapManager.getKey(KeymapKey.MOVE_FORWARD)))
+        if (keyboardShortcutManager.getKey(KeymapKey.MOVE_FORWARD) != KeyboardShortcutManager.MOVE_FORWARD_DEFAULT_KEY) {
+            customKeyboardShortcuts.put(KeymapKey.MOVE_FORWARD.name, Input.Keys.toString(keyboardShortcutManager.getKey(KeymapKey.MOVE_FORWARD)))
         }
-        if (keymapManager.getKey(KeymapKey.MOVE_BACK) != KeymapManager.MOVE_BACK_DEFAULT_KEY) {
-            customKeyboardShortcuts.put(KeymapKey.MOVE_BACK.name, Input.Keys.toString(keymapManager.getKey(KeymapKey.MOVE_BACK)))
+        if (keyboardShortcutManager.getKey(KeymapKey.MOVE_BACK) != KeyboardShortcutManager.MOVE_BACK_DEFAULT_KEY) {
+            customKeyboardShortcuts.put(KeymapKey.MOVE_BACK.name, Input.Keys.toString(keyboardShortcutManager.getKey(KeymapKey.MOVE_BACK)))
         }
-        if (keymapManager.getKey(KeymapKey.STRAFE_LEFT) != KeymapManager.STRAFE_LEFT_DEFAULT_KEY) {
-            customKeyboardShortcuts.put(KeymapKey.STRAFE_LEFT.name, Input.Keys.toString(keymapManager.getKey(KeymapKey.STRAFE_LEFT)))
+        if (keyboardShortcutManager.getKey(KeymapKey.STRAFE_LEFT) != KeyboardShortcutManager.STRAFE_LEFT_DEFAULT_KEY) {
+            customKeyboardShortcuts.put(KeymapKey.STRAFE_LEFT.name, Input.Keys.toString(keyboardShortcutManager.getKey(KeymapKey.STRAFE_LEFT)))
         }
-        if (keymapManager.getKey(KeymapKey.STRAFE_RIGHT) != KeymapManager.STRAFE_RIGHT_DEFAULT_KEY) {
-            customKeyboardShortcuts.put(KeymapKey.STRAFE_RIGHT.name, Input.Keys.toString(keymapManager.getKey(KeymapKey.STRAFE_RIGHT)))
+        if (keyboardShortcutManager.getKey(KeymapKey.STRAFE_RIGHT) != KeyboardShortcutManager.STRAFE_RIGHT_DEFAULT_KEY) {
+            customKeyboardShortcuts.put(KeymapKey.STRAFE_RIGHT.name, Input.Keys.toString(keyboardShortcutManager.getKey(KeymapKey.STRAFE_RIGHT)))
         }
-        if (keymapManager.getKey(KeymapKey.LOOK_AROUND) != KeymapManager.LOOK_AROUND_DEFAULT_KEY) {
-            customKeyboardShortcuts.put(KeymapKey.LOOK_AROUND.name, ButtonUtils.buttonToString(keymapManager.getKey(KeymapKey.LOOK_AROUND)))
+        if (keyboardShortcutManager.getKey(KeymapKey.LOOK_AROUND) != KeyboardShortcutManager.LOOK_AROUND_DEFAULT_KEY) {
+            customKeyboardShortcuts.put(KeymapKey.LOOK_AROUND.name, ButtonUtils.buttonToString(keyboardShortcutManager.getKey(KeymapKey.LOOK_AROUND)))
         }
 
         ioManager.saveRegistry(registry)
@@ -108,9 +108,9 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
 
     private fun addShortcut(keymapKey: KeymapKey, desc: String, table: VisTable) {
         val keyLabel = if (KeymapKeyType.KEY == keymapKey.type)
-            VisLabel(Input.Keys.toString(keymapManager.getKey(keymapKey)))
+            VisLabel(Input.Keys.toString(keyboardShortcutManager.getKey(keymapKey)))
         else
-            VisLabel(ButtonUtils.buttonToString(keymapManager.getKey(keymapKey)))
+            VisLabel(ButtonUtils.buttonToString(keyboardShortcutManager.getKey(keymapKey)))
 
         val changeButton = VisTextButton("Change")
         if (KeymapKeyType.KEY == keymapKey.type) {
@@ -166,7 +166,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
 
         override fun keyUp(keycode: Int): Boolean {
             if (keycode == Input.Keys.ESCAPE) {
-                keyLabel.setText(Input.Keys.toString(keymapManager.getKey(keymapKey)))
+                keyLabel.setText(Input.Keys.toString(keyboardShortcutManager.getKey(keymapKey)))
             } else {
                 // TODO check already bind
                 changedKeyboardShortcuts.put(keymapKey, keycode)
@@ -186,7 +186,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
 
         override fun keyUp(keycode: Int): Boolean {
             if (keycode == Input.Keys.ESCAPE) {
-                keyLabel.setText(Input.Keys.toString(keymapManager.getKey(keymapKey)))
+                keyLabel.setText(Input.Keys.toString(keyboardShortcutManager.getKey(keymapKey)))
             }
 
             Gdx.input.inputProcessor = originalInputListeners
