@@ -38,27 +38,40 @@ class KeyboardShortcutManager(customKeyboardShortcuts: ObjectMap<String, String>
 
     init {
         // Keyboard shortcuts
-        keymap.put(KeymapKey.MOVE_FORWARD, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_FORWARD, MOVE_FORWARD_DEFAULT_KEY))
-        keymap.put(KeymapKey.MOVE_BACK, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_BACK, MOVE_BACK_DEFAULT_KEY))
-        keymap.put(KeymapKey.STRAFE_LEFT, getKeyCode(customKeyboardShortcuts, KeymapKey.STRAFE_LEFT , STRAFE_LEFT_DEFAULT_KEY))
-        keymap.put(KeymapKey.STRAFE_RIGHT, getKeyCode(customKeyboardShortcuts, KeymapKey.STRAFE_RIGHT, STRAFE_RIGHT_DEFAULT_KEY))
-        keymap.put(KeymapKey.MOVE_UP, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_UP, MOVE_UP_DEFAULT_KEY))
-        keymap.put(KeymapKey.MOVE_DOWN, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_DOWN, MOVE_DOWN_DEFAULT_KEY))
+        keymap.put(KeymapKey.MOVE_FORWARD, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_FORWARD))
+        keymap.put(KeymapKey.MOVE_BACK, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_BACK))
+        keymap.put(KeymapKey.STRAFE_LEFT, getKeyCode(customKeyboardShortcuts, KeymapKey.STRAFE_LEFT))
+        keymap.put(KeymapKey.STRAFE_RIGHT, getKeyCode(customKeyboardShortcuts, KeymapKey.STRAFE_RIGHT))
+        keymap.put(KeymapKey.MOVE_UP, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_UP))
+        keymap.put(KeymapKey.MOVE_DOWN, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_DOWN))
 
         // Mouse shortcuts
-        keymap.put(KeymapKey.LOOK_AROUND, getButtonCode(customKeyboardShortcuts, KeymapKey.LOOK_AROUND, LOOK_AROUND_DEFAULT_KEY))
+        keymap.put(KeymapKey.LOOK_AROUND, getButtonCode(customKeyboardShortcuts, KeymapKey.LOOK_AROUND))
     }
 
     fun getKey(keymapKey: KeymapKey): Int = keymap.get(keymapKey, -1)
 
     fun setKey(keymapKey: KeymapKey, keycode: Int) = keymap.put(keymapKey, keycode)
 
-    private fun getKeyCode(customKeyboardShortcuts: ObjectMap<String, String>, keymapKey: KeymapKey, defaultKeyCode: Int): Int {
-        return Input.Keys.valueOf(customKeyboardShortcuts.get(keymapKey.name, Input.Keys.toString(defaultKeyCode)))
+    fun getDefaultKeycode(keymapKey: KeymapKey): Int {
+        return when(keymapKey) {
+            KeymapKey.MOVE_FORWARD -> MOVE_FORWARD_DEFAULT_KEY
+            KeymapKey.MOVE_BACK -> MOVE_BACK_DEFAULT_KEY
+            KeymapKey.STRAFE_LEFT -> STRAFE_LEFT_DEFAULT_KEY
+            KeymapKey.STRAFE_RIGHT -> STRAFE_RIGHT_DEFAULT_KEY
+            KeymapKey.MOVE_UP -> MOVE_UP_DEFAULT_KEY
+            KeymapKey.MOVE_DOWN -> MOVE_DOWN_DEFAULT_KEY
+
+            KeymapKey.LOOK_AROUND -> LOOK_AROUND_DEFAULT_KEY
+        }
     }
 
-    private fun getButtonCode(customKeyboardShortcuts: ObjectMap<String, String>, keymapKey: KeymapKey, defaultKeyCode: Int): Int {
-        return ButtonUtils.buttonStringToButtonKey(customKeyboardShortcuts.get(keymapKey.name, ButtonUtils.buttonToString(defaultKeyCode)))
+    private fun getKeyCode(customKeyboardShortcuts: ObjectMap<String, String>, keymapKey: KeymapKey): Int {
+        return Input.Keys.valueOf(customKeyboardShortcuts.get(keymapKey.name, Input.Keys.toString(getDefaultKeycode(keymapKey))))
+    }
+
+    private fun getButtonCode(customKeyboardShortcuts: ObjectMap<String, String>, keymapKey: KeymapKey): Int {
+        return ButtonUtils.buttonStringToButtonKey(customKeyboardShortcuts.get(keymapKey.name, ButtonUtils.buttonToString(getDefaultKeycode(keymapKey))))
     }
 
 }
