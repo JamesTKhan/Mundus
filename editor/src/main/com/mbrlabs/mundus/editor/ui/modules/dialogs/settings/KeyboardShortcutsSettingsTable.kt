@@ -39,6 +39,12 @@ import com.mbrlabs.mundus.editor.utils.ButtonUtils
 
 class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
 
+    companion object {
+        val FORBIDDEN_KEYS = arrayOf(
+            Input.Keys.CONTROL_LEFT
+        )
+    }
+
     private val keyboardShortcutManager = Mundus.inject<KeyboardShortcutManager>()
     private val registry: Registry = Mundus.inject()
     private val ioManager: IOManager = Mundus.inject<IOManagerProvider>().ioManager
@@ -186,7 +192,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
             if (keycode == Input.Keys.ESCAPE) {
                 keyLabel.setText(Input.Keys.toString(keyboardShortcutManager.getKey(keymapKey)))
                 Gdx.input.inputProcessor = originalInputListeners
-            } else {
+            } else if (!FORBIDDEN_KEYS.contains(keycode)) {
                 if (isKeyAlreadyUse(keymapKey, keycode)) {
                     UI.toaster.error("The key is already used!")
                 } else {
