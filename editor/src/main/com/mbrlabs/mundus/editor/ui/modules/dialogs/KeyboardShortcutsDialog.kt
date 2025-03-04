@@ -40,6 +40,7 @@ class KeyboardShortcutsDialog : BaseDialog("Keyboard Shortcuts") {
         addShortcut(keyboardShortcutManager.getKey(KeymapKey.STRAFE_RIGHT), "Strafe Right", shortcutTableOne)
         addShortcut(keyboardShortcutManager.getKey(KeymapKey.MOVE_UP), "Move Up", shortcutTableOne)
         addShortcut(keyboardShortcutManager.getKey(KeymapKey.MOVE_DOWN), "Move Down", shortcutTableOne)
+        addShortcut(ButtonUtils.buttonToString(keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)), "Object Selection", shortcutTableOne)
         addShortcut("Hold " + ButtonUtils.buttonToString(keyboardShortcutManager.getKey(KeymapKey.LOOK_AROUND)) + " Click",
             "Look Around", shortcutTableOne)
         addShortcut("Scroll", "Zoom forward/backward", shortcutTableOne)

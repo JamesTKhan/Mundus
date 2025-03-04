@@ -126,7 +126,7 @@ object Mundus {
         freeCamController = FreeCamController(projectManager, goPicker, pluginManager, keyboardShortcutManager)
         globalPrefManager = MundusPreferencesManager("global")
         toolManager = ToolManager(input, projectManager, goPicker, handlePicker, shapeRenderer,
-                commandHistory, globalPrefManager)
+                commandHistory, globalPrefManager, keyboardShortcutManager)
         gizmoManager = GizmoManager()
         shortcutController = ShortcutController(registry, projectManager, commandHistory, toolManager, debugRenderer, globalPrefManager)
         json = Json()

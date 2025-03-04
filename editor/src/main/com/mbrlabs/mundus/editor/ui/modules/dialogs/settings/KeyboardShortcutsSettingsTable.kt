@@ -110,7 +110,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         addShortcut(KeymapKey.MOVE_UP, "Move Up", keyboardShortcutsTable)
         addShortcut(KeymapKey.MOVE_DOWN, "Move Down", keyboardShortcutsTable)
 
-
+        addShortcut(KeymapKey.OBJECT_SELECTION, "Object Selection", keyboardShortcutsTable)
         addShortcut(KeymapKey.LOOK_AROUND, "Look Around (Hold)", keyboardShortcutsTable)
     }
 
