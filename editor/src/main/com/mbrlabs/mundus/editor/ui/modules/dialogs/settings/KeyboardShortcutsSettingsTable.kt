@@ -112,6 +112,8 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
 
         addShortcut(KeymapKey.OBJECT_SELECTION, "Object Selection", keyboardShortcutsTable)
         addShortcut(KeymapKey.LOOK_AROUND, "Look Around (Hold)", keyboardShortcutsTable)
+
+        addShortcut(KeymapKey.FULLSCREEN, "Toggle Fullscreen 3d", keyboardShortcutsTable)
     }
 
     private fun addShortcut(keymapKey: KeymapKey, desc: String, table: VisTable) {

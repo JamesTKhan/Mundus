@@ -30,6 +30,7 @@ class KeyboardShortcutManager(customKeyboardShortcuts: ObjectMap<String, String>
         const val STRAFE_RIGHT_DEFAULT_KEY = Input.Keys.D
         const val MOVE_UP_DEFAULT_KEY = Input.Keys.Q
         const val MOVE_DOWN_DEFAULT_KEY = Input.Keys.E
+        const val FULLSCREEN_DEFAULT_KEY = Input.Keys.F8
 
         const val OBJECT_SELECTION_DEFAULT_KEY = Input.Buttons.RIGHT
         const val LOOK_AROUND_DEFAULT_KEY = Input.Buttons.MIDDLE
@@ -45,6 +46,7 @@ class KeyboardShortcutManager(customKeyboardShortcuts: ObjectMap<String, String>
         keymap.put(KeymapKey.STRAFE_RIGHT, getKeyCode(customKeyboardShortcuts, KeymapKey.STRAFE_RIGHT))
         keymap.put(KeymapKey.MOVE_UP, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_UP))
         keymap.put(KeymapKey.MOVE_DOWN, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_DOWN))
+        keymap.put(KeymapKey.FULLSCREEN, getKeyCode(customKeyboardShortcuts, KeymapKey.FULLSCREEN))
 
         // Mouse shortcuts
         keymap.put(KeymapKey.OBJECT_SELECTION, getButtonCode(customKeyboardShortcuts, KeymapKey.OBJECT_SELECTION))
@@ -63,6 +65,7 @@ class KeyboardShortcutManager(customKeyboardShortcuts: ObjectMap<String, String>
             KeymapKey.STRAFE_RIGHT -> STRAFE_RIGHT_DEFAULT_KEY
             KeymapKey.MOVE_UP -> MOVE_UP_DEFAULT_KEY
             KeymapKey.MOVE_DOWN -> MOVE_DOWN_DEFAULT_KEY
+            KeymapKey.FULLSCREEN -> FULLSCREEN_DEFAULT_KEY
 
             KeymapKey.OBJECT_SELECTION -> OBJECT_SELECTION_DEFAULT_KEY
             KeymapKey.LOOK_AROUND -> LOOK_AROUND_DEFAULT_KEY

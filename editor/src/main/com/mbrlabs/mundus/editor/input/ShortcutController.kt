@@ -19,6 +19,8 @@ package com.mbrlabs.mundus.editor.input
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
+import com.mbrlabs.mundus.editor.core.keymap.KeymapKey
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.history.CommandHistory
@@ -36,7 +38,8 @@ class ShortcutController(
     private val history: CommandHistory,
     private val toolManager: ToolManager,
     private val debugRenderer: DebugRenderer,
-    private val globalPrefManager: MundusPreferencesManager
+    private val globalPrefManager: MundusPreferencesManager,
+    private val shortcutManager: KeyboardShortcutManager
 )
     : KeyboardLayoutInputAdapter(registry) {
 
@@ -55,7 +58,7 @@ class ShortcutController(
         }
 
         // fullscreen
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F8)) {
+        if (Gdx.input.isKeyJustPressed(shortcutManager.getKey(KeymapKey.FULLSCREEN))) {
             UI.toggleFullscreenRender()
         }
 

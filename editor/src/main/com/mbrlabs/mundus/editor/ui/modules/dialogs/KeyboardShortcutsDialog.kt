@@ -45,7 +45,7 @@ class KeyboardShortcutsDialog : BaseDialog("Keyboard Shortcuts") {
             "Look Around", shortcutTableOne)
         addShortcut("Scroll", "Zoom forward/backward", shortcutTableOne)
         addShortcut("Hold Shift", "Camera Panning", shortcutTableOne)
-        addShortcut("F8", "Toggle Fullscreen 3d", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKey(KeymapKey.FULLSCREEN), "Toggle Fullscreen 3d", shortcutTableOne)
 
         root.add(shortcutTableOne).top()
         root.addSeparator(true)
