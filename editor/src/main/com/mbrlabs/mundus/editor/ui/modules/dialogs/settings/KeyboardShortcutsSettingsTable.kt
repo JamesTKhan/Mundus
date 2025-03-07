@@ -29,19 +29,22 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.io.IOManager
 import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcut
 import com.mbrlabs.mundus.editor.core.keymap.KeymapKey
 import com.mbrlabs.mundus.editor.core.keymap.KeymapKeyType
 import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.SettingsChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
-import com.mbrlabs.mundus.editor.utils.ButtonUtils
 
 class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
 
     companion object {
         val FORBIDDEN_KEYS = arrayOf(
-            Input.Keys.CONTROL_LEFT
+            Input.Keys.CONTROL_LEFT,
+            Input.Keys.CONTROL_RIGHT,
+            Input.Keys.ALT_LEFT,
+            Input.Keys.ALT_RIGHT
         )
     }
 
@@ -78,7 +81,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         // Save changed shortcuts
         for (keyboardShortcut in keyboardShortcuts) {
             if (keyboardShortcut.value.modified) {
-                keyboardShortcutManager.setKey(keyboardShortcut.key, keyboardShortcut.value.keycode)
+                keyboardShortcutManager.setKey(keyboardShortcut.key, keyboardShortcut.value.keyboardShortcut)
                 keyboardShortcut.value.modified = false
             }
         }
@@ -90,8 +93,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         for (keymapKey in KeymapKey.values()) {
             val keycode = keyboardShortcutManager.getKey(keymapKey)
             if (keycode != keyboardShortcutManager.getDefaultKeycode(keymapKey)) {
-                val keyText = if (keymapKey.type == KeymapKeyType.KEY) Input.Keys.toString(keycode) else ButtonUtils.buttonToString(keycode)
-                customKeyboardShortcuts.put(keymapKey.name, keyText)
+                customKeyboardShortcuts.put(keymapKey.name, keyboardShortcutManager.getKeyText(keymapKey))
             }
         }
 
@@ -117,10 +119,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
     }
 
     private fun addShortcut(keymapKey: KeymapKey, desc: String, table: VisTable) {
-        val keyLabel = if (KeymapKeyType.KEY == keymapKey.type)
-            VisLabel(Input.Keys.toString(keyboardShortcutManager.getKey(keymapKey)))
-        else
-            VisLabel(ButtonUtils.buttonToString(keyboardShortcutManager.getKey(keymapKey)))
+        val keyLabel = VisLabel(keyboardShortcutManager.getKeyText(keymapKey))
 
         val changeButton = VisTextButton("Change")
         if (KeymapKeyType.KEY == keymapKey.type) {
@@ -140,8 +139,18 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         table.addSeparator().colspan(5)
     }
 
-    private fun isKeyAlreadyUse(keymapKey: KeymapKey, keycode: Int): Boolean {
-        return keyboardShortcuts.count { it.key != keymapKey && it.value.keycode == keycode } > 0
+    private fun isKeyAlreadyUse(keymapKey: KeymapKey, keyboardShortcut: KeyboardShortcut): Boolean {
+        return keyboardShortcuts.count { it.key != keymapKey && it.value.keyboardShortcut == keyboardShortcut } > 0
+    }
+
+    private fun getPressedExtraKeycode(): Int? {
+        for (extraKey in FORBIDDEN_KEYS) {
+            if (Gdx.input.isKeyPressed(extraKey)) {
+                return extraKey
+            }
+        }
+
+        return null
     }
 
     private inner class ChangeKeyListener(val keymapKey: KeymapKey, val keyLabel: VisLabel) : ClickListener() {
@@ -174,13 +183,9 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
                 return
             }
 
-            keyboardShortcuts.get(keymapKey).keycode = defaultKey
+            keyboardShortcuts.get(keymapKey).keyboardShortcut = defaultKey
             keyboardShortcuts.get(keymapKey).modified = true
-            if (KeymapKeyType.KEY == keymapKey.type) {
-                keyLabel.setText(Input.Keys.toString(defaultKey))
-            } else if (KeymapKeyType.BUTTON == keymapKey.type) {
-                keyLabel.setText(ButtonUtils.buttonToString(defaultKey))
-            }
+            keyLabel.setText(keyboardShortcutManager.getKeyText(keymapKey, defaultKey))
         }
     }
 
@@ -192,15 +197,17 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
 
         override fun keyUp(keycode: Int): Boolean {
             if (keycode == Input.Keys.ESCAPE) {
-                keyLabel.setText(Input.Keys.toString(keyboardShortcutManager.getKey(keymapKey)))
+                keyLabel.setText(keyboardShortcutManager.getKeyText(keymapKey, keyboardShortcuts.get(keymapKey).keyboardShortcut))
                 Gdx.input.inputProcessor = originalInputListeners
             } else if (!FORBIDDEN_KEYS.contains(keycode)) {
-                if (isKeyAlreadyUse(keymapKey, keycode)) {
+                val keyboardShortcut = KeyboardShortcut(keycode, getPressedExtraKeycode())
+
+                if (isKeyAlreadyUse(keymapKey, keyboardShortcut)) {
                     UI.toaster.error("The key is already used!")
                 } else {
-                    keyboardShortcuts.get(keymapKey).keycode = keycode
+                    keyboardShortcuts.get(keymapKey).keyboardShortcut = keyboardShortcut
                     keyboardShortcuts.get(keymapKey).modified = true
-                    keyLabel.setText(Input.Keys.toString(keycode))
+                    keyLabel.setText(keyboardShortcutManager.getKeyText(keymapKey, keyboardShortcut))
                     Gdx.input.inputProcessor = originalInputListeners
                 }
             }
@@ -217,7 +224,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
 
         override fun keyUp(keycode: Int): Boolean {
             if (keycode == Input.Keys.ESCAPE) {
-                keyLabel.setText(ButtonUtils.buttonToString(keyboardShortcuts.get(keymapKey).keycode))
+                keyLabel.setText(keyboardShortcutManager.getKeyText(keymapKey, keyboardShortcuts.get(keymapKey).keyboardShortcut))
             }
 
             Gdx.input.inputProcessor = originalInputListeners
@@ -225,12 +232,14 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         }
 
         override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-            if (isKeyAlreadyUse(keymapKey, button)) {
+            val keyboardShortcut = KeyboardShortcut(button)
+
+            if (isKeyAlreadyUse(keymapKey, keyboardShortcut)) {
                 UI.toaster.error("The key is already used!")
             } else {
-                keyboardShortcuts.get(keymapKey).keycode = button
+                keyboardShortcuts.get(keymapKey).keyboardShortcut = keyboardShortcut
                 keyboardShortcuts.get(keymapKey).modified = true
-                keyLabel.setText(ButtonUtils.buttonToString(button))
+                keyLabel.setText(keyboardShortcutManager.getKeyText(keymapKey, keyboardShortcut))
 
                 Gdx.input.inputProcessor = originalInputListeners
             }
@@ -238,5 +247,5 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         }
     }
 
-    private data class ModifiedKeycode(var keycode: Int, var modified: Boolean)
+    private data class ModifiedKeycode(var keyboardShortcut: KeyboardShortcut, var modified: Boolean)
 }

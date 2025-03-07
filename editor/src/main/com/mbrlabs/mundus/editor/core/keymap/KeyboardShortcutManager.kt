@@ -16,48 +16,67 @@
 
 package com.mbrlabs.mundus.editor.core.keymap
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.utils.ObjectIntMap
 import com.badlogic.gdx.utils.ObjectMap
 import com.mbrlabs.mundus.editor.utils.ButtonUtils
 
 class KeyboardShortcutManager(customKeyboardShortcuts: ObjectMap<String, String>) {
 
     companion object {
-        const val MOVE_FORWARD_DEFAULT_KEY = Input.Keys.W
-        const val MOVE_BACK_DEFAULT_KEY = Input.Keys.S
-        const val STRAFE_LEFT_DEFAULT_KEY = Input.Keys.A
-        const val STRAFE_RIGHT_DEFAULT_KEY = Input.Keys.D
-        const val MOVE_UP_DEFAULT_KEY = Input.Keys.Q
-        const val MOVE_DOWN_DEFAULT_KEY = Input.Keys.E
-        const val FULLSCREEN_DEFAULT_KEY = Input.Keys.F8
+        val MOVE_FORWARD_DEFAULT_KEY = KeyboardShortcut(Input.Keys.W)
+        val MOVE_BACK_DEFAULT_KEY = KeyboardShortcut(Input.Keys.S)
+        val STRAFE_LEFT_DEFAULT_KEY = KeyboardShortcut(Input.Keys.A)
+        val STRAFE_RIGHT_DEFAULT_KEY = KeyboardShortcut(Input.Keys.D)
+        val MOVE_UP_DEFAULT_KEY = KeyboardShortcut(Input.Keys.Q)
+        val MOVE_DOWN_DEFAULT_KEY = KeyboardShortcut(Input.Keys.E)
+        val FULLSCREEN_DEFAULT_KEY = KeyboardShortcut(Input.Keys.F8)
 
-        const val OBJECT_SELECTION_DEFAULT_KEY = Input.Buttons.RIGHT
-        const val LOOK_AROUND_DEFAULT_KEY = Input.Buttons.MIDDLE
+        val OBJECT_SELECTION_DEFAULT_KEY = KeyboardShortcut(Input.Buttons.RIGHT)
+        val LOOK_AROUND_DEFAULT_KEY = KeyboardShortcut(Input.Buttons.MIDDLE)
     }
 
-    private val keymap = ObjectIntMap<KeymapKey>()
+    private val keymap = ObjectMap<KeymapKey, KeyboardShortcut>()
 
     init {
         // Keyboard shortcuts
-        keymap.put(KeymapKey.MOVE_FORWARD, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_FORWARD))
-        keymap.put(KeymapKey.MOVE_BACK, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_BACK))
-        keymap.put(KeymapKey.STRAFE_LEFT, getKeyCode(customKeyboardShortcuts, KeymapKey.STRAFE_LEFT))
-        keymap.put(KeymapKey.STRAFE_RIGHT, getKeyCode(customKeyboardShortcuts, KeymapKey.STRAFE_RIGHT))
-        keymap.put(KeymapKey.MOVE_UP, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_UP))
-        keymap.put(KeymapKey.MOVE_DOWN, getKeyCode(customKeyboardShortcuts, KeymapKey.MOVE_DOWN))
-        keymap.put(KeymapKey.FULLSCREEN, getKeyCode(customKeyboardShortcuts, KeymapKey.FULLSCREEN))
+        keymap.put(KeymapKey.MOVE_FORWARD, getKeyboardShortcut(customKeyboardShortcuts, KeymapKey.MOVE_FORWARD))
+        keymap.put(KeymapKey.MOVE_BACK, getKeyboardShortcut(customKeyboardShortcuts, KeymapKey.MOVE_BACK))
+        keymap.put(KeymapKey.STRAFE_LEFT, getKeyboardShortcut(customKeyboardShortcuts, KeymapKey.STRAFE_LEFT))
+        keymap.put(KeymapKey.STRAFE_RIGHT, getKeyboardShortcut(customKeyboardShortcuts, KeymapKey.STRAFE_RIGHT))
+        keymap.put(KeymapKey.MOVE_UP, getKeyboardShortcut(customKeyboardShortcuts, KeymapKey.MOVE_UP))
+        keymap.put(KeymapKey.MOVE_DOWN, getKeyboardShortcut(customKeyboardShortcuts, KeymapKey.MOVE_DOWN))
+        keymap.put(KeymapKey.FULLSCREEN, getKeyboardShortcut(customKeyboardShortcuts, KeymapKey.FULLSCREEN))
 
         // Mouse shortcuts
-        keymap.put(KeymapKey.OBJECT_SELECTION, getButtonCode(customKeyboardShortcuts, KeymapKey.OBJECT_SELECTION))
-        keymap.put(KeymapKey.LOOK_AROUND, getButtonCode(customKeyboardShortcuts, KeymapKey.LOOK_AROUND))
+        keymap.put(KeymapKey.OBJECT_SELECTION, getKeyboardShortcut(customKeyboardShortcuts, KeymapKey.OBJECT_SELECTION))
+        keymap.put(KeymapKey.LOOK_AROUND, getKeyboardShortcut(customKeyboardShortcuts, KeymapKey.LOOK_AROUND))
     }
 
-    fun getKey(keymapKey: KeymapKey): Int = keymap.get(keymapKey, -1)
+    fun getKey(keymapKey: KeymapKey): KeyboardShortcut = keymap.get(keymapKey)
 
-    fun setKey(keymapKey: KeymapKey, keycode: Int) = keymap.put(keymapKey, keycode)
+    fun getKeyText(keymapKey: KeymapKey): String {
+        return getKeyText(keymapKey, keymap.get(keymapKey))
+    }
 
-    fun getDefaultKeycode(keymapKey: KeymapKey): Int {
+    fun getKeyText(keymapKey: KeymapKey, keyboardShortcut: KeyboardShortcut): String {
+        var text = ""
+
+        if (KeymapKeyType.KEY == keymapKey.type) {
+            if (keyboardShortcut.extraKeycode != null) {
+                text = Input.Keys.toString(keyboardShortcut.extraKeycode) + "+"
+            }
+            text += Input.Keys.toString(keyboardShortcut.keycode)
+        } else { // KeymapKeyType.BUTTON == keymapKey.type
+            text = ButtonUtils.buttonToString(keyboardShortcut.keycode)
+        }
+
+        return text
+    }
+
+    fun setKey(keymapKey: KeymapKey, keyboardShortcut: KeyboardShortcut) = keymap.put(keymapKey, keyboardShortcut)
+
+    fun getDefaultKeycode(keymapKey: KeymapKey): KeyboardShortcut {
         return when(keymapKey) {
             KeymapKey.MOVE_FORWARD -> MOVE_FORWARD_DEFAULT_KEY
             KeymapKey.MOVE_BACK -> MOVE_BACK_DEFAULT_KEY
@@ -72,12 +91,36 @@ class KeyboardShortcutManager(customKeyboardShortcuts: ObjectMap<String, String>
         }
     }
 
-    private fun getKeyCode(customKeyboardShortcuts: ObjectMap<String, String>, keymapKey: KeymapKey): Int {
-        return Input.Keys.valueOf(customKeyboardShortcuts.get(keymapKey.name, Input.Keys.toString(getDefaultKeycode(keymapKey))))
+    fun isPressed(keymapKey: KeymapKey): Boolean {
+        val keyboardShortcut = keymap.get(keymapKey)
+
+        if (KeymapKeyType.KEY == keymapKey.type) {
+            return (keyboardShortcut.extraKeycode == null || Gdx.input.isKeyPressed(keyboardShortcut.extraKeycode)) &&
+                    Gdx.input.isKeyJustPressed(keyboardShortcut.keycode)
+        } else { // KeymapKeyType.BUTTON == keymapKey.type
+            return Gdx.input.isButtonJustPressed(keyboardShortcut.keycode)
+        }
     }
 
-    private fun getButtonCode(customKeyboardShortcuts: ObjectMap<String, String>, keymapKey: KeymapKey): Int {
-        return ButtonUtils.buttonStringToButtonKey(customKeyboardShortcuts.get(keymapKey.name, ButtonUtils.buttonToString(getDefaultKeycode(keymapKey))))
+    fun hasConfiguredButtonCode(keymapKey: KeymapKey, buttonCode: Int): Boolean {
+        return keymap.get(keymapKey).keycode == buttonCode
     }
 
+    private fun getKeyboardShortcut(customKeyboardShortcuts: ObjectMap<String, String>, keymapKey: KeymapKey): KeyboardShortcut {
+        if (!customKeyboardShortcuts.containsKey(keymapKey.name)) {
+            return getDefaultKeycode(keymapKey)
+        }
+
+        val text = customKeyboardShortcuts.get(keymapKey.name)
+        if (KeymapKeyType.KEY == keymapKey.type) {
+            val keyTexts = text.split(text).map { it.replace("+", "") }
+            if (keyTexts.size == 1) {
+                return KeyboardShortcut(Input.Keys.valueOf(keyTexts[0]))
+            } else {
+                return KeyboardShortcut(Input.Keys.valueOf(keyTexts[0]), Input.Keys.valueOf(keyTexts[1]))
+            }
+        } else { // KeymapKeyType.KEY == keymapKey.type
+            return KeyboardShortcut(ButtonUtils.buttonStringToButtonKey(text))
+        }
+    }
 }

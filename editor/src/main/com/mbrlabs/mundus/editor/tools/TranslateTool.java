@@ -260,7 +260,7 @@ public class TranslateTool extends TransformTool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (Input.Buttons.LEFT != keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)) {
+        if (!keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 
@@ -269,7 +269,7 @@ public class TranslateTool extends TransformTool {
                     getProjectManager().current().currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
-                if (Input.Buttons.LEFT == keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)) {
+                if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
                     super.touchDown(screenX, screenY, pointer, button);
                 }
                 return false;
@@ -297,7 +297,7 @@ public class TranslateTool extends TransformTool {
         if (state != TransformState.IDLE) {
             command = new TranslateCommand(getProjectManager().current().currScene.currentSelection);
             command.setBefore(getProjectManager().current().currScene.currentSelection.getLocalPosition(temp0));
-        } else if (Input.Buttons.LEFT == keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)) {
+        } else if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 

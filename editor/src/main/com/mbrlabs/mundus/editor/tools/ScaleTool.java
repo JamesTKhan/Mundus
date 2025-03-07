@@ -243,7 +243,7 @@ public class ScaleTool extends TransformTool {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         ProjectContext projectContext = getProjectManager().current();
         final GameObject selection = projectContext.currScene.currentSelection;
-        if (Input.Buttons.LEFT != keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)) {
+        if (!keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 
@@ -251,7 +251,7 @@ public class ScaleTool extends TransformTool {
             ScaleHandle handle = (ScaleHandle) handlePicker.pick(handles, projectContext.currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
-                if (Input.Buttons.LEFT == keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)) {
+                if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
                     super.touchDown(screenX, screenY, pointer, button);
                 }
                 return false;
@@ -290,7 +290,7 @@ public class ScaleTool extends TransformTool {
         if (state != TransformState.IDLE) {
             command = new ScaleCommand(selection);
             command.setBefore(tempScale);
-        } else if (Input.Buttons.LEFT == keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)) {
+        } else if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 

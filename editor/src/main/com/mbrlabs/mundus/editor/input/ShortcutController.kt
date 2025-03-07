@@ -58,7 +58,7 @@ class ShortcutController(
         }
 
         // fullscreen
-        if (Gdx.input.isKeyJustPressed(shortcutManager.getKey(KeymapKey.FULLSCREEN))) {
+        if (shortcutManager.isPressed(KeymapKey.FULLSCREEN)) {
             UI.toggleFullscreenRender()
         }
 

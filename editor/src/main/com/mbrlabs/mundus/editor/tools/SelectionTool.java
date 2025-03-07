@@ -112,7 +112,7 @@ public class SelectionTool extends Tool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (button == keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)) {
+        if (keyboardShortcutManager.isPressed(KeymapKey.OBJECT_SELECTION)) {
             GameObject selection = goPicker.pick(getProjectManager().current().currScene, screenX, screenY);
             if (selection != null && !selection.equals(getProjectManager().current().currScene.currentSelection)) {
                 gameObjectSelected(selection);

@@ -209,7 +209,7 @@ public class RotateTool extends TransformTool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (Input.Buttons.LEFT != keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)) {
+        if (!keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 
@@ -223,7 +223,7 @@ public class RotateTool extends TransformTool {
             RotateHandle handle = (RotateHandle) handlePicker.pick(handles, projectContext.currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
-                if (Input.Buttons.LEFT == keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)) {
+                if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
                     super.touchDown(screenX, screenY, pointer, button);
                 }
                 return false;
@@ -242,7 +242,7 @@ public class RotateTool extends TransformTool {
             default:
                 break;
             }
-        } else if (Input.Buttons.LEFT == keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)) {
+        } else if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 

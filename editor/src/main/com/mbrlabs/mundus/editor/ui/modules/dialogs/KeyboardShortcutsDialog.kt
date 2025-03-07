@@ -1,13 +1,11 @@
 package com.mbrlabs.mundus.editor.ui.modules.dialogs
 
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.keymap.KeymapKey
 import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
-import com.mbrlabs.mundus.editor.utils.ButtonUtils
 
 /**
  * @author JamesTKhan
@@ -34,18 +32,17 @@ class KeyboardShortcutsDialog : BaseDialog("Keyboard Shortcuts") {
         val shortcutTableOne = VisTable()
         shortcutTableOne.defaults().pad(4f)
 
-        addShortcut(keyboardShortcutManager.getKey(KeymapKey.MOVE_FORWARD), "Move Forward", shortcutTableOne)
-        addShortcut(keyboardShortcutManager.getKey(KeymapKey.MOVE_BACK), "Move Back", shortcutTableOne)
-        addShortcut(keyboardShortcutManager.getKey(KeymapKey.STRAFE_LEFT), "Strafe Left", shortcutTableOne)
-        addShortcut(keyboardShortcutManager.getKey(KeymapKey.STRAFE_RIGHT), "Strafe Right", shortcutTableOne)
-        addShortcut(keyboardShortcutManager.getKey(KeymapKey.MOVE_UP), "Move Up", shortcutTableOne)
-        addShortcut(keyboardShortcutManager.getKey(KeymapKey.MOVE_DOWN), "Move Down", shortcutTableOne)
-        addShortcut(ButtonUtils.buttonToString(keyboardShortcutManager.getKey(KeymapKey.OBJECT_SELECTION)), "Object Selection", shortcutTableOne)
-        addShortcut("Hold " + ButtonUtils.buttonToString(keyboardShortcutManager.getKey(KeymapKey.LOOK_AROUND)) + " Click",
-            "Look Around", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKeyText(KeymapKey.MOVE_FORWARD), "Move Forward", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKeyText(KeymapKey.MOVE_BACK), "Move Back", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKeyText(KeymapKey.STRAFE_LEFT), "Strafe Left", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKeyText(KeymapKey.STRAFE_RIGHT), "Strafe Right", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKeyText(KeymapKey.MOVE_UP), "Move Up", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKeyText(KeymapKey.MOVE_DOWN), "Move Down", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKeyText(KeymapKey.OBJECT_SELECTION), "Object Selection", shortcutTableOne)
+        addShortcut("Hold " + keyboardShortcutManager.getKey(KeymapKey.LOOK_AROUND) + " Click", "Look Around", shortcutTableOne)
         addShortcut("Scroll", "Zoom forward/backward", shortcutTableOne)
         addShortcut("Hold Shift", "Camera Panning", shortcutTableOne)
-        addShortcut(keyboardShortcutManager.getKey(KeymapKey.FULLSCREEN), "Toggle Fullscreen 3d", shortcutTableOne)
+        addShortcut(keyboardShortcutManager.getKeyText(KeymapKey.FULLSCREEN), "Toggle Fullscreen 3d", shortcutTableOne)
 
         root.add(shortcutTableOne).top()
         root.addSeparator(true)
@@ -70,13 +67,6 @@ class KeyboardShortcutsDialog : BaseDialog("Keyboard Shortcuts") {
 
     private fun addShortcut(key: String, desc: String, table: VisTable) {
         table.add(key).left()
-        table.addSeparator(true)
-        table.add(desc).left().row()
-        table.addSeparator().colspan(3)
-    }
-
-    private fun addShortcut(keycode: Int, desc: String, table: VisTable) {
-        table.add(Input.Keys.toString(keycode)).left()
         table.addSeparator(true)
         table.add(desc).left().row()
         table.addSeparator().colspan(3)

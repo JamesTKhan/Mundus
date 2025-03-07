@@ -106,7 +106,7 @@ class FreeCamController(private val projectManager: ProjectManager,
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-        if (Gdx.input.isButtonPressed(keyboardShortcutManager.getKey(KeymapKey.LOOK_AROUND))) {
+        if (keyboardShortcutManager.isPressed(KeymapKey.LOOK_AROUND)) {
             var deltaX: Float = (-Gdx.input.deltaX).toFloat()
             var deltaY: Float = (-Gdx.input.deltaY).toFloat()
 
@@ -150,27 +150,27 @@ class FreeCamController(private val projectManager: ProjectManager,
     }
 
     @JvmOverloads fun update(deltaTime: Float = Gdx.graphics.deltaTime) {
-        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.MOVE_FORWARD))) {
+        if (isKeyPressed(KeymapKey.MOVE_FORWARD)) {
             tmp.set(camera!!.direction).nor().scl(deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.MOVE_BACK))) {
+        if (isKeyPressed(KeymapKey.MOVE_BACK)) {
             tmp.set(camera!!.direction).nor().scl(-deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.STRAFE_LEFT))) {
+        if (isKeyPressed(KeymapKey.STRAFE_LEFT)) {
             tmp.set(camera!!.direction).crs(camera!!.up).nor().scl(-deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.STRAFE_RIGHT))) {
+        if (isKeyPressed(KeymapKey.STRAFE_RIGHT)) {
             tmp.set(camera!!.direction).crs(camera!!.up).nor().scl(deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.MOVE_UP))) {
+        if (isKeyPressed(KeymapKey.MOVE_UP)) {
             tmp.set(camera!!.up).nor().scl(deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(keyboardShortcutManager.getKey(KeymapKey.MOVE_DOWN))) {
+        if (isKeyPressed(KeymapKey.MOVE_DOWN)) {
             tmp.set(camera!!.up).nor().scl(-deltaTime * velocity)
             camera!!.position.add(tmp)
         }
@@ -227,5 +227,10 @@ class FreeCamController(private val projectManager: ProjectManager,
         }
 
         return false
+    }
+
+    private fun isKeyPressed(keymapKey: KeymapKey): Boolean {
+        val keyboardShortcut = keyboardShortcutManager.getKey(keymapKey)
+        return (keyboardShortcut.extraKeycode == null || keys.containsKey(keyboardShortcut.extraKeycode)) && keys.containsKey(keyboardShortcut.keycode)
     }
 }
