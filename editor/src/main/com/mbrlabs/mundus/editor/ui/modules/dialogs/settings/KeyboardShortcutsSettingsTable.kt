@@ -24,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.ObjectMap
 import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.editor.Mundus
@@ -54,6 +55,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
     private val changeKeyInputListener = ChangeKeyInputListener()
     private val changeButtonInputListener = ChangeButtonInputListener()
     private val keyboardShortcutsTable = VisTable()
+    private val scrollPane = VisScrollPane(keyboardShortcutsTable)
 
     private val keyboardShortcuts = ObjectMap<KeymapKey, ModifiedKeycode>()
 
@@ -65,7 +67,10 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         addSeparator().padBottom(UI.PAD_SIDE*2)
 
         keyboardShortcutsTable.defaults().pad(4f)
-        add(keyboardShortcutsTable).growX()
+
+        scrollPane.setFlickScroll(false)
+        scrollPane.setFadeScrollBars(false)
+        add(scrollPane).growX()
     }
 
     override fun onInit() {
@@ -116,6 +121,15 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         addShortcut(KeymapKey.LOOK_AROUND, "Look Around (Hold)", keyboardShortcutsTable)
 
         addShortcut(KeymapKey.FULLSCREEN, "Toggle Fullscreen 3d", keyboardShortcutsTable)
+        addShortcut(KeymapKey.UNDO, "Undo", keyboardShortcutsTable)
+        addShortcut(KeymapKey.REDO, "Redo", keyboardShortcutsTable)
+        addShortcut(KeymapKey.SAVE_PROJECT, "Save Project", keyboardShortcutsTable)
+        addShortcut(KeymapKey.TRANSLATE_TOOL, "Translate Tool", keyboardShortcutsTable)
+        addShortcut(KeymapKey.ROTATE_TOOL, "Rotate Tool", keyboardShortcutsTable)
+        addShortcut(KeymapKey.SCALE_TOOL, "Scale Tool", keyboardShortcutsTable)
+        addShortcut(KeymapKey.SELECT_TOOL, "Select Tool", keyboardShortcutsTable)
+        addShortcut(KeymapKey.DEBUG_RENDER_MODE, "Debug Render Mode", keyboardShortcutsTable)
+        addShortcut(KeymapKey.WIREFRAME_RENDER_MODE, "Wireframe Mode", keyboardShortcutsTable)
     }
 
     private fun addShortcut(keymapKey: KeymapKey, desc: String, table: VisTable) {

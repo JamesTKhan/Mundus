@@ -16,7 +16,6 @@
 
 package com.mbrlabs.mundus.editor.input
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
@@ -43,8 +42,6 @@ class ShortcutController(
 )
     : KeyboardLayoutInputAdapter(registry) {
 
-    private var isCtrlPressed = false
-
     /**
      * Updates here should also be reflected in the KeyboardShortcutsDialog
      */
@@ -60,52 +57,35 @@ class ShortcutController(
         // fullscreen
         if (shortcutManager.isPressed(KeymapKey.FULLSCREEN)) {
             UI.toggleFullscreenRender()
-        }
-
-        // CTR + xyz shortcuts
-
-        if (keycode == Input.Keys.CONTROL_LEFT) {
-            isCtrlPressed = true
-        }
-        if (!isCtrlPressed) return false
-
-        if (keycode == Input.Keys.Z) {
+        } else if (shortcutManager.isPressed(KeymapKey.UNDO)) {
             history.goBack()
             return true
-        } else if (keycode == Input.Keys.Y) {
+        } else if (shortcutManager.isPressed(KeymapKey.REDO)) {
             history.goForward()
             return true
-        } else if (keycode == Input.Keys.S) {
+        } else if (shortcutManager.isPressed(KeymapKey.SAVE_PROJECT)) {
             projectManager.saveCurrentProject()
             UI.toaster.success("Project saved")
             return true
-        } else if (keycode == Input.Keys.T) {
+        } else if (shortcutManager.isPressed(KeymapKey.TRANSLATE_TOOL)) {
             toolManager.activateTool(toolManager.translateTool)
             UI.toolbar.updateActiveToolButton()
-        } else if (keycode == Input.Keys.R) {
+        } else if (shortcutManager.isPressed(KeymapKey.ROTATE_TOOL)) {
             toolManager.activateTool(toolManager.rotateTool)
             UI.toolbar.updateActiveToolButton()
-        } else if (keycode == Input.Keys.G) {
+        } else if (shortcutManager.isPressed(KeymapKey.SCALE_TOOL)) {
             toolManager.activateTool(toolManager.scaleTool)
             UI.toolbar.updateActiveToolButton()
-        } else if (keycode == Input.Keys.F) {
+        } else if (shortcutManager.isPressed(KeymapKey.SELECT_TOOL)) {
             toolManager.activateTool(toolManager.selectionTool)
             UI.toolbar.updateActiveToolButton()
-        } else if (keycode == Input.Keys.F2) {
+        } else if (shortcutManager.isPressed(KeymapKey.DEBUG_RENDER_MODE)) {
             debugRenderer.isEnabled = !debugRenderer.isEnabled
             globalPrefManager.set(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_ON, debugRenderer.isEnabled)
-        } else if (keycode == Input.Keys.F3) {
+        } else if (shortcutManager.isPressed(KeymapKey.WIREFRAME_RENDER_MODE)) {
             projectManager.current().renderWireframe = !projectManager.current().renderWireframe
         }
 
-        return false
-    }
-
-    override fun keyUp(code: Int): Boolean {
-        val keycode = convertKeycode(code)
-        if (keycode == Input.Keys.CONTROL_LEFT) {
-            isCtrlPressed = false
-        }
         return false
     }
 
