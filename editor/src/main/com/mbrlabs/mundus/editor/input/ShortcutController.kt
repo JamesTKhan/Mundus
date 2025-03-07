@@ -17,36 +17,35 @@
 package com.mbrlabs.mundus.editor.input
 
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputAdapter
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
 import com.mbrlabs.mundus.editor.core.keymap.KeymapKey
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.history.CommandHistory
 import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.utils.KeyboardLayoutUtils
 
 /**
  * @author Marcus Brummer
  * @version 07-02-2016
  */
 class ShortcutController(
-    registry: Registry,
     private val projectManager: ProjectManager,
     private val history: CommandHistory,
     private val toolManager: ToolManager,
     private val debugRenderer: DebugRenderer,
     private val globalPrefManager: MundusPreferencesManager,
     private val shortcutManager: KeyboardShortcutManager
-)
-    : KeyboardLayoutInputAdapter(registry) {
+) : InputAdapter() {
 
     /**
      * Updates here should also be reflected in the KeyboardShortcutsDialog
      */
     override fun keyDown(code: Int): Boolean {
-        val keycode = convertKeycode(code)
+        val keycode = KeyboardLayoutUtils.convertKeycode(code)
 
         // export
         if(keycode == Input.Keys.F1) {

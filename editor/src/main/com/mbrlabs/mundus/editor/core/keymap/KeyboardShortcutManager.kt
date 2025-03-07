@@ -140,7 +140,7 @@ class KeyboardShortcutManager(customKeyboardShortcuts: ObjectMap<String, String>
 
         val text = customKeyboardShortcuts.get(keymapKey.name)
         if (KeymapKeyType.KEY == keymapKey.type) {
-            val keyTexts = text.split(text).map { it.replace("+", "") }
+            val keyTexts = text.split("+").map { it.replace("+", "") }
             if (keyTexts.size == 1) {
                 return KeyboardShortcut(Input.Keys.valueOf(keyTexts[0]))
             } else {

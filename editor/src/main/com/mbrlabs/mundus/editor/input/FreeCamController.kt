@@ -32,6 +32,7 @@ import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.LogEvent
 import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker
+import com.mbrlabs.mundus.editor.utils.KeyboardLayoutUtils
 import com.mbrlabs.mundus.pluginapi.TerrainHoverExtension
 import org.pf4j.PluginManager
 
@@ -66,12 +67,12 @@ class FreeCamController(private val projectManager: ProjectManager,
     }
 
     override fun keyDown(keycode: Int): Boolean {
-        keys.put(keycode, keycode)
+        keys.put(KeyboardLayoutUtils.convertKeycode(keycode), KeyboardLayoutUtils.convertKeycode(keycode))
         return false
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        keys.remove(keycode, 0)
+        keys.remove(KeyboardLayoutUtils.convertKeycode(keycode), 0)
         return false
     }
 

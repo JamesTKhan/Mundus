@@ -37,6 +37,7 @@ import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.SettingsChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.utils.KeyboardLayoutUtils
 
 class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
 
@@ -214,7 +215,7 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
                 keyLabel.setText(keyboardShortcutManager.getKeyText(keymapKey, keyboardShortcuts.get(keymapKey).keyboardShortcut))
                 Gdx.input.inputProcessor = originalInputListeners
             } else if (!FORBIDDEN_KEYS.contains(keycode)) {
-                val keyboardShortcut = KeyboardShortcut(keycode, getPressedExtraKeycode())
+                val keyboardShortcut = KeyboardShortcut(KeyboardLayoutUtils.convertKeycode(keycode), getPressedExtraKeycode())
 
                 if (isKeyAlreadyUse(keymapKey, keyboardShortcut)) {
                     UI.toaster.error("The key is already used!")
