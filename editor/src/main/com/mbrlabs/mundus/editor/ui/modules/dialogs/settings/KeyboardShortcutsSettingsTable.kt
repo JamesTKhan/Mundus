@@ -147,8 +147,8 @@ class KeyboardShortcutsSettingsTable : BaseSettingsTable() {
         resetButton.addListener(ResetButtonListener(keymapKey, keyLabel))
 
         table.add(keyLabel).left()
-        table.add(changeButton).left()
-        table.add(resetButton).left()
+        table.add(changeButton).right()
+        table.add(resetButton).right()
         table.addSeparator(true)
         table.add(desc).left().row()
         table.addSeparator().colspan(5)
