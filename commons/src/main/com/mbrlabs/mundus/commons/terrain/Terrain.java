@@ -44,7 +44,7 @@ import java.util.Map;
  * @author Marcus Brummer
  * @version 30-11-2015
  */
-public class Terrain implements Disposable {
+public class Terrain implements TerrainInfo, Disposable {
 
     public static final int DEFAULT_SIZE = 1200;
     public static final int DEFAULT_VERTEX_RESOLUTION = 180;
@@ -83,7 +83,7 @@ public class Terrain implements Disposable {
     private Mesh mesh;
     private Map<Integer, Array<Integer>> vertexToTriangleMap;
 
-    private Terrain(int vertexResolution) {
+    private Terrain(int vertexResolution, float[] heightData, int terrainWidth, int terrainDepth) {
         this.attribs = new VertexAttributes(
                 VertexAttribute.Position(),
                 VertexAttribute.Normal(),
@@ -97,7 +97,10 @@ public class Terrain implements Disposable {
         this.stride = attribs.vertexSize / 4;
 
         this.vertexResolution = vertexResolution;
-        this.heightData = new float[vertexResolution * vertexResolution];
+        this.heightData = heightData;
+
+        this.terrainWidth = terrainWidth;
+        this.terrainDepth = terrainDepth;
 
         this.terrainMaterial = new TerrainMaterial();
         this.terrainMaterial.setTerrain(this);
@@ -108,10 +111,7 @@ public class Terrain implements Disposable {
     }
 
     public Terrain(int size, float[] heightData) {
-        this((int) Math.sqrt(heightData.length));
-        this.terrainWidth = size;
-        this.terrainDepth = size;
-        this.heightData = heightData;
+        this((int) Math.sqrt(heightData.length), heightData, size, size);
     }
 
     public void init() {
@@ -409,6 +409,17 @@ public class Terrain implements Disposable {
         this.uvScale = uvScale;
     }
 
+    @Override
+    public int getWidth() {
+        return terrainWidth;
+    }
+
+    @Override
+    public int getDepth() {
+        return terrainDepth;
+    }
+
+    @Override
     public Vector2 getUvScale() {
         return uvScale;
     }

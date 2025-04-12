@@ -33,7 +33,7 @@ public class TerrainMaterial extends TerrainAttributes {
     private final Map<SplatTexture.Channel, SplatTexture> textures;
     private final Map<SplatTexture.Channel, SplatTexture> normalTextures;
     private SplatMap splatmap;
-    private Terrain terrain;
+    private TerrainInfo terrain;
 
     public TerrainMaterial() {
         textures = new HashMap<>(5, 1);
@@ -170,11 +170,11 @@ public class TerrainMaterial extends TerrainAttributes {
         }
     }
 
-    public Terrain getTerrain() {
+    public TerrainInfo getTerrain() {
         return terrain;
     }
 
-    public void setTerrain(Terrain terrain) {
+    public void setTerrain(TerrainInfo terrain) {
         this.terrain = terrain;
     }
 
