@@ -16,26 +16,13 @@
 
 package com.mbrlabs.mundus.commons.terrain;
 
-import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.math.Vector2;
 
-/**
- * @author Marcus Brummer
- * @version 30-11-2015
- */
-public class Terrain extends BaseTerrain implements Disposable {
-    public static final int DEFAULT_SIZE = 1200;
-    public static final int DEFAULT_VERTEX_RESOLUTION = 180;
-    public static final int DEFAULT_UV_SCALE = 60;
+public interface TerrainInfo {
+    int getWidth();
 
-    public float[] heightData;
+    int getDepth();
 
-    public Terrain(int size, float[] heightData) {
-        super((int) Math.sqrt(heightData.length), size, size);
-        this.heightData = heightData;
-    }
-
-    @Override
-    protected float getHeight(int index) {
-        return heightData[index];
-    }
+    Vector2 getUvScale();
 }
+

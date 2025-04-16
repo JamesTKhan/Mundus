@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mbrlabs.mundus.commons.env.MundusEnvironment;
 import com.mbrlabs.mundus.commons.terrain.SplatTexture;
+import com.mbrlabs.mundus.commons.terrain.TerrainInfo;
 import com.mbrlabs.mundus.commons.terrain.TerrainMaterial;
 import com.mbrlabs.mundus.commons.terrain.attributes.TerrainMaterialAttribute;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
@@ -65,7 +66,8 @@ public class TerrainUberShader extends LightShader {
             @Override
             public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
                 TerrainMaterialAttribute terrainMaterialAttribute = (TerrainMaterialAttribute) combinedAttributes.get(TerrainMaterialAttribute.TerrainMaterial);
-                shader.set(inputID, v2.set(terrainMaterialAttribute.terrainMaterial.getTerrain().terrainWidth, terrainMaterialAttribute.terrainMaterial.getTerrain().terrainDepth));
+                final TerrainInfo terrainInfo = terrainMaterialAttribute.terrainMaterial.getTerrain();
+                shader.set(inputID, v2.set(terrainInfo.getWidth(), terrainInfo.getDepth()));
             }
         };
 
@@ -80,7 +82,8 @@ public class TerrainUberShader extends LightShader {
             @Override
             public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
                 TerrainMaterialAttribute terrainMaterialAttribute = (TerrainMaterialAttribute) combinedAttributes.get(TerrainMaterialAttribute.TerrainMaterial);
-                shader.set(inputID, terrainMaterialAttribute.terrainMaterial.getTerrain().getUvScale());
+                final TerrainInfo terrainInfo = terrainMaterialAttribute.terrainMaterial.getTerrain();
+                shader.set(inputID, terrainInfo.getUvScale());
             }
         };
 

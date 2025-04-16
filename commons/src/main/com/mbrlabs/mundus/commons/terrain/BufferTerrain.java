@@ -18,24 +18,19 @@ package com.mbrlabs.mundus.commons.terrain;
 
 import com.badlogic.gdx.utils.Disposable;
 
-/**
- * @author Marcus Brummer
- * @version 30-11-2015
- */
-public class Terrain extends BaseTerrain implements Disposable {
-    public static final int DEFAULT_SIZE = 1200;
-    public static final int DEFAULT_VERTEX_RESOLUTION = 180;
-    public static final int DEFAULT_UV_SCALE = 60;
+import java.nio.FloatBuffer;
 
-    public float[] heightData;
+public class BufferTerrain extends BaseTerrain implements Disposable {
+    public FloatBuffer heightData;
 
-    public Terrain(int size, float[] heightData) {
-        super((int) Math.sqrt(heightData.length), size, size);
+    public BufferTerrain(int terrainWidth, int terrainDepth, FloatBuffer heightData) {
+        super((int) Math.sqrt(heightData.limit()), terrainWidth, terrainDepth);
         this.heightData = heightData;
     }
 
     @Override
     protected float getHeight(int index) {
-        return heightData[index];
+        return heightData.get(index);
     }
 }
+
