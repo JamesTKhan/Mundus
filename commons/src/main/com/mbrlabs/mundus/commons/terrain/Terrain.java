@@ -23,6 +23,10 @@ import com.badlogic.gdx.utils.Disposable;
  * @version 30-11-2015
  */
 public class Terrain extends BaseTerrain implements Disposable {
+    public static final int DEFAULT_SIZE = 1200;
+    public static final int DEFAULT_VERTEX_RESOLUTION = 180;
+    public static final int DEFAULT_UV_SCALE = 60;
+
     public float[] heightData;
 
     public Terrain(int size, float[] heightData) {
