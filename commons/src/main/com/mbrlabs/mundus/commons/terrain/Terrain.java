@@ -287,8 +287,8 @@ public class Terrain implements Disposable {
             return 0;
         }
 
-        float xCoord = (terrainX % gridSquareSize) / gridSquareSize;
-        float zCoord = (terrainZ % gridSquareSize) / gridSquareSize;
+        float xCoord = getCoordPercent(terrainX, gridSquareSize);
+        float zCoord = getCoordPercent(terrainZ, gridSquareSize);
 
         c01.set(1, heightData[(gridZ + 1) * vertexResolution + gridX], 0);
         c10.set(0, heightData[gridZ * vertexResolution + gridX + 1], 1);
@@ -528,6 +528,20 @@ public class Terrain implements Disposable {
     public void dispose() {
         model.dispose();
         mesh.dispose();
+    }
+
+    /**
+     * @param terrainPos The x or z terrain position
+     * @param gridSquareSize The grid square size
+     * @return The percent the position in its grid
+     */
+    private float getCoordPercent(final float terrainPos, final float gridSquareSize) {
+        float remaining = terrainPos % gridSquareSize;
+        if (com.badlogic.gdx.math.MathUtils.isEqual(remaining, gridSquareSize)) {
+            remaining = 0f;
+        }
+
+        return remaining / gridSquareSize;
     }
 
 }
