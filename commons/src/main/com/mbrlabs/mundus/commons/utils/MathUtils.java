@@ -16,6 +16,7 @@
 
 package com.mbrlabs.mundus.commons.utils;
 
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
@@ -120,6 +121,16 @@ public class MathUtils {
             // If the projected point lies on the line segment, return the projected point.
             out.set(lineStart).add(projectedPoint);
         }
+    }
+
+    /**
+     * Returns true if the given point is on or inside the triangle.
+     */
+    public static boolean isPointOnOrInTriangle(float px, float py, float ax, float ay, float bx, float by, float cx, float cy) {
+        return com.badlogic.gdx.math.MathUtils.isEqual(Intersector.distanceSegmentPoint(ax, ay, bx, by, px, py), 0.0f) ||
+                com.badlogic.gdx.math.MathUtils.isEqual(Intersector.distanceSegmentPoint(ax, ay, cx, cy, px, py), 0.0f) ||
+                com.badlogic.gdx.math.MathUtils.isEqual(Intersector.distanceSegmentPoint(bx, by, cx, cy, px, py), 0.0f) ||
+                Intersector.isPointInTriangle(px, py, ax, ay, bx, by, cx, cy);
     }
 
 }
