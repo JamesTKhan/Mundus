@@ -537,7 +537,7 @@ public class Terrain implements Disposable {
      */
     private float getCoordPercent(final float terrainPos, final float gridSquareSize) {
         float remaining = terrainPos % gridSquareSize;
-        if (com.badlogic.gdx.math.MathUtils.isEqual(remaining, gridSquareSize)) {
+        if (com.badlogic.gdx.math.MathUtils.isEqual(remaining, gridSquareSize, 0.0001f)) {
             remaining = 0f;
         }
 
