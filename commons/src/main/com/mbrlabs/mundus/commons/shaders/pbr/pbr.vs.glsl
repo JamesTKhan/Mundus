@@ -220,7 +220,7 @@ uniform vec2 u_terrainSize;
 void main() {
 
 	#ifdef splatFlag
-		v_splatPosition = vec2(a_position.x / u_terrainSize.x, a_position.z / u_terrainSize);
+		v_splatPosition = vec2(a_position.x / u_terrainSize.x, a_position.z / u_terrainSize.y);
 	#endif
 	
 	#ifdef textureFlag
