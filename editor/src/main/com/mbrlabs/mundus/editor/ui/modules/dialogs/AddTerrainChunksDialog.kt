@@ -23,7 +23,6 @@ import com.mbrlabs.mundus.commons.terrain.LodLevel
 import com.mbrlabs.mundus.commons.terrain.Terrain
 import com.mbrlabs.mundus.commons.terrain.TerrainLoader
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException
 import com.mbrlabs.mundus.editor.assets.EditorAssetManager
 import com.mbrlabs.mundus.editor.assets.MetaSaver
 import com.mbrlabs.mundus.editor.core.io.IOManager
@@ -37,6 +36,7 @@ import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.ProceduralTerrainTab
 import com.mbrlabs.mundus.editor.utils.LoDUtils
 import com.mbrlabs.mundus.editor.utils.ThreadLocalPools
 import com.mbrlabs.mundus.editor.utils.createTerrainGO
+import com.mbrlabs.mundus.editorcommons.exceptions.AssetAlreadyExistsException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

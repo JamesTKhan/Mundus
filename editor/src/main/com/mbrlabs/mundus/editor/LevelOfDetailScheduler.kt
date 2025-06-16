@@ -5,9 +5,9 @@ import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.Timer
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.editor.events.TerrainLoDRebuildEvent
-import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.utils.LoDUtils
+import com.mbrlabs.mundus.editorcommons.events.TerrainVerticesChangedEvent
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 

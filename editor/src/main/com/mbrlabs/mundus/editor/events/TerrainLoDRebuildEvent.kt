@@ -1,6 +1,7 @@
 package com.mbrlabs.mundus.editor.events
 
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.editorcommons.Subscribe
 
 /**
  * An event to indicate that a terrain's LoD needs to be built/rebuilt.

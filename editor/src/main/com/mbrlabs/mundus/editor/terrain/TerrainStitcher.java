@@ -6,11 +6,10 @@ import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
-import com.mbrlabs.mundus.commons.terrain.Terrain;
 import com.mbrlabs.mundus.commons.utils.Pools;
 import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
-import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
+import com.mbrlabs.mundus.editorcommons.events.TerrainVerticesChangedEvent;
 import com.mbrlabs.mundus.editor.history.commands.TerrainStitchCommand;
 import com.mbrlabs.mundus.editor.ui.UI;
 
