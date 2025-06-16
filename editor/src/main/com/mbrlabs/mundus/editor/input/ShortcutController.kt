@@ -16,37 +16,36 @@
 
 package com.mbrlabs.mundus.editor.input
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputAdapter
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
+import com.mbrlabs.mundus.editor.core.keymap.KeymapKey
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.history.CommandHistory
 import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.tools.ToolManager
 import com.mbrlabs.mundus.editor.ui.UI
+import com.mbrlabs.mundus.editor.utils.KeyboardLayoutUtils
 
 /**
  * @author Marcus Brummer
  * @version 07-02-2016
  */
 class ShortcutController(
-    registry: Registry,
     private val projectManager: ProjectManager,
     private val history: CommandHistory,
     private val toolManager: ToolManager,
     private val debugRenderer: DebugRenderer,
-    private val globalPrefManager: MundusPreferencesManager
-)
-    : KeyboardLayoutInputAdapter(registry) {
-
-    private var isCtrlPressed = false
+    private val globalPrefManager: MundusPreferencesManager,
+    private val shortcutManager: KeyboardShortcutManager
+) : InputAdapter() {
 
     /**
      * Updates here should also be reflected in the KeyboardShortcutsDialog
      */
     override fun keyDown(code: Int): Boolean {
-        val keycode = convertKeycode(code)
+        val keycode = KeyboardLayoutUtils.convertKeycode(code)
 
         // export
         if(keycode == Input.Keys.F1) {
@@ -55,54 +54,37 @@ class ShortcutController(
         }
 
         // fullscreen
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F8)) {
+        if (shortcutManager.isPressed(KeymapKey.FULLSCREEN)) {
             UI.toggleFullscreenRender()
-        }
-
-        // CTR + xyz shortcuts
-
-        if (keycode == Input.Keys.CONTROL_LEFT) {
-            isCtrlPressed = true
-        }
-        if (!isCtrlPressed) return false
-
-        if (keycode == Input.Keys.Z) {
+        } else if (shortcutManager.isPressed(KeymapKey.UNDO)) {
             history.goBack()
             return true
-        } else if (keycode == Input.Keys.Y) {
+        } else if (shortcutManager.isPressed(KeymapKey.REDO)) {
             history.goForward()
             return true
-        } else if (keycode == Input.Keys.S) {
+        } else if (shortcutManager.isPressed(KeymapKey.SAVE_PROJECT)) {
             projectManager.saveCurrentProject()
             UI.toaster.success("Project saved")
             return true
-        } else if (keycode == Input.Keys.T) {
+        } else if (shortcutManager.isPressed(KeymapKey.TRANSLATE_TOOL)) {
             toolManager.activateTool(toolManager.translateTool)
             UI.toolbar.updateActiveToolButton()
-        } else if (keycode == Input.Keys.R) {
+        } else if (shortcutManager.isPressed(KeymapKey.ROTATE_TOOL)) {
             toolManager.activateTool(toolManager.rotateTool)
             UI.toolbar.updateActiveToolButton()
-        } else if (keycode == Input.Keys.G) {
+        } else if (shortcutManager.isPressed(KeymapKey.SCALE_TOOL)) {
             toolManager.activateTool(toolManager.scaleTool)
             UI.toolbar.updateActiveToolButton()
-        } else if (keycode == Input.Keys.F) {
+        } else if (shortcutManager.isPressed(KeymapKey.SELECT_TOOL)) {
             toolManager.activateTool(toolManager.selectionTool)
             UI.toolbar.updateActiveToolButton()
-        } else if (keycode == Input.Keys.F2) {
+        } else if (shortcutManager.isPressed(KeymapKey.DEBUG_RENDER_MODE)) {
             debugRenderer.isEnabled = !debugRenderer.isEnabled
             globalPrefManager.set(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_ON, debugRenderer.isEnabled)
-        } else if (keycode == Input.Keys.F3) {
+        } else if (shortcutManager.isPressed(KeymapKey.WIREFRAME_RENDER_MODE)) {
             projectManager.current().renderWireframe = !projectManager.current().renderWireframe
         }
 
-        return false
-    }
-
-    override fun keyUp(code: Int): Boolean {
-        val keycode = convertKeycode(code)
-        if (keycode == Input.Keys.CONTROL_LEFT) {
-            isCtrlPressed = false
-        }
         return false
     }
 
