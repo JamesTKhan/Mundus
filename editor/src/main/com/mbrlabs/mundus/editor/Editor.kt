@@ -27,6 +27,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.mbrlabs.mundus.commons.utils.DebugRenderer
 import com.mbrlabs.mundus.commons.utils.ShaderUtils
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectAlreadyImportedException
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
@@ -34,12 +35,14 @@ import com.mbrlabs.mundus.editor.core.registry.ProjectRef
 import com.mbrlabs.mundus.editor.core.registry.Registry
 import com.mbrlabs.mundus.editor.events.FilesDroppedEvent
 import com.mbrlabs.mundus.editor.events.FullScreenEvent
-import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent
-import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
-import com.mbrlabs.mundus.editor.events.SceneChangedEvent
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
+import com.mbrlabs.mundus.editor.events.PluginsLoadedEvent
 import com.mbrlabs.mundus.editor.input.FreeCamController
 import com.mbrlabs.mundus.editor.input.InputManager
 import com.mbrlabs.mundus.editor.input.ShortcutController
+import com.mbrlabs.mundus.editor.plugin.AssetManagerImpl
+import com.mbrlabs.mundus.editor.plugin.ToasterManagerImpl
 import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.profiling.MundusGLProfiler
 import com.mbrlabs.mundus.editor.shader.EditorShaderProvider
@@ -50,11 +53,23 @@ import com.mbrlabs.mundus.editor.utils.Colors
 import com.mbrlabs.mundus.editor.utils.Compass
 import com.mbrlabs.mundus.editor.utils.GlUtils
 import com.mbrlabs.mundus.editor.utils.UsefulMeshs
+import com.mbrlabs.mundus.pluginapi.EventExtension
+import com.mbrlabs.mundus.pluginapi.manager.PluginEventManager
+import com.mbrlabs.mundus.pluginapi.RenderExtension
+import com.mbrlabs.mundus.pluginapi.TerrainSceneExtension
+import com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent
+import com.mbrlabs.mundus.editorcommons.events.ProjectChangedEvent
+import com.mbrlabs.mundus.editorcommons.events.SceneChangedEvent
+import com.mbrlabs.mundus.pluginapi.AssetExtension
+import com.mbrlabs.mundus.pluginapi.CustomShaderRenderExtension
+import com.mbrlabs.mundus.pluginapi.DisposeExtension
+import com.mbrlabs.mundus.pluginapi.ToasterExtension
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.lwjgl.opengl.GL11
+import org.pf4j.PluginManager
 import java.io.File
 
 /**
@@ -82,6 +97,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     private lateinit var shapeRenderer: ShapeRenderer
     private lateinit var debugRenderer: DebugRenderer
     private lateinit var globalPreferencesManager: MundusPreferencesManager
+    private lateinit var pluginManager: PluginManager
 
     override fun create() {
         Mundus.registerEventListener(this)
@@ -96,6 +112,7 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         shapeRenderer = Mundus.inject()
         debugRenderer = Mundus.inject()
         globalPreferencesManager = Mundus.inject()
+        pluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
         setupInput()
 
         debugRenderer.isEnabled = globalPreferencesManager.getBoolean(MundusPreferencesManager.GLOB_BOOL_DEBUG_RENDERER_ON, false)
@@ -120,6 +137,8 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         )
 
         UI.toggleLoadingScreen(true, context.name)
+
+        initPluginSystem()
     }
 
     private fun setupInput() {
@@ -170,12 +189,30 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
                 debugRenderer.end()
             }
 
-            Gdx.gl.glLineWidth(globalPreferencesManager.getFloat(MundusPreferencesManager.GLOB_LINE_WIDTH_HELPER_LINE, MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE))
-            scene.batch.begin(scene.cam)
-            context.helperLines.render(scene.batch)
-            scene.batch.end()
-            Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
+            val renderExtensions = pluginManager.getExtensions(RenderExtension::class.java)
+            if (renderExtensions.isNotEmpty()) {
+                renderExtensions.forEach {
+                    scene.batch.begin(scene.cam)
+                    try {
+                        scene.batch.render(it.renderableProvider, scene.environment)
+                    } catch (ex: Exception) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during plugin rendering! $ex"))
+                    } finally {
+                        scene.batch.end()
+                        Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
+                    }
+                }
+            }
 
+            pluginManager.getExtensions(CustomShaderRenderExtension::class.java).forEach {
+                try {
+                    it.render(scene.cam)
+                } catch (ex: Exception) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during plugin custom rendering! $ex"))
+                } finally {
+                    Gdx.gl.glLineWidth(MundusPreferencesManager.GLOB_LINE_WIDTH_DEFAULT_VALUE)
+                }
+            }
 
             toolManager.render()
             gizmoManager.render()
@@ -220,6 +257,15 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
             compass = Compass(projectManager.loadingProject().currScene.cam)
             // change project; this will fire a ProjectChangedEvent
             projectManager.changeProject(projectManager.loadingProject())
+
+            pluginManager.getExtensions(TerrainSceneExtension::class.java).forEach {
+                try {
+                    it.sceneLoaded(projectManager.current().currScene.terrains)
+                } catch (ex: Exception) {
+                    Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during call plugin's sceneLoaded method! $ex"))
+                }
+            }
+
             UI.toggleLoadingScreen(false)
             UI.processVersionDialog()
         }
@@ -269,6 +315,46 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
         return null
     }
 
+    private fun initPluginSystem() {
+        pluginManager.loadPlugins()
+        pluginManager.startPlugins()
+
+        pluginManager.plugins.forEach { Mundus.postEvent(LogEvent("Plugin loaded: ${it.pluginId}")) }
+
+        // Setup event handling in plugins
+        val pluginEventManager =
+            PluginEventManager { listener ->
+                Mundus.registerEventListener(listener)
+            }
+        pluginManager.getExtensions(EventExtension::class.java).forEach {
+            try {
+                it.manageEvents(pluginEventManager)
+            } catch (ex: Exception) {
+                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during manage plugin events! $ex"))
+            }
+        }
+
+        // Setup asset manager for plugins
+        pluginManager.getExtensions(AssetExtension::class.java).forEach {
+            try {
+                it.assetManager(AssetManagerImpl())
+            } catch (ex: Exception) {
+                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during passing asset manager! $ex"))
+            }
+        }
+
+        // Setup toaster manager for plugins
+        pluginManager.getExtensions(ToasterExtension::class.java).forEach {
+            try {
+                it.toasterManager(ToasterManagerImpl())
+            } catch (ex: Exception) {
+                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during passing toaster manager! $ex"))
+            }
+        }
+
+        Mundus.postEvent(PluginsLoadedEvent())
+    }
+
     override fun closeRequested(): Boolean {
         UI.showDialog(UI.exitDialog)
         return false
@@ -292,6 +378,15 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
 
     override fun dispose() {
         debugRenderer.dispose()
+
+        pluginManager.getExtensions(DisposeExtension::class.java).forEach {
+            try {
+                it.dispose()
+            } catch (ex: Exception) {
+                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during dispose plugin! $ex"))
+            }
+        }
+
         Mundus.dispose()
     }
 

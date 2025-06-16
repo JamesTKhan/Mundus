@@ -36,6 +36,7 @@ public class Meta {
     public static final String JSON_TYPE = "t";
     public static final String JSON_TERRAIN = "ter";
     public static final String JSON_MODEL = "mdl";
+    public static final String JSON_CUSTOM = "cus";
 
     private int version;
     private long lastModified;
@@ -44,6 +45,7 @@ public class Meta {
 
     private MetaModel model;
     private MetaTerrain terrain;
+    private MetaCustom custom;
 
     private final FileHandle file;
 
@@ -103,6 +105,14 @@ public class Meta {
         this.terrain = terrain;
     }
 
+    public MetaCustom getCustom() {
+        return custom;
+    }
+
+    public void setCustom(MetaCustom custom) {
+        this.custom = custom;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -129,6 +139,7 @@ public class Meta {
                 ", type=" + type +
                 ", model=" + model +
                 ", terrain=" + terrain +
+                ", custom=" + custom +
                 ", file=" + file +
                 '}';
     }

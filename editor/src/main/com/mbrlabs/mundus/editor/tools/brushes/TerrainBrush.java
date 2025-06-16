@@ -41,7 +41,6 @@ import com.mbrlabs.mundus.editor.Mundus;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent;
 import com.mbrlabs.mundus.editor.events.GlobalBrushSettingsChangedEvent;
-import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.history.commands.TerrainsHeightCommand;
 import com.mbrlabs.mundus.editor.history.commands.TerrainsPaintCommand;
@@ -53,6 +52,7 @@ import com.mbrlabs.mundus.editor.tools.terrain.RaiseLowerTool;
 import com.mbrlabs.mundus.editor.tools.terrain.SmoothTool;
 import com.mbrlabs.mundus.editor.tools.terrain.TerrainTool;
 import com.mbrlabs.mundus.editor.ui.UI;
+import com.mbrlabs.mundus.editorcommons.events.TerrainVerticesChangedEvent;
 
 import java.util.HashSet;
 import java.util.LinkedList;

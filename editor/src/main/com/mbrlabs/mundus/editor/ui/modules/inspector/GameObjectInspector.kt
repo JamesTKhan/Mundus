@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.Array
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.commons.scene3d.GameObject
+import com.mbrlabs.mundus.commons.scene3d.components.AbstractComponent
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
@@ -30,8 +31,14 @@ import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
+import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
+import com.mbrlabs.mundus.editor.plugin.RootWidgetImpl
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ComponentWidget
+import com.mbrlabs.mundus.editor.ui.modules.inspector.components.CustomComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.CustomPropertiesWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.IdentifierWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.LightComponentWidget
@@ -40,12 +47,15 @@ import com.mbrlabs.mundus.editor.ui.modules.inspector.components.TransformWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.TerrainComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.WaterComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.TerrainManagerComponentWidget
+import com.mbrlabs.mundus.pluginapi.ComponentExtension
 
 /**
  * @author Marcus Brummer
  * @version 13-10-2016
  */
 class GameObjectInspector : VisTable() {
+
+    private val pluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
 
     private val identifierWidget = IdentifierWidget()
     private val transformWidget = TransformWidget()
@@ -117,6 +127,11 @@ class GameObjectInspector : VisTable() {
                     componentWidgets.add(CustomPropertiesWidget(component as CustomPropertiesComponent))
                 } else if (component.type == Component.Type.TERRAIN_MANAGER) {
                     componentWidgets.add(TerrainManagerComponentWidget(component as TerrainManagerComponent))
+                } else {
+                    val customComponentWidget = createCustomComponentWidget(component)
+                    if (customComponentWidget != null) {
+                        componentWidgets.add(customComponentWidget)
+                    }
                 }
             }
         }
@@ -136,7 +151,30 @@ class GameObjectInspector : VisTable() {
         } else if (component is CustomPropertiesComponent) {
             componentWidgets.add(CustomPropertiesWidget(component))
             componentTable.add(componentWidgets.last()).grow().row()
+        } else {
+            val customComponentWidget = createCustomComponentWidget(component)
+            if (customComponentWidget != null) {
+                componentWidgets.add(customComponentWidget)
+                componentTable.add(componentWidgets.last()).grow().row()
+            }
         }
+    }
+
+    private fun createCustomComponentWidget(component: Component): CustomComponentWidget<out AbstractComponent>? {
+        pluginManager.getExtensions(ComponentExtension::class.java).forEach {
+            try {
+                if (it.componentType == component.type) {
+                    val rootWidget = RootWidgetImpl()
+                    it.setupComponentInspectorWidget(component, rootWidget)
+                    val componentWidget = CustomComponentWidget("${it.componentName} Component", rootWidget, component as AbstractComponent)
+                    return componentWidget
+                }
+            } catch (ex: Exception) {
+                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during setup component inspector widget! $ex"))
+            }
+        }
+
+        return null;
     }
 
 }

@@ -16,7 +16,6 @@
 package com.mbrlabs.mundus.editor.tools;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
@@ -25,6 +24,8 @@ import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.commons.utils.DebugRenderer;
 import com.mbrlabs.mundus.editor.Mundus;
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager;
+import com.mbrlabs.mundus.editor.core.keymap.KeymapKey;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
@@ -42,14 +43,17 @@ public class SelectionTool extends Tool {
 
     private final GameObjectPicker goPicker;
     private final MundusPreferencesManager globalPreferencesManager;
+    protected final KeyboardShortcutManager keyboardShortcutManager;
 
     public SelectionTool(final ProjectManager projectManager,
                          final GameObjectPicker goPicker,
                          final CommandHistory history,
-                         final MundusPreferencesManager globalPreferencesManager) {
+                         final MundusPreferencesManager globalPreferencesManager,
+                         final KeyboardShortcutManager keyboardShortcutManager) {
         super(projectManager, history);
         this.goPicker = goPicker;
         this.globalPreferencesManager = globalPreferencesManager;
+        this.keyboardShortcutManager = keyboardShortcutManager;
     }
 
     public void gameObjectSelected(GameObject selection) {
@@ -108,7 +112,7 @@ public class SelectionTool extends Tool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (button == getSelectButtonId()) {
+        if (keyboardShortcutManager.isPressed(KeymapKey.OBJECT_SELECTION)) {
             GameObject selection = goPicker.pick(getProjectManager().current().currScene, screenX, screenY);
             if (selection != null && !selection.equals(getProjectManager().current().currScene.currentSelection)) {
                 gameObjectSelected(selection);
@@ -142,14 +146,6 @@ public class SelectionTool extends Tool {
     @Override
     public void onDisabled() {
         getProjectManager().current().currScene.currentSelection = null;
-    }
-
-    protected boolean isSelectWithRightButton() {
-        return globalPreferencesManager.getBoolean(MundusPreferencesManager.GLOB_RIGHT_BUTTON_SELECT, MundusPreferencesManager.GLOB_RIGHT_SELECT_BUTTON_DEFAULT_VALUE);
-    }
-
-    private int getSelectButtonId() {
-        return isSelectWithRightButton() ? Input.Buttons.RIGHT : Input.Buttons.LEFT;
     }
 
 }

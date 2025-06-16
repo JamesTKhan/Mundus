@@ -42,6 +42,7 @@ public class GameObjectDTO implements AssetUsageDTO {
     private WaterComponentDTO waterComponent;
     private LightComponentDTO lightComponent;
     private CustomPropertiesComponentDTO customPropertiesComponent;
+    private Array<CustomComponentDTO> customComponents;
 
     public GameObjectDTO() {
         childs = new Array<>();
@@ -140,6 +141,14 @@ public class GameObjectDTO implements AssetUsageDTO {
         this.customPropertiesComponent = customPropertiesComponent;
     }
 
+    public Array<CustomComponentDTO> getCustomComponents() {
+        return customComponents;
+    }
+
+    public void setCustomComponents(final Array<CustomComponentDTO> customComponents) {
+        this.customComponents = customComponents;
+    }
+
     @Override
     public boolean usesAsset(Asset assetToCheck, Map<String, Asset> assetMap) {
         if (modelComponent != null && modelComponent.usesAsset(assetToCheck, assetMap)) {
@@ -152,6 +161,15 @@ public class GameObjectDTO implements AssetUsageDTO {
 
         if (waterComponent != null && waterComponent.usesAsset(assetToCheck, assetMap)) {
             return true;
+        }
+
+        if (customComponents != null) {
+            for (int i = 0; i < customComponents.size; ++i) {
+                final CustomComponentDTO customComponent = customComponents.get(i);
+                if (customComponent.usesAsset(assetToCheck, assetMap)) {
+                    return true;
+                }
+            }
         }
 
         return false;

@@ -18,12 +18,14 @@ package com.mbrlabs.mundus.editor.core.converter;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.utils.Array;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
 import com.mbrlabs.mundus.commons.env.CameraSettings;
 import com.mbrlabs.mundus.commons.mapper.BaseLightConverter;
+import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter;
 import com.mbrlabs.mundus.commons.mapper.DirectionalLightConverter;
 import com.mbrlabs.mundus.commons.mapper.FogConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -43,7 +45,10 @@ public class SceneConverter {
     /**
      * Converts {@link Scene} to {@link SceneDTO}.
      */
-    public static SceneDTO convert(Scene scene) {
+    public static SceneDTO convert(
+            Scene scene,
+            Array<CustomComponentConverter> customComponentConverters
+    ) {
         SceneDTO dto = new SceneDTO();
 
         // meta
@@ -53,7 +58,7 @@ public class SceneConverter {
 
         // scene graph
         for (GameObject go : scene.sceneGraph.getGameObjects()) {
-            dto.getGameObjects().add(GameObjectConverter.convert(go));
+            dto.getGameObjects().add(GameObjectConverter.convert(go, customComponentConverters));
         }
 
         // environment stuff
@@ -89,7 +94,11 @@ public class SceneConverter {
     /**
      * Converts {@link SceneDTO} to {@link Scene}.
      */
-    public static EditorScene convert(SceneDTO dto, Map<String, Asset> assets) {
+    public static EditorScene convert(
+            SceneDTO dto,
+            Map<String, Asset> assets,
+            Array<CustomComponentConverter> customComponentConverters
+    ) {
         EditorScene scene = new EditorScene();
 
         // meta
@@ -122,7 +131,7 @@ public class SceneConverter {
         // scene graph
         scene.sceneGraph = new SceneGraph(scene);
         for (GameObjectDTO descriptor : dto.getGameObjects()) {
-            scene.sceneGraph.addGameObject(GameObjectConverter.convert(descriptor, scene.sceneGraph, assets));
+            scene.sceneGraph.addGameObject(GameObjectConverter.convert(descriptor, scene.sceneGraph, assets, customComponentConverters));
         }
 
         // camera

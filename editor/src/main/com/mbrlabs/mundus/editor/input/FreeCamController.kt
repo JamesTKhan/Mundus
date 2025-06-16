@@ -22,22 +22,29 @@ import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.IntIntMap
-import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.commons.scene3d.components.Component
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
 import com.mbrlabs.mundus.commons.utils.Pools
 import com.mbrlabs.mundus.editor.Mundus
-import com.mbrlabs.mundus.editor.core.helperlines.HelperLineCenterObject
+import com.mbrlabs.mundus.editor.core.keymap.KeymapKey
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker
-import com.mbrlabs.mundus.editor.ui.UI
-import com.mbrlabs.mundus.editor.utils.getRayIntersection
+import com.mbrlabs.mundus.editor.utils.KeyboardLayoutUtils
+import com.mbrlabs.mundus.pluginapi.TerrainHoverExtension
+import org.pf4j.PluginManager
 
 /**
  * @author Marcus Brummer
  * @version 24-11-2015
  */
-class FreeCamController(private val projectManager: ProjectManager, private val goPicker: GameObjectPicker) : InputAdapter() {
+class FreeCamController(private val projectManager: ProjectManager,
+                        private val goPicker: GameObjectPicker,
+                        private val pluginManager: PluginManager,
+                        private val keyboardShortcutManager: KeyboardShortcutManager
+) : InputAdapter() {
 
     val SPEED_01 = 10f
     val SPEED_1 = 150f
@@ -45,12 +52,6 @@ class FreeCamController(private val projectManager: ProjectManager, private val 
 
     private var camera: Camera? = null
     private val keys = IntIntMap()
-    private val STRAFE_LEFT = Input.Keys.A
-    private val STRAFE_RIGHT = Input.Keys.D
-    private val FORWARD = Input.Keys.W
-    private val BACKWARD = Input.Keys.S
-    private val UP = Input.Keys.Q
-    private val DOWN = Input.Keys.E
     private val SHIFT_LEFT = Input.Keys.SHIFT_LEFT
     private val SHIFT_RIGHT = Input.Keys.SHIFT_RIGHT
     private var velocity = SPEED_1
@@ -66,12 +67,12 @@ class FreeCamController(private val projectManager: ProjectManager, private val 
     }
 
     override fun keyDown(keycode: Int): Boolean {
-        keys.put(keycode, keycode)
+        keys.put(KeyboardLayoutUtils.convertKeycode(keycode), KeyboardLayoutUtils.convertKeycode(keycode))
         return false
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        keys.remove(keycode, 0)
+        keys.remove(KeyboardLayoutUtils.convertKeycode(keycode), 0)
         return false
     }
 
@@ -106,7 +107,7 @@ class FreeCamController(private val projectManager: ProjectManager, private val 
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-        if (Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
+        if (keyboardShortcutManager.isPressed(KeymapKey.LOOK_AROUND)) {
             var deltaX: Float = (-Gdx.input.deltaX).toFloat()
             var deltaY: Float = (-Gdx.input.deltaY).toFloat()
 
@@ -150,27 +151,27 @@ class FreeCamController(private val projectManager: ProjectManager, private val 
     }
 
     @JvmOverloads fun update(deltaTime: Float = Gdx.graphics.deltaTime) {
-        if (keys.containsKey(FORWARD)) {
+        if (isKeyPressed(KeymapKey.MOVE_FORWARD)) {
             tmp.set(camera!!.direction).nor().scl(deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(BACKWARD)) {
+        if (isKeyPressed(KeymapKey.MOVE_BACK)) {
             tmp.set(camera!!.direction).nor().scl(-deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(STRAFE_LEFT)) {
+        if (isKeyPressed(KeymapKey.STRAFE_LEFT)) {
             tmp.set(camera!!.direction).crs(camera!!.up).nor().scl(-deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(STRAFE_RIGHT)) {
+        if (isKeyPressed(KeymapKey.STRAFE_RIGHT)) {
             tmp.set(camera!!.direction).crs(camera!!.up).nor().scl(deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(UP)) {
+        if (isKeyPressed(KeymapKey.MOVE_UP)) {
             tmp.set(camera!!.up).nor().scl(deltaTime * velocity)
             camera!!.position.add(tmp)
         }
-        if (keys.containsKey(DOWN)) {
+        if (isKeyPressed(KeymapKey.MOVE_DOWN)) {
             tmp.set(camera!!.up).nor().scl(-deltaTime * velocity)
             camera!!.position.add(tmp)
         }
@@ -195,27 +196,42 @@ class FreeCamController(private val projectManager: ProjectManager, private val 
         val currentProject = projectManager.current()
         val currentScene = currentProject.currScene
 
-        if (currentProject.helperLines.hasHelperLines()) {
-            val ray = currentScene.viewport.getPickRay(screenX.toFloat(), screenY.toFloat())
+        val terrainHoverExtensions = pluginManager.getExtensions(TerrainHoverExtension::class.java)
 
-            var helperCell: HelperLineCenterObject? = null
+        if (terrainHoverExtensions.isNotEmpty()) {
+            val ray = currentScene.viewport.getPickRay(screenX.toFloat(), screenY.toFloat())
 
             val go = goPicker.pick(currentScene, screenX, screenY)
             val terrainComponent: TerrainComponent? = go?.findComponentByType(Component.Type.TERRAIN)
 
             if (terrainComponent != null) {
                 val result = terrainComponent.getRayIntersection(Pools.vector3Pool.obtain(), ray)
-                helperCell = currentProject.helperLines.findHelperLineCenterObject(terrainComponent, result!!)
-                Pools.vector3Pool.free(result)
-            }
 
-            if (helperCell != null && helperCell.full) {
-                UI.statusBar.setSelectedHelperCell(helperCell.x, helperCell.y)
+                terrainHoverExtensions.forEach {
+                    try {
+                        it.hover(terrainComponent, result)
+                    } catch (ex: Exception) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during plugin hoover event! $ex"))
+                    }
+                }
+
+                Pools.vector3Pool.free(result)
             } else {
-                UI.statusBar.clearSelectedHelperCell()
+                terrainHoverExtensions.forEach {
+                    try {
+                        it.hover(null, null)
+                    } catch (ex: Exception) {
+                        Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during plugin hoover event! $ex"))
+                    }
+                }
             }
         }
 
         return false
+    }
+
+    private fun isKeyPressed(keymapKey: KeymapKey): Boolean {
+        val keyboardShortcut = keyboardShortcutManager.getKey(keymapKey)
+        return (keyboardShortcut.extraKeycode == null || keys.containsKey(keyboardShortcut.extraKeycode)) && keys.containsKey(keyboardShortcut.keycode)
     }
 }

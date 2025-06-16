@@ -12,6 +12,7 @@
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.BaseLightDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.LightComponentDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.CustomPropertiesComponentDTO" />
+    <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.CustomComponentDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.DirectionalLightDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.ShadowSettingsDTO" />
     <extend-configuration-property name="gdx.reflect.include" value="com.mbrlabs.mundus.commons.dto.FogDTO" />

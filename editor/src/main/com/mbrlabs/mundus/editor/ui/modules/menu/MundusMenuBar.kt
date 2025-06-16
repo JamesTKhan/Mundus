@@ -36,6 +36,7 @@ class MundusMenuBar : MenuBar() {
     val assetsMenu = AssetsMenu()
     val environmentMenu = EnvironmentMenu()
     val toolsMenu = ToolsMenu()
+    val pluginsMenu = PluginsMenu()
     private val sceneMenu = SceneMenu()
 
     init {
@@ -46,6 +47,7 @@ class MundusMenuBar : MenuBar() {
         addMenu(sceneMenu)
         addMenu(toolsMenu)
         addMenu(windowMenu)
+        addMenu(pluginsMenu)
     }
 
     override fun getTable(): Table {

@@ -16,12 +16,13 @@
 package com.mbrlabs.mundus.editor.tools;
 
 import com.badlogic.gdx.graphics.Color;
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
-import com.mbrlabs.mundus.editor.events.GameObjectModifiedEvent;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager;
 import com.mbrlabs.mundus.editor.tools.picker.GameObjectPicker;
 import com.mbrlabs.mundus.editor.tools.picker.ToolHandlePicker;
+import com.mbrlabs.mundus.editorcommons.events.GameObjectModifiedEvent;
 
 /**
  * @author Marcus Brummer
@@ -53,8 +54,9 @@ public abstract class TransformTool extends SelectionTool {
                          final GameObjectPicker goPicker,
                          final ToolHandlePicker handlePicker,
                          final CommandHistory history,
-                         final MundusPreferencesManager globalPreferencesManager) {
-        super(projectManager, goPicker, history, globalPreferencesManager);
+                         final MundusPreferencesManager globalPreferencesManager,
+                         final KeyboardShortcutManager keyboardShortcutManager) {
+        super(projectManager, goPicker, history, globalPreferencesManager, keyboardShortcutManager);
         this.handlePicker = handlePicker;
 
         gameObjectModifiedEvent = new GameObjectModifiedEvent(null);

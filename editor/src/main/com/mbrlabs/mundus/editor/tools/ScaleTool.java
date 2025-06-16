@@ -31,8 +31,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.editor.Mundus;
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager;
+import com.mbrlabs.mundus.editor.core.keymap.KeymapKey;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
@@ -83,8 +84,9 @@ public class ScaleTool extends TransformTool {
                      final ToolHandlePicker handlePicker,
                      final ShapeRenderer shapeRenderer,
                      final CommandHistory history,
-                     final MundusPreferencesManager globalPreferencesManager) {
-        super(projectManager, goPicker, handlePicker, history, globalPreferencesManager);
+                     final MundusPreferencesManager globalPreferencesManager,
+                     final KeyboardShortcutManager keyboardShortcutManager) {
+        super(projectManager, goPicker, handlePicker, history, globalPreferencesManager, keyboardShortcutManager);
 
         this.shapeRenderer = shapeRenderer;
 
@@ -176,13 +178,9 @@ public class ScaleTool extends TransformTool {
     public void act() {
         super.act();
         ProjectContext projectContext = getProjectManager().current();
-
         final GameObject selection = projectContext.currScene.currentSelection;
-        if(!isScalable(selection)) {
-            return;
-        }
 
-        if (selection!= null) {
+        if (selection != null) {
             translateHandles();
             scaleHandles();
 
@@ -245,20 +243,15 @@ public class ScaleTool extends TransformTool {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         ProjectContext projectContext = getProjectManager().current();
         final GameObject selection = projectContext.currScene.currentSelection;
-        if (isSelectWithRightButton()) {
+        if (!keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 
-        if(!isScalable(selection)) {
-            super.touchDown(screenX, screenY, pointer, button);
-            return false;
-        }
-
-        if (button == Input.Buttons.LEFT && projectContext.currScene.currentSelection != null) {
+        if (button == Input.Buttons.LEFT && selection != null) {
             ScaleHandle handle = (ScaleHandle) handlePicker.pick(handles, projectContext.currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
-                if (!isSelectWithRightButton()) {
+                if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
                     super.touchDown(screenX, screenY, pointer, button);
                 }
                 return false;
@@ -297,7 +290,7 @@ public class ScaleTool extends TransformTool {
         if (state != TransformState.IDLE) {
             command = new ScaleCommand(selection);
             command.setBefore(tempScale);
-        } else if (!isSelectWithRightButton()) {
+        } else if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 
@@ -332,10 +325,6 @@ public class ScaleTool extends TransformTool {
         scaleHandles();
         rotateHandles();
         translateHandles();
-    }
-
-    private boolean isScalable(GameObject go) {
-        return go == null || go.findComponentByType(Component.Type.TERRAIN) == null;
     }
 
     @Override

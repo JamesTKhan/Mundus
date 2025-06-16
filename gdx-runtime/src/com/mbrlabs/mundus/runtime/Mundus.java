@@ -27,6 +27,7 @@ import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.assets.AssetManager;
 import com.mbrlabs.mundus.commons.assets.AssetNotFoundException;
 import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
+import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter;
 import com.mbrlabs.mundus.commons.shaders.MundusPBRShaderProvider;
 import com.mbrlabs.mundus.commons.utils.ShaderUtils;
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter;
@@ -55,6 +56,10 @@ public class Mundus implements Disposable {
      */
     public Mundus(final FileHandle mundusRoot) {
         this(mundusRoot, new Config());
+    }
+
+    public Mundus(final FileHandle mundusRoot, CustomComponentConverter... customComponentConverters) {
+        this(mundusRoot, new Config(), customComponentConverters);
     }
 
     /**
@@ -87,11 +92,12 @@ public class Mundus implements Disposable {
      *
      * @param mundusRoot FileHandle to the root directory of the Mundus project to load
      * @param config the configuration to use
+     * @param customComponentConverters the converters for custom components. these fields are optional / nullable
      */
-    public Mundus(final FileHandle mundusRoot, Config config) {
+    public Mundus(final FileHandle mundusRoot, Config config, CustomComponentConverter... customComponentConverters) {
         this.root = mundusRoot;
         this.assetManager = new AssetManager(root.child(PROJECT_ASSETS_DIR));
-        this.sceneLoader = new SceneLoader(this, root.child(PROJECT_SCENES_DIR));
+        this.sceneLoader = new SceneLoader(this, root.child(PROJECT_SCENES_DIR), customComponentConverters);
 
         if (config.autoLoad) {
             init(config.asyncLoad);

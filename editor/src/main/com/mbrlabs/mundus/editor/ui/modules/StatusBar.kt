@@ -26,15 +26,22 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
+import com.mbrlabs.mundus.editor.events.LogEvent
+import com.mbrlabs.mundus.editor.events.LogType
+import com.mbrlabs.mundus.editor.events.PluginsLoadedEvent
 import com.mbrlabs.mundus.editor.input.FreeCamController
+import com.mbrlabs.mundus.editor.plugin.LabelWidgetImpl
 import com.mbrlabs.mundus.editor.utils.formatFloat
+import com.mbrlabs.mundus.pluginapi.StatusBarExtension
+import org.pf4j.PluginManager
 
 /**
  * @author Marcus Brummer
  * @version 24-11-2015
  */
-class StatusBar : VisTable() {
+class StatusBar : VisTable(), PluginsLoadedEvent.PluginsLoadedEventListener {
 
     companion object {
         const val EMPTY_TEXT = ""
@@ -44,7 +51,8 @@ class StatusBar : VisTable() {
     private val left = VisTable()
     private val right = VisTable()
 
-    private val helperCell = VisLabel()
+    private val pluginTexts = VisTable()
+
     private val mousePos = VisLabel()
     private val fpsLabel = VisLabel()
     private val camPos = VisLabel()
@@ -55,8 +63,11 @@ class StatusBar : VisTable() {
 
     private val freeCamController: FreeCamController = Mundus.inject()
     private val projectManager: ProjectManager = Mundus.inject()
+    private var pluginManager: PluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
 
     init {
+        Mundus.registerEventListener(this)
+
         background = VisUI.getSkin().getDrawable("menu-bg")
         root.align(Align.left or Align.center)
         add(root).expand().fill()
@@ -75,8 +86,8 @@ class StatusBar : VisTable() {
         left.add(speed10)
 
         // right
-        right.add(helperCell).right()
-        right.addSeparator(true).padLeft(5f).padRight(5f)
+        right.add(pluginTexts).right()
+
         right.add(mousePos).right()
         right.addSeparator(true).padLeft(5f).padRight(5f)
         right.add(camPos).right()
@@ -135,18 +146,24 @@ class StatusBar : VisTable() {
         })
     }
 
+    override fun onPluginsLoaded(event: PluginsLoadedEvent) {
+        pluginManager.getExtensions(StatusBarExtension::class.java).forEach {
+            val pluginLabel = VisLabel()
+            pluginTexts.add(pluginLabel).right()
+            pluginTexts.addSeparator(true).padLeft(5f).padRight(5f)
+
+            try {
+                it.createStatusBarLabel(LabelWidgetImpl(pluginLabel))
+            } catch (ex: Exception) {
+                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during create plugin status bar label! $ex"))
+            }
+        }
+    }
+
     override fun act(delta: Float) {
         setFps(Gdx.graphics.framesPerSecond)
         setCamPos(projectManager.current().currScene.cam.position)
         super.act(delta)
-    }
-
-    fun setSelectedHelperCell(x: Int, y: Int) {
-        helperCell.setText("$x x $y")
-    }
-
-    fun clearSelectedHelperCell() {
-        helperCell.setText(EMPTY_TEXT)
     }
 
     fun setMousePos(x: Float, y: Float, z: Float) {

@@ -18,17 +18,20 @@ package com.mbrlabs.mundus.editor.core.converter;
 
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.OrderedMap;
 import com.mbrlabs.mundus.commons.assets.Asset;
+import com.mbrlabs.mundus.commons.dto.CustomComponentDTO;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
-import com.mbrlabs.mundus.commons.dto.TerrainComponentDTO;
+import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter;
 import com.mbrlabs.mundus.commons.mapper.CustomPropertiesComponentConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
-import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
-import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent;
+import com.mbrlabs.mundus.commons.utils.AssetUtils;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableWaterComponent;
@@ -47,7 +50,8 @@ public class GameObjectConverter {
      * Converts {@link GameObjectDTO} to {@link GameObject}.
      */
     public static GameObject convert(GameObjectDTO dto, SceneGraph sceneGraph,
-                                     Map<String, Asset> assets) {
+                                     Map<String, Asset> assets,
+                                     Array<CustomComponentConverter> customComponentConverters) {
         final GameObject go = new GameObject(sceneGraph, dto.getName(), dto.getId());
         go.active = dto.isActive();
 
@@ -86,10 +90,33 @@ public class GameObjectConverter {
             go.getComponents().add(component);
         }
 
+        // Custom components
+        if (dto.getCustomComponents() != null) {
+            for (int i = 0; i < dto.getCustomComponents().size; ++i) {
+                final CustomComponentDTO customComponentDTO = dto.getCustomComponents().get(i);
+                final Component.Type componentType = Component.Type.valueOf(customComponentDTO.getComponentType());
+
+                for (int ii = 0; ii < customComponentConverters.size; ++ii) {
+                    final CustomComponentConverter converter = customComponentConverters.get(ii);
+
+                    if (componentType == converter.getComponentType()) {
+                        final Array<String> assetIds = customComponentDTO.getAssetIds();
+                        final ObjectMap<String, Asset> assetMap = AssetUtils.getAssetsById(assetIds, assets);
+                        final Component customComponent = converter.convert(go, customComponentDTO.getProperties(), assetMap);
+
+                        if (customComponent != null) {
+                            go.getComponents().add(customComponent);
+                        }
+                    }
+                }
+
+            }
+        }
+
         // recursively convert children
         if (dto.getChilds() != null) {
             for (GameObjectDTO c : dto.getChilds()) {
-                go.addChild(convert(c, sceneGraph, assets));
+                go.addChild(convert(c, sceneGraph, assets, customComponentConverters));
             }
 
             setupNeighborTerrains(dto, go);
@@ -151,8 +178,10 @@ public class GameObjectConverter {
     /**
      * Converts {@link GameObject} to {@link GameObjectDTO}.
      */
-    public static GameObjectDTO convert(GameObject go) {
-
+    public static GameObjectDTO convert(
+            GameObject go,
+            Array<CustomComponentConverter> customComponentConverters
+    ) {
         GameObjectDTO descriptor = new GameObjectDTO();
         descriptor.setName(go.name);
         descriptor.setId(go.id);
@@ -192,6 +221,27 @@ public class GameObjectConverter {
                 descriptor.setCustomPropertiesComponent(CustomPropertiesComponentConverter.convert((CustomPropertiesComponent) c));
             } else if (c.getType() == Component.Type.TERRAIN_MANAGER) {
                 descriptor.setTerrainManagerComponent(TerrainManagerComponentConverter.convert((TerrainManagerComponent) c));
+            } else if (c.getType() != null) {
+                for (int i = 0; i < customComponentConverters.size; ++i) {
+                    final CustomComponentConverter converter = customComponentConverters.get(i);
+
+                    if (c.getType() == converter.getComponentType()) {
+                        final OrderedMap<String, String> customComponentProperties = converter.convert(c);
+
+                        if (customComponentProperties != null) {
+                            if (descriptor.getCustomComponents() == null) {
+                                descriptor.setCustomComponents(new Array<>());
+                            }
+
+                            final CustomComponentDTO customComponentDTO = new CustomComponentDTO();
+                            customComponentDTO.setComponentType(c.getType().name());
+                            customComponentDTO.setProperties(customComponentProperties);
+                            customComponentDTO.setAssetIds(converter.getAssetIds(c));
+
+                            descriptor.getCustomComponents().add(customComponentDTO);
+                        }
+                    }
+                }
             }
         }
 
@@ -205,7 +255,7 @@ public class GameObjectConverter {
         // recursively convert children
         if (go.getChildren() != null) {
             for (GameObject c : go.getChildren()) {
-                descriptor.getChilds().add(convert(c));
+                descriptor.getChilds().add(convert(c, customComponentConverters));
             }
         }
 

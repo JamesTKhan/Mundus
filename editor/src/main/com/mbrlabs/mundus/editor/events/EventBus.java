@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editor.events;
 
 import com.mbrlabs.mundus.editor.utils.ReflectionUtils;
+import com.mbrlabs.mundus.editorcommons.Subscribe;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

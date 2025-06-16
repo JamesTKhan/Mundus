@@ -17,6 +17,7 @@
 package com.mbrlabs.mundus.editor.exporter
 
 import com.badlogic.gdx.files.FileHandle
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonWriter
 import com.kotcrab.vis.ui.util.async.AsyncTask
@@ -27,12 +28,15 @@ import com.mbrlabs.mundus.commons.dto.ModelComponentDTO
 import com.mbrlabs.mundus.commons.dto.SceneDTO
 import com.mbrlabs.mundus.commons.dto.TerrainComponentDTO
 import com.mbrlabs.mundus.commons.importer.JsonScene
+import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter
 import com.mbrlabs.mundus.editor.core.io.IOManager
 import com.mbrlabs.mundus.editor.core.project.ProjectContext
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.scene.SceneManager
+import com.mbrlabs.mundus.editor.utils.PluginUtils
 import org.apache.commons.io.FilenameUtils
+import org.pf4j.PluginManager
 import java.io.File
 import java.io.Writer
 
@@ -40,17 +44,18 @@ import java.io.Writer
  * @author Marcus Brummer
  * @version 26-10-2016
  */
-class Exporter(val ioManager: IOManager, val project: ProjectContext) {
+class Exporter(val ioManager: IOManager, val project: ProjectContext, val pluginManager: PluginManager) {
 
     /**
      *
      */
     fun exportAsync(outputFolder: FileHandle, listener: AsyncTaskListener) {
+        val customComponentConverters = PluginUtils.getCustomComponentConverters(pluginManager)
 
         // convert current project on the main thread to avoid nested array iterators
         // because it would iterate over the scene graph arrays while rendering (on the main thread)
         // and while converting (on the other thread)
-        val currentSceneDTO = SceneConverter.convert(project.currScene)
+        val currentSceneDTO = SceneConverter.convert(project.currScene, customComponentConverters)
         val jsonType = project.settings.export.jsonType
 
         val task = object: AsyncTask("export_${project.name}") {

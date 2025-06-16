@@ -29,6 +29,10 @@ abstract class BaseSettingsTable : VisTable() {
         padRight(5f).padLeft(6f)
     }
 
+    open fun onInit() {
+        // NOOP
+    }
+
     abstract fun onSave()
 
 }

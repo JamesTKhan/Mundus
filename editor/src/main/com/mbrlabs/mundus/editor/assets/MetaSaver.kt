@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonWriter
 import com.mbrlabs.mundus.commons.assets.AssetType
 import com.mbrlabs.mundus.commons.assets.meta.Meta
+import com.mbrlabs.mundus.commons.assets.meta.MetaCustom
 import com.mbrlabs.mundus.commons.assets.meta.MetaModel
 import com.mbrlabs.mundus.commons.assets.meta.MetaTerrain
 
@@ -38,6 +39,8 @@ class MetaSaver {
             addTerrain(meta, json)
         } else if(meta.type == AssetType.MODEL) {
             addModel(meta, json)
+        } else if (meta.type == AssetType.CUSTOM) {
+            addCustom(meta, json)
         }
         json.writeObjectEnd()
 
@@ -81,6 +84,20 @@ class MetaSaver {
         json.writeValue(MetaTerrain.JSON_MATERIAL, terrain.materialId)
         json.writeValue(MetaTerrain.JSON_LAYER, terrain.terrainLayerAssetId)
         if (terrain.splatmap != null) json.writeValue(MetaTerrain.JSON_SPLATMAP, terrain.splatmap)
+        json.writeObjectEnd()
+    }
+
+    private fun addCustom(meta: Meta, json: Json) {
+        val custom = meta.custom ?: return
+
+        json.writeObjectStart(Meta.JSON_CUSTOM)
+        if (custom.properties != null) {
+            json.writeObjectStart(MetaCustom.JSON_PROPERTIES)
+            for (property in custom.properties) {
+                json.writeValue(property.key, property.value)
+            }
+            json.writeObjectEnd()
+        }
         json.writeObjectEnd()
     }
 

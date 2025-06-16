@@ -23,6 +23,13 @@
 - Sort children action command in Outline
 - Fix add water and terrain as child
 - Thumbnail view for model asset in Asset Dock
+- Add checkShadowDuringFrustumCulling setting into CullableComponent to disable/enable shadow checking during frustum culling
+- Add editor plugin support
+- Removed helper lines (moved into plugin, see https://github.com/Dgzt/mundus-helper-lines-plugin)
+- Update gdx-gltf version to 2.2.1
+- Fix gltf import when material has not name field
+- Fix gltf import when has alpha material attribute
+- Configurable shortcuts
 - Fix Terrain Cloning, now works as expected
 - Added optional ignore filter to GameObjectPicker
 - Added loading priorities for assets

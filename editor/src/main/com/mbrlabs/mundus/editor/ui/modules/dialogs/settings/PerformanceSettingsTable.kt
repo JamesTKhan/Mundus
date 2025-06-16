@@ -6,6 +6,7 @@ import com.kotcrab.vis.ui.widget.VisCheckBox
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.core.scene.SceneManager
 import com.mbrlabs.mundus.editor.events.ProjectChangedEvent
@@ -14,6 +15,9 @@ import com.mbrlabs.mundus.editor.preferences.MundusPreferencesManager
 import com.mbrlabs.mundus.editor.tools.brushes.TerrainBrush
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
+import com.mbrlabs.mundus.editorcommons.events.ProjectChangedEvent
+import com.mbrlabs.mundus.editorcommons.events.SceneChangedEvent
+import org.pf4j.PluginManager
 
 /**
  * @author JamesTKhan
@@ -23,6 +27,7 @@ class PerformanceSettingsTable : BaseSettingsTable(), ProjectChangedEvent.Projec
 
     private val projectManager: ProjectManager = Mundus.inject()
     private var globalPrefManager: MundusPreferencesManager = Mundus.inject()
+    private val pluginManager: PluginManager = Mundus.inject<PluginManagerProvider>().pluginManager
 
     private val frustumCullingChkBox = VisCheckBox(null)
     private val optimizeTerrainUpdates = VisCheckBox(null)
@@ -69,7 +74,7 @@ class PerformanceSettingsTable : BaseSettingsTable(), ProjectChangedEvent.Projec
     }
 
     override fun onSave() {
-        SceneManager.saveScene(projectManager.current(), projectManager.current().currScene)
+        SceneManager.saveScene(projectManager.current(), projectManager.current().currScene, pluginManager)
 
         // Save prefs
         globalPrefManager.set(MundusPreferencesManager.GLOB_OPTIMIZE_TERRAIN_UPDATES, optimizeTerrainUpdates.isChecked)

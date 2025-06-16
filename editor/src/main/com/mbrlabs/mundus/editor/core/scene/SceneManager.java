@@ -18,13 +18,17 @@ package com.mbrlabs.mundus.editor.core.scene;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
+import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter;
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
+import com.mbrlabs.mundus.editor.utils.PluginUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.pf4j.PluginManager;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,10 +44,12 @@ public class SceneManager {
      * @param context project context of the scene
      * @param scene scene to save
      */
-    public static void saveScene(ProjectContext context, Scene scene) {
+    public static void saveScene(ProjectContext context, Scene scene, PluginManager pluginManager) {
         String sceneDir = getScenePath(context, scene.getName());
 
-        SceneDTO sceneDTO = SceneConverter.convert(scene);
+        final Array<CustomComponentConverter> customComponentConverters = PluginUtils.INSTANCE.getCustomComponentConverters(pluginManager);
+
+        SceneDTO sceneDTO = SceneConverter.convert(scene, customComponentConverters);
         FileHandle saveFile = Gdx.files.absolute(sceneDir);
         saveFile.writeString(JSON.toJson(sceneDTO), false);
     }

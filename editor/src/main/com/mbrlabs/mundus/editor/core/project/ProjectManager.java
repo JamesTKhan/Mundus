@@ -29,8 +29,8 @@ import com.mbrlabs.mundus.commons.assets.ModelAsset;
 import com.mbrlabs.mundus.commons.assets.SkyboxAsset;
 import com.mbrlabs.mundus.commons.assets.TextureAsset;
 import com.mbrlabs.mundus.commons.assets.meta.MetaFileParseException;
-import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
 import com.mbrlabs.mundus.commons.dto.SceneDTO;
+import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
@@ -39,10 +39,8 @@ import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
 import com.mbrlabs.mundus.editor.Main;
 import com.mbrlabs.mundus.editor.Mundus;
-import com.mbrlabs.mundus.editor.assets.AssetAlreadyExistsException;
 import com.mbrlabs.mundus.editor.assets.EditorAssetManager;
 import com.mbrlabs.mundus.editor.core.EditorScene;
-import com.mbrlabs.mundus.editor.core.converter.GameObjectConverter;
 import com.mbrlabs.mundus.editor.core.converter.SceneConverter;
 import com.mbrlabs.mundus.editor.core.io.IOManager;
 import com.mbrlabs.mundus.editor.core.registry.ProjectRef;
@@ -50,13 +48,16 @@ import com.mbrlabs.mundus.editor.core.registry.Registry;
 import com.mbrlabs.mundus.editor.core.scene.SceneManager;
 import com.mbrlabs.mundus.editor.events.LogEvent;
 import com.mbrlabs.mundus.editor.events.LogType;
-import com.mbrlabs.mundus.editor.events.ProjectChangedEvent;
-import com.mbrlabs.mundus.editor.events.SceneChangedEvent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableComponent;
 import com.mbrlabs.mundus.editor.shader.Shaders;
 import com.mbrlabs.mundus.editor.ui.UI;
 import com.mbrlabs.mundus.editor.utils.Log;
+import com.mbrlabs.mundus.editor.utils.PluginUtils;
 import com.mbrlabs.mundus.editor.utils.SkyboxBuilder;
+import com.mbrlabs.mundus.editorcommons.events.ProjectChangedEvent;
+import com.mbrlabs.mundus.editorcommons.events.SceneChangedEvent;
+import com.mbrlabs.mundus.editorcommons.exceptions.AssetAlreadyExistsException;
+import org.pf4j.PluginManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -84,11 +85,13 @@ public class ProjectManager implements Disposable {
     private IOManager ioManager;
     private ModelBatch modelBatch;
     private ModelBatch depthBatch;
+    private PluginManager pluginManager;
 
-    public ProjectManager(IOManager ioManager, Registry registry, ModelBatch modelBatch) {
+    public ProjectManager(IOManager ioManager, Registry registry, ModelBatch modelBatch, PluginManager pluginManager) {
         this.registry = registry;
         this.ioManager = ioManager;
         this.modelBatch = modelBatch;
+        this.pluginManager = pluginManager;
         currentProject = new ProjectContext(-1);
     }
 
@@ -164,7 +167,7 @@ public class ProjectManager implements Disposable {
         scene.skybox = SkyboxBuilder.createDefaultSkybox(Shaders.INSTANCE.getSkyboxShader());
         scene.skyboxAssetId = getDefaultSkyboxAsset(newProjectContext, true).getID();
         scene.setId(newProjectContext.obtainID());
-        SceneManager.saveScene(newProjectContext, scene);
+        SceneManager.saveScene(newProjectContext, scene, pluginManager);
         scene.sceneGraph.scene.batch = modelBatch;
 
         // save .pro file
@@ -307,7 +310,7 @@ public class ProjectManager implements Disposable {
         // save current in .pro file
         ioManager.saveProjectContext(projectContext);
         // save scene in .mundus file
-        SceneManager.saveScene(projectContext, projectContext.currScene);
+        SceneManager.saveScene(projectContext, projectContext.currScene, pluginManager);
 
         Log.debug(TAG, "Saving currentProject {}", projectContext.name + " [" + projectContext.path + "]");
         Mundus.INSTANCE.postEvent(new LogEvent("Saving currentProject " + projectContext.name + " [" + projectContext.path + "]"));
@@ -428,7 +431,7 @@ public class ProjectManager implements Disposable {
         ioManager.saveRegistry(registry);
 
         Gdx.graphics.setTitle(constructWindowTitle());
-        Mundus.INSTANCE.postEvent(new ProjectChangedEvent(context));
+        Mundus.INSTANCE.postEvent(new ProjectChangedEvent(context.currScene.sceneGraph));
         currentProject.currScene.onLoaded();
     }
 
@@ -450,7 +453,7 @@ public class ProjectManager implements Disposable {
         if (scene.skyboxAssetId != null)
             scene.skybox = SkyboxBuilder.createDefaultSkybox(Shaders.INSTANCE.getSkyboxShader());
         project.scenes.add(scene.getName());
-        SceneManager.saveScene(project, scene);
+        SceneManager.saveScene(project, scene, pluginManager);
 
         return scene;
     }
@@ -471,7 +474,9 @@ public class ProjectManager implements Disposable {
     public EditorScene loadScene(ProjectContext context, String sceneName) throws FileNotFoundException {
         SceneDTO sceneDTO = SceneManager.loadScene(context, sceneName);
 
-        EditorScene scene = SceneConverter.convert(sceneDTO, context.assetManager.getAssetMap());
+        final Array<CustomComponentConverter> customComponentConverters = PluginUtils.INSTANCE.getCustomComponentConverters(pluginManager);
+
+        EditorScene scene = SceneConverter.convert(sceneDTO, context.assetManager.getAssetMap(), customComponentConverters);
 
         // load skybox
         if (scene.skyboxAssetId != null && context.assetManager.getAssetMap().containsKey(scene.skyboxAssetId)) {
@@ -515,7 +520,7 @@ public class ProjectManager implements Disposable {
             projectContext.currScene = newScene;
 
             Gdx.graphics.setTitle(constructWindowTitle());
-            Mundus.INSTANCE.postEvent(new SceneChangedEvent());
+            Mundus.INSTANCE.postEvent(new SceneChangedEvent(projectContext.currScene.sceneGraph));
             projectContext.currScene.onLoaded();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

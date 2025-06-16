@@ -57,6 +57,7 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
     // Is it offscreen?
     protected boolean isCulled = false;
+    private boolean checkShadowDuringFrustumCulling = true;
     private Array<Event> events;
     private ModelInstance modelInstance = null;
 
@@ -99,7 +100,7 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
         visibleToPerspective = ModelUtils.isVisible(sceneCam, orientedBoundingBox);
 
         // If not visible to main cam, check if it's visible to shadow map (to prevent shadows popping out)
-        if (!visibleToPerspective) {
+        if (checkShadowDuringFrustumCulling && !visibleToPerspective) {
             if (gameObject.sceneGraph.scene.environment.shadowMap instanceof MundusDirectionalShadowLight) {
                 MundusDirectionalShadowLight shadowLight = (MundusDirectionalShadowLight) gameObject.sceneGraph.scene.environment.shadowMap;
                 visibleToShadowMap = ModelUtils.isVisible(shadowLight.getCamera(), orientedBoundingBox);
@@ -189,6 +190,14 @@ public abstract class CullableComponent extends AbstractComponent implements Mod
 
     public boolean isCulled() {
         return isCulled;
+    }
+
+    public boolean isCheckShadowDuringFrustumCulling() {
+        return checkShadowDuringFrustumCulling;
+    }
+
+    public void setCheckShadowDuringFrustumCulling(boolean checkShadowDuringFrustumCulling) {
+        this.checkShadowDuringFrustumCulling = checkShadowDuringFrustumCulling;
     }
 
     @Override

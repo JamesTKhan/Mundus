@@ -20,7 +20,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.editor.Mundus;
-import com.mbrlabs.mundus.editor.events.TerrainVerticesChangedEvent;
+import com.mbrlabs.mundus.editorcommons.events.TerrainVerticesChangedEvent;
 
 import java.nio.ByteBuffer;
 
