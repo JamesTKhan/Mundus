@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MathUtilsTest {
     @Test
@@ -37,6 +38,28 @@ public class MathUtilsTest {
         assertEquals(-0.0175f, roundUp(testVector.y), 0);
         assertEquals(0f, testVector.z, 0);
 
+    }
+
+    @Test
+    public void testIsPointOnOrInTriangle() {
+        final float ax = 0.0f;
+        final float ay = 0.0f;
+        final float bx = 1.0f;
+        final float by = 0.0f;
+        final float cx = 0.0f;
+        final float cy = 1.0f;
+
+        // AB side
+        assertTrue(MathUtils.isPointOnOrInTriangle(0.54f, 0.0f, ax, ay, bx, by, cx, cy));
+
+        // AC side
+        assertTrue(MathUtils.isPointOnOrInTriangle(0.0f, 0.54f, ax, ay, bx, by, cx, cy));
+
+        // BC side
+        assertTrue(MathUtils.isPointOnOrInTriangle(0.5f, 0.5f, ax, ay, bx, by, cx, cy));
+
+        // Inside triangle
+        assertTrue(MathUtils.isPointOnOrInTriangle(0.2f, 0.2f, ax, ay, bx, by, cx, cy));
     }
 
     private float roundUp(float value) {

@@ -287,19 +287,19 @@ public class Terrain implements Disposable {
             return 0;
         }
 
-        float xCoord = (terrainX % gridSquareSize) / gridSquareSize;
-        float zCoord = (terrainZ % gridSquareSize) / gridSquareSize;
+        float xCoord = getCoordPercent(terrainX, gridSquareSize);
+        float zCoord = getCoordPercent(terrainZ, gridSquareSize);
 
-        c01.set(1, heightData[(gridZ + 1) * vertexResolution + gridX], 0);
-        c10.set(0, heightData[gridZ * vertexResolution + gridX + 1], 1);
+        c00.set(0, heightData[gridZ * vertexResolution + gridX], 0);
+        c11.set(1, heightData[(gridZ + 1) * vertexResolution + gridX + 1], 1);
+        c10.set(1, heightData[gridZ * vertexResolution + gridX + 1], 0);
 
         float height;
-        if (xCoord <= (1 - zCoord)) { // we are in upper left triangle of the square
-            c00.set(0, heightData[gridZ * vertexResolution + gridX], 0);
-            height = MathUtils.barryCentric(c00, c10, c01, tmpV2.set(zCoord, xCoord));
-        } else { // bottom right triangle
-            c11.set(1, heightData[(gridZ + 1) * vertexResolution + gridX + 1], 1);
-            height = MathUtils.barryCentric(c10, c11, c01, tmpV2.set(zCoord, xCoord));
+        if (MathUtils.isPointOnOrInTriangle(xCoord, zCoord, c00.x, c00.z, c11.x, c11.z, c10.x, c10.z)) { // We are in c00-c11-c10 triangle of square
+            height = MathUtils.barryCentric(c00, c10, c11, tmpV2.set(xCoord, zCoord));
+        } else { // We are in c00-c11-c01 triangle of square
+            c01.set(0, heightData[(gridZ + 1) * vertexResolution + gridX], 1);
+            height = MathUtils.barryCentric(c00, c11, c01, tmpV2.set(xCoord, zCoord));
         }
 
         // Translates to world coordinate
@@ -528,6 +528,20 @@ public class Terrain implements Disposable {
     public void dispose() {
         model.dispose();
         mesh.dispose();
+    }
+
+    /**
+     * @param terrainPos The x or z terrain position
+     * @param gridSquareSize The grid square size
+     * @return The percent the position in its grid
+     */
+    private float getCoordPercent(final float terrainPos, final float gridSquareSize) {
+        float remaining = terrainPos % gridSquareSize;
+        if (com.badlogic.gdx.math.MathUtils.isEqual(remaining, gridSquareSize, 0.0001f)) {
+            remaining = 0f;
+        }
+
+        return remaining / gridSquareSize;
     }
 
 }
