@@ -1,5 +1,6 @@
 package com.mbrlabs.mundus.editor.profiling;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
@@ -45,6 +46,10 @@ public class MundusGLProfiler extends GLProfiler {
         } else {
             graphics.setGL20(glInterceptor);
         }
+
+        Gdx.gl30 = graphics.getGL30();
+        Gdx.gl20 = graphics.getGL20();
+        Gdx.gl = graphics.getGL20();
 
         enabled = true;
     }
