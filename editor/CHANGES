@@ -28,6 +28,7 @@
 - Update gdx-gltf version to 2.2.1
 - Fix gltf import when material has not name field
 - Fix gltf import when has alpha material attribute
+- Configurable shortcuts
 
 [0.5.1] ~ 08/08/2023
 - Added FPS launcher argument, always call setForegroundFPS

@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.mbrlabs.mundus.commons.scene3d.GameObject
 import com.mbrlabs.mundus.editor.Mundus
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.GameObjectSelectedEvent
 import com.mbrlabs.mundus.editor.events.ToolActivatedEvent
@@ -44,7 +45,8 @@ class ToolManager(private val inputManager: InputManager,
                   toolHandlePicker: ToolHandlePicker,
                   shapeRenderer: ShapeRenderer,
                   history: CommandHistory,
-                  globalPreferencesManager: MundusPreferencesManager)
+                  globalPreferencesManager: MundusPreferencesManager,
+                  shortcutManager: KeyboardShortcutManager)
     : InputAdapter(), Disposable {
     var activeTool: Tool? = null
         private set
@@ -62,10 +64,10 @@ class ToolManager(private val inputManager: InputManager,
         terrainBrushes.add(StarBrush(projectManager, history))
         terrainBrushes.add(ConfettiBrush(projectManager, history))
         modelPlacementTool = ModelPlacementTool(projectManager, history)
-        selectionTool = SelectionTool(projectManager, goPicker, history, globalPreferencesManager)
-        translateTool = TranslateTool(projectManager, goPicker, toolHandlePicker, history, globalPreferencesManager)
-        rotateTool = RotateTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, history, globalPreferencesManager)
-        scaleTool = ScaleTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, history, globalPreferencesManager)
+        selectionTool = SelectionTool(projectManager, goPicker, history, globalPreferencesManager, shortcutManager)
+        translateTool = TranslateTool(projectManager, goPicker, toolHandlePicker, history, globalPreferencesManager, shortcutManager)
+        rotateTool = RotateTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, history, globalPreferencesManager, shortcutManager)
+        scaleTool = ScaleTool(projectManager, goPicker, toolHandlePicker, shapeRenderer, history, globalPreferencesManager, shortcutManager)
     }
 
     fun activateTool(tool: Tool?) {

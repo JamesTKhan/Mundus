@@ -33,6 +33,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.editor.Mundus;
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager;
+import com.mbrlabs.mundus.editor.core.keymap.KeymapKey;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
 import com.mbrlabs.mundus.editor.history.commands.TranslateCommand;
@@ -78,8 +80,9 @@ public class TranslateTool extends TransformTool {
                          final GameObjectPicker goPicker,
                          final ToolHandlePicker handlePicker,
                          final CommandHistory history,
-                         final MundusPreferencesManager globalPreferencesManager) {
-        super(projectManager, goPicker, handlePicker, history, globalPreferencesManager);
+                         final MundusPreferencesManager globalPreferencesManager,
+                         final KeyboardShortcutManager keyboardShortcutManager) {
+        super(projectManager, goPicker, handlePicker, history, globalPreferencesManager, keyboardShortcutManager);
 
         ModelBuilder modelBuilder = new ModelBuilder();
 
@@ -257,7 +260,7 @@ public class TranslateTool extends TransformTool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (isSelectWithRightButton()) {
+        if (!keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 
@@ -266,7 +269,7 @@ public class TranslateTool extends TransformTool {
                     getProjectManager().current().currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
-                if (!isSelectWithRightButton()) {
+                if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
                     super.touchDown(screenX, screenY, pointer, button);
                 }
                 return false;
@@ -294,7 +297,7 @@ public class TranslateTool extends TransformTool {
         if (state != TransformState.IDLE) {
             command = new TranslateCommand(getProjectManager().current().currScene.currentSelection);
             command.setBefore(getProjectManager().current().currScene.currentSelection.getLocalPosition(temp0));
-        } else if (!isSelectWithRightButton()) {
+        } else if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 

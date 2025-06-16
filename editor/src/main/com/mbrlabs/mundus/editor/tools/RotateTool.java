@@ -32,6 +32,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.utils.MathUtils;
 import com.mbrlabs.mundus.editor.Mundus;
+import com.mbrlabs.mundus.editor.core.keymap.KeyboardShortcutManager;
+import com.mbrlabs.mundus.editor.core.keymap.KeymapKey;
 import com.mbrlabs.mundus.editor.core.project.ProjectContext;
 import com.mbrlabs.mundus.editor.core.project.ProjectManager;
 import com.mbrlabs.mundus.editor.history.CommandHistory;
@@ -75,8 +77,9 @@ public class RotateTool extends TransformTool {
                       final GameObjectPicker goPicker,
                       final ToolHandlePicker handlePicker,
                       final ShapeRenderer shapeRenderer, CommandHistory history,
-                      final MundusPreferencesManager globalPreferencesManager) {
-        super(projectManager, goPicker, handlePicker, history, globalPreferencesManager);
+                      final MundusPreferencesManager globalPreferencesManager,
+                      final KeyboardShortcutManager keyboardShortcutManager) {
+        super(projectManager, goPicker, handlePicker, history, globalPreferencesManager, keyboardShortcutManager);
         this.shapeRenderer = shapeRenderer;
         xHandle = new RotateHandle(X_HANDLE_ID, COLOR_X);
         yHandle = new RotateHandle(Y_HANDLE_ID, COLOR_Y);
@@ -206,7 +209,7 @@ public class RotateTool extends TransformTool {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (isSelectWithRightButton()) {
+        if (!keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 
@@ -220,7 +223,7 @@ public class RotateTool extends TransformTool {
             RotateHandle handle = (RotateHandle) handlePicker.pick(handles, projectContext.currScene, screenX, screenY);
             if (handle == null) {
                 state = TransformState.IDLE;
-                if (!isSelectWithRightButton()) {
+                if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
                     super.touchDown(screenX, screenY, pointer, button);
                 }
                 return false;
@@ -239,7 +242,7 @@ public class RotateTool extends TransformTool {
             default:
                 break;
             }
-        } else if (!isSelectWithRightButton()) {
+        } else if (keyboardShortcutManager.hasConfiguredButtonCode(KeymapKey.OBJECT_SELECTION, Input.Buttons.LEFT)) {
             super.touchDown(screenX, screenY, pointer, button);
         }
 
