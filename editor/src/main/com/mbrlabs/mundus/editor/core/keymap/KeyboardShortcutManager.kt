@@ -125,7 +125,7 @@ class KeyboardShortcutManager(customKeyboardShortcuts: ObjectMap<String, String>
             return (keyboardShortcut.extraKeycode == null || Gdx.input.isKeyPressed(keyboardShortcut.extraKeycode)) &&
                     Gdx.input.isKeyJustPressed(keyboardShortcut.keycode)
         } else { // KeymapKeyType.BUTTON == keymapKey.type
-            return Gdx.input.isButtonJustPressed(keyboardShortcut.keycode)
+            return Gdx.input.isButtonPressed(keyboardShortcut.keycode)
         }
     }
 
