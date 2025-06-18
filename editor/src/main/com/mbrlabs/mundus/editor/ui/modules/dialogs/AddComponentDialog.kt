@@ -150,7 +150,7 @@ class AddComponentDialog : BaseDialog("Add Component") {
         }
     }
 
-    private fun getNewCustomPropertiesComponent(go: GameObject): Component? {
+    private fun getNewCustomPropertiesComponent(go: GameObject): Component {
         return CustomPropertiesComponent(go)
     }
 

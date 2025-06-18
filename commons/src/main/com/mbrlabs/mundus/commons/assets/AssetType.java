@@ -16,8 +16,6 @@
 
 package com.mbrlabs.mundus.commons.assets;
 
-import com.mbrlabs.mundus.commons.shadows.ShadowResolution;
-
 /**
  * @author Marcus Brummer
  * @version 01-10-2016
@@ -38,7 +36,9 @@ public enum AssetType {
     /** Skybox file. Holds reference to skybox textures. **/
     SKYBOX("Skybox"),
     /** Custom file. For plugins. **/
-    CUSTOM("Custom");
+    CUSTOM("Custom"),
+    /** Holds the terrain textures to be used. **/
+    TERRAIN_LAYER("Terrain Layer");
 
     private final String value;
 

@@ -36,6 +36,7 @@ allprojects {
         gltfVersion = '2.2.1'
         args4jVersion = '2.33'
         pf4jVersion = '3.11.0'
+        lwjgl3Version = "3.3.2" // For MeshOptimizer
 
         ktxVersion = '1.12.0-rc1'
     }
@@ -105,6 +106,15 @@ project(":editor") {
         implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
         implementation "com.esotericsoftware:kryo:$kryoVersion"
         implementation "args4j:args4j:$args4jVersion"
+
+        api "org.lwjgl:lwjgl-meshoptimizer:$lwjgl3Version"
+        api "org.lwjgl:lwjgl-meshoptimizer:$lwjgl3Version:natives-linux"
+        api "org.lwjgl:lwjgl-meshoptimizer:$lwjgl3Version:natives-linux-arm32"
+        api "org.lwjgl:lwjgl-meshoptimizer:$lwjgl3Version:natives-linux-arm64"
+        api "org.lwjgl:lwjgl-meshoptimizer:$lwjgl3Version:natives-macos"
+        api "org.lwjgl:lwjgl-meshoptimizer:$lwjgl3Version:natives-macos-arm64"
+        api "org.lwjgl:lwjgl-meshoptimizer:$lwjgl3Version:natives-windows"
+        api "org.lwjgl:lwjgl-meshoptimizer:$lwjgl3Version:natives-windows-x86"
 
         // tests
         testImplementation "junit:junit:$junitVersion"

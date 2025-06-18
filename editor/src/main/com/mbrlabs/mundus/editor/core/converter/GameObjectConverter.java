@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.OrderedMap;
 import com.mbrlabs.mundus.commons.assets.Asset;
 import com.mbrlabs.mundus.commons.dto.CustomComponentDTO;
 import com.mbrlabs.mundus.commons.dto.GameObjectDTO;
+import com.mbrlabs.mundus.commons.dto.TerrainComponentDTO;
 import com.mbrlabs.mundus.commons.mapper.CustomComponentConverter;
 import com.mbrlabs.mundus.commons.mapper.CustomPropertiesComponentConverter;
 import com.mbrlabs.mundus.commons.scene3d.GameObject;
@@ -31,6 +32,8 @@ import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent;
 import com.mbrlabs.mundus.commons.utils.AssetUtils;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
@@ -73,6 +76,8 @@ public class GameObjectConverter {
             go.getComponents().add(ModelComponentConverter.convert(dto.getModelComponent(), go, assets));
         } else if (dto.getTerrainComponent() != null) {
             go.getComponents().add(TerrainComponentConverter.convert(dto.getTerrainComponent(), go, assets));
+        } else if (dto.getTerrainManagerComponent() != null) {
+            go.getComponents().add(TerrainManagerComponentConverter.convert(dto.getTerrainManagerComponent(), go));
         } else if (dto.getWaterComponent() != null) {
             go.getComponents().add(WaterComponentConverter.convert(dto.getWaterComponent(), go, assets));
         }
@@ -116,9 +121,61 @@ public class GameObjectConverter {
             for (GameObjectDTO c : dto.getChilds()) {
                 go.addChild(convert(c, sceneGraph, assets, customComponentConverters));
             }
+
+            setupNeighborTerrains(dto, go);
         }
 
         return go;
+    }
+
+    /**
+     * Setups neighbor terrains for all children if child has {@link TerrainComponent} component and it has set neighbor.
+     *
+     * @param goDto The DTO of game object.
+     * @param go    The game object.
+     */
+    private static void setupNeighborTerrains(final GameObjectDTO goDto, final GameObject go) {
+        for (final GameObjectDTO childDto : goDto.getChilds()) {
+            final GameObject child = go.findChildById(childDto.getId());
+
+            final TerrainComponentDTO terrainComponentDTO = childDto.getTerrainComponent();
+            final TerrainComponent terrainComponent = (TerrainComponent) child.findComponentByType(Component.Type.TERRAIN);
+            if (terrainComponent == null) return; // Happens if terra files deleted in file system
+
+            if (terrainComponentDTO != null) {
+                final Integer topNeighborId = terrainComponentDTO.getTopNeighborID();
+                if (topNeighborId != null) {
+                    final GameObject topNeighbor = go.findChildById(topNeighborId);
+                    if (topNeighbor != null) {
+                        terrainComponent.setTopNeighbor((TerrainComponent) topNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    }
+                }
+
+                final Integer rightNeighborId = terrainComponentDTO.getRightNeighborID();
+                if (rightNeighborId != null) {
+                    final GameObject rightNeighbor = go.findChildById(rightNeighborId);
+                    if (rightNeighbor != null) {
+                        terrainComponent.setRightNeighbor((TerrainComponent) rightNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    }
+                }
+
+                final Integer bottomNeighborId = terrainComponentDTO.getBottomNeighborID();
+                if (bottomNeighborId != null) {
+                    final GameObject bottomNeighbor = go.findChildById(bottomNeighborId);
+                    if (bottomNeighbor != null) {
+                        terrainComponent.setBottomNeighbor((TerrainComponent) bottomNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    }
+                }
+
+                final Integer leftNeighborId = terrainComponentDTO.getLeftNeighborID();
+                if (leftNeighborId != null) {
+                    final GameObject leftNeighbor = go.findChildById(leftNeighborId);
+                    if (leftNeighbor != null) {
+                        terrainComponent.setLeftNeighbor((TerrainComponent) leftNeighbor.findComponentByType(Component.Type.TERRAIN));
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -165,6 +222,8 @@ public class GameObjectConverter {
                 descriptor.setLightComponent(PickableLightComponentConverter.convert((LightComponent) c));
             } else if (c.getType() == Component.Type.CUSTOM_PROPERTIES) {
                 descriptor.setCustomPropertiesComponent(CustomPropertiesComponentConverter.convert((CustomPropertiesComponent) c));
+            } else if (c.getType() == Component.Type.TERRAIN_MANAGER) {
+                descriptor.setTerrainManagerComponent(TerrainManagerComponentConverter.convert((TerrainManagerComponent) c));
             } else if (c.getType() != null) {
                 for (int i = 0; i < customComponentConverters.size; ++i) {
                     final CustomComponentConverter converter = customComponentConverters.get(i);

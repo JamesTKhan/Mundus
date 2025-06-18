@@ -29,6 +29,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent
+import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.plugin.PluginManagerProvider
@@ -45,6 +46,7 @@ import com.mbrlabs.mundus.editor.ui.modules.inspector.components.ModelComponentW
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.TransformWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.TerrainComponentWidget
 import com.mbrlabs.mundus.editor.ui.modules.inspector.components.WaterComponentWidget
+import com.mbrlabs.mundus.editor.ui.modules.inspector.components.terrain.TerrainManagerComponentWidget
 import com.mbrlabs.mundus.pluginapi.ComponentExtension
 
 /**
@@ -123,6 +125,8 @@ class GameObjectInspector : VisTable() {
                     componentWidgets.add(LightComponentWidget(component as LightComponent))
                 } else if (component.type == Component.Type.CUSTOM_PROPERTIES) {
                     componentWidgets.add(CustomPropertiesWidget(component as CustomPropertiesComponent))
+                } else if (component.type == Component.Type.TERRAIN_MANAGER) {
+                    componentWidgets.add(TerrainManagerComponentWidget(component as TerrainManagerComponent))
                 } else {
                     val customComponentWidget = createCustomComponentWidget(component)
                     if (customComponentWidget != null) {

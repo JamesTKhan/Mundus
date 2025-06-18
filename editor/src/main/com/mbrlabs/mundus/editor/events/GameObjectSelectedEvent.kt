@@ -23,7 +23,7 @@ import com.mbrlabs.mundus.editorcommons.Subscribe
  * @author Marcus Brummer
  * @version 21-01-2016
  */
-class GameObjectSelectedEvent(var gameObject: GameObject?) {
+class GameObjectSelectedEvent(var gameObject: GameObject?, var activateSelection: Boolean = true) {
 
     interface GameObjectSelectedListener {
         @Subscribe
