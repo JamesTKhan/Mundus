@@ -9,7 +9,8 @@ project.ext.mainClassName = "com.mbrlabs.mundus.editor.Main"
 project.ext.assetsDir = new File("assets");
 
 
-task run(dependsOn: classes, type: JavaExec) {
+tasks.register('run', JavaExec) {
+    dependsOn("classes")
     main(project.mainClassName)
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
@@ -21,7 +22,7 @@ task run(dependsOn: classes, type: JavaExec) {
     }
 }
 
-task distEditor(type: Jar) {
+tasks.register('distEditor', Jar) {
     archivesBaseName = 'Mundus'
     archiveVersion.set('0.5.1')
 
@@ -46,7 +47,7 @@ eclipse {
     }
 }
 
-task afterEclipseImport(description: "Post processing after project generation", group: "IDE") {
+tasks.register('afterEclipseImport') {
     doLast {
         def classpath = new XmlParser().parse(file(".classpath"))
         new Node(classpath, "classpathentry", [kind: 'src', path: 'assets']);
