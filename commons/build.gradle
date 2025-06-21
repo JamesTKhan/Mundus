@@ -14,9 +14,10 @@ sourceSets.main.resources.srcDirs = ["src/main"]
 sourceSets.test.java.srcDirs = ["src/test"]
 sourceSets.test.resources.srcDirs = ["src/test"]
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+tasks.register('sourcesJar', Jar) {
+    dependsOn("classes")
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
 

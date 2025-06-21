@@ -8,9 +8,9 @@
 - Fix Child terrain objects not updating on translation
 - Fix getRotation() in SimpleNode to always normalize axes
 - Refactor outline drag and drop world to local conversion code when moving game objects
-- Updated kotlin to 1.9.0
-- Updated KTX to 1.12.0-rc1
-- Updated VisUI to 1.5.2
+- Updated kotlin to 2.1.21
+- Updated KTX to 1.13.1-rc1
+- Updated VisUI to 1.5.5
 - Adjustable line (selection, wireframe, helper lines) width
 - Changed UV slider to SimpleFloatSpinner in PI/16 (11.25 degree) increments
 - Counter for helper lines

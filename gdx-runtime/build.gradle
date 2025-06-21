@@ -10,7 +10,8 @@ targetCompatibility = 1.8
 sourceSets.main.java.srcDirs = ["src/"]
 sourceSets.main.resources.srcDirs = ["src/"]
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+tasks.register('sourcesJar', Jar) {
+    dependsOn("classes")
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     archiveClassifier.set('sources')
     from sourceSets.main.allSource
