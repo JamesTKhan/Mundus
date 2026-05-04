@@ -169,7 +169,7 @@ void main() {
     f_transmission += contribIBL.transmission;
     vec3 ambientColor = vec3(0.0, 0.0, 0.0);
 #elif defined(ambientLightFlag)
-    vec3 ambientColor = u_ambientLight;
+    vec3 ambientColor = u_ambientLight * pbrSurface.diffuseColor;
 #else
     vec3 ambientColor = vec3(0.0, 0.0, 0.0);
 #endif
