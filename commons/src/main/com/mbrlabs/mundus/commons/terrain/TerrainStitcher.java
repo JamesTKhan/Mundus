@@ -25,7 +25,7 @@ public class TerrainStitcher {
     /** Float comparison threshold */
     private static final float threshold = 0.001f;
 
-    public static boolean stitch(Array<TerrainComponent> terrainComponents, Pool<Vector3> pool) {
+    public static boolean stitch(Array<TerrainComponent> terrainComponents) {
         int heightsStitched = 0;
         for (TerrainComponent terrainComponent : terrainComponents) {
             heightsStitched = stitchTopBottomNeighbors(terrainComponent);

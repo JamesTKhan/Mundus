@@ -302,6 +302,7 @@ public class PlaneMesh implements Disposable {
             if (!n1.epsilonEquals(originalNormal, 0.001f)) {
                 changed = true;
                 setNormalAt(x, y, n1);
+                neighbor.setNormalAt(nx, ny, n1);
             }
         }
 

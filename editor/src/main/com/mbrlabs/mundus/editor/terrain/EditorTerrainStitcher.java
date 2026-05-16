@@ -66,7 +66,7 @@ public class EditorTerrainStitcher extends TerrainStitcher {
     }
 
     public static boolean stitchComponent(Array<TerrainComponent> terrainComponents) {
-        boolean updates = stitch(terrainComponents, ThreadLocalPools.vector3ThreadPool.get());
+        boolean updates = stitch(terrainComponents);
 
         if (updates) {
             UI.INSTANCE.getToaster().success("Terrain stitcher finished updates");
