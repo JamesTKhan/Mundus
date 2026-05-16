@@ -249,6 +249,73 @@ public class PlaneMesh implements Disposable {
         }
     }
 
+    public boolean stitchEdgeNormalsFromNeighbors(PlaneMesh north, PlaneMesh east, PlaneMesh south, PlaneMesh west, Pool<Vector3> pool) {
+        int res = vertexResolution;
+        boolean changed = false;
+
+        if (north != null) {
+            changed |= stitchEdge(north, 0, res - 1, res - 1, res - 1, 0, 0, pool);
+        }
+
+        // Bottom edge (y = 0)
+        if (south != null) {
+            changed |= stitchEdge(south, 0, 0, res - 1, 0, 0, res - 1, pool);
+        }
+
+        // Left edge (x = 0)
+        if (west != null) {
+            changed |= stitchEdge(west, 0, 0, 0, res - 1, res - 1, 0, pool);
+        }
+
+        // Right edge (x = res-1)
+        if (east != null) {
+            changed |= stitchEdge(east, res - 1, 0, res - 1, res - 1, 0, 0, pool);
+        }
+
+        if (changed) {
+            computeTangents();
+            updateMeshVertices();
+        }
+
+        return changed;
+    }
+
+    private boolean stitchEdge(PlaneMesh neighbor, int startX, int startY, int endX, int endY, int neighborStartX, int neighborStartY, Pool<Vector3> pool) {
+        if (neighbor == null) return false;
+
+        boolean changed = false;
+        Vector3 n1 = pool.obtain();
+        Vector3 n2 = pool.obtain();
+        Vector3 originalNormal = pool.obtain();
+
+        for (int i = 0; i < vertexResolution; i++) {
+            int x = startX == endX ? startX : i;
+            int y = startY == endY ? startY : i;
+            int nx = startX == endX ? neighborStartX : i;
+            int ny = startY == endY ? neighborStartY : i;
+
+            getNormalAt(n1, x, y);
+            neighbor.getNormalAt(n2, nx, ny);
+            originalNormal.set(n1);
+            n1.add(n2).nor();
+
+            if (!n1.epsilonEquals(originalNormal, 0.001f)) {
+                changed = true;
+                setNormalAt(x, y, n1);
+            }
+        }
+
+        pool.free(n1);
+        pool.free(n2);
+        pool.free(originalNormal);
+
+        if (changed) {
+            neighbor.computeTangents();
+            neighbor.updateMeshVertices();
+        }
+
+        return changed;
+    }
 
     /**
      * Retrieve the vertex x,y,z position from the vertices array for the given vertex index.
@@ -256,6 +323,11 @@ public class PlaneMesh implements Disposable {
     private void getVertexPos(Vector3 out, int index) {
         int start = index * stride;
         out.set(vertices[start + posPos], vertices[start + posPos + 1], vertices[start + posPos + 2]);
+    }
+
+    public void setNormalAt(int x, int z, Vector3 normal) {
+        int vertexIndex = z * vertexResolution + x;
+        setVertexNormal(vertexIndex, normal);
     }
 
     /**
@@ -330,7 +402,6 @@ public class PlaneMesh implements Disposable {
         int start = vertexIndex * stride;
         return out.set(vertices[start + norPos], vertices[start + norPos + 1], vertices[start + norPos + 2]);
     }
-
 
     public float[] getVertices() {
         return vertices;

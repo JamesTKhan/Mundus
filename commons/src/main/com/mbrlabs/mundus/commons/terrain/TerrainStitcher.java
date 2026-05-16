@@ -1,17 +1,11 @@
-package com.mbrlabs.mundus.editor.terrain;
+package com.mbrlabs.mundus.commons.terrain;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.mbrlabs.mundus.commons.scene3d.GameObject;
-import com.mbrlabs.mundus.commons.scene3d.components.Component;
+import com.badlogic.gdx.utils.Pool;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.utils.Pools;
-import com.mbrlabs.mundus.editor.Mundus;
-import com.mbrlabs.mundus.editor.core.project.ProjectContext;
-import com.mbrlabs.mundus.editorcommons.events.TerrainVerticesChangedEvent;
-import com.mbrlabs.mundus.editor.history.commands.TerrainStitchCommand;
-import com.mbrlabs.mundus.editor.ui.UI;
 
 /**
  * Utility class to stitch all terrains within a scene together based on their neighbors.
@@ -31,68 +25,35 @@ public class TerrainStitcher {
     /** Float comparison threshold */
     private static final float threshold = 0.001f;
 
-    public static void stitch(ProjectContext projectContext) {
-        // Get all the terrain components
-        Array<GameObject> terrainGOs = projectContext.currScene.sceneGraph.findAllByComponent(Component.Type.TERRAIN);
-        Array<TerrainComponent> terrainComponents = new Array<>();
-
-        for (GameObject go : terrainGOs) {
-            TerrainComponent terrainComponent = (TerrainComponent) go.findComponentByType(Component.Type.TERRAIN);
-
-            int length = terrainComponent.getTerrainAsset().getTerrain().vertexResolution;
-            if (numSteps > length) {
-                throw new IllegalArgumentException("Number of Steps must be less than the vertex resolution of the terrain (" + length + ")");
-            }
-
-            terrainComponents.add(terrainComponent);
-        }
-
-        // Add command for undo/redo history
-        TerrainStitchCommand command = new TerrainStitchCommand(terrainComponents);
-
-        // Stitch them together
-        int heightsStitched = stitch(terrainComponents);
-
-        if (heightsStitched == 0) {
-            // No changes were made, so don't add to history
-            return;
-        }
-
-        // Execute command/apply changes to terrains
-        Mundus.INSTANCE.getCommandHistory().add(command);
-        command.setHeightDataAfter();
-        command.execute();
-
-        // Now add to the modified assets so they can be saved
-        for (TerrainComponent terrainComponent : terrainComponents) {
-            projectContext.assetManager.addModifiedAsset(terrainComponent.getTerrainAsset());
-            Mundus.INSTANCE.postEvent(new TerrainVerticesChangedEvent(terrainComponent));
-        }
-    }
-
-    public static int stitch(Array<TerrainComponent> terrainComponents) {
-        int neighbors = 0;
+    public static boolean stitch(Array<TerrainComponent> terrainComponents, Pool<Vector3> pool) {
         int heightsStitched = 0;
         for (TerrainComponent terrainComponent : terrainComponents) {
             heightsStitched = stitchTopBottomNeighbors(terrainComponent);
-            if (terrainComponent.getTopNeighbor() != null) neighbors++;
-            if (terrainComponent.getBottomNeighbor() != null) neighbors++;
         }
 
         for (TerrainComponent terrainComponent : terrainComponents) {
             heightsStitched += stitchLeftRightNeighbors(terrainComponent);
-            if (terrainComponent.getLeftNeighbor() != null) neighbors++;
-            if (terrainComponent.getRightNeighbor() != null) neighbors++;
         }
 
-        if (neighbors == 0) {
-            UI.INSTANCE.getToaster().error("No terrains had neighbors assigned.");
-        } else if (heightsStitched == 0) {
-            UI.INSTANCE.getToaster().info("No terrains needed stitching.");
-        } else {
-            UI.INSTANCE.getToaster().success("Stitched " + heightsStitched + " height values.");
-        }
-        return heightsStitched;
+        return heightsStitched > 0;
+    }
+
+    /**
+     * Used as a post-processing step for terrains with neighbors. Smooths the normals along the edges of the terrain
+     * to prevent visible seams between neighboring terrains.
+     * Because terrains are stored as heightmaps, this must be done at runtime once all neighbors are loaded.
+     * @return true if any normals were stitched, false if all normals were already seamless
+     */
+    public static boolean stitchNormals(TerrainComponent tc, Pool<Vector3> pool)
+    {
+        PlaneMesh top = tc.getTopNeighbor() != null ? tc.getTopNeighbor().getTerrainAsset().getTerrain().getPlaneMesh() : null;
+        PlaneMesh left = tc.getLeftNeighbor() != null ? tc.getLeftNeighbor().getTerrainAsset().getTerrain().getPlaneMesh() : null;
+        PlaneMesh bottom = tc.getBottomNeighbor() != null ? tc.getBottomNeighbor().getTerrainAsset().getTerrain().getPlaneMesh() : null;
+        PlaneMesh right = tc.getRightNeighbor() != null ? tc.getRightNeighbor().getTerrainAsset().getTerrain().getPlaneMesh() : null;
+
+        PlaneMesh mesh = tc.getTerrainAsset().getTerrain().getPlaneMesh();
+
+        return mesh.stitchEdgeNormalsFromNeighbors(top, left, bottom, right, pool);
     }
 
     private static int stitchTopBottomNeighbors(TerrainComponent terrainComponent) {
