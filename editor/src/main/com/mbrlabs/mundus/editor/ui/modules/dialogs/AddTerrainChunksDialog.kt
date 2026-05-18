@@ -30,6 +30,7 @@ import com.mbrlabs.mundus.editor.core.io.IOManagerProvider
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
 import com.mbrlabs.mundus.editor.events.AssetImportEvent
 import com.mbrlabs.mundus.editor.events.SceneGraphChangedEvent
+import com.mbrlabs.mundus.editor.terrain.EditorTerrainStitcher
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.HeightMapTerrainTab
 import com.mbrlabs.mundus.editor.ui.modules.dialogs.terrain.ProceduralTerrainTab
@@ -38,6 +39,7 @@ import com.mbrlabs.mundus.editor.utils.ThreadLocalPools
 import com.mbrlabs.mundus.editor.utils.createTerrainGO
 import com.mbrlabs.mundus.editorcommons.exceptions.AssetAlreadyExistsException
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
@@ -94,6 +96,9 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
     private var executor: ExecutorService? = null
     private var terraformExecutor: ExecutorService? = null
 
+    private val lodTasks: ConcurrentLinkedQueue<TerrainComponent> = ConcurrentLinkedQueue()
+    private var lodExecutor: ExecutorService? = null
+
     override fun draw(batch: Batch?, parentAlpha: Float) {
         val assetsToCreate = assetsToCreate.size > 0
 
@@ -115,7 +120,7 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
                     + "Terraform Queue: ${assetsToTerraform.size}\n")
 
             loadingDialog!!.pack()
-            if (!assetsToCreate && creationThreads.get() == 0 && assetsToTerraform.isEmpty()) {
+            if (!assetsToCreate && creationThreads.get() == 0 && assetsToTerraform.isEmpty() && lodTasks.isEmpty()) {
                 generatingTerrain = false
                 color.a = 1.0f
                 loadingDialog?.hide()
@@ -331,15 +336,10 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
         terraformExecutor?.submit {
             terraformingThreads.addAndGet(1)
 
-            var minHeight = 0f
-            var maxHeight = 0f
+
             if (tabbedPane.activeTab is ProceduralTerrainTab) {
-                minHeight = proceduralTerrainTab.getMinHeightValue()
-                maxHeight = proceduralTerrainTab.getMaxHeightValue()
                 proceduralTerrainTab.terraform(grid.x.toInt(), grid.y.toInt(), component)
             } else if (tabbedPane.activeTab is HeightMapTerrainTab) {
-                minHeight = heightmapTerrainTab.getMinHeightValue()
-                maxHeight = heightmapTerrainTab.getMaxHeightValue()
                 heightmapTerrainTab.terraform(grid.x.toInt(), grid.y.toInt(), component)
             }
 
@@ -350,16 +350,38 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
             Gdx.app.postRunnable {
                 component.updateDimensions()
 
-                if (generateLoD) {
-                    // Generate simplified results for LoD
-                    val results = LoDUtils.buildTerrainLod(component, Terrain.LOD_SIMPLIFICATION_FACTORS, abs(maxHeight - minHeight))
-
-                    // Convert to LodLevels with actual meshes
-                    asset.lodLevels = LoDUtils.convertToLodLevels(asset.terrain.model, results)
-                }
-
+                lodTasks.add(component)
                 terraformingThreads.decrementAndGet()
+
+                // Once all threads are done and queue is empty, start LoD generation
+                if (terraformingThreads.get() == 0 && assetsToTerraform.isEmpty()) {
+                    startLodAndStitching()
+                }
             }
+        }
+    }
+
+    /**
+     * Handles stitching normals with neighbors and generating LoD levels if needed
+     */
+    private fun startLodAndStitching() {
+        lodExecutor = Executors.newSingleThreadExecutor()
+        lodExecutor?.submit {
+            while (!lodTasks.isEmpty()) {
+                val component = lodTasks.poll()
+                if (component != null) {
+                    EditorTerrainStitcher.stitchNormals(component, ThreadLocalPools.vector3ThreadPool.get())
+
+                    if (generateLoD) {
+                        Gdx.app.postRunnable {
+                            // We cannot generate LoD levels off the rendering thread because it involves mesh creation
+                            CreateLods(component)
+                        }
+                    }
+                }
+            }
+            lodExecutor?.shutdown()
+            lodExecutor = null
         }
     }
 
@@ -371,6 +393,25 @@ class AddTerrainChunksDialog : BaseDialog("Add Terrain"), TabbedPaneListener {
                 terrainAssetName, resolution, width, splatMapResolution)
 
         return asset
+    }
+
+    private fun CreateLods(terrainComponent: TerrainComponent)
+    {
+        var minHeight = 0f
+        var maxHeight = 0f
+        if (tabbedPane.activeTab is ProceduralTerrainTab) {
+            minHeight = proceduralTerrainTab.getMinHeightValue()
+            maxHeight = proceduralTerrainTab.getMaxHeightValue()
+        } else if (tabbedPane.activeTab is HeightMapTerrainTab) {
+            minHeight = heightmapTerrainTab.getMinHeightValue()
+            maxHeight = heightmapTerrainTab.getMaxHeightValue()
+        }
+
+        // Generate simplified results for LoD
+        val results = LoDUtils.buildTerrainLod(terrainComponent, Terrain.LOD_SIMPLIFICATION_FACTORS, abs(maxHeight - minHeight))
+        val asset = terrainComponent?.terrainAsset
+        // Convert to LodLevels with actual meshes
+        asset?.lodLevels = LoDUtils.convertToLodLevels(asset?.terrain?.model, results)
     }
 
     /**

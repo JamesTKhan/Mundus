@@ -34,10 +34,12 @@ import com.mbrlabs.mundus.commons.scene3d.components.CustomPropertiesComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainManagerComponent;
+import com.mbrlabs.mundus.commons.terrain.TerrainStitcher;
 import com.mbrlabs.mundus.commons.utils.AssetUtils;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableModelComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableTerrainComponent;
 import com.mbrlabs.mundus.editor.scene3d.components.PickableWaterComponent;
+import com.mbrlabs.mundus.editor.utils.ThreadLocalPools;
 
 import java.util.Map;
 
@@ -174,6 +176,9 @@ public class GameObjectConverter {
                         terrainComponent.setLeftNeighbor((TerrainComponent) leftNeighbor.findComponentByType(Component.Type.TERRAIN));
                     }
                 }
+
+                // We have to wait until all neighbors are set before stitching
+                TerrainStitcher.stitchNormals(terrainComponent, ThreadLocalPools.vector3ThreadPool.get());
             }
         }
     }

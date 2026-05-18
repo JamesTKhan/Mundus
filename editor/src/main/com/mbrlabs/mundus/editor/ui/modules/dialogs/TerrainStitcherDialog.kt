@@ -12,7 +12,7 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.mbrlabs.mundus.editor.Mundus
 import com.mbrlabs.mundus.editor.core.project.ProjectManager
-import com.mbrlabs.mundus.editor.terrain.TerrainStitcher
+import com.mbrlabs.mundus.editor.terrain.EditorTerrainStitcher
 import com.mbrlabs.mundus.editor.ui.UI
 import com.mbrlabs.mundus.editor.ui.widgets.IntegerFieldWithLabel
 import com.mbrlabs.mundus.editor.ui.widgets.ToolTipLabel
@@ -39,7 +39,7 @@ class TerrainStitcherDialog : BaseDialog(TITLE) {
     }
 
     private fun setupUI() {
-        numStepsField.text = TerrainStitcher.numSteps.toString()
+        numStepsField.text = EditorTerrainStitcher.numSteps.toString()
 
         val table = VisTable()
 
@@ -62,8 +62,8 @@ class TerrainStitcherDialog : BaseDialog(TITLE) {
     }
 
     override fun show(stage: Stage?, action: Action?): VisDialog {
-        numStepsField.text = TerrainStitcher.numSteps.toString()
-        includeWorldHeight.isChecked = TerrainStitcher.includeWorldHeight
+        numStepsField.text = EditorTerrainStitcher.numSteps.toString()
+        includeWorldHeight.isChecked = EditorTerrainStitcher.includeWorldHeight
         return super.show(stage, action)
     }
 
@@ -72,14 +72,14 @@ class TerrainStitcherDialog : BaseDialog(TITLE) {
     private fun setupListeners() {
         numStepsField.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                TerrainStitcher.numSteps = numStepsField.int
+                EditorTerrainStitcher.numSteps = numStepsField.int
             }
         })
 
         executeBtn.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 try {
-                    TerrainStitcher.stitch(projectManager.current())
+                    EditorTerrainStitcher.stitch(projectManager.current())
                 } catch (e: Exception) {
                     Dialogs.showErrorDialog(UI, e.message)
                 }
@@ -88,7 +88,7 @@ class TerrainStitcherDialog : BaseDialog(TITLE) {
 
         includeWorldHeight.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
-                TerrainStitcher.includeWorldHeight = includeWorldHeight.isChecked
+                EditorTerrainStitcher.includeWorldHeight = includeWorldHeight.isChecked
             }
         })
     }
