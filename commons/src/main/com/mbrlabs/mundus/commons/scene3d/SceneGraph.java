@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.Scene;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.ModelComponent;
@@ -30,7 +31,7 @@ import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
  * @author Marcus Brummer
  * @version 16-01-2016
  */
-public class SceneGraph {
+public class SceneGraph implements Disposable {
 
     protected GameObject root;
 
@@ -215,4 +216,10 @@ public class SceneGraph {
     public void setContainsWater(boolean containsWater) {
         this.containsWater = containsWater;
     }
+
+    @Override
+    public void dispose() {
+        root.dispose();
+    }
+
 }

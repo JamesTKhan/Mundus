@@ -235,6 +235,8 @@ public class Scene implements Disposable {
 
     @Override
     public void dispose() {
+        sceneGraph.dispose();
+
         if (skybox != null) {
             skybox.dispose();
         }

@@ -18,6 +18,7 @@ package com.mbrlabs.mundus.commons.scene3d;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.LightComponent;
 import com.mbrlabs.mundus.commons.scene3d.components.WaterComponent;
@@ -30,7 +31,7 @@ import java.util.Iterator;
  * @author Marcus Brummer
  * @version 16-01-2016
  */
-public class GameObject extends SimpleNode<GameObject> implements Iterable<GameObject> {
+public class GameObject extends SimpleNode<GameObject> implements Iterable<GameObject>, Disposable {
 
     public static final String DEFAULT_NAME = "GameObject";
 
@@ -57,7 +58,7 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
         this.name = (name == null) ? DEFAULT_NAME : name;
         this.active = true;
         this.tags = null;
-        this.components = new Array<Component>(3);
+        this.components = new Array<>(3);
     }
 
     /**
@@ -408,6 +409,26 @@ public class GameObject extends SimpleNode<GameObject> implements Iterable<GameO
     @Override
     public String toString() {
         return name;
+    }
+
+    /**
+     * Disposes all disposable components in this object and in its children.
+     */
+    @Override
+    public void dispose() {
+        for (int i = 0; i < components.size; ++i) {
+            final Component c = components.get(i);
+            if (c instanceof Disposable) {
+                ((Disposable) c).dispose();
+            }
+        }
+
+        if (children != null) {
+            for (int i = 0; i < children.size; ++i) {
+                final GameObject child = children.get(i);
+                child.dispose();
+            }
+        }
     }
 
     private void updateChildrenScaleChanged(GameObject go) {
