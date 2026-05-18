@@ -33,6 +33,7 @@ Below are some of the more interesting features, that already work
 - A component based scene graph (not fully implemented yet)
 - Basic export of the project into a json format + asset (not needed for libGDX runtime)
 - Undo/Redo system for most operations
+- Plugin system
 - Highly accurate game object picking system, based on id color coding & offscreen framebuffer rendering.
   Basic concept: http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
 
