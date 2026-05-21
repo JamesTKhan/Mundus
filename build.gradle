@@ -30,7 +30,7 @@ allprojects {
         visuiVersion = '1.5.5'
         kryoVersion = '5.2.0'
         junitVersion = '4.13.2'
-        mockitoVersion = '1.10.19'
+        mockitoVersion = '4.11.0'
         commonsIoVersion = '2.5'
         commonsLangVersion = '3.12.0'
         gltfVersion = '2.2.1'
@@ -60,7 +60,7 @@ project(":commons") {
 
         testImplementation "junit:junit:$junitVersion"
 
-        testImplementation "org.mockito:mockito-all:$mockitoVersion"
+        testImplementation "org.mockito:mockito-core:$mockitoVersion"
 
     }
 }
@@ -118,7 +118,7 @@ project(":editor") {
 
         // tests
         testImplementation "junit:junit:$junitVersion"
-        testImplementation "org.mockito:mockito-all:$mockitoVersion"
+        testImplementation "org.mockito:mockito-core:$mockitoVersion"
     }
 }
 
