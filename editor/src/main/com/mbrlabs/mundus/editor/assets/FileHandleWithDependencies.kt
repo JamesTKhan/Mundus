@@ -31,7 +31,9 @@ import java.io.UnsupportedEncodingException
 import java.nio.charset.Charset
 
 
-class FileHandleWithDependencies(val file: FileHandle, val dependencies: ArrayList<FileHandle> = ArrayList()) {
+class FileHandleWithDependencies(val file: FileHandle,
+                                 val dependencies: ArrayList<FileHandle> = ArrayList(),
+                                 private val json: Json = Mundus.inject()) {
     // Holds all the images parsed from the GLTF file,
     var images = Array<FileHandle>()
 
@@ -52,11 +54,13 @@ class FileHandleWithDependencies(val file: FileHandle, val dependencies: ArrayLi
         file.copyTo(dest)
 
         dependencies.forEach { it.copyTo(dest) }
+
+        if (FileFormatUtils.isGLTF(file)) {
+            updateGLTFFileIfHasDependencies(dest)
+        }
     }
 
     private fun loadGLTFDependencies() {
-        val json = Mundus.inject<Json>()
-
         val dto = json.fromJson(GLTF::class.java, file)
 
         dto.materials?.filter { it.name != null }?.forEach {
@@ -140,5 +144,25 @@ class FileHandleWithDependencies(val file: FileHandle, val dependencies: ArrayLi
 
         // Assign the given attribute with the image index
         map[attribute] = imageIndex
+    }
+
+    /**
+     * Updates GLTF image uri to same directory with gltf file.
+     */
+    private fun updateGLTFFileIfHasDependencies(dest: FileHandle) {
+        // Move imaged from subdirectories to the root directory
+        val copiedFile = dest.child(file.name())
+
+        val dto = json.fromJson(GLTF::class.java, copiedFile)
+        var changed = false
+        dto.images?.forEach { it ->
+            if (it.uri.contains("/")) {
+                it.uri = it.uri.substringAfter("/")
+                changed = true
+            }
+        }
+        if (changed) {
+            json.toJson(dto, copiedFile)
+        }
     }
 }
