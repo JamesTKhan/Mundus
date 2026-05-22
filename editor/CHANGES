@@ -29,6 +29,7 @@
 - Update gdx-gltf version to 2.2.1
 - Fix gltf import when material has not name field
 - Fix gltf import when has alpha material attribute
+- Fix gltf import when texture is in subdirectory
 - Configurable shortcuts
 - Fix Terrain Cloning, now works as expected
 - Added optional ignore filter to GameObjectPicker
