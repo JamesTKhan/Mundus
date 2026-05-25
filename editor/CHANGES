@@ -10,7 +10,7 @@
 - Refactor outline drag and drop world to local conversion code when moving game objects
 - Updated kotlin to 2.1.21
 - Updated KTX to 1.13.1-rc1
-- Updated VisUI to 1.5.5
+- Updated VisUI to 1.5.8
 - Adjustable line (selection, wireframe, helper lines) width
 - Changed UV slider to SimpleFloatSpinner in PI/16 (11.25 degree) increments
 - Counter for helper lines
