@@ -29,6 +29,8 @@ import com.mbrlabs.mundus.commons.scene3d.GameObject;
 import com.mbrlabs.mundus.commons.scene3d.SceneGraph;
 import com.mbrlabs.mundus.commons.scene3d.components.Component;
 import com.mbrlabs.mundus.commons.scene3d.components.TerrainComponent;
+import com.mbrlabs.mundus.commons.terrain.TerrainStitcher;
+import com.mbrlabs.mundus.commons.utils.Pools;
 import com.mbrlabs.mundus.runtime.Shaders;
 import com.mbrlabs.mundus.commons.utils.AssetUtils;
 
@@ -149,6 +151,9 @@ public class GameObjectConverter {
                     final GameObject leftNeighbor = go.findChildById(leftNeighborId);
                     terrainComponent.setLeftNeighbor((TerrainComponent) leftNeighbor.findComponentByType(Component.Type.TERRAIN));
                 }
+
+                // We have to wait until all neighbors are set before stitching
+                TerrainStitcher.stitchNormals(terrainComponent, Pools.vector3Pool);
             }
         }
     }

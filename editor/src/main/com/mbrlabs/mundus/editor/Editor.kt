@@ -62,7 +62,6 @@ import com.mbrlabs.mundus.editorcommons.events.ProjectChangedEvent
 import com.mbrlabs.mundus.editorcommons.events.SceneChangedEvent
 import com.mbrlabs.mundus.pluginapi.AssetExtension
 import com.mbrlabs.mundus.pluginapi.CustomShaderRenderExtension
-import com.mbrlabs.mundus.pluginapi.DisposeExtension
 import com.mbrlabs.mundus.pluginapi.ToasterExtension
 import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter
 import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider
@@ -379,13 +378,8 @@ class Editor : Lwjgl3WindowAdapter(), ApplicationListener,
     override fun dispose() {
         debugRenderer.dispose()
 
-        pluginManager.getExtensions(DisposeExtension::class.java).forEach {
-            try {
-                it.dispose()
-            } catch (ex: Exception) {
-                Mundus.postEvent(LogEvent(LogType.ERROR, "Exception during dispose plugin! $ex"))
-            }
-        }
+        pluginManager.stopPlugins()
+        pluginManager.unloadPlugins()
 
         Mundus.dispose()
     }
